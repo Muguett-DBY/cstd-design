@@ -1,0 +1,11 @@
+html {
+  background: #fffaf1;
+}
+
+body {
+  min-height: 100svh;
+}
+
+a {
+  color: inherit;
+}

@@ -1,0 +1,14 @@
+name = "cstd-design"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-06-02"
+send_metrics = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cstd-design"
+database_id = "ea827046-af43-45ee-a150-35389a3355a7"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "cstd-design-media"

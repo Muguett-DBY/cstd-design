@@ -1,0 +1,8 @@
+cstd-design
+Copyright (c) 2026 Muguett-DBY
+
+This project is released under the MIT License.
+
+The chat interaction model was informed by common patterns in
+ChatGPTNextWeb/NextChat, which is released under the MIT License. This project
+does not fork NextChat and does not include its Next.js provider architecture.
