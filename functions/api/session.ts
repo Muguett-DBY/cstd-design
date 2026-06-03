@@ -1,4 +1,5 @@
 import { ensureSchema, json, login, logout, readJson, readSession, type PagesContext } from "../_shared/http";
+import { LoginRequestSchema, parseRequest } from "../_shared/validation";
 
 export async function onRequestGet({ request, env }: PagesContext) {
   const session = await readSession(request, env);
@@ -7,9 +8,9 @@ export async function onRequestGet({ request, env }: PagesContext) {
 
 export async function onRequestPost({ request, env }: PagesContext) {
   await ensureSchema(env.DB);
-  const body = await readJson<{ password?: string }>(request);
-  if (!body?.password) return json({ error: "请输入访问密码。" }, 400);
-  return login(request, env, body.password);
+  const parsed = parseRequest(LoginRequestSchema, await readJson(request));
+  if (!parsed.ok) return json({ error: "请输入访问密码。" }, 400);
+  return login(request, env, parsed.data.password);
 }
 
 export async function onRequestDelete({ request, env }: PagesContext) {

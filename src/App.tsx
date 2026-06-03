@@ -37,6 +37,11 @@ const tabs: { id: WorkspaceTab; label: string; icon: typeof MessageCircle }[] = 
   { id: "assets", label: "素材库", icon: Folder },
 ];
 
+const APP_NAME = "工作台";
+const ASSISTANT_NAME = "助手";
+const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
+const IMAGE_SIZES: ImageSize[] = ["1024x1024", "1024x768", "768x1024"];
+
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [booting, setBooting] = useState(true);
@@ -46,6 +51,7 @@ function App() {
   const [conversationQuery, setConversationQuery] = useState("");
   const [assets, setAssets] = useState<AssetItem[]>([]);
   const [notice, setNotice] = useState("");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const refreshConversations = useCallback(async (q = conversationQuery) => {
     const result = await api.conversations(q);
@@ -106,7 +112,10 @@ function App() {
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
-              <button key={tab.id} className={activeTab === tab.id ? "nav-item active" : "nav-item"} type="button" onClick={() => setActiveTab(tab.id)}>
+              <button key={tab.id} className={activeTab === tab.id ? "nav-item active" : "nav-item"} type="button" onClick={() => {
+                setActiveTab(tab.id);
+                setMobileSidebarOpen(false);
+              }}>
                 <Icon size={18} />
                 <span>{tab.label}</span>
               </button>
@@ -124,6 +133,7 @@ function App() {
                 const created = await api.createConversation();
                 await refreshConversations("");
                 await openConversation(created.conversation.id);
+                setMobileSidebarOpen(false);
               }}
             >
               <Plus size={18} />
@@ -135,7 +145,10 @@ function App() {
           </label>
           <div className="conversation-list">
             {conversations.map((item) => (
-              <button key={item.id} type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={() => openConversation(item.id)}>
+              <button key={item.id} type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={async () => {
+                await openConversation(item.id);
+                setMobileSidebarOpen(false);
+              }}>
                 <strong>{item.title}</strong>
                 <span>{new Date(item.updatedAt).toLocaleDateString("zh-CN")}</span>
               </button>
@@ -147,9 +160,64 @@ function App() {
           setAuthenticated(false);
         }} />
       </aside>
+      <aside className={mobileSidebarOpen ? "sidebar mobile-drawer open" : "sidebar mobile-drawer"} aria-hidden={!mobileSidebarOpen}>
+        <Brand />
+        <nav className="nav-list" aria-label="移动端主导航">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button key={tab.id} className={activeTab === tab.id ? "nav-item active" : "nav-item"} type="button" onClick={() => {
+                setActiveTab(tab.id);
+                setMobileSidebarOpen(false);
+              }}>
+                <Icon size={18} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+        <section className="conversation-panel">
+          <div className="panel-heading">
+            <span>会话列表</span>
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="新建会话"
+              onClick={async () => {
+                const created = await api.createConversation();
+                await refreshConversations("");
+                await openConversation(created.conversation.id);
+                setMobileSidebarOpen(false);
+              }}
+            >
+              <Plus size={18} />
+            </button>
+          </div>
+          <label className="search-box">
+            <Search size={16} />
+            <input value={conversationQuery} onChange={(event) => setConversationQuery(event.target.value)} placeholder="搜索会话" />
+          </label>
+          <div className="conversation-list">
+            {conversations.map((item) => (
+              <button key={item.id} type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={async () => {
+                await openConversation(item.id);
+                setMobileSidebarOpen(false);
+              }}>
+                <strong>{item.title}</strong>
+                <span>{new Date(item.updatedAt).toLocaleDateString("zh-CN")}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+        <UserFooter onLogout={async () => {
+          await api.logout();
+          setAuthenticated(false);
+        }} />
+      </aside>
+      {mobileSidebarOpen && <button type="button" className="mobile-backdrop" aria-label="关闭会话列表" onClick={() => setMobileSidebarOpen(false)} />}
 
       <main className="workspace">
-        <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />
         {notice && (
           <div className="notice">
             {notice}
@@ -249,8 +317,8 @@ function LoginPage({ onLogin }: { onLogin: (password: string) => Promise<void> }
     <main className="login-page">
       <section className="login-card">
         <img src="/brand/mascot.png" alt="" className="login-mascot" />
-        <h1>奶黄包</h1>
-        <p>你的专属工作台</p>
+        <h1>{APP_NAME}</h1>
+        <p>私人访问</p>
         <form
           onSubmit={async (event) => {
             event.preventDefault();
@@ -280,7 +348,7 @@ function Splash() {
   return (
     <div className="splash">
       <img src="/brand/mascot.png" alt="" />
-      <span>正在唤醒奶黄包...</span>
+      <span>正在进入{APP_NAME}...</span>
     </div>
   );
 }
@@ -290,8 +358,8 @@ function Brand() {
     <div className="brand">
       <img src="/brand/mascot.png" alt="" />
       <div>
-        <strong>奶黄包</strong>
-        <span>个人版</span>
+        <strong>{APP_NAME}</strong>
+        <span>私人空间</span>
       </div>
     </div>
   );
@@ -302,7 +370,7 @@ function UserFooter({ onLogout }: { onLogout: () => void }) {
     <div className="user-footer">
       <div className="mini-brand">
         <img src="/brand/mascot.png" alt="" />
-        <span>奶黄包</span>
+        <span>{APP_NAME}</span>
       </div>
       <button type="button" className="icon-button" onClick={onLogout} aria-label="退出登录">
         <LogOut size={17} />
@@ -311,10 +379,14 @@ function UserFooter({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-function TopBar({ activeTab, onTabChange }: { activeTab: WorkspaceTab; onTabChange: (tab: WorkspaceTab) => void }) {
+function TopBar({ activeTab, onTabChange, onOpenSidebar }: { activeTab: WorkspaceTab; onTabChange: (tab: WorkspaceTab) => void; onOpenSidebar: () => void }) {
   const active = tabs.find((tab) => tab.id === activeTab);
   return (
     <header className="top-bar">
+      <button type="button" className="mobile-menu-button" onClick={onOpenSidebar}>
+        <MessageCircle size={18} />
+        会话
+      </button>
       <div>
         <h2>{active?.label || "咨询"}</h2>
         <p>{activeTab === "chat" ? "安静地问，清楚地答。" : activeTab === "image" ? "输入想法，生成一张图。" : activeTab === "video" ? "页面保持打开，等待视频完成。" : "管理你的上传和作品。"}</p>
@@ -355,7 +427,6 @@ function ChatWorkspace({
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const pendingAssistantRef = useRef<string | null>(null);
-  const titleInput = useRef<HTMLInputElement | null>(null);
 
   const sendContent = async (content: string, parentId: string | null) => {
     if (!content || streaming) return;
@@ -364,6 +435,26 @@ function ChatWorkspace({
     const abort = new AbortController();
     abortRef.current = abort;
     let conversationId = conversation?.id;
+    let queuedDelta = "";
+    let frame: number | null = null;
+    const flushQueuedDelta = () => {
+      frame = null;
+      if (!queuedDelta) return;
+      const assistantMessageId = pendingAssistantRef.current;
+      if (!assistantMessageId) {
+        queuedDelta = "";
+        return;
+      }
+      onStreamEvent({ type: "delta", assistantMessageId, content: queuedDelta }, content);
+      queuedDelta = "";
+    };
+    const flushQueuedDeltaNow = () => {
+      if (frame !== null) {
+        window.cancelAnimationFrame(frame);
+        frame = null;
+      }
+      flushQueuedDelta();
+    };
     try {
       await streamChat(
         { conversationId, parentId, content },
@@ -373,14 +464,24 @@ function ChatWorkspace({
             if (event.type === "meta") {
               conversationId = event.conversationId;
               pendingAssistantRef.current = event.assistantMessageId;
+              onStreamEvent(event, content);
+              return;
             }
-            const enriched = event.type === "delta" || event.type === "done" || event.type === "error" ? { ...event, assistantMessageId: event.assistantMessageId || pendingAssistantRef.current || "" } : event;
-            onStreamEvent(enriched, content);
+            if (event.type === "delta") {
+              pendingAssistantRef.current = event.assistantMessageId || pendingAssistantRef.current;
+              queuedDelta += event.content;
+              if (frame === null) frame = window.requestAnimationFrame(flushQueuedDelta);
+              return;
+            }
+            flushQueuedDeltaNow();
+            onStreamEvent({ ...event, assistantMessageId: event.assistantMessageId || pendingAssistantRef.current || "" }, content);
           },
         },
       );
+      flushQueuedDeltaNow();
       if (conversationId) await afterSend(conversationId);
     } catch (error) {
+      flushQueuedDeltaNow();
       if (abort.signal.aborted && pendingAssistantRef.current) {
         onStreamEvent({ type: "error", assistantMessageId: pendingAssistantRef.current, error: "已停止" }, content);
       } else {
@@ -407,12 +508,14 @@ function ChatWorkspace({
     <section className="chat-layout">
       <div className="chat-main">
         <div className="chat-title-row">
-          <input
-            ref={titleInput}
-            className="title-input"
-            value={conversation?.title || "新会话"}
-            onChange={(event) => conversation && onRename(event.target.value)}
+          <ConversationTitleInput
+            key={conversation?.id || "new"}
+            title={conversation?.title || "新会话"}
             disabled={!conversation}
+            onCommit={async (title) => {
+              if (!conversation || title === conversation.title) return;
+              await onRename(title);
+            }}
           />
           <div className="row-actions">
             <button type="button" className="ghost-button" onClick={onCreate}>
@@ -426,14 +529,14 @@ function ChatWorkspace({
 
         <div className="messages">
           {messages.length === 0 ? (
-            <EmptyState title="可以开始问了" text="这里不会显示供应商信息，只保留你的私人会话。" />
+            <EmptyState title="可以开始问了" text="这里只保留你的私人会话，不显示内部服务信息。" />
           ) : (
             messages.map((message) => (
               <article key={message.id} className={`message ${message.role}`}>
                 <div className="avatar">{message.role === "assistant" ? <img src="/brand/mascot.png" alt="" /> : <Bot size={18} />}</div>
                 <div className="message-body">
                   <div className="message-meta">
-                    <span>{message.role === "assistant" ? "奶黄包" : "你"}</span>
+                    <span>{message.role === "assistant" ? ASSISTANT_NAME : "你"}</span>
                     {message.status === "streaming" && <em>正在生成...</em>}
                     {message.status === "interrupted" && <em>已中断</em>}
                   </div>
@@ -507,9 +610,38 @@ function ChatWorkspace({
   );
 }
 
+function ConversationTitleInput({ title, disabled, onCommit }: { title: string; disabled: boolean; onCommit: (title: string) => Promise<void> }) {
+  const [draft, setDraft] = useState(title);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const commit = async () => {
+    const nextTitle = draft.trim();
+    if (!nextTitle) {
+      setDraft(title);
+      return;
+    }
+    await onCommit(nextTitle);
+  };
+  return (
+    <input
+      ref={inputRef}
+      className="title-input"
+      value={draft}
+      onChange={(event) => setDraft(event.target.value)}
+      onBlur={() => void commit()}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          inputRef.current?.blur();
+        }
+      }}
+      disabled={disabled}
+    />
+  );
+}
+
 function ImageWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void }) {
   const [prompt, setPrompt] = useState("");
-  const [size, setSize] = useState<ImageSize>(() => (localStorage.getItem("naihuangbao:imageSize") as ImageSize) || "1024x1024");
+  const [size, setSize] = useState<ImageSize>(() => readStoredImageSize());
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const imageAssets = filterAssets(assets, "image");
@@ -517,7 +649,7 @@ function ImageWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetIt
   const generate = async () => {
     setLoading(true);
     try {
-      localStorage.setItem("naihuangbao:imageSize", size);
+      localStorage.setItem(IMAGE_SIZE_STORAGE_KEY, size);
       const result = await api.generateImage({ prompt, size, referenceAssetIds: referenceIds });
       onNotice(`图片已保存到素材库：${result.asset.filename}`);
       setPrompt("");
@@ -886,6 +1018,11 @@ function EmptyState({ title, text }: { title: string; text: string }) {
 function branchLeaves(messages: ChatMessage[]) {
   const parents = new Set(messages.map((message) => message.parentId).filter(Boolean));
   return messages.filter((message) => message.role === "assistant" && !parents.has(message.id));
+}
+
+function readStoredImageSize() {
+  const stored = localStorage.getItem(IMAGE_SIZE_STORAGE_KEY);
+  return IMAGE_SIZES.includes(stored as ImageSize) ? (stored as ImageSize) : "1024x1024";
 }
 
 function showError(setNotice: (message: string) => void) {

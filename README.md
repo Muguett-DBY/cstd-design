@@ -1,6 +1,6 @@
 # cstd-design
 
-`cstd-design` 是个人使用的中文 AI 工作台，站点名称为“奶黄包”。前端使用 React + Vite，后端使用 Cloudflare Pages Functions，数据保存在 D1，媒体文件保存在私有 R2。
+`cstd-design` 是个人使用的中文创作工作台。前端使用 React + Vite，后端使用 Cloudflare Pages Functions，数据保存在 D1，媒体文件保存在私有 R2。
 
 ## 功能
 
@@ -21,7 +21,7 @@
 
 运行时 Secrets：
 
-- `AGNES_API_KEY`
+- `UPSTREAM_API_KEY`
 - `APP_PASSWORD_HASH`
 - `SESSION_SECRET`
 - `LOGIN_HASH_SECRET`

@@ -16,8 +16,8 @@ export class AgnesClient {
     this.fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
   }
 
-  async chat(messages: { role: "user" | "assistant"; content: string }[]) {
-    return this.post("/chat/completions", buildChatCompletionPayload(messages, true));
+  async chat(messages: { role: "user" | "assistant"; content: string }[], options?: { signal?: AbortSignal }) {
+    return this.post("/chat/completions", buildChatCompletionPayload(messages, true), options);
   }
 
   async image(input: ImageGenerationInput) {
@@ -44,11 +44,12 @@ export class AgnesClient {
     return response;
   }
 
-  private post(path: string, body: unknown) {
+  private post(path: string, body: unknown, options?: { signal?: AbortSignal }) {
     return this.request(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+      signal: options?.signal,
     });
   }
 

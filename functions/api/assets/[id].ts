@@ -1,4 +1,5 @@
 import { assetById, json, requireSession, type PagesContext } from "../../_shared/http";
+import { contentDisposition, safeMediaType } from "../../_shared/media";
 
 export async function onRequestGet({ request, env, params }: PagesContext) {
   const auth = await requireSession(request, env);
@@ -9,9 +10,10 @@ export async function onRequestGet({ request, env, params }: PagesContext) {
   if (!object) return json({ error: "文件不存在。" }, 404);
   return new Response(object.body, {
     headers: {
-      "Content-Type": asset.media_type,
-      "Content-Disposition": new URL(request.url).searchParams.get("download") ? `attachment; filename="${asset.filename}"` : "inline",
+      "Content-Type": safeMediaType(asset.media_type),
+      "Content-Disposition": contentDisposition(asset.filename, !!new URL(request.url).searchParams.get("download")),
       "Cache-Control": "private, max-age=300",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

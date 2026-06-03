@@ -1,9 +1,10 @@
-import { clearSessionCookie, createSessionCookie, hashClientFingerprint, hashSessionToken, isThrottleAllowed, nextThrottleState, parseSessionCookie, randomBase64Url, verifyPasswordHash } from "./security";
+import { clearSessionCookie, createSessionCookie, hashClientFingerprint, hashSessionToken, hmacSha256Base64Url, isThrottleAllowed, nextThrottleState, parseSessionCookie, randomBase64Url, verifyPasswordHash } from "./security";
 
 export interface Env {
   DB: D1Database;
   MEDIA_BUCKET: R2Bucket;
-  AGNES_API_KEY: string;
+  UPSTREAM_API_KEY?: string;
+  AGNES_API_KEY?: string;
   APP_PASSWORD_HASH: string;
   SESSION_SECRET: string;
   LOGIN_HASH_SECRET: string;
@@ -32,6 +33,10 @@ export function unauthorized() {
   return json({ error: "请先登录。" }, 401);
 }
 
+export function upstreamApiKey(env: Env) {
+  return env.UPSTREAM_API_KEY || env.AGNES_API_KEY || "";
+}
+
 export async function ensureSchema(db: D1Database) {
   await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS auth_sessions (
@@ -45,6 +50,12 @@ export async function ensureSchema(db: D1Database) {
       fingerprint TEXT PRIMARY KEY,
       failures INTEGER NOT NULL,
       allowed_at INTEGER NOT NULL,
+      updated_at TEXT NOT NULL
+    )`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS api_rate_limits (
+      fingerprint TEXT PRIMARY KEY,
+      count INTEGER NOT NULL,
+      reset_at INTEGER NOT NULL,
       updated_at TEXT NOT NULL
     )`),
     db.prepare(`CREATE TABLE IF NOT EXISTS conversations (
@@ -66,6 +77,7 @@ export async function ensureSchema(db: D1Database) {
       updated_at TEXT NOT NULL
     )`),
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages (conversation_id, created_at)`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_conversations_updated ON conversations (deleted_at, updated_at)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS assets (
       id TEXT PRIMARY KEY,
       kind TEXT NOT NULL CHECK (kind IN ('upload', 'image', 'video')),
@@ -75,6 +87,7 @@ export async function ensureSchema(db: D1Database) {
       size INTEGER NOT NULL,
       created_at TEXT NOT NULL
     )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_assets_kind_created ON assets (kind, created_at)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS video_tasks (
       id TEXT PRIMARY KEY,
       provider_task_id TEXT NOT NULL,
@@ -83,6 +96,7 @@ export async function ensureSchema(db: D1Database) {
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_video_tasks_active ON video_tasks (asset_id, status, created_at)`),
   ]);
 }
 
@@ -147,6 +161,28 @@ export async function requireSession(request: Request, env: Env) {
   const session = await readSession(request, env);
   if (!session) return { session: null, response: unauthorized() };
   return { session, response: null };
+}
+
+export async function enforceRateLimit(env: Env, identity: string, scope: string, limit: number, windowMs: number) {
+  await ensureSchema(env.DB);
+  const now = Date.now();
+  const fingerprint = await hmacSha256Base64Url(env.LOGIN_HASH_SECRET || env.SESSION_SECRET, `api:${scope}:${identity}`);
+  const current = await env.DB.prepare(`SELECT fingerprint, count, reset_at as resetAt FROM api_rate_limits WHERE fingerprint = ?1`)
+    .bind(fingerprint)
+    .first<{ fingerprint: string; count: number; resetAt: number }>();
+  const nextCount = !current || current.resetAt <= now ? 1 : current.count + 1;
+  const resetAt = !current || current.resetAt <= now ? now + windowMs : current.resetAt;
+  if (current && current.resetAt > now && current.count >= limit) {
+    return json({ error: "请求过于频繁，请稍后重试。" }, 429);
+  }
+  await env.DB.prepare(
+    `INSERT INTO api_rate_limits (fingerprint, count, reset_at, updated_at)
+     VALUES (?1, ?2, ?3, ?4)
+     ON CONFLICT(fingerprint) DO UPDATE SET count = excluded.count, reset_at = excluded.reset_at, updated_at = excluded.updated_at`,
+  )
+    .bind(fingerprint, nextCount, resetAt, new Date(now).toISOString())
+    .run();
+  return null;
 }
 
 export async function logout(request: Request, env: Env) {

@@ -47,6 +47,16 @@ button {
   cursor: pointer;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(167, 101, 15, 0.55);
+  outline-offset: 3px;
+}
+
 button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -81,6 +91,12 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.mobile-drawer,
+.mobile-backdrop,
+.mobile-menu-button {
+  display: none;
 }
 
 .brand,
@@ -261,6 +277,17 @@ button:disabled {
   justify-content: space-between;
   gap: 20px;
   align-items: center;
+}
+
+.mobile-menu-button {
+  border: 1px solid var(--line);
+  background: #fffaf0;
+  color: var(--text);
+  border-radius: 14px;
+  min-height: 38px;
+  padding: 0 12px;
+  align-items: center;
+  gap: 7px;
 }
 
 .top-bar h2 {
@@ -928,6 +955,26 @@ button:disabled {
     display: none;
   }
 
+  .mobile-drawer.open {
+    position: fixed;
+    inset: 12px 12px 92px;
+    z-index: 31;
+    min-height: 0;
+    max-height: calc(100svh - 104px);
+    display: flex;
+    overflow: hidden;
+  }
+
+  .mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: block;
+    border: none;
+    border-radius: 0;
+    background: rgba(56, 35, 24, 0.2);
+  }
+
   .workspace {
     min-height: calc(100svh - 86px);
     border: none;
@@ -936,6 +983,13 @@ button:disabled {
 
   .top-bar {
     padding: 18px 18px 12px;
+    align-items: flex-start;
+  }
+
+  .mobile-menu-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin-top: 2px;
   }
 
   .top-actions {

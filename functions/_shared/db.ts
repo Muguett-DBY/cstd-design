@@ -1,5 +1,6 @@
 import type { ChatMessageNode } from "./chat-tree";
 import type { Env } from "./http";
+import { sanitizeAssistantContent } from "./provider";
 
 export async function createConversation(env: Env, title = "新会话") {
   const id = crypto.randomUUID();
@@ -35,7 +36,12 @@ export async function readConversation(env: Env, id: string) {
   )
     .bind(id)
     .all<ChatMessageNode>();
-  return { ...conversation, messages: messages.results || [] };
+  return {
+    ...conversation,
+    messages: (messages.results || []).map((message) =>
+      message.role === "assistant" ? { ...message, content: sanitizeAssistantContent(message.content) } : message,
+    ),
+  };
 }
 
 export async function renameConversation(env: Env, id: string, title: string) {

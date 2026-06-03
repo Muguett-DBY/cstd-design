@@ -13,6 +13,7 @@ dist-ssr
 *.local
 *.tsbuildinfo
 .wrangler
+.opencode
 .dev.vars
 .dev.vars.*
 !.dev.vars.example

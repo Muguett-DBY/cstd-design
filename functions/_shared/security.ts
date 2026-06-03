@@ -1,7 +1,7 @@
 const PASSWORD_ALGORITHM = "pbkdf2-sha256";
 const DEFAULT_PASSWORD_ITERATIONS = 100_000;
 const SESSION_TTL_SECONDS = 31_536_000;
-const COOKIE_NAME = "naihuangbao_session";
+const COOKIE_NAME = "cstd_design_session";
 
 export interface ThrottleState {
   fingerprint: string;

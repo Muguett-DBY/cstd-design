@@ -2,20 +2,19 @@ import { buildActiveBranch } from "../_shared/chat-tree";
 import { createConversation, insertMessage, readConversation, titleFromPrompt, updateMessageContent } from "../_shared/db";
 import { AgnesClient } from "../_shared/agnes";
 import { selectMessagesForContext } from "../_shared/context";
-import { badRequest, json, readJson, requireSession, type PagesContext } from "../_shared/http";
-
-interface ChatRequest {
-  conversationId?: string;
-  parentId?: string | null;
-  content?: string;
-}
+import { badRequest, enforceRateLimit, json, readJson, requireSession, upstreamApiKey, type PagesContext } from "../_shared/http";
+import { sanitizeAssistantContent, toClientError } from "../_shared/provider";
+import { ChatRequestSchema, parseRequest } from "../_shared/validation";
 
 export async function onRequestPost({ request, env }: PagesContext) {
   const auth = await requireSession(request, env);
   if (auth.response) return auth.response;
-  const body = await readJson<ChatRequest>(request);
-  const content = body?.content?.trim();
-  if (!content) return badRequest("请输入问题。");
+  const limited = await enforceRateLimit(env, auth.session.sessionId, "chat", 60, 60_000);
+  if (limited) return limited;
+  const parsed = parseRequest(ChatRequestSchema, await readJson(request));
+  if (!parsed.ok) return badRequest(parsed.error);
+  const body = parsed.data;
+  const content = body.content;
 
   let conversationId: string;
   let current;
@@ -34,20 +33,31 @@ export async function onRequestPost({ request, env }: PagesContext) {
   const refreshed = await readConversation(env, conversationId);
   const branch = buildActiveBranch(refreshed?.messages || [], userMessage.id).map((message) => ({ role: message.role, content: message.content }));
   const selected = selectMessagesForContext(branch, 240_000);
-  const client = new AgnesClient({ apiKey: env.AGNES_API_KEY });
+  const client = new AgnesClient({ apiKey: upstreamApiKey(env) });
 
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();
   const encoder = new TextEncoder();
   let accumulated = "";
+  let pendingRaw = "";
 
   void (async () => {
     const writeEvent = async (event: unknown) => {
       await writer.write(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
     };
+    const flushSafeDelta = async (force = false) => {
+      const holdback = 64;
+      if (!force && pendingRaw.length <= holdback) return;
+      const emitSource = force ? pendingRaw : pendingRaw.slice(0, -holdback);
+      pendingRaw = force ? "" : pendingRaw.slice(-holdback);
+      const delta = sanitizeAssistantContent(emitSource);
+      if (!delta) return;
+      accumulated += delta;
+      await writeEvent({ type: "delta", assistantMessageId: assistant.id, content: delta });
+    };
     try {
       await writeEvent({ type: "meta", conversationId, userMessageId: userMessage.id, assistantMessageId: assistant.id, truncated: selected.truncated });
-      const upstream = await client.chat(selected.messages);
+      const upstream = await client.chat(selected.messages, { signal: request.signal });
       if (!upstream.body) throw new Error("服务没有返回流式内容。");
       const reader = upstream.body.getReader();
       const decoder = new TextDecoder();
@@ -64,20 +74,22 @@ export async function onRequestPost({ request, env }: PagesContext) {
           if (!data || data === "[DONE]") continue;
           try {
             const parsed = JSON.parse(data) as { choices?: { delta?: { content?: string }; message?: { content?: string } }[] };
-            const delta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || "";
-            if (delta) {
-              accumulated += delta;
-              await writeEvent({ type: "delta", assistantMessageId: assistant.id, content: delta });
+            const rawDelta = parsed.choices?.[0]?.delta?.content || parsed.choices?.[0]?.message?.content || "";
+            if (rawDelta) {
+              pendingRaw += rawDelta;
+              await flushSafeDelta();
             }
           } catch {
             // Ignore provider keepalive or partial event lines.
           }
         }
       }
+      await flushSafeDelta(true);
       await updateMessageContent(env, assistant.id, accumulated, "complete");
       await writeEvent({ type: "done", assistantMessageId: assistant.id });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "生成失败，请稍后重试。";
+      await flushSafeDelta(true);
+      const message = toClientError(error);
       await updateMessageContent(env, assistant.id, accumulated || message, accumulated ? "interrupted" : "complete");
       await writeEvent({ type: "error", assistantMessageId: assistant.id, error: message });
     } finally {

@@ -9,16 +9,24 @@ import {
 import { buildActiveBranch, type ChatMessageNode } from "./chat-tree";
 import { selectMessagesForContext } from "./context";
 import {
+  contentDisposition,
   createAssetCapabilityToken,
+  publicFilename,
+  safeMediaType,
+  sanitizeFilename,
   verifyAssetCapabilityToken,
   validateUpload,
 } from "./media";
 import {
+  buildChatCompletionPayload,
   buildImageGenerationPayload,
   buildVideoCreationPayload,
   normalizeProviderError,
   normalizeVideoTask,
+  sanitizeAssistantContent,
+  toClientError,
 } from "./provider";
+import { ChatRequestSchema, ImageRequestSchema, parseRequest, VideoRequestSchema } from "./validation";
 
 describe("security", () => {
   test("hashes passwords with salt and verifies only the original value", async () => {
@@ -32,7 +40,7 @@ describe("security", () => {
   test("creates a one-year secure session cookie", () => {
     const cookie = createSessionCookie("session-id", "token-value", true);
 
-    expect(cookie).toContain("naihuangbao_session=session-id.token-value");
+    expect(cookie).toContain("cstd_design_session=session-id.token-value");
     expect(cookie).toContain("HttpOnly");
     expect(cookie).toContain("Secure");
     expect(cookie).toContain("SameSite=Lax");
@@ -81,6 +89,13 @@ describe("chat tree and context", () => {
 });
 
 describe("media and provider contracts", () => {
+  test("rejects unsafe or unsupported request shapes", () => {
+    expect(parseRequest(ChatRequestSchema, { content: "你好", extra: true }).ok).toBe(false);
+    expect(parseRequest(ImageRequestSchema, { prompt: "图", referenceAssetIds: new Array(5).fill("00000000-0000-4000-8000-000000000000") }).ok).toBe(false);
+    expect(parseRequest(VideoRequestSchema, { prompt: "视频", width: 1, height: 1 }).ok).toBe(false);
+    expect(parseRequest(VideoRequestSchema, { prompt: "视频", width: 1152, height: 768 }).ok).toBe(true);
+  });
+
   test("validates upload count, type and size", () => {
     expect(validateUpload([{ name: "a.png", type: "image/png", size: 1024 }], { maxCount: 4 })).toEqual({ ok: true });
     expect(validateUpload(new Array(5).fill({ name: "a.png", type: "image/png", size: 1024 }), { maxCount: 4 })).toEqual({
@@ -100,7 +115,19 @@ describe("media and provider contracts", () => {
     await expect(verifyAssetCapabilityToken("assets/other.png", 1_700_000_001, token, "secret")).resolves.toBe(false);
   });
 
+  test("serves media through a whitelist and safe filenames", () => {
+    expect(safeMediaType("text/html")).toBe("application/octet-stream");
+    expect(safeMediaType("IMAGE/PNG; charset=utf-8")).toBe("image/png");
+    expect(sanitizeFilename("../坏:file.png")).toBe("坏_file.png");
+    expect(publicFilename("naihuangbao-1.png")).toBe("asset-1.png");
+    expect(contentDisposition("坏:file.png", true)).toContain("filename*=UTF-8''");
+  });
+
   test("builds provider payloads without public-facing provider details", () => {
+    const chatPayload = buildChatCompletionPayload([{ role: "user", content: "你是谁？" }]);
+    expect(chatPayload.messages[0]).toMatchObject({ role: "system" });
+    expect(JSON.stringify(chatPayload.messages[0])).not.toContain("Agnes");
+
     expect(
       buildImageGenerationPayload({
         prompt: "一只猫",
@@ -125,6 +152,8 @@ describe("media and provider contracts", () => {
   test("normalizes upstream errors and video task states for the UI", () => {
     expect(normalizeProviderError(401, "Unauthorized: bad api key")).toBe("服务鉴权失败，请检查后台配置。");
     expect(normalizeProviderError(503, "busy")).toBe("服务当前繁忙，请稍后重试。");
+    expect(toClientError(new Error("stack trace: token=secret"))).toBe("生成失败，请稍后重试。");
+    expect(sanitizeAssistantContent("你好，我是 Agnes-2.0-Flash，由 Sapiens AI 开发。")).not.toMatch(/Agnes|Sapiens/i);
     expect(normalizeVideoTask({ id: "task_1", status: "completed", progress: 100, video_url: "https://x/y.mp4" })).toEqual({
       id: "task_1",
       status: "completed",
