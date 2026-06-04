@@ -42,6 +42,7 @@ const ASSISTANT_NAME = "助手";
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
 const IMAGE_SIZES: ImageSize[] = ["1024x1024", "1024x768", "768x1024"];
 const CLEAR_LABELS: Record<ClearScope, string> = {
+  all: "全部内容",
   chat: "全部咨询会话",
   image: "全部生成图片",
   video: "全部视频任务和视频素材",
@@ -79,11 +80,11 @@ function App() {
     const label = CLEAR_LABELS[scope];
     if (!window.confirm(`确认永久清空${label}？这个操作会删除数据库记录和相关文件，不能恢复。`)) return;
     const result = await api.clearScope(scope);
-    if (scope === "chat") {
+    if (scope === "chat" || scope === "all") {
       setConversation(null);
       await refreshConversations("");
     }
-    if (scope === "image" || scope === "video" || scope === "assets") {
+    if (scope === "image" || scope === "video" || scope === "assets" || scope === "all") {
       await refreshAssets();
     }
     setNotice(`已清空${label}：会话 ${result.deleted.conversations}，消息 ${result.deleted.messages}，素材 ${result.deleted.assets}，视频任务 ${result.deleted.videoTasks}。`);
@@ -307,7 +308,7 @@ function App() {
               await refreshConversations("");
               await openConversation(conversationId);
             }}
-            onClearAll={() => clearScope("chat")}
+            onClearAll={() => clearScope("all")}
           />
         )}
         {activeTab === "image" && <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={setNotice} onClearAll={() => clearScope("image")} />}

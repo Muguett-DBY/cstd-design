@@ -178,7 +178,7 @@ describe("clear-all scope contracts", () => {
     expect(normalizeClearScope("image")).toBe("image");
     expect(normalizeClearScope("video")).toBe("video");
     expect(normalizeClearScope("assets")).toBe("assets");
-    expect(normalizeClearScope("all")).toBeNull();
+    expect(normalizeClearScope("all")).toBe("all");
   });
 
   test("maps clear scopes to the database asset kinds they remove", () => {
@@ -186,5 +186,6 @@ describe("clear-all scope contracts", () => {
     expect(assetKindsForClearScope("image")).toEqual(["image"]);
     expect(assetKindsForClearScope("video")).toEqual(["video"]);
     expect(assetKindsForClearScope("assets")).toEqual(["upload", "image", "video"]);
+    expect(assetKindsForClearScope("all")).toEqual(["upload", "image", "video"]);
   });
 });

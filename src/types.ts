@@ -1,5 +1,5 @@
 export type WorkspaceTab = "chat" | "image" | "video" | "assets";
-export type ClearScope = WorkspaceTab;
+export type ClearScope = WorkspaceTab | "all";
 
 export interface ConversationSummary {
   id: string;

@@ -1,9 +1,9 @@
 import type { Env } from "./http";
 
-export type ClearScope = "chat" | "image" | "video" | "assets";
+export type ClearScope = "chat" | "image" | "video" | "assets" | "all";
 export type AssetKind = "upload" | "image" | "video";
 
-const SCOPES = new Set<ClearScope>(["chat", "image", "video", "assets"]);
+const SCOPES = new Set<ClearScope>(["chat", "image", "video", "assets", "all"]);
 
 export function normalizeClearScope(value: string | null): ClearScope | null {
   return value && SCOPES.has(value as ClearScope) ? (value as ClearScope) : null;
@@ -12,7 +12,7 @@ export function normalizeClearScope(value: string | null): ClearScope | null {
 export function assetKindsForClearScope(scope: ClearScope): AssetKind[] {
   if (scope === "image") return ["image"];
   if (scope === "video") return ["video"];
-  if (scope === "assets") return ["upload", "image", "video"];
+  if (scope === "assets" || scope === "all") return ["upload", "image", "video"];
   return [];
 }
 
@@ -25,14 +25,14 @@ export async function clearWorkspaceScope(env: Env, scope: ClearScope) {
     r2Objects: 0,
   };
 
-  if (scope === "chat") {
+  if (scope === "chat" || scope === "all") {
     result.messages = await countRows(env, "messages");
     result.conversations = await countRows(env, "conversations");
     await env.DB.batch([env.DB.prepare(`DELETE FROM messages`), env.DB.prepare(`DELETE FROM conversations`)]);
-    return result;
+    if (scope === "chat") return result;
   }
 
-  if (scope === "video" || scope === "assets") {
+  if (scope === "video" || scope === "assets" || scope === "all") {
     result.videoTasks = await countRows(env, "video_tasks");
     await env.DB.prepare(`DELETE FROM video_tasks`).run();
   }
@@ -45,6 +45,7 @@ export async function clearWorkspaceScope(env: Env, scope: ClearScope) {
   if (kinds.length) {
     const placeholders = kinds.map((_, index) => `?${index + 1}`).join(", ");
     await env.DB.prepare(`DELETE FROM assets WHERE kind IN (${placeholders})`).bind(...kinds).run();
+    return result;
   }
 
   return result;
