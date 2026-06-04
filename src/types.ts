@@ -1,4 +1,5 @@
 export type WorkspaceTab = "chat" | "image" | "video" | "assets";
+export type ClearScope = WorkspaceTab;
 
 export interface ConversationSummary {
   id: string;

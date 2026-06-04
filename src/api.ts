@@ -1,4 +1,4 @@
-import type { AssetItem, ChatStreamEvent, ConversationDetail, ConversationSummary, ImageSize, VideoPreset } from "./types";
+import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, ImageSize, VideoPreset } from "./types";
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -36,6 +36,7 @@ export const api = {
     requestJson<{ task: { id: string; status: string; progress: number } }>("/api/videos", { method: "POST", body: JSON.stringify(input) }),
   videoTask: (id: string) => requestJson<{ task: { id: string; status: string; progress: number; assetId?: string; assetUrl?: string } }>(`/api/videos/${id}`),
   abandonVideo: (id: string) => requestJson<{ ok: true }>(`/api/videos/${id}`, { method: "DELETE" }),
+  clearScope: (scope: ClearScope) => requestJson<{ ok: true; deleted: { conversations: number; messages: number; assets: number; videoTasks: number; r2Objects: number } }>(`/api/clear/${scope}`, { method: "DELETE" }),
 };
 
 export async function streamChat(

@@ -28,7 +28,7 @@ import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import { api, streamChat } from "./api";
 import { appendChatEvent, buildActiveBranch, filterAssets, formatBytes, initialChatDraft, videoPresetToRequest } from "./app-state";
-import type { AssetFilter, AssetItem, ChatMessage, ChatStreamEvent, ConversationDetail, ConversationSummary, ImageSize, VideoPreset, WorkspaceTab } from "./types";
+import type { AssetFilter, AssetItem, ChatMessage, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, ImageSize, VideoPreset, WorkspaceTab } from "./types";
 
 const tabs: { id: WorkspaceTab; label: string; icon: typeof MessageCircle }[] = [
   { id: "chat", label: "咨询", icon: MessageCircle },
@@ -41,6 +41,12 @@ const APP_NAME = "工作台";
 const ASSISTANT_NAME = "助手";
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
 const IMAGE_SIZES: ImageSize[] = ["1024x1024", "1024x768", "768x1024"];
+const CLEAR_LABELS: Record<ClearScope, string> = {
+  chat: "全部咨询会话",
+  image: "全部生成图片",
+  video: "全部视频任务和视频素材",
+  assets: "素材库全部文件",
+};
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -68,6 +74,20 @@ function App() {
     setConversation(result.conversation);
     setActiveTab("chat");
   }, []);
+
+  const clearScope = useCallback(async (scope: ClearScope) => {
+    const label = CLEAR_LABELS[scope];
+    if (!window.confirm(`确认永久清空${label}？这个操作会删除数据库记录和相关文件，不能恢复。`)) return;
+    const result = await api.clearScope(scope);
+    if (scope === "chat") {
+      setConversation(null);
+      await refreshConversations("");
+    }
+    if (scope === "image" || scope === "video" || scope === "assets") {
+      await refreshAssets();
+    }
+    setNotice(`已清空${label}：会话 ${result.deleted.conversations}，消息 ${result.deleted.messages}，素材 ${result.deleted.assets}，视频任务 ${result.deleted.videoTasks}。`);
+  }, [refreshAssets, refreshConversations]);
 
   useEffect(() => {
     api
@@ -287,11 +307,12 @@ function App() {
               await refreshConversations("");
               await openConversation(conversationId);
             }}
+            onClearAll={() => clearScope("chat")}
           />
         )}
-        {activeTab === "image" && <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={setNotice} />}
-        {activeTab === "video" && <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={setNotice} />}
-        {activeTab === "assets" && <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} />}
+        {activeTab === "image" && <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={setNotice} onClearAll={() => clearScope("image")} />}
+        {activeTab === "video" && <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={setNotice} onClearAll={() => clearScope("video")} />}
+        {activeTab === "assets" && <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} />}
       </main>
 
       <nav className="mobile-tabs" aria-label="移动端导航">
@@ -412,6 +433,7 @@ function ChatWorkspace({
   onBranch,
   onStreamEvent,
   afterSend,
+  onClearAll,
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -422,6 +444,7 @@ function ChatWorkspace({
   onBranch: (leafId: string) => Promise<void>;
   onStreamEvent: (event: ChatStreamEvent, pendingContent: string) => void;
   afterSend: (conversationId: string) => Promise<void>;
+  onClearAll: () => Promise<void>;
 }) {
   const [draft, setDraft] = useState(initialChatDraft());
   const [streaming, setStreaming] = useState(false);
@@ -524,6 +547,7 @@ function ChatWorkspace({
             <button type="button" className="ghost-button danger" onClick={onDelete} disabled={!conversation}>
               <Trash2 size={16} /> 删除
             </button>
+            <ClearAllButton label="清空全部" onClear={onClearAll} />
           </div>
         </div>
 
@@ -639,7 +663,7 @@ function ConversationTitleInput({ title, disabled, onCommit }: { title: string; 
   );
 }
 
-function ImageWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void }) {
+function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void> }) {
   const [prompt, setPrompt] = useState("");
   const [size, setSize] = useState<ImageSize>(() => readStoredImageSize());
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
@@ -664,7 +688,13 @@ function ImageWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetIt
   return (
     <section className="tool-grid">
       <div className="tool-card">
-        <h3>生成一张图片</h3>
+        <div className="tool-card-heading">
+          <h3>生成一张图片</h3>
+          <ClearAllButton label="清空图片" onClear={async () => {
+            await onClearAll();
+            setReferenceIds([]);
+          }} />
+        </div>
         <p>每次生成 1 张。选择参考图时会走图生图或多图合成。</p>
         <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="描述你想要的画面..." />
         <Segmented<ImageSize>
@@ -687,7 +717,7 @@ function ImageWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetIt
   );
 }
 
-function VideoWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void }) {
+function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void> }) {
   const [prompt, setPrompt] = useState("");
   const [preset, setPreset] = useState<VideoPreset>("standard");
   const [fps, setFps] = useState(24);
@@ -722,7 +752,17 @@ function VideoWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetIt
   return (
     <section className="tool-grid">
       <div className="tool-card">
-        <h3>生成一个视频</h3>
+        <div className="tool-card-heading">
+          <h3>生成一个视频</h3>
+          <ClearAllButton
+            label="清空视频"
+            onClear={async () => {
+              await onClearAll();
+              setTask(null);
+              setReferenceIds([]);
+            }}
+          />
+        </div>
         <p>视频生成期间请保持页面打开。关闭页面后任务会被视为放弃。</p>
         <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="描述画面、动作、镜头和氛围..." />
         <Segmented<VideoPreset>
@@ -805,23 +845,29 @@ function VideoWorkspace({ assets, onAssetsChanged, onNotice }: { assets: AssetIt
   );
 }
 
-function AssetWorkspace({ assets, onAssetsChanged }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void> }) {
+function AssetWorkspace({ assets, onAssetsChanged, onClearAll }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void> }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
   const visible = filterAssets(assets, filter);
   return (
     <section className="asset-page">
       <div className="asset-toolbar">
         <h3>素材库</h3>
-        <Segmented<AssetFilter>
-          value={filter}
-          options={[
-            ["all", "全部"],
-            ["upload", "上传"],
-            ["image", "图片"],
-            ["video", "视频"],
-          ]}
-          onChange={setFilter}
-        />
+        <div className="toolbar-actions">
+          <Segmented<AssetFilter>
+            value={filter}
+            options={[
+              ["all", "全部"],
+              ["upload", "上传"],
+              ["image", "图片"],
+              ["video", "视频"],
+            ]}
+            onChange={setFilter}
+          />
+          <ClearAllButton label="清空素材库" onClear={async () => {
+            await onClearAll();
+            await onAssetsChanged();
+          }} />
+        </div>
       </div>
       <div className="asset-grid">
         {visible.length === 0 ? (
@@ -993,6 +1039,27 @@ function Segmented<T extends string>({ value, options, onChange }: { value: T; o
         </button>
       ))}
     </div>
+  );
+}
+
+function ClearAllButton({ label, onClear }: { label: string; onClear: () => Promise<void> }) {
+  const [clearing, setClearing] = useState(false);
+  return (
+    <button
+      type="button"
+      className="ghost-button danger clear-all-button"
+      disabled={clearing}
+      onClick={async () => {
+        setClearing(true);
+        try {
+          await onClear();
+        } finally {
+          setClearing(false);
+        }
+      }}
+    >
+      <Trash2 size={16} /> {clearing ? "清空中..." : label}
+    </button>
   );
 }
 

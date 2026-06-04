@@ -27,6 +27,7 @@ import {
   toClientError,
 } from "./provider";
 import { ChatRequestSchema, ImageRequestSchema, parseRequest, VideoRequestSchema } from "./validation";
+import { assetKindsForClearScope, normalizeClearScope } from "./clear";
 
 describe("security", () => {
   test("hashes passwords with salt and verifies only the original value", async () => {
@@ -127,6 +128,7 @@ describe("media and provider contracts", () => {
     const chatPayload = buildChatCompletionPayload([{ role: "user", content: "你是谁？" }]);
     expect(chatPayload.messages[0]).toMatchObject({ role: "system" });
     expect(JSON.stringify(chatPayload.messages[0])).not.toContain("Agnes");
+    expect(JSON.stringify(chatPayload.messages[0])).toContain("奶黄包");
 
     expect(
       buildImageGenerationPayload({
@@ -153,7 +155,8 @@ describe("media and provider contracts", () => {
     expect(normalizeProviderError(401, "Unauthorized: bad api key")).toBe("服务鉴权失败，请检查后台配置。");
     expect(normalizeProviderError(503, "busy")).toBe("服务当前繁忙，请稍后重试。");
     expect(toClientError(new Error("stack trace: token=secret"))).toBe("生成失败，请稍后重试。");
-    expect(sanitizeAssistantContent("你好，我是 Agnes-2.0-Flash，由 Sapiens AI 开发。")).not.toMatch(/Agnes|Sapiens/i);
+    expect(sanitizeAssistantContent("你好，我是 Agnes-2.0-Flash，由 Sapiens AI 开发。")).toBe("你好，我是奶黄包，由服务团队开发。");
+    expect(sanitizeAssistantContent("我是奶黄包。")).toBe("我是奶黄包。");
     expect(normalizeVideoTask({ id: "task_1", status: "completed", progress: 100, video_url: "https://x/y.mp4" })).toEqual({
       id: "task_1",
       status: "completed",
@@ -166,5 +169,22 @@ describe("media and provider contracts", () => {
       progress: 100,
       videoUrl: "https://x/z.mp4",
     });
+  });
+});
+
+describe("clear-all scope contracts", () => {
+  test("normalizes supported destructive clear scopes only", () => {
+    expect(normalizeClearScope("chat")).toBe("chat");
+    expect(normalizeClearScope("image")).toBe("image");
+    expect(normalizeClearScope("video")).toBe("video");
+    expect(normalizeClearScope("assets")).toBe("assets");
+    expect(normalizeClearScope("all")).toBeNull();
+  });
+
+  test("maps clear scopes to the database asset kinds they remove", () => {
+    expect(assetKindsForClearScope("chat")).toEqual([]);
+    expect(assetKindsForClearScope("image")).toEqual(["image"]);
+    expect(assetKindsForClearScope("video")).toEqual(["video"]);
+    expect(assetKindsForClearScope("assets")).toEqual(["upload", "image", "video"]);
   });
 });
