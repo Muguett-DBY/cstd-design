@@ -1020,6 +1020,75 @@ button:disabled {
   font-size: 13px;
   color: var(--muted);
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.asset-batch-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.asset-selected-count {
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.asset-select-bar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.asset-select-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--muted);
+  user-select: none;
+}
+
+.asset-select-all input {
+  width: auto;
+}
+
+.asset-card.selected {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.asset-checkbox {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.asset-card:hover .asset-checkbox,
+.asset-card.selected .asset-checkbox {
+  opacity: 1;
+}
+
+.asset-checkbox input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--accent);
 }
 
 .asset-grid {
@@ -1031,6 +1100,7 @@ button:disabled {
 .asset-card {
   border-radius: var(--radius-lg);
   overflow: hidden;
+  position: relative;
   transition: transform 0.15s, box-shadow 0.15s;
 }
 
