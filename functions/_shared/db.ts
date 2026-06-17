@@ -14,8 +14,11 @@ export async function createConversation(env: Env, title = "新会话") {
 export async function listConversations(env: Env, q = "") {
   const like = `%${q.trim()}%`;
   const query = q.trim()
-    ? `SELECT id, title, active_leaf_id as activeLeafId, created_at as createdAt, updated_at as updatedAt
-       FROM conversations WHERE deleted_at IS NULL AND title LIKE ?1 ORDER BY updated_at DESC LIMIT 100`
+    ? `SELECT DISTINCT c.id, c.title, c.active_leaf_id as activeLeafId, c.created_at as createdAt, c.updated_at as updatedAt
+       FROM conversations c
+       LEFT JOIN messages m ON m.conversation_id = c.id
+       WHERE c.deleted_at IS NULL AND (c.title LIKE ?1 OR m.content LIKE ?1)
+       ORDER BY c.updated_at DESC LIMIT 100`
     : `SELECT id, title, active_leaf_id as activeLeafId, created_at as createdAt, updated_at as updatedAt
        FROM conversations WHERE deleted_at IS NULL ORDER BY updated_at DESC LIMIT 100`;
   const result = q.trim() ? await env.DB.prepare(query).bind(like).all() : await env.DB.prepare(query).all();

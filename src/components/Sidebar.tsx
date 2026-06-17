@@ -49,10 +49,14 @@ export function Sidebar({
         event.preventDefault();
         inputRef.current?.focus();
       }
+      if ((event.ctrlKey || event.metaKey) && event.key === "n") {
+        event.preventDefault();
+        void onCreateConversation();
+      }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [onCreateConversation]);
 
   return (
     <>
@@ -77,7 +81,7 @@ export function Sidebar({
         </div>
         <label className="search-box">
           <Search size={16} />
-          <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索会话" />
+          <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题或内容..." />
         </label>
         <div className="conversation-list">
           {conversations.length === 0 ? (
