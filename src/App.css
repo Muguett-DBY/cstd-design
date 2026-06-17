@@ -1436,7 +1436,8 @@ button:disabled {
 }
 
 .lightbox-close,
-.lightbox-download {
+.lightbox-download,
+.lightbox-nav {
   position: absolute;
   top: 0;
   border: none;
@@ -1455,6 +1456,13 @@ button:disabled {
 
 .lightbox-close { right: 0; }
 .lightbox-download { right: 48px; text-decoration: none; }
+.lightbox-prev { left: 0; top: 50%; transform: translateY(-50%); }
+.lightbox-next { right: 0; top: 50%; transform: translateY(-50%); }
+
+.lightbox-counter {
+  font-size: 12px;
+  opacity: 0.7;
+}
 
 .lightbox-close:hover,
 .lightbox-download:hover {

@@ -37,6 +37,7 @@ function AppInner() {
   const [assets, setAssets] = useState<AssetItem[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [lightboxAsset, setLightboxAsset] = useState<AssetItem | null>(null);
+  const [lightboxAssets, setLightboxAssets] = useState<AssetItem[]>([]);
   const [loadingConversation, setLoadingConversation] = useState(false);
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("cstd-design:dark");
@@ -116,6 +117,11 @@ function AppInner() {
       toast(error instanceof Error ? error.message : "请求失败。", "error");
     }
   }, [toast]);
+
+  const openLightbox = useCallback((asset: AssetItem) => {
+    setLightboxAsset(asset);
+    setLightboxAssets(assets);
+  }, [assets]);
 
   const refreshAssets = useCallback(async () => {
     try {
@@ -246,7 +252,7 @@ function AppInner() {
       </aside>
       {mobileSidebarOpen && <button type="button" className="mobile-backdrop" aria-label="关闭会话列表" onClick={() => setMobileSidebarOpen(false)} />}
 
-      {lightboxAsset && <Lightbox asset={lightboxAsset} onClose={() => setLightboxAsset(null)} />}
+      {lightboxAsset && <Lightbox key={lightboxAsset.id} assets={lightboxAssets.length ? lightboxAssets : [lightboxAsset]} startIndex={lightboxAssets.indexOf(lightboxAsset) >= 0 ? lightboxAssets.indexOf(lightboxAsset) : 0} onClose={() => { setLightboxAsset(null); setLightboxAssets([]); }} />}
 
       <ConfirmDialog
         open={confirmState.open}
@@ -350,17 +356,17 @@ function AppInner() {
         )}
         {activeTab === "image" && (
           <ErrorBoundary key="image">
-          <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={setLightboxAsset} />
+          <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={openLightbox} />
           </ErrorBoundary>
         )}
         {activeTab === "video" && (
           <ErrorBoundary key="video">
-          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={setLightboxAsset} />
+          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} />
           </ErrorBoundary>
         )}
         {activeTab === "assets" && (
           <ErrorBoundary key="assets">
-          <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={setLightboxAsset} onRequestConfirm={requestConfirm} />
+          <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={openLightbox} onRequestConfirm={requestConfirm} />
           </ErrorBoundary>
         )}
         </main>

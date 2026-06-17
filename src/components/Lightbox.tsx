@@ -1,4 +1,4 @@
-import { AlertTriangle, Download, X } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Download, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { formatBytes } from "../app-state";
 import type { AssetItem } from "../types";
@@ -16,10 +16,15 @@ function LightboxImage({ asset }: { asset: AssetItem }) {
   return <img src={asset.url} alt={asset.filename} className="lightbox-image" onError={() => setError(true)} />;
 }
 
-export function Lightbox({ asset, onClose }: { asset: AssetItem; onClose: () => void }) {
+export function Lightbox({ assets, startIndex, onClose }: { assets: AssetItem[]; startIndex: number; onClose: () => void }) {
+  const [index, setIndex] = useState(startIndex);
+  const asset = assets[index];
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
+      if (event.key === "ArrowLeft" && index > 0) setIndex((i) => i - 1);
+      if (event.key === "ArrowRight" && index < assets.length - 1) setIndex((i) => i + 1);
     };
     window.addEventListener("keydown", handler);
     document.body.style.overflow = "hidden";
@@ -27,7 +32,12 @@ export function Lightbox({ asset, onClose }: { asset: AssetItem; onClose: () => 
       window.removeEventListener("keydown", handler);
       document.body.style.overflow = "";
     };
-  }, [onClose]);
+  }, [onClose, index, assets.length]);
+
+  if (!asset) return null;
+
+  const isFirst = index === 0;
+  const isLast = index === assets.length - 1;
 
   return (
     <div className="lightbox-overlay" role="dialog" aria-modal="true" aria-label={asset.filename} onClick={onClose}>
@@ -38,6 +48,16 @@ export function Lightbox({ asset, onClose }: { asset: AssetItem; onClose: () => 
         <a href={`${asset.url}?download=1`} className="lightbox-download" aria-label="下载" download>
           <Download size={20} />
         </a>
+        {!isFirst && (
+          <button type="button" className="lightbox-nav lightbox-prev" onClick={() => setIndex((i) => i - 1)} aria-label="上一张">
+            <ChevronLeft size={24} />
+          </button>
+        )}
+        {!isLast && (
+          <button type="button" className="lightbox-nav lightbox-next" onClick={() => setIndex((i) => i + 1)} aria-label="下一张">
+            <ChevronRight size={24} />
+          </button>
+        )}
         {asset.mediaType.startsWith("video") ? (
           <video src={asset.url} controls className="lightbox-video" autoPlay />
         ) : (
@@ -46,6 +66,7 @@ export function Lightbox({ asset, onClose }: { asset: AssetItem; onClose: () => 
         <div className="lightbox-info">
           <strong>{asset.filename}</strong>
           <span>{asset.kind} · {formatBytes(asset.size)}</span>
+          {assets.length > 1 && <span className="lightbox-counter">{index + 1} / {assets.length}</span>}
         </div>
       </div>
     </div>
