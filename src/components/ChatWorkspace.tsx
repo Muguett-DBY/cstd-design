@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Check, Copy, Download, Edit3, PanelRight, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Check, Copy, Download, Edit3, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -14,6 +14,7 @@ import { ScrollToBottom } from "./ScrollToBottom";
 import { MessageSearchBar } from "./MessageSearchBar";
 import { useMessageSearch } from "../hooks/useMessageSearch";
 import { useMessageReactions } from "../hooks/useMessageReactions";
+import { useMessagePinning } from "../hooks/useMessagePinning";
 import { ReactionPicker } from "./ReactionPicker";
 
 const ASSISTANT_NAME = "助手";
@@ -94,6 +95,7 @@ export function ChatWorkspace({
   const search = useMessageSearch(messages);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
+  const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -360,6 +362,9 @@ export function ChatWorkspace({
                   </div>
                   <div className="message-actions">
                     <CopyButton content={row.message.content} onNotice={onNotice} />
+                    <button type="button" onClick={() => togglePin(row.message.id)} className={isPinned(row.message.id) ? "pinned" : ""} title={isPinned(row.message.id) ? "取消置顶" : "置顶消息"}>
+                      <Pin size={14} /> {isPinned(row.message.id) ? "已置顶" : "置顶"}
+                    </button>
                     {row.message.role === "user" && (
                       <button type="button" onClick={() => setDraft({ content: row.message.content, selectedParentId: row.message.parentId || null })}>
                         <Edit3 size={14} /> 编辑后发送
@@ -428,6 +433,25 @@ export function ChatWorkspace({
         <h3>会话信息</h3>
         <InfoLine label="消息数" value={String(conversation?.messages.length || 0)} />
         <InfoLine label="分支数" value={String(leaves.length || 0)} />
+        {getPinnedMessages(messages.map((m) => m.id)).length > 0 && (
+          <div className="pinned-section">
+            <span className="pinned-header"><Pin size={12} /> 置顶消息</span>
+            <div className="pinned-list">
+              {getPinnedMessages(messages.map((m) => m.id)).map((id) => {
+                const msg = messages.find((m) => m.id === id);
+                if (!msg) return null;
+                return (
+                  <button key={id} type="button" className="pinned-item" onClick={() => {
+                    const el = messageRefs.current.get(id);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }}>
+                    {msg.content.slice(0, 50)}{msg.content.length > 50 ? "..." : ""}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <div className="branch-list">
           <span>可切换分支</span>
           {leaves.length === 0 ? <p>暂无分支</p> : leaves.map((leaf) => (
