@@ -1,5 +1,18 @@
-UPSTREAM_API_KEY=
+# Required: Password hash for app access
+# Generate with: echo -n "your-password" | node -e "const {createHash,randomBytes}=require('crypto');const p=require('fs').readFileSync('/dev/stdin','utf8').trim();const s=randomBytes(16).toString('base64url');require('crypto').pbkdf2(p,s,100000,32,'sha256',(e,k)=>{console.log('pbkdf2-sha256$100000$'+s+'$'+k.toString('base64url'))})"
 APP_PASSWORD_HASH=
+
+# Required: Secret for signing session cookies (any random string, keep secret)
 SESSION_SECRET=
+
+# Required: Secret for hashing login rate-limit fingerprints
 LOGIN_HASH_SECRET=
+
+# Required: Secret for signing asset capability tokens
 ASSET_CAPABILITY_SECRET=
+
+# Required: Agnes AI API key (upstream provider for chat/image/video)
+UPSTREAM_API_KEY=
+
+# Optional: Legacy alias for UPSTREAM_API_KEY
+# AGNES_API_KEY=

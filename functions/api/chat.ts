@@ -88,12 +88,17 @@ export async function onRequestPost({ request, env }: PagesContext) {
       await updateMessageContent(env, assistant.id, accumulated, "complete");
       await writeEvent({ type: "done", assistantMessageId: assistant.id });
     } catch (error) {
-      await flushSafeDelta(true);
-      const message = toClientError(error);
-      await updateMessageContent(env, assistant.id, accumulated || message, accumulated ? "interrupted" : "complete");
-      await writeEvent({ type: "error", assistantMessageId: assistant.id, error: message });
+      // Gracefully handle writer errors (e.g., client disconnected)
+      try {
+        await flushSafeDelta(true);
+        const message = toClientError(error);
+        await updateMessageContent(env, assistant.id, accumulated || message, accumulated ? "interrupted" : "complete");
+        await writeEvent({ type: "error", assistantMessageId: assistant.id, error: message });
+      } catch {
+        // Writer may be closed if client disconnected
+      }
     } finally {
-      await writer.close();
+      try { await writer.close(); } catch { /* writer already closed */ }
     }
   })();
 
