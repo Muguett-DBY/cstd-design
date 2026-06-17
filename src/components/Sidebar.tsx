@@ -151,6 +151,11 @@ export function Sidebar({
           )}
         </div>
       </section>
+      <div className="keyboard-hints">
+        <span className="keyboard-hint"><kbd>Ctrl</kbd>+<kbd>K</kbd> 搜索</span>
+        <span className="keyboard-hint"><kbd>Ctrl</kbd>+<kbd>N</kbd> 新建</span>
+        <span className="keyboard-hint"><kbd>Ctrl</kbd>+<kbd>F</kbd> 查找消息</span>
+      </div>
       <UserFooter dark={dark} onThemeToggle={onThemeToggle} onLogout={onLogout} />
     </>
   );

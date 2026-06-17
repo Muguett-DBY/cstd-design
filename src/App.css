@@ -1995,6 +1995,117 @@ button:disabled {
   100% { background: transparent; }
 }
 
+.message-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.reaction-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.reaction-badge:hover {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+
+.reaction-badge.active {
+  border-color: var(--accent);
+  background: var(--draft-bg);
+}
+
+.reaction-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.reaction-picker-icon {
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+
+.reaction-picker-icon:hover {
+  color: var(--text);
+  background: var(--soft);
+}
+
+.reaction-picker-emojis {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.reaction-picker:hover .reaction-picker-emojis {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reaction-emoji-btn {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.reaction-emoji-btn:hover {
+  background: var(--soft);
+  transform: scale(1.2);
+}
+
+.keyboard-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+
+.keyboard-hint {
+  font-size: 11px;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.keyboard-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 10px;
+  font-family: inherit;
+  color: var(--muted);
+}
+
 .markdown-highlighted {
   line-height: 1.7;
 }
