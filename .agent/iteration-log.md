@@ -1,6 +1,30 @@
 # Iteration Log
 
-## Round 25 (latest)
+## Round 26 (latest)
+
+**Flagship**: Message threading with collapsible replies
+
+### Completed
+- Created `useMessageThreading` hook with localStorage persistence
+- Added reply button to message actions UI
+- Added thread indicator showing reply count
+- Added collapsible thread replies with expand/collapse toggle
+- Added reply input with cancel/send buttons
+- Added CSS for thread indicator, thread replies, reply input, and active state
+- Thread state persists across sessions via localStorage
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Conversation archiving** — Archive old conversations without deleting
+2. **Export improvements** — Add more export options (date range, selected messages)
+3. **Message search within threads** — Search through threaded replies
+
+## Round 25 (c28c9f2)
 
 **Flagship**: Export improvements with multiple formats
 
