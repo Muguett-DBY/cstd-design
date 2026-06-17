@@ -48,34 +48,66 @@ function MermaidBlock({ source }: { source: string }) {
   return <div className="mermaid-block" dangerouslySetInnerHTML={{ __html: svg }} />;
 }
 
-function Markdown({ content }: { content: string }) {
+function highlightText(text: string, query: string): React.ReactNode[] {
+  if (!query.trim()) return [text];
+  const parts: React.ReactNode[] = [];
+  const lowerText = text.toLowerCase();
+  const lowerQuery = query.toLowerCase();
+  let lastIndex = 0;
+
+  while (lastIndex < lowerText.length) {
+    const matchIndex = lowerText.indexOf(lowerQuery, lastIndex);
+    if (matchIndex === -1) {
+      parts.push(text.slice(lastIndex));
+      break;
+    }
+    if (matchIndex > lastIndex) {
+      parts.push(text.slice(lastIndex, matchIndex));
+    }
+    parts.push(
+      <mark key={matchIndex} className="search-highlight">
+        {text.slice(matchIndex, matchIndex + query.length)}
+      </mark>
+    );
+    lastIndex = matchIndex + query.length;
+  }
+
+  return parts;
+}
+
+function Markdown({ content, highlightQuery }: { content: string; highlightQuery?: string }) {
+  const highlighted = highlightQuery ? highlightText(content, highlightQuery) : content;
   return (
     <div className="markdown">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex, rehypeHighlight]}
-        components={{
-          code({ className, children, ...props }) {
-            const text = String(children).replace(/\n$/, "");
-            if (className?.includes("language-mermaid")) return <MermaidBlock source={text} />;
-            if (className?.startsWith("language-") || String(children).includes("\n")) return <CodeSnippet className={className} code={text} />;
-            return (
-              <code className={className} {...props}>
-                {children}
-              </code>
-            );
-          },
-          a({ href, children, ...props }) {
-            return (
-              <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
-                {children}
-              </a>
-            );
-          },
-        }}
-      >
-        {content}
-      </ReactMarkdown>
+      {typeof highlighted === "string" ? (
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex, rehypeHighlight]}
+          components={{
+            code({ className, children, ...props }) {
+              const text = String(children).replace(/\n$/, "");
+              if (className?.includes("language-mermaid")) return <MermaidBlock source={text} />;
+              if (className?.startsWith("language-") || String(children).includes("\n")) return <CodeSnippet className={className} code={text} />;
+              return (
+                <code className={className} {...props}>
+                  {children}
+                </code>
+              );
+            },
+            a({ href, children, ...props }) {
+              return (
+                <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+                  {children}
+                </a>
+              );
+            },
+          }}
+        >
+          {content}
+        </ReactMarkdown>
+      ) : (
+        <div className="markdown-highlighted">{highlighted}</div>
+      )}
     </div>
   );
 }

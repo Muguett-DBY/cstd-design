@@ -1857,6 +1857,116 @@ button:disabled {
   animation: spin 1s linear infinite;
 }
 
+.message-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  animation: slideDown 0.2s ease;
+}
+
+.message-search-bar .search-icon {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.message-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  min-width: 0;
+}
+
+.message-search-input::placeholder {
+  color: var(--muted);
+}
+
+.search-result-count {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  padding: 2px 8px;
+  background: var(--soft);
+  border-radius: 999px;
+}
+
+.search-result-count.no-result {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.search-nav-btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.search-nav-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+
+.search-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.search-close-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.search-close-btn:hover {
+  color: var(--text);
+  background: var(--soft);
+}
+
+.search-highlight {
+  background: rgba(255, 193, 7, 0.35);
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.theme-dark .search-highlight {
+  background: rgba(232, 160, 32, 0.35);
+}
+
+.search-active-message {
+  animation: highlightPulse 1.5s ease;
+}
+
+@keyframes highlightPulse {
+  0% { background: rgba(255, 193, 7, 0.2); }
+  100% { background: transparent; }
+}
+
+.markdown-highlighted {
+  line-height: 1.7;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);

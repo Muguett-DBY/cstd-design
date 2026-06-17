@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Check, Copy, Download, Edit3, PanelRight, Plus, RefreshCw, RotateCcw, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Check, Copy, Download, Edit3, PanelRight, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -11,6 +11,8 @@ import { ClearAllButton } from "./ClearAllButton";
 import { InfoLine } from "./InfoLine";
 import { EmptyState } from "./EmptyState";
 import { ScrollToBottom } from "./ScrollToBottom";
+import { MessageSearchBar } from "./MessageSearchBar";
+import { useMessageSearch } from "../hooks/useMessageSearch";
 
 const ASSISTANT_NAME = "助手";
 
@@ -87,6 +89,8 @@ export function ChatWorkspace({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
+  const search = useMessageSearch(messages);
+  const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -113,6 +117,27 @@ export function ChatWorkspace({
     if (!streaming || userScrolledUp) return;
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages, streaming, userScrolledUp]);
+
+  // Keyboard shortcut: Ctrl+F to open search
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "f") {
+        event.preventDefault();
+        search.openSearch();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [search, search.openSearch]);
+
+  // Scroll to active search result
+  useEffect(() => {
+    if (!search.activeResult) return;
+    const el = messageRefs.current.get(search.activeResult.messageId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [search.activeResult]);
 
   const sendContent = async (content: string, parentId: string | null) => {
     if (!content || streaming) return;
@@ -231,6 +256,9 @@ export function ChatWorkspace({
             <button type="button" className="ghost-button" onClick={onCreate}>
               <Plus size={16} /> 新建
             </button>
+            <button type="button" className="ghost-button" onClick={search.openSearch} disabled={!conversation || messages.length === 0} title="搜索消息 (Ctrl+F)">
+              <Search size={16} /> 搜索
+            </button>
             <button type="button" className="ghost-button" onClick={exportConversation} disabled={!conversation || messages.length === 0}>
               <Download size={16} /> 导出
             </button>
@@ -239,6 +267,18 @@ export function ChatWorkspace({
             </button>
             <ClearAllButton label="清空全部" onClear={onClearAll} />
           </div>        </div>
+
+        {search.isOpen && (
+          <MessageSearchBar
+            query={search.query}
+            onQueryChange={search.setQuery}
+            totalResults={search.totalResults}
+            activeIndex={search.activeIndex}
+            onNext={search.goNext}
+            onPrev={search.goPrev}
+            onClose={search.closeSearch}
+          />
+        )}
 
         <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
           {loading ? (
@@ -265,7 +305,12 @@ export function ChatWorkspace({
               row.type === "date" ? (
                 <DateSeparator key={row.date} date={row.date} />
               ) : (
-              <article key={row.message.id} className={`message ${row.message.role}`}>
+              <div
+                key={row.message.id}
+                ref={(el) => { messageRefs.current.set(row.message.id, el); }}
+                className={search.activeResult?.messageId === row.message.id ? "search-active-message" : undefined}
+              >
+              <article className={`message ${row.message.role}`}>
                 <div className="avatar">{row.message.role === "assistant" ? <img src="/brand/mascot.png" alt="" /> : <Bot size={18} />}</div>
                 <div className="message-body">
                   <div className="message-meta">
@@ -274,7 +319,7 @@ export function ChatWorkspace({
                     {row.message.status === "streaming" && <em>正在生成...</em>}
                     {row.message.status === "interrupted" && <em>已中断</em>}
                   </div>
-                  <Markdown content={row.message.content || "正在思考..."} />
+                  <Markdown content={row.message.content || "正在思考..."} highlightQuery={search.query} />
                   <div className="message-actions">
                     <CopyButton content={row.message.content} onNotice={onNotice} />
                     {row.message.role === "user" && (
@@ -295,6 +340,7 @@ export function ChatWorkspace({
                   </div>
                 </div>
               </article>
+              </div>
               )
             )
           )}
