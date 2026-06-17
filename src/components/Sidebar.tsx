@@ -30,12 +30,24 @@ export function Sidebar({
 }) {
   const [query, setQuery] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => onSearch(query), 200);
     return () => { if (debounceRef.current) window.clearTimeout(debounceRef.current); };
   }, [query, onSearch]);
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "k") {
+        event.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   return (
     <>
@@ -60,7 +72,7 @@ export function Sidebar({
         </div>
         <label className="search-box">
           <Search size={16} />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索会话" />
+          <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索会话" />
         </label>
         <div className="conversation-list">
           {conversations.length === 0 ? (
