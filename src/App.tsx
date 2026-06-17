@@ -225,6 +225,14 @@ function AppInner() {
     onSearch: (q: string) => { void refreshConversations(q); },
     onSelectConversation: async (id: string) => { await openConversation(id); setMobileSidebarOpen(false); },
     onCreateConversation: async () => { await handleCreateConversation(); setMobileSidebarOpen(false); },
+    onDeleteConversation: async (id: string) => {
+      try {
+        await api.deleteConversation(id);
+        if (conversation?.id === id) setConversation(null);
+        await refreshConversations("");
+      } catch (error) { toast(error instanceof Error ? error.message : "删除失败。", "error"); }
+    },
+    onRequestConfirm: requestConfirm,
     dark,
     onThemeToggle: () => setDark((p) => !p),
     onLogout: handleLogout,

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
@@ -14,6 +14,8 @@ export function Sidebar({
   onSearch,
   onSelectConversation,
   onCreateConversation,
+  onDeleteConversation,
+  onRequestConfirm,
   dark,
   onThemeToggle,
   onLogout,
@@ -25,6 +27,8 @@ export function Sidebar({
   onSearch: (q: string) => void;
   onSelectConversation: (id: string) => void | Promise<void>;
   onCreateConversation: () => void | Promise<void>;
+  onDeleteConversation: (id: string) => void;
+  onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void;
   dark: boolean;
   onThemeToggle: () => void;
   onLogout: () => void | Promise<void>;
@@ -80,10 +84,15 @@ export function Sidebar({
             <div className="empty-conversations">{query ? "未找到匹配的会话" : "还没有会话，点击 + 新建一个"}</div>
           ) : (
             conversations.map((item) => (
-              <button key={item.id} type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={() => onSelectConversation(item.id)}>
-                <strong>{item.title}</strong>
-                <span>{timeAgo(item.updatedAt)}</span>
-              </button>
+              <div key={item.id} className="conversation-card-wrapper">
+                <button type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={() => onSelectConversation(item.id)}>
+                  <strong>{item.title}</strong>
+                  <span>{timeAgo(item.updatedAt)}</span>
+                </button>
+                <button type="button" className="conversation-delete" aria-label="删除会话" onClick={(e) => { e.stopPropagation(); onRequestConfirm("删除会话", `确认删除会话"${item.title}"？此操作不可恢复。`, true, () => onDeleteConversation(item.id)); }}>
+                  <X size={12} />
+                </button>
+              </div>
             ))
           )}
         </div>
