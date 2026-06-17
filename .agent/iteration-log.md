@@ -1,6 +1,31 @@
 # Iteration Log
 
-## Round 23 (latest)
+## Round 24 (latest)
+
+**Flagship**: Conversation folders with color coding
+
+### Completed
+- Created `useConversationFolders` hook with localStorage persistence
+- Added folder creation/management UI in sidebar
+- Added folder bar with folder chips for quick filtering
+- Added folder selection dropdown on each conversation card
+- Added folder color coding (6 colors: amber, green, blue, purple, pink, red)
+- Added folder delete functionality
+- Added folder tag display on conversation cards
+- Added CSS for folder bar, folder chips, folder input, folder select, and folder delete
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Export improvements** — Add more export formats (PDF, HTML)
+2. **Message threading** — Allow replies to specific messages
+3. **Conversation archiving** — Archive old conversations without deleting
+
+## Round 23 (4992569)
 
 **Flagship**: Message pinning with quick access panel
 
