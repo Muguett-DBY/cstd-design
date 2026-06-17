@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Bot, Check, Copy, Edit3, PanelRight, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
+import "katex/dist/katex.min.css";
+import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
 import { initialChatDraft, timeAgo } from "../app-state";
 import { streamChat } from "../api";

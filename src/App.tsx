@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
-import "katex/dist/katex.min.css";
-import "highlight.js/styles/github.css";
 import { api, onUnauthorized } from "./api";
 import { appendChatEvent, buildActiveBranch, branchLeaves } from "./app-state";
 import { TABS } from "./constants";
