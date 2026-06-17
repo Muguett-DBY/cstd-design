@@ -7,6 +7,8 @@ export interface ConversationSummary {
   activeLeafId: string | null;
   createdAt: string;
   updatedAt: string;
+  messageCount?: number;
+  lastMessage?: string;
 }
 
 export interface ChatMessage {

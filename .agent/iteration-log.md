@@ -1,6 +1,31 @@
 # Iteration Log
 
-## Round 21 (latest)
+## Round 22 (latest)
+
+**Flagship**: Conversation search improvements with filters
+
+### Completed
+- Added date range filter (today, this week, this month, all time)
+- Added message count filter (1-10, 11-50, 51-100, 100+)
+- Added filter toggle button in search box
+- Added filter panel with collapsible UI
+- Added message preview snippets in conversation cards
+- Added messageCount and lastMessage to ConversationSummary type
+- Created ConversationCard component for better code organization
+- Added CSS for filter panel, filter options, and conversation snippets
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message pinning** — Allow users to pin important messages
+2. **Conversation folders** — Organize conversations into folders
+3. **Export improvements** — Add more export formats (PDF, HTML)
+
+## Round 21 (16f9d1f)
 
 **Flagship**: Message reactions with emoji picker
 
