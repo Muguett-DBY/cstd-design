@@ -1638,6 +1638,28 @@ button:disabled {
   margin-right: auto;
 }
 
+.date-separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.date-separator::before,
+.date-separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.date-separator span {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 @media (max-width: 920px) {
   .toast-container {
     bottom: 100px;

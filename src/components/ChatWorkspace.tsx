@@ -3,7 +3,7 @@ import { Bot, Check, Copy, Edit3, PanelRight, Plus, RefreshCw, Send, Square, Tra
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
-import { initialChatDraft, timeAgo } from "../app-state";
+import { initialChatDraft, messageDateLabel, timeAgo } from "../app-state";
 import { streamChat } from "../api";
 import { ConversationTitleInput } from "./ConversationTitleInput";
 import { Markdown } from "./Markdown";
@@ -31,6 +31,24 @@ function CopyButton({ content, onNotice }: { content: string; onNotice: (msg: st
       {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? "已复制" : "复制"}
     </button>
   );
+}
+
+function DateSeparator({ date }: { date: string }) {
+  return <div className="date-separator"><span>{messageDateLabel(date)}</span></div>;
+}
+
+function messageRows(messages: ChatMessage[]) {
+  const rows: ({ type: "date"; date: string } | { type: "message"; message: ChatMessage })[] = [];
+  let lastDate = "";
+  for (const message of messages) {
+    const date = message.createdAt ? new Date(message.createdAt).toDateString() : "";
+    if (date && date !== lastDate) {
+      rows.push({ type: "date", date: message.createdAt! });
+      lastDate = date;
+    }
+    rows.push({ type: "message", message });
+  }
+  return rows;
 }
 
 export function ChatWorkspace({
@@ -219,33 +237,37 @@ export function ChatWorkspace({
               </button>
             </EmptyState>
           ) : (
-            messages.map((message) => (
-              <article key={message.id} className={`message ${message.role}`}>
-                <div className="avatar">{message.role === "assistant" ? <img src="/brand/mascot.png" alt="" /> : <Bot size={18} />}</div>
+            messageRows(messages).map((row) =>
+              row.type === "date" ? (
+                <DateSeparator key={row.date} date={row.date} />
+              ) : (
+              <article key={row.message.id} className={`message ${row.message.role}`}>
+                <div className="avatar">{row.message.role === "assistant" ? <img src="/brand/mascot.png" alt="" /> : <Bot size={18} />}</div>
                 <div className="message-body">
                   <div className="message-meta">
-                    <span>{message.role === "assistant" ? ASSISTANT_NAME : "你"}</span>
-                    <span className="message-time">{message.createdAt ? timeAgo(message.createdAt) : ""}</span>
-                    {message.status === "streaming" && <em>正在生成...</em>}
-                    {message.status === "interrupted" && <em>已中断</em>}
+                    <span>{row.message.role === "assistant" ? ASSISTANT_NAME : "你"}</span>
+                    <span className="message-time">{row.message.createdAt ? timeAgo(row.message.createdAt) : ""}</span>
+                    {row.message.status === "streaming" && <em>正在生成...</em>}
+                    {row.message.status === "interrupted" && <em>已中断</em>}
                   </div>
-                  <Markdown content={message.content || "正在思考..."} />
+                  <Markdown content={row.message.content || "正在思考..."} />
                   <div className="message-actions">
-                    <CopyButton content={message.content} onNotice={onNotice} />
-                    {message.role === "user" && (
-                      <button type="button" onClick={() => setDraft({ content: message.content, selectedParentId: message.parentId || null })}>
+                    <CopyButton content={row.message.content} onNotice={onNotice} />
+                    {row.message.role === "user" && (
+                      <button type="button" onClick={() => setDraft({ content: row.message.content, selectedParentId: row.message.parentId || null })}>
                         <Edit3 size={14} /> 编辑后发送
                       </button>
                     )}
-                    {message.role === "assistant" && (
-                      <button type="button" onClick={() => regenerate(message)} disabled={streaming}>
+                    {row.message.role === "assistant" && (
+                      <button type="button" onClick={() => regenerate(row.message)} disabled={streaming}>
                         <RefreshCw size={14} /> 重新生成
                       </button>
                     )}
                   </div>
                 </div>
               </article>
-            ))
+              )
+            )
           )}
           <div ref={messagesEndRef} />
         </div>

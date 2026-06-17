@@ -88,3 +88,14 @@ export function timeAgo(dateString: string) {
   if (diff < 7 * 86_400_000) return `${Math.floor(diff / 86_400_000)} 天前`;
   return new Date(dateString).toLocaleDateString("zh-CN");
 }
+
+export function messageDateLabel(dateString: string) {
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "今天";
+  if (date.toDateString() === yesterday.toDateString()) return "昨天";
+  return date.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" });
+}
