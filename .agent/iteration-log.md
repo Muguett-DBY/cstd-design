@@ -1,6 +1,30 @@
 # Iteration Log
 
-## Round 24 (latest)
+## Round 25 (latest)
+
+**Flagship**: Export improvements with multiple formats
+
+### Completed
+- Created `ExportModal` component with format selection UI
+- Added HTML export functionality with styled output
+- Added PDF export via browser print dialog
+- Added format selection (Markdown, HTML, PDF) with visual preview
+- Added print-friendly HTML template for PDF export
+- Replaced inline export with modal-based export flow
+- Added CSS for export modal, format options, and animations
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message threading** — Allow replies to specific messages
+2. **Conversation archiving** — Archive old conversations without deleting
+3. **Export improvements** — Add more export options (date range, selected messages)
+
+## Round 24 (91985d1)
 
 **Flagship**: Conversation folders with color coding
 

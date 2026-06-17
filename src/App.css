@@ -530,6 +530,133 @@ button:disabled {
   border-color: var(--accent);
 }
 
+.export-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease;
+}
+
+.export-modal {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
+  width: min(480px, 100%);
+  animation: scaleIn 0.2s ease;
+}
+
+.export-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.export-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.export-modal-close {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.15s;
+}
+
+.export-modal-close:hover {
+  color: var(--text);
+  background: var(--soft);
+}
+
+.export-modal-body {
+  padding: 24px;
+}
+
+.export-modal-title {
+  font-weight: 600;
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.export-modal-count {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 20px;
+}
+
+.export-format-options {
+  display: grid;
+  gap: 10px;
+}
+
+.export-format-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.export-format-btn:hover {
+  border-color: var(--accent);
+  background: var(--soft);
+}
+
+.export-format-btn.active {
+  border-color: var(--accent);
+  background: var(--draft-bg);
+}
+
+.export-format-btn svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.export-format-btn.active svg {
+  color: var(--accent);
+}
+
+.export-format-label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.export-format-desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.export-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 .conversation-list {
   overflow: auto;
   display: grid;

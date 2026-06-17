@@ -12,6 +12,7 @@ import { InfoLine } from "./InfoLine";
 import { EmptyState } from "./EmptyState";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { MessageSearchBar } from "./MessageSearchBar";
+import { ExportModal } from "./ExportModal";
 import { useMessageSearch } from "../hooks/useMessageSearch";
 import { useMessageReactions } from "../hooks/useMessageReactions";
 import { useMessagePinning } from "../hooks/useMessagePinning";
@@ -92,6 +93,7 @@ export function ChatWorkspace({
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
+  const [showExportModal, setShowExportModal] = useState(false);
   const search = useMessageSearch(messages);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
@@ -222,28 +224,6 @@ export function ChatWorkspace({
     await sendContent(parentUser.content, parentUser.parentId || null);
   };
 
-  const exportConversation = () => {
-    if (!conversation) return;
-    const title = conversation.title;
-    const date = new Date().toLocaleString("zh-CN");
-    const header = `# ${title}\n\n导出时间：${date}\n\n---\n\n`;
-    const body = messages
-      .filter((m) => m.status !== "streaming")
-      .map((m) => {
-        const role = m.role === "user" ? "**你**" : `**${ASSISTANT_NAME}**`;
-        return `${role}：\n\n${m.content}\n`;
-      })
-      .join("\n---\n\n");
-    const blob = new Blob([header + body], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${title.replace(/[/\\?%*:|"<>]/g, "_")}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-    onNotice("对话已导出为 Markdown 文件。");
-  };
-
   const copyAllAsText = async () => {
     if (!conversation) return;
     const title = conversation.title;
@@ -286,7 +266,7 @@ export function ChatWorkspace({
             <button type="button" className="ghost-button" onClick={copyAllAsText} disabled={!conversation || messages.length === 0} title="复制全部对话">
               <Copy size={16} /> 复制全部
             </button>
-            <button type="button" className="ghost-button" onClick={exportConversation} disabled={!conversation || messages.length === 0}>
+            <button type="button" className="ghost-button" onClick={() => setShowExportModal(true)} disabled={!conversation || messages.length === 0}>
               <Download size={16} /> 导出
             </button>
             <button type="button" className="ghost-button danger" onClick={onDelete} disabled={!conversation}>
@@ -462,6 +442,13 @@ export function ChatWorkspace({
         </div>
         <img src="/brand/mascot.png" alt="" className="panel-mascot" />
       </aside>
+
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        title={conversation?.title || "新会话"}
+        messages={messages}
+      />
     </section>
   );
 }
