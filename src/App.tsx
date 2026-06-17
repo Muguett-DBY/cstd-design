@@ -263,9 +263,9 @@ function AppInner() {
       />
 
       <main className="workspace">
-        <ErrorBoundary>
         <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />
         {activeTab === "chat" && (
+          <ErrorBoundary key="chat">
           <ChatWorkspace
             conversation={conversation}
             messages={activeMessages}
@@ -346,12 +346,24 @@ function AppInner() {
             onClearAll={() => clearScope("all")}
             onNotice={(msg: string) => toast(msg, "info")}
           />
+          </ErrorBoundary>
         )}
-        {activeTab === "image" && <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={setLightboxAsset} />}
-        {activeTab === "video" && <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={setLightboxAsset} />}
-        {activeTab === "assets" && <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={setLightboxAsset} onRequestConfirm={requestConfirm} />}
-        </ErrorBoundary>
-      </main>
+        {activeTab === "image" && (
+          <ErrorBoundary key="image">
+          <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={setLightboxAsset} />
+          </ErrorBoundary>
+        )}
+        {activeTab === "video" && (
+          <ErrorBoundary key="video">
+          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={setLightboxAsset} />
+          </ErrorBoundary>
+        )}
+        {activeTab === "assets" && (
+          <ErrorBoundary key="assets">
+          <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={setLightboxAsset} onRequestConfirm={requestConfirm} />
+          </ErrorBoundary>
+        )}
+        </main>
 
       <nav className="mobile-tabs" aria-label="移动端导航">
         {TABS.map(({ id, label, icon: Icon }) => (
