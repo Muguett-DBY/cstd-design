@@ -39,6 +39,8 @@ function AppInner() {
   const [lightboxAsset, setLightboxAsset] = useState<AssetItem | null>(null);
   const [lightboxAssets, setLightboxAssets] = useState<AssetItem[]>([]);
   const [loadingConversation, setLoadingConversation] = useState(false);
+  const [videoTask, setVideoTask] = useState<{ id: string; status: string; progress: number; assetUrl?: string } | null>(null);
+  const [videoSubmittedPrompt, setVideoSubmittedPrompt] = useState("");
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("cstd-design:dark");
     if (stored !== null) return stored === "true";
@@ -361,7 +363,7 @@ function AppInner() {
         )}
         {activeTab === "video" && (
           <ErrorBoundary key="video">
-          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} />
+          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} videoTask={videoTask} onVideoTaskChange={setVideoTask} submittedPrompt={videoSubmittedPrompt} onSubmittedPromptChange={setVideoSubmittedPrompt} />
           </ErrorBoundary>
         )}
         {activeTab === "assets" && (

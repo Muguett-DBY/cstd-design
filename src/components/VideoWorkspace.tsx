@@ -20,7 +20,19 @@ function TaskStatusBadge({ status }: { status: string }) {
   return <span className={`task-status-badge task-status-${status}`}><Icon size={14} /> {videoStatusLabel(status)}</span>;
 }
 
-export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void }) {
+type VideoTask = { id: string; status: string; progress: number; assetUrl?: string };
+
+export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange }: {
+  assets: AssetItem[];
+  onAssetsChanged: () => Promise<void>;
+  onNotice: (message: string) => void;
+  onClearAll: () => Promise<void>;
+  onPreview?: (asset: AssetItem) => void;
+  videoTask: VideoTask | null;
+  onVideoTaskChange: (task: VideoTask | null) => void;
+  submittedPrompt: string;
+  onSubmittedPromptChange: (prompt: string) => void;
+}) {
   const [prompt, setPrompt] = useState("");
   const [preset, setPreset] = useState<VideoPreset>("standard");
   const [fps, setFps] = useState(24);
@@ -30,14 +42,12 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   const [keyframes, setKeyframes] = useState(false);
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
-  const [task, setTask] = useState<{ id: string; status: string; progress: number; assetUrl?: string } | null>(null);
-  const [submittedPrompt, setSubmittedPrompt] = useState("");
   const errorCountRef = useRef(0);
   const referenceAssets = imageAssetsForReference(assets);
   const presetInfo = videoPresetToRequest(preset);
 
   useEffect(() => {
-    if (!task || task.status === "completed" || task.status === "failed") return;
+    if (!videoTask || videoTask.status === "completed" || videoTask.status === "failed") return;
     let cancelled = false;
     errorCountRef.current = 0;
     const handler = (event: BeforeUnloadEvent) => { event.preventDefault(); };
@@ -45,10 +55,10 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
     const timer = window.setInterval(async () => {
       if (cancelled) return;
       try {
-        const result = await api.videoTask(task.id);
+        const result = await api.videoTask(videoTask.id);
         if (cancelled) return;
         errorCountRef.current = 0;
-        setTask(result.task);
+        onVideoTaskChange(result.task);
         if (result.task.status === "completed") {
           await onAssetsChanged();
           onNotice("视频已完成并保存到素材库。");
@@ -73,11 +83,11 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       window.clearInterval(timer);
       window.removeEventListener("beforeunload", handler);
     };
-  }, [task, onAssetsChanged, onNotice]);
+  }, [videoTask, onAssetsChanged, onNotice, onVideoTaskChange]);
 
   const [width, height] = ratio.split("x").map(Number);
 
-  const progressPercent = task?.status === "in_progress" ? Math.max(5, Math.min(95, task.progress)) : task?.status === "queued" ? 2 : task?.status === "completed" ? 100 : task?.progress || 0;
+  const progressPercent = videoTask?.status === "in_progress" ? Math.max(5, Math.min(95, videoTask.progress)) : videoTask?.status === "queued" ? 2 : videoTask?.status === "completed" ? 100 : videoTask?.progress || 0;
 
   return (
     <section className="tool-grid">
@@ -88,13 +98,14 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             label="清空视频"
             onClear={async () => {
               await onClearAll();
-              setTask(null);
+              onVideoTaskChange(null);
+              onSubmittedPromptChange("");
               setReferenceIds([]);
             }}
           />
         </div>
         <p>视频生成期间请保持页面打开。关闭页面后任务会被视为放弃。</p>
-        <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={8000} disabled={creating || (task !== null && task.status !== "failed" && task.status !== "completed")} placeholder="描述画面、动作、镜头和氛围..." />
+        <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={8000} disabled={creating || (videoTask !== null && videoTask.status !== "failed" && videoTask.status !== "completed")} placeholder="描述画面、动作、镜头和氛围..." />
         <Segmented<VideoPreset>
           value={preset}
           options={[
@@ -127,25 +138,26 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           </label>
         </details>
         <ReferencePicker assets={referenceAssets} selected={referenceIds} onChange={setReferenceIds} />
-        {task ? (
+        {videoTask ? (
           <div className="task-card">
             <div className="task-card-header">
-              <TaskStatusBadge status={task.status} />
-              {task.status === "in_progress" && <span className="task-estimate">约 {presetInfo.approxSeconds} 秒</span>}
+              <TaskStatusBadge status={videoTask.status} />
+              {videoTask.status === "in_progress" && <span className="task-estimate">约 {presetInfo.approxSeconds} 秒</span>}
             </div>
             {submittedPrompt && <p className="task-prompt">"{submittedPrompt.slice(0, 60)}{submittedPrompt.length > 60 ? "..." : ""}"</p>}
-            <div className="progress"><span style={{ width: `${progressPercent}%` }} className={`progress-bar progress-${task.status}`} /></div>
+            <div className="progress"><span style={{ width: `${progressPercent}%` }} className={`progress-bar progress-${videoTask.status}`} /></div>
             <p className="task-meta">{progressPercent}% · {presetInfo.numFrames} 帧{presetInfo.preset === "max" ? " · 较长" : presetInfo.preset === "short" ? " · 较短" : ""}</p>
-            {task.assetUrl && (
+            {videoTask.assetUrl && (
               <div className="task-result">
-                <video src={task.assetUrl} controls className="task-video-preview" />
+                <video src={videoTask.assetUrl} controls className="task-video-preview" />
               </div>
             )}
-            {task.status !== "completed" && (
+            {videoTask.status !== "completed" && (
               <button type="button" className="ghost-button danger" onClick={async () => {
                 try {
-                  await api.abandonVideo(task.id);
-                  setTask(null);
+                  await api.abandonVideo(videoTask.id);
+                  onVideoTaskChange(null);
+                  onSubmittedPromptChange("");
                 } catch (error) { onNotice(error instanceof Error ? error.message : "操作失败。"); }
               }}>
                 <XCircle size={14} /> 放弃任务
@@ -159,7 +171,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             disabled={!prompt.trim() || creating}
             onClick={async () => {
               setCreating(true);
-              setSubmittedPrompt(prompt);
+              onSubmittedPromptChange(prompt);
               try {
                 const result = await api.createVideo({
                   prompt,
@@ -172,7 +184,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
                   negativePrompt: negativePrompt || undefined,
                   seed: seed ? Number(seed) : undefined,
                 });
-                setTask(result.task);
+                onVideoTaskChange(result.task);
               } catch (error) {
                 onNotice(error instanceof Error ? error.message : "视频任务创建失败。");
               } finally {
