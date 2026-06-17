@@ -11,7 +11,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const visible = filterAssets(assets, filter);
-  const totalSize = assets.reduce((sum, a) => sum + a.size, 0);
+  const totalSize = visible.reduce((sum, a) => sum + a.size, 0);
   return (
     <section className="asset-page">
       <div className="asset-toolbar">

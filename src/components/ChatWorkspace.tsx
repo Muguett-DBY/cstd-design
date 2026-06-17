@@ -253,6 +253,7 @@ export function ChatWorkspace({
           <textarea
             ref={textareaRef}
             value={draft.content}
+            maxLength={8000}
             onChange={(event) => setDraft({ ...draft, content: event.target.value })}
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.shiftKey) {

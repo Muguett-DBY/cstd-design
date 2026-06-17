@@ -1,18 +1,24 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { RefreshCw, Trash2 } from "lucide-react";
 
 export function ClearAllButton({ label, onClear }: { label: string; onClear: () => Promise<void> }) {
   const [clearing, setClearing] = useState(false);
+  const activeRef = useRef(false);
+
   return (
     <button
       type="button"
       className="ghost-button danger clear-all-button"
       disabled={clearing}
       onClick={async () => {
-        setClearing(true);
+        if (activeRef.current) return;
+        activeRef.current = true;
+        const timer = setTimeout(() => setClearing(true), 150);
         try {
           await onClear();
         } finally {
+          clearTimeout(timer);
+          activeRef.current = false;
           setClearing(false);
         }
       }}

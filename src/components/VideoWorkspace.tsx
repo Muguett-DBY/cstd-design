@@ -76,7 +76,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           />
         </div>
         <p>视频生成期间请保持页面打开。关闭页面后任务会被视为放弃。</p>
-        <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} disabled={creating || (task !== null && task.status !== "failed" && task.status !== "completed")} placeholder="描述画面、动作、镜头和氛围..." />
+        <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={8000} disabled={creating || (task !== null && task.status !== "failed" && task.status !== "completed")} placeholder="描述画面、动作、镜头和氛围..." />
         <Segmented<VideoPreset>
           value={preset}
           options={[
