@@ -1,4 +1,4 @@
-import type { AssetFilter, AssetItem, ChatMessage, ChatStreamEvent, VideoPreset } from "./types";
+import type { AssetFilter, AssetItem, ChatMessage, ChatStreamEvent, ImageSize, VideoPreset } from "./types";
 
 export function initialChatDraft() {
   return { content: "", selectedParentId: null as string | null };
@@ -20,7 +20,6 @@ export function appendChatEvent(messages: ChatMessage[], event: ChatStreamEvent)
 
 export function filterAssets(assets: AssetItem[], filter: AssetFilter) {
   if (filter === "all") return assets;
-  if (filter === "image") return assets.filter((asset) => asset.kind === "upload" || asset.kind === "image");
   return assets.filter((asset) => asset.kind === filter);
 }
 
@@ -47,6 +46,25 @@ export function buildActiveBranch(messages: ChatMessage[], leafId?: string | nul
 
 export function formatBytes(value: number) {
   if (!value) return "未知大小";
-  if (value < 1024 * 1024) return `${Math.ceil(value / 1024)} KB`;
-  return `${(value / 1024 / 1024).toFixed(1)} MB`;
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  if (value < 1024 * 1024 * 1024) return `${(value / 1024 / 1024).toFixed(1)} MB`;
+  return `${(value / 1024 / 1024 / 1024).toFixed(2)} GB`;
+}
+
+const IMAGE_SIZES: ImageSize[] = ["1024x1024", "1024x768", "768x1024"];
+const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
+
+export function readStoredImageSize() {
+  const stored = localStorage.getItem(IMAGE_SIZE_STORAGE_KEY);
+  return IMAGE_SIZES.includes(stored as ImageSize) ? (stored as ImageSize) : "1024x1024";
+}
+
+export function branchLeaves(messages: ChatMessage[]) {
+  const parents = new Set(messages.map((message) => message.parentId).filter(Boolean));
+  return messages.filter((message) => message.role === "assistant" && !parents.has(message.id));
+}
+
+export function imageAssetsForReference(assets: AssetItem[]) {
+  return assets.filter((asset) => asset.mediaType.startsWith("image/"));
 }

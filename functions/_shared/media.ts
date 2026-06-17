@@ -1,4 +1,6 @@
 import { hmacSha256Base64Url, timingSafeEqual } from "./security";
+import { assetById } from "./http";
+import type { Env } from "./http";
 
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "video/mp4"]);
 const DEFAULT_MAX_SIZE = 100 * 1024 * 1024;
@@ -93,4 +95,18 @@ export async function verifyAssetCapabilityToken(objectKey: string, nowSeconds: 
   if (!Number.isFinite(expiresAt) || expiresAt < nowSeconds || !signature) return false;
   const expected = await hmacSha256Base64Url(secret, `${objectKey}.${expiresAt}`);
   return timingSafeEqual(signature, expected);
+}
+
+export async function assetCapabilityUrls(request: Request, env: Env, ids: string[]) {
+  const origin = new URL(request.url).origin;
+  const urls: string[] = [];
+  for (const id of ids.slice(0, 4)) {
+    const asset = await assetById(env, id);
+    if (!asset) continue;
+    if (!safeMediaType(asset.media_type).startsWith("image/")) continue;
+    const expires = Math.floor(Date.now() / 1000) + 15 * 60;
+    const token = await createAssetCapabilityToken(asset.object_key, expires, env.ASSET_CAPABILITY_SECRET);
+    urls.push(`${origin}/api/capability?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`);
+  }
+  return urls;
 }

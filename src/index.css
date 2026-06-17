@@ -1,5 +1,6 @@
 html {
-  background: #fffaf1;
+  background: var(--bg);
+  transition: background 0.3s ease;
 }
 
 body {

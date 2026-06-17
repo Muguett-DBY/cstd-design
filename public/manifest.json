@@ -1,0 +1,16 @@
+{
+  "name": "cstd-design",
+  "short_name": "工作台",
+  "description": "私人中文创作工作台",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffaf1",
+  "theme_color": "#fffaf1",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

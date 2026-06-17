@@ -1,5 +1,7 @@
 import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, ImageSize, VideoPreset } from "./types";
 
+const UNAUTHORIZED_EVENT = "auth:unauthorized";
+
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...init,
@@ -9,8 +11,17 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
     },
   });
   const body = await response.json().catch(() => ({}));
+  if (response.status === 401) {
+    window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
+    throw new Error("请先登录。");
+  }
   if (!response.ok) throw new Error(body.error || "请求失败。");
   return body as T;
+}
+
+export function onUnauthorized(handler: () => void) {
+  window.addEventListener(UNAUTHORIZED_EVENT, handler);
+  return () => window.removeEventListener(UNAUTHORIZED_EVENT, handler);
 }
 
 export const api = {
@@ -39,37 +50,64 @@ export const api = {
   clearScope: (scope: ClearScope) => requestJson<{ ok: true; deleted: { conversations: number; messages: number; assets: number; videoTasks: number; r2Objects: number } }>(`/api/clear/${scope}`, { method: "DELETE" }),
 };
 
+const STREAM_TIMEOUT_MS = 120_000;
+
 export async function streamChat(
   input: { conversationId?: string; parentId?: string | null; content: string },
   handlers: { onEvent: (event: ChatStreamEvent) => void; signal?: AbortSignal },
 ) {
-  const response = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-    signal: handlers.signal,
-  });
-  if (!response.ok || !response.body) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body.error || "咨询失败。");
-  }
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const events = buffer.split(/\n\n/);
-    buffer = events.pop() || "";
-    for (const event of events) {
-      const data = event
-        .split(/\r?\n/)
-        .find((line) => line.startsWith("data:"))
-        ?.slice(5)
-        .trim();
-      if (!data) continue;
-      handlers.onEvent(JSON.parse(data) as ChatStreamEvent);
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
+  const combinedSignal = handlers.signal
+    ? combineSignals(handlers.signal, controller.signal)
+    : controller.signal;
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+      signal: combinedSignal,
+    });
+    if (!response.ok || !response.body) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.error || "咨询失败。");
     }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split(/\n\n/);
+      buffer = events.pop() || "";
+      for (const event of events) {
+        const data = event
+          .split(/\r?\n/)
+          .find((line) => line.startsWith("data:"))
+          ?.slice(5)
+          .trim();
+        if (!data) continue;
+        try {
+          handlers.onEvent(JSON.parse(data) as ChatStreamEvent);
+        } catch {
+          // skip malformed event data
+        }
+      }
+    }
+  } finally {
+    window.clearTimeout(timeout);
   }
+}
+
+function combineSignals(...signals: AbortSignal[]) {
+  const controller = new AbortController();
+  for (const signal of signals) {
+    if (signal.aborted) {
+      controller.abort(signal.reason);
+      return controller.signal;
+    }
+    signal.addEventListener("abort", () => controller.abort(signal.reason), { once: true });
+  }
+  return controller.signal;
 }

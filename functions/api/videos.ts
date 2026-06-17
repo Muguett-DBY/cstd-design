@@ -1,6 +1,6 @@
 import { AgnesClient } from "../_shared/agnes";
-import { assetById, enforceRateLimit, json, readJson, requireSession, upstreamApiKey, type PagesContext } from "../_shared/http";
-import { createAssetCapabilityToken, safeMediaType } from "../_shared/media";
+import { enforceRateLimit, json, readJson, requireSession, upstreamApiKey, type PagesContext } from "../_shared/http";
+import { assetCapabilityUrls } from "../_shared/media";
 import { toClientError, type VideoPreset } from "../_shared/provider";
 import { parseRequest, VideoRequestSchema } from "../_shared/validation";
 
@@ -20,7 +20,7 @@ export async function onRequestPost({ request, env }: PagesContext) {
   if (!parsed.ok) return json({ error: parsed.error }, 400);
   const body = parsed.data;
   const prompt = body.prompt;
-  const referenceUrls = await capabilityUrls(request, env, body.referenceAssetIds);
+  const referenceUrls = await assetCapabilityUrls(request, env, body.referenceAssetIds);
   const client = new AgnesClient({ apiKey: upstreamApiKey(env) });
   try {
     const created = await client.createVideo({
@@ -43,18 +43,4 @@ export async function onRequestPost({ request, env }: PagesContext) {
   } catch (error) {
     return json({ error: toClientError(error, "视频任务创建失败，请稍后重试。") }, 502);
   }
-}
-
-async function capabilityUrls(request: Request, env: PagesContext["env"], ids: string[]) {
-  const origin = new URL(request.url).origin;
-  const urls: string[] = [];
-  for (const id of ids.slice(0, 4)) {
-    const asset = await assetById(env, id);
-    if (!asset) continue;
-    if (!safeMediaType(asset.media_type).startsWith("image/")) continue;
-    const expires = Math.floor(Date.now() / 1000) + 15 * 60;
-    const token = await createAssetCapabilityToken(asset.object_key, expires, env.ASSET_CAPABILITY_SECRET);
-    urls.push(`${origin}/api/capability?id=${encodeURIComponent(id)}&token=${encodeURIComponent(token)}`);
-  }
-  return urls;
 }

@@ -15,8 +15,6 @@
     "pages:deploy": "wrangler pages deploy dist --project-name=cstd-design --branch=main"
   },
   "dependencies": {
-    "clsx": "^2.1.1",
-    "eventsource-parser": "^3.1.0",
     "lucide-react": "^1.17.0",
     "mermaid": "^11.15.0",
     "react": "^19.2.6",

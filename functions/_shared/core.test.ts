@@ -11,6 +11,7 @@ import { selectMessagesForContext } from "./context";
 import {
   contentDisposition,
   createAssetCapabilityToken,
+  createObjectKey,
   publicFilename,
   safeMediaType,
   sanitizeFilename,
@@ -119,9 +120,22 @@ describe("media and provider contracts", () => {
   test("serves media through a whitelist and safe filenames", () => {
     expect(safeMediaType("text/html")).toBe("application/octet-stream");
     expect(safeMediaType("IMAGE/PNG; charset=utf-8")).toBe("image/png");
+    expect(safeMediaType(null)).toBe("application/octet-stream");
+    expect(safeMediaType("video/mp4")).toBe("video/mp4");
+    expect(safeMediaType("image/webp")).toBe("image/webp");
     expect(sanitizeFilename("../坏:file.png")).toBe("坏_file.png");
+    expect(sanitizeFilename("")).toBe("asset.bin");
     expect(publicFilename("naihuangbao-1.png")).toBe("asset-1.png");
+    expect(publicFilename("奶黄包作品.png")).toBe("asset作品.png");
     expect(contentDisposition("坏:file.png", true)).toContain("filename*=UTF-8''");
+    expect(contentDisposition("normal.txt", false)).toBe("inline");
+  });
+
+  test("creates object keys based on kind, date, and id with lowercased extension", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    expect(createObjectKey("image", "abc123", "png")).toBe(`image/${today}/abc123.png`);
+    expect(createObjectKey("video", "def456", "MP4")).toBe(`video/${today}/def456.mp4`);
+    expect(createObjectKey("upload", "ghi789", ".webp")).toBe(`upload/${today}/ghi789.webp`);
   });
 
   test("builds provider payloads without public-facing provider details", () => {
