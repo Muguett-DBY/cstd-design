@@ -424,7 +424,7 @@ button:disabled {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .chat-main {
@@ -700,12 +700,30 @@ button:disabled {
 }
 
 .right-panel {
+  width: 300px;
+  min-width: 0;
   border-width: 0 0 0 1px;
   box-shadow: none;
   border-radius: 0;
   background: linear-gradient(180deg, var(--bg), var(--surface));
   padding: 24px;
   overflow: auto;
+  transition: width 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
+}
+
+.right-panel-collapsed {
+  width: 0px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  padding: 24px 0;
+}
+
+.message-time {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: auto;
 }
 
 .right-panel h3,

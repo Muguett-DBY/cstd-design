@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Check, Copy, Edit3, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Check, Copy, Edit3, PanelRight, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
-import { initialChatDraft } from "../app-state";
+import { initialChatDraft, timeAgo } from "../app-state";
 import { streamChat } from "../api";
 import { ConversationTitleInput } from "./ConversationTitleInput";
 import { Markdown } from "./Markdown";
@@ -66,6 +66,7 @@ export function ChatWorkspace({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(true);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -222,6 +223,7 @@ export function ChatWorkspace({
                 <div className="message-body">
                   <div className="message-meta">
                     <span>{message.role === "assistant" ? ASSISTANT_NAME : "你"}</span>
+                    <span className="message-time">{message.createdAt ? timeAgo(message.createdAt) : ""}</span>
                     {message.status === "streaming" && <em>正在生成...</em>}
                     {message.status === "interrupted" && <em>已中断</em>}
                   </div>
@@ -268,6 +270,9 @@ export function ChatWorkspace({
             <button type="button" className="ghost-button" onClick={() => setDraft(initialChatDraft())}>
               清空
             </button>
+            <button type="button" className="ghost-button" onClick={() => setPanelOpen((p) => !p)} title={panelOpen ? "收起信息面板" : "展开信息面板"}>
+              <PanelRight size={16} />
+            </button>
             {streaming ? (
               <button type="button" className="primary-button muted" onClick={() => abortRef.current?.abort()}>
                 <Square size={16} /> 停止回答
@@ -281,7 +286,7 @@ export function ChatWorkspace({
         </div>
       </div>
 
-      <aside className="right-panel">
+      <aside className={`right-panel${panelOpen ? "" : " right-panel-collapsed"}`}>
         <h3>会话信息</h3>
         <InfoLine label="消息数" value={String(conversation?.messages.length || 0)} />
         <InfoLine label="分支数" value={String(leaves.length || 0)} />
