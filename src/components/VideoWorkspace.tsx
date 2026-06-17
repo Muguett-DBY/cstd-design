@@ -22,7 +22,7 @@ function TaskStatusBadge({ status }: { status: string }) {
 
 type VideoTask = { id: string; status: string; progress: number; assetUrl?: string };
 
-export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange }: {
+export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online }: {
   assets: AssetItem[];
   onAssetsChanged: () => Promise<void>;
   onNotice: (message: string) => void;
@@ -32,6 +32,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   onVideoTaskChange: (task: VideoTask | null) => void;
   submittedPrompt: string;
   onSubmittedPromptChange: (prompt: string) => void;
+  online: boolean;
 }) {
   const [prompt, setPrompt] = useState("");
   const [preset, setPreset] = useState<VideoPreset>("standard");
@@ -168,7 +169,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           <button
             type="button"
             className="primary-button full"
-            disabled={!prompt.trim() || creating}
+            disabled={!prompt.trim() || creating || !online}
             onClick={async () => {
               setCreating(true);
               onSubmittedPromptChange(prompt);
