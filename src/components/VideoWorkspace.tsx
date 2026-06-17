@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Film, RefreshCw } from "lucide-react";
 import { api } from "../api";
-import { filterAssets, imageAssetsForReference, videoPresetToRequest } from "../app-state";
+import { filterAssets, imageAssetsForReference, videoPresetToRequest, videoStatusLabel } from "../app-state";
 import type { AssetItem, VideoPreset } from "../types";
 import { ClearAllButton } from "./ClearAllButton";
 import { ReferencePicker } from "./ReferencePicker";
@@ -111,7 +111,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         <ReferencePicker assets={referenceAssets} selected={referenceIds} onChange={setReferenceIds} />
         {task ? (
           <div className="task-card">
-            <strong>当前任务：{task.status}</strong>
+            <strong>当前任务：{videoStatusLabel(task.status)}</strong>
             <div className="progress"><span style={{ width: `${task.progress}%` }} /></div>
             <p>{task.progress}% · {presetInfo.numFrames} 帧</p>
             {task.assetUrl && <a href={task.assetUrl} target="_blank" rel="noreferrer">打开视频</a>}

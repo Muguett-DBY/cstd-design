@@ -68,3 +68,14 @@ export function branchLeaves(messages: ChatMessage[]) {
 export function imageAssetsForReference(assets: AssetItem[]) {
   return assets.filter((asset) => asset.mediaType.startsWith("image/"));
 }
+
+const VIDEO_STATUS_LABELS: Record<string, string> = {
+  queued: "排队中",
+  in_progress: "生成中",
+  completed: "已完成",
+  failed: "失败",
+};
+
+export function videoStatusLabel(status: string) {
+  return VIDEO_STATUS_LABELS[status] || status;
+}

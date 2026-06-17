@@ -11,6 +11,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const visible = filterAssets(assets, filter);
+  const totalSize = assets.reduce((sum, a) => sum + a.size, 0);
   return (
     <section className="asset-page">
       <div className="asset-toolbar">
@@ -32,6 +33,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
           }} />
         </div>
       </div>
+      <div className="asset-stats">{visible.length} 个文件，共 {formatBytes(totalSize)}</div>
       <div className="asset-grid">
         {visible.length === 0 ? (
           <EmptyState title="还没有素材" text="上传参考图或生成作品后，会出现在这里。" />

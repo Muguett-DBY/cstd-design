@@ -76,13 +76,6 @@
   --user-msg-border: #5c4a3c;
 }
 
-.theme-dark body {
-  background:
-    radial-gradient(circle at 15% 10%, rgba(60, 45, 30, 0.6), transparent 26rem),
-    radial-gradient(circle at 95% 5%, rgba(50, 40, 30, 0.5), transparent 28rem),
-    var(--bg);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -972,6 +965,12 @@ button:disabled {
 
 .asset-toolbar {
   margin-bottom: 18px;
+}
+
+.asset-stats {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
 }
 
 .asset-grid {

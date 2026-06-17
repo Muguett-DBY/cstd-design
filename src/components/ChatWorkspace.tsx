@@ -87,6 +87,12 @@ export function ChatWorkspace({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
+  // Auto-scroll to bottom when streaming and user hasn't scrolled up
+  useEffect(() => {
+    if (!streaming || userScrolledUp) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messages, streaming, userScrolledUp]);
+
   const sendContent = async (content: string, parentId: string | null) => {
     if (!content || streaming) return;
     setStreaming(true);
