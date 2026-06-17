@@ -1590,6 +1590,14 @@ button:disabled {
     flex-direction: column;
   }
 
+  .title-input {
+    font-size: 18px;
+  }
+
+  .chat-title-row .clear-all-button {
+    display: none;
+  }
+
   .row-actions {
     flex-wrap: wrap;
   }
@@ -1618,6 +1626,21 @@ button:disabled {
     margin: 0 16px 16px;
   }
 
+  .composer textarea {
+    min-height: 56px;
+    max-height: 25vh;
+  }
+
+  .composer-actions .ghost-button {
+    display: none;
+  }
+
+  .composer-actions .primary-button,
+  .composer-actions .primary-button.muted {
+    width: 100%;
+    justify-content: center;
+  }
+
   .tool-grid,
   .asset-page {
     padding: 16px;
@@ -1634,6 +1657,14 @@ button:disabled {
   .field-row {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .asset-checkbox {
+    opacity: 1;
+  }
+
+  .asset-select-bar {
+    display: none;
   }
 
   .mobile-tabs {
