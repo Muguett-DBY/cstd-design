@@ -13,6 +13,8 @@ import { EmptyState } from "./EmptyState";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { MessageSearchBar } from "./MessageSearchBar";
 import { useMessageSearch } from "../hooks/useMessageSearch";
+import { useMessageReactions } from "../hooks/useMessageReactions";
+import { ReactionPicker } from "./ReactionPicker";
 
 const ASSISTANT_NAME = "助手";
 
@@ -91,6 +93,7 @@ export function ChatWorkspace({
   const [panelOpen, setPanelOpen] = useState(true);
   const search = useMessageSearch(messages);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+  const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -342,6 +345,19 @@ export function ChatWorkspace({
                     {row.message.status === "interrupted" && <em>已中断</em>}
                   </div>
                   <Markdown content={row.message.content || "正在思考..."} highlightQuery={search.query} />
+                  <div className="message-reactions">
+                    {getReactions(row.message.id).map((emoji) => (
+                      <button
+                        key={emoji}
+                        type="button"
+                        className={`reaction-badge${hasReaction(row.message.id, emoji) ? " active" : ""}`}
+                        onClick={() => toggleReaction(row.message.id, emoji)}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                    <ReactionPicker quickEmojis={quickEmojis} onReact={(emoji) => toggleReaction(row.message.id, emoji)} />
+                  </div>
                   <div className="message-actions">
                     <CopyButton content={row.message.content} onNotice={onNotice} />
                     {row.message.role === "user" && (

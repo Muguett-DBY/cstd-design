@@ -1,6 +1,33 @@
 # Iteration Log
 
-## Round 20 (latest)
+## Round 21 (latest)
+
+**Flagship**: Message reactions with emoji picker
+
+### Completed
+- Created `useMessageReactions` hook with localStorage persistence
+- Created `ReactionPicker` component with quick emoji selection
+- Integrated reactions into ChatWorkspace:
+  - Added reaction badges below each message
+  - Added hover-to-reveal emoji picker
+  - Support for 6 quick emojis: 👍, ❤️, 😊, 🎉, 🤔, 👀
+  - Toggle reactions on/off by clicking
+  - Visual feedback for active reactions
+- Added keyboard shortcut hints in Sidebar (Ctrl+K, Ctrl+N, Ctrl+F)
+- Added CSS for reaction picker, badges, and keyboard hints
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Conversation search improvements** — Add date range filter and message count filter
+2. **Message pinning** — Allow users to pin important messages
+3. **Conversation folders** — Organize conversations into folders
+
+## Round 20 (003114e)
 
 **Flagship**: Build size optimization - lazy load Mermaid chunk
 
