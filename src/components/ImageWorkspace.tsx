@@ -20,7 +20,7 @@ const STYLE_PRESETS: { id: string; label: string; prefix: string }[] = [
   { id: "sketch", label: "素描", prefix: "铅笔素描风格，" },
 ];
 
-export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void }) {
+export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean }) {
   const [prompt, setPrompt] = useState("");
   const [size, setSize] = useState<ImageSize>(() => readStoredImageSize());
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
@@ -78,7 +78,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         />
         <ReferencePicker assets={referenceAssets} selected={referenceIds} onChange={setReferenceIds} />
         <UploadBox onUploaded={onAssetsChanged} onNotice={onNotice} />
-        <button type="button" className="primary-button full" onClick={generate} disabled={loading || !prompt.trim()}>
+        <button type="button" className="primary-button full" onClick={generate} disabled={loading || !prompt.trim() || !online}>
           {loading ? <><RefreshCw size={16} className="spin" /> 生成中...</> : <><ImageIcon size={16} /> 生成图片</>}
         </button>
         {lastResult && !loading && (

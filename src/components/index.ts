@@ -20,3 +20,4 @@ export { ImageWorkspace } from "./ImageWorkspace";
 export { VideoWorkspace } from "./VideoWorkspace";
 export { AssetWorkspace } from "./AssetWorkspace";
 export { Sidebar } from "./Sidebar";
+export { NetworkBanner } from "./NetworkBanner";

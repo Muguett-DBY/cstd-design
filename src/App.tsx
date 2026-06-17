@@ -18,6 +18,8 @@ import {
   ConfirmDialog,
 } from "./components";
 import { useToast } from "./components/toast-context";
+import { useNetworkStatus } from "./hooks/useNetworkStatus";
+import { NetworkBanner } from "./components/NetworkBanner";
 
 const CLEAR_LABELS: Record<ClearScope, string> = {
   all: "全部内容",
@@ -29,6 +31,7 @@ const CLEAR_LABELS: Record<ClearScope, string> = {
 
 function AppInner() {
   const { toast } = useToast();
+  const { online, checkOnline } = useNetworkStatus();
   const [authenticated, setAuthenticated] = useState(false);
   const [booting, setBooting] = useState(true);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("chat");
@@ -246,6 +249,7 @@ function AppInner() {
 
   return (
     <div className="app-shell">
+      <NetworkBanner online={online} onRetry={checkOnline} />
       <aside className="sidebar">
         <Sidebar {...sidebarProps} />
       </aside>
@@ -358,12 +362,12 @@ function AppInner() {
         )}
         {activeTab === "image" && (
           <ErrorBoundary key="image">
-          <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={openLightbox} />
+          <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={openLightbox} online={online} />
           </ErrorBoundary>
         )}
         {activeTab === "video" && (
           <ErrorBoundary key="video">
-          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} videoTask={videoTask} onVideoTaskChange={setVideoTask} submittedPrompt={videoSubmittedPrompt} onSubmittedPromptChange={setVideoSubmittedPrompt} />
+          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} videoTask={videoTask} onVideoTaskChange={setVideoTask} submittedPrompt={videoSubmittedPrompt} onSubmittedPromptChange={setVideoSubmittedPrompt} online={online} />
           </ErrorBoundary>
         )}
         {activeTab === "assets" && (
