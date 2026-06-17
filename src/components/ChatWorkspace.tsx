@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Check, Copy, Download, Edit3, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Check, Copy, Download, Edit3, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -16,6 +16,7 @@ import { ExportModal } from "./ExportModal";
 import { useMessageSearch } from "../hooks/useMessageSearch";
 import { useMessageReactions } from "../hooks/useMessageReactions";
 import { useMessagePinning } from "../hooks/useMessagePinning";
+import { useMessageThreading } from "../hooks/useMessageThreading";
 import { ReactionPicker } from "./ReactionPicker";
 
 const ASSISTANT_NAME = "助手";
@@ -98,6 +99,10 @@ export function ChatWorkspace({
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
+  const { getThreadReplies, addReply, hasThread, getThreadCount } = useMessageThreading();
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState("");
+  const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -342,6 +347,12 @@ export function ChatWorkspace({
                   </div>
                   <div className="message-actions">
                     <CopyButton content={row.message.content} onNotice={onNotice} />
+                    <button type="button" onClick={() => {
+                      setReplyingTo(replyingTo === row.message.id ? null : row.message.id);
+                      setReplyContent("");
+                    }} className={replyingTo === row.message.id ? "active" : ""} title="回复消息">
+                      <MessageSquare size={14} /> 回复
+                    </button>
                     <button type="button" onClick={() => togglePin(row.message.id)} className={isPinned(row.message.id) ? "pinned" : ""} title={isPinned(row.message.id) ? "取消置顶" : "置顶消息"}>
                       <Pin size={14} /> {isPinned(row.message.id) ? "已置顶" : "置顶"}
                     </button>
@@ -361,6 +372,61 @@ export function ChatWorkspace({
                       </button>
                     )}
                   </div>
+                  {hasThread(row.message.id) && (
+                    <div className="thread-indicator">
+                      <button type="button" className="thread-toggle" onClick={() => {
+                        const newExpanded = new Set(expandedThreads);
+                        if (newExpanded.has(row.message.id)) {
+                          newExpanded.delete(row.message.id);
+                        } else {
+                          newExpanded.add(row.message.id);
+                        }
+                        setExpandedThreads(newExpanded);
+                      }}>
+                        <MessageSquare size={12} /> {getThreadCount(row.message.id)} 条回复
+                        {expandedThreads.has(row.message.id) ? " ▼" : " ▶"}
+                      </button>
+                      {expandedThreads.has(row.message.id) && (
+                        <div className="thread-replies">
+                          {getThreadReplies(row.message.id).map((reply, idx) => (
+                            <div key={idx} className="thread-reply">
+                              <span className="thread-reply-label">回复：</span>
+                              <Markdown content={reply} />
+                              <button type="button" className="thread-reply-delete" onClick={() => {
+                                // We'll implement this later if needed
+                              }}>
+                                <Trash2 size={10} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {replyingTo === row.message.id && (
+                    <div className="reply-input">
+                      <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        placeholder="输入回复内容..."
+                        rows={2}
+                      />
+                      <div className="reply-actions">
+                        <button type="button" className="ghost-button" onClick={() => setReplyingTo(null)}>取消</button>
+                        <button type="button" className="primary-button" onClick={() => {
+                          if (replyContent.trim()) {
+                            addReply(row.message.id, replyContent.trim());
+                            setReplyContent("");
+                            setReplyingTo(null);
+                            // Auto-expand the thread
+                            const newExpanded = new Set(expandedThreads);
+                            newExpanded.add(row.message.id);
+                            setExpandedThreads(newExpanded);
+                          }
+                        }} disabled={!replyContent.trim()}>发送回复</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </article>
               </div>
