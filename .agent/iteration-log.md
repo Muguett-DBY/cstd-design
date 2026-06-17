@@ -1,6 +1,35 @@
 # Iteration Log
 
-## Round 17 (latest)
+## Round 18 (latest)
+
+**Flagship**: Message search within conversation
+
+### Completed
+- Created `useMessageSearch` hook with search logic, result navigation, and active index tracking
+- Created `MessageSearchBar` component with search input, result count, and navigation buttons
+- Updated `Markdown` component to support `highlightQuery` prop for search result highlighting
+- Integrated search into `ChatWorkspace` with:
+  - Search button in toolbar
+  - Ctrl+F keyboard shortcut to open search
+  - Auto-scroll to active search result
+  - Result count display (e.g., "3/15")
+  - Enter/Shift+Enter to navigate results
+  - Escape to close search
+- Added CSS for search bar, result count, navigation buttons, and search highlighting
+- Added visual pulse animation for active search result
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Build size optimization** — Mermaid chunk (593KB) could be lazy-loaded more aggressively
+2. **Drag-and-drop reorder** — Allow users to manually pin or reorder conversations
+3. **Message reactions** — Add emoji reactions to messages for quick feedback
+
+## Round 17 (508d3d9)
 
 **Flagship**: Conversation sort/filter
 
