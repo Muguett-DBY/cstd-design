@@ -109,6 +109,9 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
           printWindow.onload = () => {
             printWindow.print();
           };
+        } else {
+          // Fallback: download as HTML if popup is blocked
+          downloadFile(html, `${safeTitle}.html`, "text/html;charset=utf-8");
         }
         break;
       }

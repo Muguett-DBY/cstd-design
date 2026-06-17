@@ -1,6 +1,35 @@
 # Iteration Log
 
-## Round 26 (latest)
+## Round 27 (latest)
+
+**Type**: Health check and stability improvements
+
+### Issues Found and Fixed
+1. **ExportModal PDF export popup blocker handling** - Added fallback to download HTML if popup is blocked
+2. **UploadBox file input reset on drag-and-drop** - Fixed file input not resetting after drag-and-drop upload
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Health Check Results
+- Build and dependencies: ✅ No issues
+- GitHub Actions / CI: ✅ No issues
+- TypeScript / lint / build: ✅ No issues
+- Functional flows: ✅ No critical issues
+- UI/UX and responsive: ✅ No critical issues
+- Performance and loading: ✅ No critical issues
+- Security and data risks: ✅ No issues (no console.log, debugger, sensitive data)
+- Code quality and maintainability: ✅ No critical issues
+
+### Next Direction
+1. **Conversation archiving** — Archive old conversations without deleting
+2. **Export improvements** — Add more export options (date range, selected messages)
+3. **Message search within threads** — Search through threaded replies
+
+## Round 26 (3be2d58)
 
 **Flagship**: Message threading with collapsible replies
 
