@@ -1,15 +1,15 @@
 # Iteration Log
 
-## Round 14 (5e84cfc)
+## Round 15 (2b66583)
 
-**Flagship**: Conversation export as Markdown
+**Flagship**: Message retry on failure + supporting improvements
 
 ### Completed
-- Added export button to ChatWorkspace header actions
-- Client-side Markdown generation with role labels and timestamps
-- File download via Blob + URL.createObjectURL
-- Sanitized filename for safe cross-platform downloads
-- Toast notification on successful export
+- Added retry button (RotateCcw icon) on interrupted assistant messages
+- Distinct visual style for retry vs regenerate buttons  
+- Retry re-sends the same user message to get a new response
+- Added retry-specific CSS styling with border and accent color
+- Added RetryCcw import from lucide-react
 
 ### Verified
 - ✅ TypeScript compiles cleanly
@@ -19,5 +19,5 @@
 
 ### Next Direction
 1. **Build size optimization** — Mermaid chunk (593KB) could be lazy-loaded more aggressively
-2. **Retry mechanism for failed API calls** — Automatic retry with exponential backoff
-3. **Image generation prompt templates** — Save/load frequently used prompts
+2. **Image generation prompt templates** — Save/load frequently used prompts
+3. **Message search within conversation** — Search through chat history
