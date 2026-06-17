@@ -7,6 +7,7 @@ export { EmptyState } from "./EmptyState";
 export { Lightbox } from "./Lightbox";
 export { Segmented } from "./Segmented";
 export { ClearAllButton } from "./ClearAllButton";
+export { ConfirmDialog } from "./ConfirmDialog";
 export { InfoLine } from "./InfoLine";
 export { Markdown } from "./Markdown";
 export { ConversationTitleInput } from "./ConversationTitleInput";

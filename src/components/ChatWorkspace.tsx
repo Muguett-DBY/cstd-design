@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Copy, Edit3, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Check, Copy, Edit3, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
 import { initialChatDraft } from "../app-state";
 import { streamChat } from "../api";
@@ -12,10 +12,30 @@ import { ScrollToBottom } from "./ScrollToBottom";
 
 const ASSISTANT_NAME = "助手";
 
+function CopyButton({ content, onNotice }: { content: string; onNotice: (msg: string) => void }) {
+  const [copied, setCopied] = useState(false);
+  const handleClick = async () => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      onNotice("已复制到剪贴板。");
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      onNotice("复制失败，请重试。");
+    }
+  };
+  return (
+    <button type="button" onClick={handleClick} className={copied ? "copied" : ""}>
+      {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? "已复制" : "复制"}
+    </button>
+  );
+}
+
 export function ChatWorkspace({
   conversation,
   messages,
   leaves,
+  loading,
   onCreate,
   onRename,
   onDelete,
@@ -28,6 +48,7 @@ export function ChatWorkspace({
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
   leaves: ChatMessage[];
+  loading: boolean;
   onCreate: () => Promise<void>;
   onRename: (title: string) => Promise<void>;
   onDelete: () => Promise<void>;
@@ -169,8 +190,25 @@ export function ChatWorkspace({
         </div>
 
         <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
-          {messages.length === 0 ? (
-            <EmptyState title="可以开始问了" text="这里只保留你的私人会话，不显示内部服务信息。" />
+          {loading ? (
+            <div className="messages-skeleton">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={`message-skeleton ${i % 2 === 0 ? "user" : "assistant"}`}>
+                  <div className="skeleton-avatar" />
+                  <div className="skeleton-body">
+                    <div className="skeleton-line skeleton-line-short" />
+                    <div className="skeleton-line" />
+                    <div className="skeleton-line skeleton-line-medium" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : messages.length === 0 ? (
+            <EmptyState title="可以开始问了" text="这里只保留你的私人会话，不显示内部服务信息。">
+              <button type="button" className="primary-button" onClick={onCreate} style={{ marginTop: 8 }}>
+                <Plus size={16} /> 新建会话
+              </button>
+            </EmptyState>
           ) : (
             messages.map((message) => (
               <article key={message.id} className={`message ${message.role}`}>
@@ -183,9 +221,7 @@ export function ChatWorkspace({
                   </div>
                   <Markdown content={message.content || "正在思考..."} />
                   <div className="message-actions">
-                    <button type="button" onClick={() => { void navigator.clipboard.writeText(message.content); onNotice("已复制到剪贴板。"); }}>
-                      <Copy size={14} /> 复制
-                    </button>
+                    <CopyButton content={message.content} onNotice={onNotice} />
                     {message.role === "user" && (
                       <button type="button" onClick={() => setDraft({ content: message.content, selectedParentId: message.parentId || null })}>
                         <Edit3 size={14} /> 编辑后发送

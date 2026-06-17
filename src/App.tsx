@@ -17,6 +17,7 @@ import {
   AssetWorkspace,
   Lightbox,
   Sidebar,
+  ConfirmDialog,
 } from "./components";
 import { useToast } from "./components/toast-context";
 
@@ -38,11 +39,29 @@ function AppInner() {
   const [assets, setAssets] = useState<AssetItem[]>([]);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [lightboxAsset, setLightboxAsset] = useState<AssetItem | null>(null);
+  const [loadingConversation, setLoadingConversation] = useState(false);
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("cstd-design:dark");
     if (stored !== null) return stored === "true";
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
+
+  // Confirm dialog state
+  const [confirmState, setConfirmState] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    danger: boolean;
+    onConfirm: () => void;
+  }>({ open: false, title: "", message: "", danger: false, onConfirm: () => {} });
+
+  const requestConfirm = useCallback((title: string, message: string, danger: boolean, onConfirm: () => void) => {
+    setConfirmState({ open: true, title, message, danger, onConfirm });
+  }, []);
+
+  const closeConfirm = useCallback(() => {
+    setConfirmState((prev) => ({ ...prev, open: false }));
+  }, []);
 
   useEffect(() => {
     document.documentElement.classList.toggle("theme-dark", dark);
@@ -110,28 +129,41 @@ function AppInner() {
   }, [toast]);
 
   const openConversation = useCallback(async (id: string) => {
+    setLoadingConversation(true);
     try {
       const result = await api.conversation(id);
       setConversation(result.conversation);
       setActiveTab("chat");
     } catch (error) {
       toast(error instanceof Error ? error.message : "请求失败。", "error");
+    } finally {
+      setLoadingConversation(false);
     }
   }, [toast]);
 
   const clearScope = useCallback(async (scope: ClearScope) => {
     const label = CLEAR_LABELS[scope];
-    if (!window.confirm(`确认永久清空${label}？这个操作会删除数据库记录和相关文件，不能恢复。`)) return;
-    const result = await api.clearScope(scope);
-    if (scope === "chat" || scope === "all") {
-      setConversation(null);
-      await refreshConversations("");
-    }
-    if (scope === "image" || scope === "video" || scope === "assets" || scope === "all") {
-      await refreshAssets();
-    }
-    toast(`已清空${label}：会话 ${result.deleted.conversations}，消息 ${result.deleted.messages}，素材 ${result.deleted.assets}，视频任务 ${result.deleted.videoTasks}。`, "success");
-  }, [refreshAssets, refreshConversations, toast]);
+    requestConfirm(
+      `清空${label}`,
+      `确认永久清空${label}？这个操作会删除数据库记录和相关文件，不能恢复。`,
+      true,
+      async () => {
+        try {
+          const result = await api.clearScope(scope);
+          if (scope === "chat" || scope === "all") {
+            setConversation(null);
+            await refreshConversations("");
+          }
+          if (scope === "image" || scope === "video" || scope === "assets" || scope === "all") {
+            await refreshAssets();
+          }
+          toast(`已清空${label}：会话 ${result.deleted.conversations}，消息 ${result.deleted.messages}，素材 ${result.deleted.assets}，视频任务 ${result.deleted.videoTasks}。`, "success");
+        } catch (error) {
+          toast(error instanceof Error ? error.message : "操作失败。", "error");
+        }
+      },
+    );
+  }, [refreshAssets, refreshConversations, requestConfirm, toast]);
 
   useEffect(() => {
     api
@@ -208,6 +240,20 @@ function AppInner() {
 
       {lightboxAsset && <Lightbox asset={lightboxAsset} onClose={() => setLightboxAsset(null)} />}
 
+      <ConfirmDialog
+        open={confirmState.open}
+        title={confirmState.title}
+        message={confirmState.message}
+        danger={confirmState.danger}
+        confirmLabel={confirmState.danger ? "确认删除" : "确认"}
+        onConfirm={async () => {
+          const action = confirmState.onConfirm;
+          closeConfirm();
+          await action();
+        }}
+        onCancel={closeConfirm}
+      />
+
       <main className="workspace">
         <ErrorBoundary>
         <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />
@@ -216,6 +262,7 @@ function AppInner() {
             conversation={conversation}
             messages={activeMessages}
             leaves={leaves}
+            loading={loadingConversation}
             onCreate={async () => {
               try {
                 const created = await api.createConversation();
@@ -232,12 +279,20 @@ function AppInner() {
               } catch (error) { toast(error instanceof Error ? error.message : "请求失败。", "error"); }
             }}
             onDelete={async () => {
-              if (!conversation || !window.confirm("确认删除这个会话？")) return;
-              try {
-                await api.deleteConversation(conversation.id);
-                setConversation(null);
-                await refreshConversations("");
-              } catch (error) { toast(error instanceof Error ? error.message : "请求失败。", "error"); }
+              if (!conversation) return;
+              requestConfirm(
+                "删除会话",
+                `确认删除会话"${conversation.title}"？此操作不可恢复。`,
+                true,
+                async () => {
+                  try {
+                    await api.deleteConversation(conversation.id);
+                    setConversation(null);
+                    await refreshConversations("");
+                    toast("会话已删除。", "success");
+                  } catch (error) { toast(error instanceof Error ? error.message : "删除失败。", "error"); }
+                },
+              );
             }}
             onBranch={async (leafId: string) => {
               if (!conversation) return;
@@ -286,7 +341,7 @@ function AppInner() {
         )}
         {activeTab === "image" && <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={setLightboxAsset} />}
         {activeTab === "video" && <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={setLightboxAsset} />}
-        {activeTab === "assets" && <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={setLightboxAsset} />}
+        {activeTab === "assets" && <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={setLightboxAsset} onRequestConfirm={requestConfirm} />}
         </ErrorBoundary>
       </main>
 

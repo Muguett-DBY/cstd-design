@@ -15,11 +15,15 @@ export function TopBar({ activeTab, onTabChange, onOpenSidebar }: { activeTab: W
         <p>{activeTab === "chat" ? "安静地问，清楚地答。" : activeTab === "image" ? "输入想法，生成一张图。" : activeTab === "video" ? "页面保持打开，等待视频完成。" : "管理你的上传和作品。"}</p>
       </div>
       <div className="top-actions">
-        {TABS.map((tab) => (
-          <button key={tab.id} type="button" className={activeTab === tab.id ? "chip active" : "chip"} onClick={() => onTabChange(tab.id)}>
-            {tab.label}
-          </button>
-        ))}
+        {TABS.map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button key={tab.id} type="button" className={activeTab === tab.id ? "chip active" : "chip"} onClick={() => onTabChange(tab.id)}>
+              <Icon size={16} />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
     </header>
   );

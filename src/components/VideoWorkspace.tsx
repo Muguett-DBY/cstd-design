@@ -25,6 +25,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   useEffect(() => {
     if (!task || task.status === "completed" || task.status === "failed") return;
     let cancelled = false;
+    let consecutiveErrors = 0;
     const handler = (event: BeforeUnloadEvent) => { event.preventDefault(); };
     window.addEventListener("beforeunload", handler);
     const timer = window.setInterval(async () => {
@@ -32,6 +33,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       try {
         const result = await api.videoTask(task.id);
         if (cancelled) return;
+        consecutiveErrors = 0;
         setTask(result.task);
         if (result.task.status === "completed") {
           await onAssetsChanged();
@@ -40,7 +42,14 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           onNotice("视频生成失败。");
         }
       } catch (error) {
-        if (!cancelled) onNotice(error instanceof Error ? error.message : "视频查询失败。");
+        if (!cancelled) {
+          consecutiveErrors++;
+          if (consecutiveErrors <= 3) {
+            onNotice(error instanceof Error ? error.message : "视频查询失败。");
+          } else if (consecutiveErrors === 4) {
+            onNotice("网络连接不稳定，正在重试...");
+          }
+        }
       }
     }, 3000);
     return () => {

@@ -7,7 +7,7 @@ import { ClearAllButton } from "./ClearAllButton";
 import { EmptyState } from "./EmptyState";
 import { Segmented } from "./Segmented";
 
-export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void }) {
+export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const visible = filterAssets(assets, filter);
@@ -47,14 +47,21 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               </div>
               <div className="asset-actions">
                 <a href={`${asset.url}?download=1`}>下载</a>
-                <button type="button" className="danger" disabled={deletingId === asset.id} onClick={async () => {
-                  if (!window.confirm("确认永久删除这个素材？")) return;
-                  setDeletingId(asset.id);
-                  try {
-                    await api.deleteAsset(asset.id);
-                    await onAssetsChanged();
-                  } catch (error) { onNotice(error instanceof Error ? error.message : "删除失败。"); }
-                  finally { setDeletingId(null); }
+                <button type="button" className="danger" disabled={deletingId === asset.id} onClick={() => {
+                  onRequestConfirm(
+                    "删除素材",
+                    `确认永久删除"${asset.filename}"？此操作不可恢复。`,
+                    true,
+                    async () => {
+                      setDeletingId(asset.id);
+                      try {
+                        await api.deleteAsset(asset.id);
+                        await onAssetsChanged();
+                        onNotice("素材已删除。");
+                      } catch (error) { onNotice(error instanceof Error ? error.message : "删除失败。"); }
+                      finally { setDeletingId(null); }
+                    },
+                  );
                 }}>
                   {deletingId === asset.id ? <><RefreshCw size={14} className="spin" /> 删除中</> : "删除"}
                 </button>
