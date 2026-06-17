@@ -1,4 +1,4 @@
-import { useId, useEffect, useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
@@ -24,29 +24,7 @@ function CodeSnippet({ className, code }: { className?: string; code: string }) 
   );
 }
 
-function MermaidBlock({ source }: { source: string }) {
-  const [svg, setSvg] = useState("");
-  const id = useId().replace(/:/g, "");
-  useEffect(() => {
-    let cancelled = false;
-    import("mermaid")
-      .then(({ default: mermaid }) => {
-        mermaid.initialize({ startOnLoad: false, theme: "base" });
-        return mermaid.render(id, source);
-      })
-      .then((result) => {
-        if (!cancelled) setSvg(result.svg);
-      })
-      .catch(() => {
-        if (!cancelled) setSvg("");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [id, source]);
-  if (!svg) return <pre className="mermaid-fallback">{source}</pre>;
-  return <div className="mermaid-block" dangerouslySetInnerHTML={{ __html: svg }} />;
-}
+const MermaidBlock = lazy(() => import("./MermaidBlock").then((m) => ({ default: m.MermaidBlock })));
 
 function highlightText(text: string, query: string): React.ReactNode[] {
   if (!query.trim()) return [text];
@@ -86,7 +64,7 @@ function Markdown({ content, highlightQuery }: { content: string; highlightQuery
           components={{
             code({ className, children, ...props }) {
               const text = String(children).replace(/\n$/, "");
-              if (className?.includes("language-mermaid")) return <MermaidBlock source={text} />;
+              if (className?.includes("language-mermaid")) return <Suspense fallback={<pre className="mermaid-fallback">{text}</pre>}><MermaidBlock source={text} /></Suspense>;
               if (className?.startsWith("language-") || String(children).includes("\n")) return <CodeSnippet className={className} code={text} />;
               return (
                 <code className={className} {...props}>
@@ -112,4 +90,4 @@ function Markdown({ content, highlightQuery }: { content: string; highlightQuery
   );
 }
 
-export { Markdown, CodeSnippet, MermaidBlock };
+export { Markdown, CodeSnippet };

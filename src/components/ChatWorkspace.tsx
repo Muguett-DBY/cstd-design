@@ -239,6 +239,25 @@ export function ChatWorkspace({
     onNotice("对话已导出为 Markdown 文件。");
   };
 
+  const copyAllAsText = async () => {
+    if (!conversation) return;
+    const title = conversation.title;
+    const body = messages
+      .filter((m) => m.status !== "streaming")
+      .map((m) => {
+        const role = m.role === "user" ? "你" : ASSISTANT_NAME;
+        return `${role}：\n${m.content}`;
+      })
+      .join("\n\n");
+    const text = `${title}\n\n${body}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      onNotice("对话已复制到剪贴板。");
+    } catch {
+      onNotice("复制失败，请重试。");
+    }
+  };
+
   return (
     <section className="chat-layout">
       <div className="chat-main">
@@ -258,6 +277,9 @@ export function ChatWorkspace({
             </button>
             <button type="button" className="ghost-button" onClick={search.openSearch} disabled={!conversation || messages.length === 0} title="搜索消息 (Ctrl+F)">
               <Search size={16} /> 搜索
+            </button>
+            <button type="button" className="ghost-button" onClick={copyAllAsText} disabled={!conversation || messages.length === 0} title="复制全部对话">
+              <Copy size={16} /> 复制全部
             </button>
             <button type="button" className="ghost-button" onClick={exportConversation} disabled={!conversation || messages.length === 0}>
               <Download size={16} /> 导出
