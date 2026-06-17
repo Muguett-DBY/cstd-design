@@ -1,13 +1,13 @@
 # Iteration Log
 
-## Round 11 (26dbd95)
+## Round 12 (ba9bb44)
 
-**Flagship**: Content-aware conversation search + keyboard shortcut Ctrl+N
+**Flagship**: Persist video task state across tab switches
 
 ### Completed
-- Backend `listConversations` now searches message content via LEFT JOIN (not just titles)
-- Sidebar search placeholder updated to "搜索标题或内容..."
-- Added `Ctrl+N` shortcut for new conversations
+- Lifted video task state from VideoWorkspace to App.tsx
+- Video generation tasks now persist when switching between tabs
+- Users can see running task progress, completed video, and abandon task after tab switching
 
 ### Verified
 - ✅ TypeScript compiles cleanly
@@ -16,6 +16,6 @@
 - ✅ Production build succeeds
 
 ### Next Direction
-1. **Video workspace history** — Show completed video task results across tab switches (currently lost on navigation)
-2. **Offline detection** — Show users when network is down
-3. **Build size optimization** — Mermaid chunk (593KB) could be lazy-loaded more aggressively
+1. **Offline detection** — Show users when network is down
+2. **Build size optimization** — Mermaid chunk (593KB) could be lazy-loaded more aggressively
+3. **Conversation export** — Allow users to export chat history as text/markdown
