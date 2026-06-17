@@ -1,6 +1,29 @@
 # Iteration Log
 
-## Round 19 (latest)
+## Round 20 (latest)
+
+**Flagship**: Build size optimization - lazy load Mermaid chunk
+
+### Completed
+- Extracted `MermaidBlock` component into separate file for better code splitting
+- Updated `Markdown` component to use `React.lazy` for MermaidBlock
+- Added `Suspense` wrapper with fallback for lazy-loaded MermaidBlock
+- MermaidBlock component now only loads when mermaid code blocks are encountered
+- Added "Copy All" button to ChatWorkspace for quick conversation sharing
+- Added `copyAllAsText` function that copies conversation as plain text
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message reactions** — Add emoji reactions to messages for quick feedback
+2. **Conversation search improvements** — Add date range filter and message count filter
+3. **Keyboard shortcuts** — Add more keyboard shortcuts for common actions
+
+## Round 19 (01ebe36)
 
 **Flagship**: Drag-and-drop reorder for conversations
 
