@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, Clock, Filter, GripVertical, MessageSquare, Plus, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Tag, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
 import { timeAgo } from "../app-state";
 import type { WorkspaceTab, ConversationSummary } from "../types";
 import { useConversationOrder } from "../hooks/useConversationOrder";
+import { useConversationFolders } from "../hooks/useConversationFolders";
+import type { Folder as FolderType } from "../hooks/useConversationFolders";
 
 type SortMode = "updatedAt" | "createdAt" | "title";
 type DateFilter = "all" | "today" | "week" | "month";
@@ -89,6 +91,9 @@ function ConversationCard({
   onDragOver,
   onDragLeave,
   onDrop,
+  folder,
+  onAssignFolder,
+  folders,
 }: {
   item: ConversationSummary;
   isActive: boolean;
@@ -100,6 +105,9 @@ function ConversationCard({
   onDragOver: (e: React.DragEvent, id: string) => void;
   onDragLeave: () => void;
   onDrop: (e: React.DragEvent, id: string) => void;
+  folder: FolderType | null;
+  onAssignFolder: (conversationId: string, folderId: string | null) => void;
+  folders: FolderType[];
 }) {
   const snippet = item.lastMessage ? item.lastMessage.slice(0, 60) + (item.lastMessage.length > 60 ? "..." : "") : "";
   return (
@@ -115,13 +123,29 @@ function ConversationCard({
         <GripVertical size={14} />
       </div>
       <button type="button" className={isActive ? "conversation-card active" : "conversation-card"} onClick={onSelect}>
-        <strong>{item.title}</strong>
+        <div className="conversation-card-header">
+          {folder && <span className="conversation-folder-tag" style={{ background: folder.color }}>{folder.name}</span>}
+          <strong>{item.title}</strong>
+        </div>
         {snippet && <span className="conversation-snippet">{snippet}</span>}
         <span>{timeAgo(item.updatedAt)}{item.messageCount ? ` · ${item.messageCount} 条消息` : ""}</span>
       </button>
-      <button type="button" className="conversation-delete" aria-label="删除会话" onClick={(e) => { e.stopPropagation(); onRequestConfirm("删除会话", `确认删除会话"${item.title}"？此操作不可恢复。`, true, onDelete); }}>
-        <X size={12} />
-      </button>
+      <div className="conversation-card-actions">
+        <select
+          className="folder-select"
+          value={folder?.id || ""}
+          onChange={(e) => onAssignFolder(item.id, e.target.value || null)}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <option value="">无文件夹</option>
+          {folders.map((f) => (
+            <option key={f.id} value={f.id}>{f.name}</option>
+          ))}
+        </select>
+        <button type="button" className="conversation-delete" aria-label="删除会话" onClick={(e) => { e.stopPropagation(); onRequestConfirm("删除会话", `确认删除会话"${item.title}"？此操作不可恢复。`, true, onDelete); }}>
+          <X size={12} />
+        </button>
+      </div>
     </div>
   );
 }
@@ -158,10 +182,14 @@ export function Sidebar({
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [messageCountFilter, setMessageCountFilter] = useState<MessageCountFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [showFolderInput, setShowFolderInput] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
+  const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -259,11 +287,60 @@ export function Sidebar({
             </button>
           ))}
         </div>
+        <div className="folder-bar">
+          <button type="button" className={selectedFolder === null ? "folder-chip active" : "folder-chip"} onClick={() => setSelectedFolder(null)}>
+            <Tag size={12} /> 全部
+          </button>
+          {folders.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className={selectedFolder === f.id ? "folder-chip active" : "folder-chip"}
+              style={{ borderColor: f.color }}
+              onClick={() => setSelectedFolder(selectedFolder === f.id ? null : f.id)}
+            >
+              <Folder size={12} style={{ color: f.color }} /> {f.name}
+              <span className="folder-delete" onClick={(e) => { e.stopPropagation(); deleteFolder(f.id); }} title="删除文件夹">
+                <X size={10} />
+              </span>
+            </button>
+          ))}
+          <button type="button" className="folder-add-btn" onClick={() => setShowFolderInput(!showFolderInput)} title="新建文件夹">
+            <FolderPlus size={14} />
+          </button>
+        </div>
+        {showFolderInput && (
+          <div className="folder-input-row">
+            <input
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="文件夹名称..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && newFolderName.trim()) {
+                  createFolder(newFolderName.trim());
+                  setNewFolderName("");
+                  setShowFolderInput(false);
+                }
+                if (e.key === "Escape") setShowFolderInput(false);
+              }}
+              autoFocus
+            />
+            <button type="button" className="ghost-button" onClick={() => {
+              if (newFolderName.trim()) {
+                createFolder(newFolderName.trim());
+                setNewFolderName("");
+              }
+              setShowFolderInput(false);
+            }}>创建</button>
+          </div>
+        )}
         <div className="conversation-list">
           {conversations.length === 0 ? (
             <div className="empty-conversations">{query ? "未找到匹配的会话" : "还没有会话，点击 + 新建一个"}</div>
           ) : (
-            reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode)).map((item) => (
+            reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
+              .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
+              .map((item) => (
               <ConversationCard
                 key={item.id}
                 item={item}
@@ -276,6 +353,9 @@ export function Sidebar({
                 onDragOver={(e, id) => { onDragOver(e); setDragOverId(id); }}
                 onDragLeave={() => setDragOverId(null)}
                 onDrop={(e, id) => { onDrop(e, id); setDragOverId(null); }}
+                folder={getConversationFolder(item.id)}
+                onAssignFolder={assignToFolder}
+                folders={folders}
               />
             ))
           )}
