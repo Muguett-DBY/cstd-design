@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
-import { Film, Folder, ImageIcon, MessageCircle } from "lucide-react";
 import { api, onUnauthorized } from "./api";
 import { appendChatEvent, buildActiveBranch, branchLeaves } from "./app-state";
+import { TABS } from "./constants";
 import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, WorkspaceTab } from "./types";
 import {
   ErrorBoundary,
@@ -348,13 +348,8 @@ function AppInner() {
       </main>
 
       <nav className="mobile-tabs" aria-label="移动端导航">
-        {([
-          { id: "chat" as WorkspaceTab, label: "咨询", Icon: MessageCircle },
-          { id: "image" as WorkspaceTab, label: "图片", Icon: ImageIcon },
-          { id: "video" as WorkspaceTab, label: "视频", Icon: Film },
-          { id: "assets" as WorkspaceTab, label: "素材库", Icon: Folder },
-        ]).map(({ id, label, Icon }) => (
-          <button key={id} className={activeTab === id ? "active" : ""} type="button" onClick={() => setActiveTab(id)}>
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button key={id} className={activeTab === id ? "active" : ""} type="button" onClick={() => setActiveTab(id as WorkspaceTab)}>
             <Icon size={20} />
             <span>{label}</span>
           </button>
