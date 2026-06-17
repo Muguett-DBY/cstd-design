@@ -1,10 +1,32 @@
 import { useEffect, useRef, useState } from "react";
-import { Plus, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Search, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
 import { timeAgo } from "../app-state";
 import type { WorkspaceTab, ConversationSummary } from "../types";
+
+type SortMode = "updatedAt" | "createdAt" | "title";
+
+const SORT_OPTIONS: { value: SortMode; label: string }[] = [
+  { value: "updatedAt", label: "最近更新" },
+  { value: "createdAt", label: "创建时间" },
+  { value: "title", label: "按标题" },
+];
+
+function sortConversations(items: ConversationSummary[], mode: SortMode): ConversationSummary[] {
+  const sorted = [...items];
+  switch (mode) {
+    case "updatedAt":
+      return sorted.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    case "createdAt":
+      return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    case "title":
+      return sorted.sort((a, b) => a.title.localeCompare(b.title, "zh-CN"));
+    default:
+      return sorted;
+  }
+}
 
 export function Sidebar({
   activeTab,
@@ -34,6 +56,7 @@ export function Sidebar({
   onLogout: () => void | Promise<void>;
 }) {
   const [query, setQuery] = useState("");
+  const [sortMode, setSortMode] = useState<SortMode>("updatedAt");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -74,7 +97,7 @@ export function Sidebar({
       </nav>
       <section className="conversation-panel">
         <div className="panel-heading">
-          <span>会话列表</span>
+          <span>会话列表 {conversations.length > 0 && <span className="conversation-count">{conversations.length}</span>}</span>
           <button type="button" className="icon-button" aria-label="新建会话" onClick={onCreateConversation}>
             <Plus size={18} />
           </button>
@@ -83,11 +106,24 @@ export function Sidebar({
           <Search size={16} />
           <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题或内容..." />
         </label>
+        <div className="sort-bar">
+          {SORT_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              className={sortMode === opt.value ? "sort-option active" : "sort-option"}
+              onClick={() => setSortMode(opt.value)}
+            >
+              {sortMode === opt.value ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              {opt.label}
+            </button>
+          ))}
+        </div>
         <div className="conversation-list">
           {conversations.length === 0 ? (
             <div className="empty-conversations">{query ? "未找到匹配的会话" : "还没有会话，点击 + 新建一个"}</div>
           ) : (
-            conversations.map((item) => (
+            sortConversations(conversations, sortMode).map((item) => (
               <div key={item.id} className="conversation-card-wrapper">
                 <button type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={() => onSelectConversation(item.id)}>
                   <strong>{item.title}</strong>
