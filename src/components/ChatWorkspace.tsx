@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Check, Copy, Edit3, PanelRight, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Check, Copy, Download, Edit3, PanelRight, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -192,6 +192,28 @@ export function ChatWorkspace({
     await sendContent(parentUser.content, parentUser.parentId || null);
   };
 
+  const exportConversation = () => {
+    if (!conversation) return;
+    const title = conversation.title;
+    const date = new Date().toLocaleString("zh-CN");
+    const header = `# ${title}\n\n导出时间：${date}\n\n---\n\n`;
+    const body = messages
+      .filter((m) => m.status !== "streaming")
+      .map((m) => {
+        const role = m.role === "user" ? "**你**" : `**${ASSISTANT_NAME}**`;
+        return `${role}：\n\n${m.content}\n`;
+      })
+      .join("\n---\n\n");
+    const blob = new Blob([header + body], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title.replace(/[/\\?%*:|"<>]/g, "_")}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+    onNotice("对话已导出为 Markdown 文件。");
+  };
+
   return (
     <section className="chat-layout">
       <div className="chat-main">
@@ -209,12 +231,14 @@ export function ChatWorkspace({
             <button type="button" className="ghost-button" onClick={onCreate}>
               <Plus size={16} /> 新建
             </button>
+            <button type="button" className="ghost-button" onClick={exportConversation} disabled={!conversation || messages.length === 0}>
+              <Download size={16} /> 导出
+            </button>
             <button type="button" className="ghost-button danger" onClick={onDelete} disabled={!conversation}>
               <Trash2 size={16} /> 删除
             </button>
             <ClearAllButton label="清空全部" onClear={onClearAll} />
-          </div>
-        </div>
+          </div>        </div>
 
         <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
           {loading ? (
