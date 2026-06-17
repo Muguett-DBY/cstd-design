@@ -701,6 +701,17 @@ button:disabled {
   color: var(--on-accent-text);
 }
 
+.message-actions button.retry-button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--accent-strong);
+}
+
+.message-actions button.retry-button:hover {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+
 .composer {
   margin: 0 24px 24px;
   border: 1px solid var(--composer-border);
