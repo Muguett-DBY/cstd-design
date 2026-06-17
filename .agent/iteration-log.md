@@ -1,6 +1,31 @@
 # Iteration Log
 
-## Round 22 (latest)
+## Round 23 (latest)
+
+**Flagship**: Message pinning with quick access panel
+
+### Completed
+- Created `useMessagePinning` hook with localStorage persistence
+- Added pin/unpin button to message actions UI
+- Added "Pinned Messages" section in right panel
+  - Shows list of pinned messages with snippets
+  - Click to scroll to pinned message
+  - Visual indicator for pinned state
+- Added CSS for pin button, pinned section, and pinned items
+- Pin state persists across sessions via localStorage
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Conversation folders** — Organize conversations into folders
+2. **Export improvements** — Add more export formats (PDF, HTML)
+3. **Message threading** — Allow replies to specific messages
+
+## Round 22 (3c11a48)
 
 **Flagship**: Conversation search improvements with filters
 
