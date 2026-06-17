@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RefreshCw, Trash2 } from "lucide-react";
+import { Download, RefreshCw, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
@@ -53,6 +53,17 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
     });
   };
 
+  const downloadSelected = () => {
+    const selectedAssets = visible.filter((a) => selected.has(a.id));
+    for (const asset of selectedAssets) {
+      const a = document.createElement("a");
+      a.href = `${asset.url}?download=1`;
+      a.download = asset.filename;
+      a.click();
+    }
+    onNotice(`已开始下载 ${selectedAssets.length} 个文件。`);
+  };
+
   return (
     <section className="asset-page">
       <div className="asset-toolbar">
@@ -79,6 +90,9 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
         {selected.size > 0 && (
           <span className="asset-batch-actions">
             <span className="asset-selected-count">已选 {selected.size} 项</span>
+            <button type="button" className="ghost-button" onClick={downloadSelected}>
+              <Download size={14} /> 下载选中
+            </button>
             <button type="button" className="ghost-button danger" onClick={deleteSelected}>
               <Trash2 size={14} /> 删除选中
             </button>
