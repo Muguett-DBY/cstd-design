@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Check, Copy, Download, Edit3, PanelRight, Plus, RefreshCw, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Check, Copy, Download, Edit3, PanelRight, Plus, RefreshCw, RotateCcw, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -285,6 +285,11 @@ export function ChatWorkspace({
                     {row.message.role === "assistant" && (
                       <button type="button" onClick={() => regenerate(row.message)} disabled={streaming}>
                         <RefreshCw size={14} /> 重新生成
+                      </button>
+                    )}
+                    {row.message.role === "assistant" && row.message.status === "interrupted" && (
+                      <button type="button" className="retry-button" onClick={() => regenerate(row.message)} disabled={streaming}>
+                        <RotateCcw size={14} /> 重试
                       </button>
                     )}
                   </div>
