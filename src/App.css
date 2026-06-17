@@ -1632,6 +1632,12 @@ button:disabled {
   background: linear-gradient(135deg, #e05555, #c0392b);
 }
 
+.char-count {
+  font-size: 11px;
+  color: var(--muted);
+  margin-right: auto;
+}
+
 @media (max-width: 920px) {
   .toast-container {
     bottom: 100px;

@@ -59,6 +59,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         </div>
         <p>每次生成 1 张。选择参考图时会走图生图或多图合成。</p>
         <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} disabled={loading} maxLength={8000} placeholder="描述你想要的画面..." />
+        <div className="char-count">{prompt.length}/8000</div>
         <div className="style-presets">
           {STYLE_PRESETS.map((p) => (
             <button key={p.id} type="button" className={`style-chip${style === p.id ? " active" : ""}`} onClick={() => setStyle(p.id)}>

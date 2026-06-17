@@ -269,6 +269,7 @@ export function ChatWorkspace({
             aria-label="输入消息"
           />
           <div className="composer-actions">
+            <span className="char-count">{draft.content.length}/8000</span>
             <button type="button" className="ghost-button" onClick={() => setDraft(initialChatDraft())}>
               清空
             </button>
