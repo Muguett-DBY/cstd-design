@@ -835,6 +835,71 @@ button:disabled {
   background: var(--surface);
 }
 
+.style-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+
+.style-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.style-chip.active {
+  border-color: var(--accent);
+  background: var(--draft-bg);
+  color: var(--draft-text);
+}
+
+.style-chip:hover {
+  border-color: var(--accent-strong);
+}
+
+.image-result {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  background: var(--soft);
+}
+
+.image-result-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  margin-bottom: 8px;
+}
+
+.image-result-preview {
+  width: 100%;
+  border-radius: 12px;
+  cursor: pointer;
+  max-height: 300px;
+  object-fit: contain;
+  background: var(--surface);
+}
+
+.image-result-prompt {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 8px 0 0;
+  font-style: italic;
+}
+
 .segmented {
   display: flex;
   flex-wrap: wrap;
