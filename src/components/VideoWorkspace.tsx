@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Film, RefreshCw } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { CheckCircle2, Clock, Film, Hourglass, RefreshCw, XCircle } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, imageAssetsForReference, videoPresetToRequest, videoStatusLabel } from "../app-state";
 import type { AssetItem, VideoPreset } from "../types";
@@ -7,6 +7,18 @@ import { ClearAllButton } from "./ClearAllButton";
 import { ReferencePicker } from "./ReferencePicker";
 import { PreviewRail } from "./PreviewRail";
 import { Segmented } from "./Segmented";
+
+const STATUS_ICONS: Record<string, typeof Clock> = {
+  queued: Hourglass,
+  in_progress: RefreshCw,
+  completed: CheckCircle2,
+  failed: XCircle,
+};
+
+function TaskStatusBadge({ status }: { status: string }) {
+  const Icon = STATUS_ICONS[status] || Clock;
+  return <span className={`task-status-badge task-status-${status}`}><Icon size={14} /> {videoStatusLabel(status)}</span>;
+}
 
 export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void }) {
   const [prompt, setPrompt] = useState("");
@@ -19,13 +31,15 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
   const [task, setTask] = useState<{ id: string; status: string; progress: number; assetUrl?: string } | null>(null);
+  const [submittedPrompt, setSubmittedPrompt] = useState("");
+  const errorCountRef = useRef(0);
   const referenceAssets = imageAssetsForReference(assets);
   const presetInfo = videoPresetToRequest(preset);
 
   useEffect(() => {
     if (!task || task.status === "completed" || task.status === "failed") return;
     let cancelled = false;
-    let consecutiveErrors = 0;
+    errorCountRef.current = 0;
     const handler = (event: BeforeUnloadEvent) => { event.preventDefault(); };
     window.addEventListener("beforeunload", handler);
     const timer = window.setInterval(async () => {
@@ -33,7 +47,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       try {
         const result = await api.videoTask(task.id);
         if (cancelled) return;
-        consecutiveErrors = 0;
+        errorCountRef.current = 0;
         setTask(result.task);
         if (result.task.status === "completed") {
           await onAssetsChanged();
@@ -41,14 +55,11 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         } else if (result.task.status === "failed") {
           onNotice("视频生成失败。");
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) {
-          consecutiveErrors++;
-          if (consecutiveErrors <= 3) {
-            onNotice(error instanceof Error ? error.message : "视频查询失败。");
-          } else if (consecutiveErrors === 4) {
-            onNotice("网络连接不稳定，正在重试...");
-          } else if (consecutiveErrors >= 10) {
+          errorCountRef.current++;
+          if (errorCountRef.current === 4) onNotice("网络连接不稳定，正在重试...");
+          else if (errorCountRef.current >= 10) {
             onNotice("连接超时，请刷新页面重试。");
             cancelled = true;
             window.clearInterval(timer);
@@ -65,6 +76,8 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   }, [task, onAssetsChanged, onNotice]);
 
   const [width, height] = ratio.split("x").map(Number);
+
+  const progressPercent = task?.status === "in_progress" ? Math.max(5, Math.min(95, task.progress)) : task?.status === "queued" ? 2 : task?.status === "completed" ? 100 : task?.progress || 0;
 
   return (
     <section className="tool-grid">
@@ -116,10 +129,18 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         <ReferencePicker assets={referenceAssets} selected={referenceIds} onChange={setReferenceIds} />
         {task ? (
           <div className="task-card">
-            <strong>当前任务：{videoStatusLabel(task.status)}</strong>
-            <div className="progress"><span style={{ width: `${task.progress}%` }} /></div>
-            <p>{task.progress}% · {presetInfo.numFrames} 帧</p>
-            {task.assetUrl && <a href={task.assetUrl} target="_blank" rel="noreferrer">打开视频</a>}
+            <div className="task-card-header">
+              <TaskStatusBadge status={task.status} />
+              {task.status === "in_progress" && <span className="task-estimate">约 {presetInfo.approxSeconds} 秒</span>}
+            </div>
+            {submittedPrompt && <p className="task-prompt">"{submittedPrompt.slice(0, 60)}{submittedPrompt.length > 60 ? "..." : ""}"</p>}
+            <div className="progress"><span style={{ width: `${progressPercent}%` }} className={`progress-bar progress-${task.status}`} /></div>
+            <p className="task-meta">{progressPercent}% · {presetInfo.numFrames} 帧{presetInfo.preset === "max" ? " · 较长" : presetInfo.preset === "short" ? " · 较短" : ""}</p>
+            {task.assetUrl && (
+              <div className="task-result">
+                <video src={task.assetUrl} controls className="task-video-preview" />
+              </div>
+            )}
             {task.status !== "completed" && (
               <button type="button" className="ghost-button danger" onClick={async () => {
                 try {
@@ -127,7 +148,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
                   setTask(null);
                 } catch (error) { onNotice(error instanceof Error ? error.message : "操作失败。"); }
               }}>
-                放弃任务
+                <XCircle size={14} /> 放弃任务
               </button>
             )}
           </div>
@@ -138,6 +159,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             disabled={!prompt.trim() || creating}
             onClick={async () => {
               setCreating(true);
+              setSubmittedPrompt(prompt);
               try {
                 const result = await api.createVideo({
                   prompt,
