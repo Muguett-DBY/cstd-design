@@ -20,7 +20,10 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
     window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
     throw new Error("请先登录。");
   }
-  if (!response.ok) throw new Error(body.error || "请求失败。");
+  if (!response.ok) {
+    if (response.status === 429) throw new Error(body.error || "请求过于频繁，请稍后重试。");
+    throw new Error(body.error || "请求失败。");
+  }
   return body as T;
 }
 

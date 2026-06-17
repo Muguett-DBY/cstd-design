@@ -70,7 +70,7 @@ function AppInner() {
     if (meta) meta.setAttribute("content", dark ? "#1a1410" : "#fffaf1");
   }, [dark]);
 
-  useEffect(() => onUnauthorized(() => { setAuthenticated(false); toast("会话已过期，请重新登录。", "error"); }), [toast]);
+  useEffect(() => onUnauthorized(() => { setAuthenticated(false); }), []);
 
   const mobileDrawerRef = useRef<HTMLElement | null>(null);
 
