@@ -48,6 +48,11 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             onNotice(error instanceof Error ? error.message : "视频查询失败。");
           } else if (consecutiveErrors === 4) {
             onNotice("网络连接不稳定，正在重试...");
+          } else if (consecutiveErrors >= 10) {
+            onNotice("连接超时，请刷新页面重试。");
+            cancelled = true;
+            window.clearInterval(timer);
+            window.removeEventListener("beforeunload", handler);
           }
         }
       }

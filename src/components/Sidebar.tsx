@@ -3,6 +3,7 @@ import { Plus, Search } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
+import { timeAgo } from "../app-state";
 import type { WorkspaceTab, ConversationSummary } from "../types";
 
 export function Sidebar({
@@ -81,7 +82,7 @@ export function Sidebar({
             conversations.map((item) => (
               <button key={item.id} type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={() => onSelectConversation(item.id)}>
                 <strong>{item.title}</strong>
-                <span>{new Date(item.updatedAt).toLocaleDateString("zh-CN")}</span>
+                <span>{timeAgo(item.updatedAt)}</span>
               </button>
             ))
           )}

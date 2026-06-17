@@ -36,7 +36,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
       <div className="asset-stats">{visible.length} 个文件，共 {formatBytes(totalSize)}</div>
       <div className="asset-grid">
         {visible.length === 0 ? (
-          <EmptyState title="还没有素材" text="上传参考图或生成作品后，会出现在这里。" />
+          <EmptyState title={filter === "all" ? "还没有素材" : "没有匹配的素材"} text={filter === "all" ? "上传参考图或生成作品后，会出现在这里。" : `当前筛选条件下没有${filter === "upload" ? "上传" : filter === "image" ? "图片" : "视频"}素材。`} />
         ) : (
           visible.map((asset) => (
             <article className="asset-card" key={asset.id}>
