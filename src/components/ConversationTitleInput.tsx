@@ -16,6 +16,7 @@ export function ConversationTitleInput({ title, disabled, onCommit }: { title: s
       ref={inputRef}
       className="title-input"
       value={draft}
+      maxLength={80}
       onChange={(event) => setDraft(event.target.value)}
       onBlur={() => void commit()}
       onKeyDown={(event) => {

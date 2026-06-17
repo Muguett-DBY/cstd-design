@@ -189,8 +189,10 @@ function AppInner() {
       <LoginPage
         onLogin={async (password: string) => {
           await api.login(password);
+          setBooting(true);
           setAuthenticated(true);
           await Promise.all([refreshConversations(""), refreshAssets()]);
+          setBooting(false);
         }}
       />
     );

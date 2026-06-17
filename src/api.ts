@@ -3,13 +3,18 @@ import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, Conver
 const UNAUTHORIZED_EVENT = "auth:unauthorized";
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    ...init,
-    headers: {
-      ...(init?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-      ...(init?.headers || {}),
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...init,
+      headers: {
+        ...(init?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+        ...(init?.headers || {}),
+      },
+    });
+  } catch {
+    throw new Error("网络连接失败，请检查网络后重试。");
+  }
   const body = await response.json().catch(() => ({}));
   if (response.status === 401) {
     window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
