@@ -1,15 +1,17 @@
 # Iteration Log
 
-## Round 15 (2b66583)
+## Round 16 (1128213)
 
-**Flagship**: Message retry on failure + supporting improvements
+**Flagship**: Image generation prompt templates
 
 ### Completed
-- Added retry button (RotateCcw icon) on interrupted assistant messages
-- Distinct visual style for retry vs regenerate buttons  
-- Retry re-sends the same user message to get a new response
-- Added retry-specific CSS styling with border and accent color
-- Added RetryCcw import from lucide-react
+- Created `usePromptTemplates` hook with localStorage persistence (CRUD for templates)
+- Template picker UI in ImageWorkspace (save/load/delete)
+- Save button appears when prompt is non-empty
+- Load button toggles template list
+- Delete with inline button per template
+- Template list with scrollable container
+- Empty state message for no templates
 
 ### Verified
 - ✅ TypeScript compiles cleanly
@@ -19,5 +21,5 @@
 
 ### Next Direction
 1. **Build size optimization** — Mermaid chunk (593KB) could be lazy-loaded more aggressively
-2. **Image generation prompt templates** — Save/load frequently used prompts
+2. **Conversation sort/filter** — Allow users to sort conversations by date/title
 3. **Message search within conversation** — Search through chat history
