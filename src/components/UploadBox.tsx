@@ -34,6 +34,7 @@ export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<
         event.preventDefault();
         setDragging(false);
         await upload(event.dataTransfer.files);
+        if (inputRef.current) inputRef.current.value = "";
       }}
     >
       {uploading ? <RefreshCw size={18} className="spin" /> : <Upload size={18} />}
