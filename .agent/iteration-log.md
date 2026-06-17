@@ -1,6 +1,34 @@
 # Iteration Log
 
-## Round 18 (latest)
+## Round 19 (latest)
+
+**Flagship**: Drag-and-drop reorder for conversations
+
+### Completed
+- Created `useConversationOrder` hook with drag-and-drop logic and localStorage persistence
+- Updated `Sidebar` component with drag-and-drop support:
+  - Added `GripVertical` icon as drag handle
+  - Added `draggable` attribute to conversation cards
+  - Added `onDragStart`, `onDragOver`, `onDragLeave`, `onDrop` handlers
+  - Added visual feedback (drag-over state with dashed outline and background color)
+- Added CSS for drag handle, drag-over state, and cursor states
+- Added bulk download for assets:
+  - Added `downloadSelected` function in `AssetWorkspace`
+  - Added download button in batch actions UI
+  - Downloads all selected assets as individual files
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Build size optimization** — Mermaid chunk (593KB) could be lazy-loaded more aggressively
+2. **Message reactions** — Add emoji reactions to messages for quick feedback
+3. **Conversation search improvements** — Add date range filter and message count filter
+
+## Round 18 (7a8df3b)
 
 **Flagship**: Message search within conversation
 

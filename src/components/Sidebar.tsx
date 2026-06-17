@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, Plus, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, GripVertical, Plus, Search, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
 import { timeAgo } from "../app-state";
 import type { WorkspaceTab, ConversationSummary } from "../types";
+import { useConversationOrder } from "../hooks/useConversationOrder";
 
 type SortMode = "updatedAt" | "createdAt" | "title";
 
@@ -57,8 +58,10 @@ export function Sidebar({
 }) {
   const [query, setQuery] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("updatedAt");
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -123,8 +126,19 @@ export function Sidebar({
           {conversations.length === 0 ? (
             <div className="empty-conversations">{query ? "未找到匹配的会话" : "还没有会话，点击 + 新建一个"}</div>
           ) : (
-            sortConversations(conversations, sortMode).map((item) => (
-              <div key={item.id} className="conversation-card-wrapper">
+            reorder(sortConversations(conversations, sortMode)).map((item) => (
+              <div
+                key={item.id}
+                className={`conversation-card-wrapper${dragOverId === item.id ? " drag-over" : ""}`}
+                draggable
+                onDragStart={(e) => onDragStart(e, item.id)}
+                onDragOver={(e) => { onDragOver(e); setDragOverId(item.id); }}
+                onDragLeave={() => setDragOverId(null)}
+                onDrop={(e) => { onDrop(e, item.id); setDragOverId(null); }}
+              >
+                <div className="drag-handle">
+                  <GripVertical size={14} />
+                </div>
                 <button type="button" className={item.id === activeConversationId ? "conversation-card active" : "conversation-card"} onClick={() => onSelectConversation(item.id)}>
                   <strong>{item.title}</strong>
                   <span>{timeAgo(item.updatedAt)}</span>
