@@ -27,7 +27,14 @@ import {
   sanitizeAssistantContent,
   toClientError,
 } from "./provider";
-import { ChatRequestSchema, ImageRequestSchema, parseRequest, VideoRequestSchema } from "./validation";
+import {
+  ChatRequestSchema,
+  CreateThreadReplySchema,
+  ImageRequestSchema,
+  parseRequest,
+  UpdateThreadReplySchema,
+  VideoRequestSchema,
+} from "./validation";
 import { assetKindsForClearScope, normalizeClearScope } from "./clear";
 
 describe("security", () => {
@@ -87,6 +94,26 @@ describe("chat tree and context", () => {
 
     expect(selected.truncated).toBe(true);
     expect(selected.messages).toEqual([{ role: "user", content: "最新问题" }]);
+  });
+});
+
+describe("message thread contracts", () => {
+  test("trims valid replies and rejects blank or oversized content", () => {
+    expect(parseRequest(CreateThreadReplySchema, {
+      parentMessageId: "00000000-0000-4000-8000-000000000000",
+      content: "  需要跟进  ",
+    })).toEqual({
+      ok: true,
+      data: {
+        parentMessageId: "00000000-0000-4000-8000-000000000000",
+        content: "需要跟进",
+      },
+    });
+    expect(parseRequest(CreateThreadReplySchema, {
+      parentMessageId: "00000000-0000-4000-8000-000000000000",
+      content: "   ",
+    }).ok).toBe(false);
+    expect(parseRequest(UpdateThreadReplySchema, { content: "x".repeat(4_001) }).ok).toBe(false);
   });
 });
 

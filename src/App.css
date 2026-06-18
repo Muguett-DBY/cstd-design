@@ -3310,3 +3310,257 @@ button:disabled {
   font-size: 11px;
   color: var(--muted);
 }
+
+/* Durable message threads */
+.thread-toggle {
+  justify-content: space-between;
+  min-width: 112px;
+  padding: 6px 10px;
+  font-weight: 650;
+}
+
+.thread-replies {
+  display: grid;
+  gap: 8px;
+  padding: 10px 0 0 14px;
+}
+
+.thread-reply {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--soft) 72%, var(--surface));
+}
+
+.thread-reply-meta,
+.reply-input-heading,
+.thread-center-heading,
+.thread-center-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.thread-reply-meta {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.thread-reply-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.thread-reply-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.thread-reply-actions button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.thread-reply-actions button.danger:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.thread-reply-actions button:disabled,
+.thread-clear-btn:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.thread-edit textarea,
+.reply-input textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 10px;
+  resize: vertical;
+}
+
+.thread-edit textarea:focus,
+.reply-input textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-color: var(--accent);
+}
+
+.thread-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.thread-clear-btn.confirming {
+  border-style: solid;
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--danger);
+}
+
+.reply-input {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--soft) 70%, var(--surface));
+}
+
+.reply-input-heading {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.thread-error {
+  margin: 8px 0 0;
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.thread-center {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.thread-center-heading {
+  margin-bottom: 9px;
+}
+
+.thread-center-heading > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.thread-center-heading > strong {
+  display: grid;
+  min-width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--accent-strong);
+  font-size: 11px;
+}
+
+.thread-center-state,
+.thread-center-empty {
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.thread-center-state {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.thread-center-state.error {
+  color: var(--danger);
+}
+
+.thread-center-list {
+  display: grid;
+  gap: 7px;
+}
+
+.thread-center-item {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+
+.thread-center-item:hover {
+  border-color: var(--accent);
+  background: var(--soft);
+  transform: translateY(-1px);
+}
+
+.thread-center-parent,
+.thread-center-latest {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thread-center-parent {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.thread-center-summary,
+.thread-center-latest {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.thread-center-summary strong {
+  color: var(--accent-strong);
+}
+
+.mobile-thread-center {
+  display: none;
+}
+
+@media (max-width: 920px) {
+  .mobile-thread-center {
+    display: block;
+    padding: 0 16px;
+  }
+
+  .mobile-thread-center .thread-center {
+    margin-top: 0;
+    padding: 10px 0;
+  }
+
+  .mobile-thread-center .thread-center-list {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+
+  .mobile-thread-center .thread-center-item {
+    min-width: 220px;
+    max-width: 260px;
+  }
+
+  .thread-reply-actions button {
+    min-height: 34px;
+  }
+}

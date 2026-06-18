@@ -21,6 +21,8 @@ import { useMessageEditing } from "../hooks/useMessageEditing";
 import { useMessageBookmarking } from "../hooks/useMessageBookmarking";
 import { useMessageForwarding } from "../hooks/useMessageForwarding";
 import { ReactionPicker } from "./ReactionPicker";
+import { MessageThread } from "./MessageThread";
+import { ThreadCenter } from "./ThreadCenter";
 
 const ASSISTANT_NAME = "助手";
 
@@ -100,11 +102,21 @@ export function ChatWorkspace({
   const [showExportModal, setShowExportModal] = useState(false);
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
-  const { threads, getThreadReplies, addReply, removeReply, hasThread, getThreadCount, clearThread } = useMessageThreading();
+  const {
+    repliesByParent,
+    loading: threadsLoading,
+    error: threadError,
+    pendingIds: threadPendingIds,
+    addReply,
+    updateReply,
+    removeReply,
+    clearThread,
+    getThreadReplies,
+  } = useMessageThreading(conversation?.id || null);
   const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking();
   const { forwardMessage, getForwardedMessages } = useMessageForwarding();
-  const search = useMessageSearch(messages, threads);
+  const search = useMessageSearch(messages, repliesByParent);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
@@ -153,10 +165,14 @@ export function ChatWorkspace({
   // Scroll to active search result
   useEffect(() => {
     if (!search.activeResult) return;
-    const el = messageRefs.current.get(search.activeResult.messageId);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    const result = search.activeResult;
+    const frame = window.requestAnimationFrame(() => {
+      if (result.isThreadReply) {
+        setExpandedThreads((current) => new Set(current).add(result.messageId));
+      }
+      messageRefs.current.get(result.messageId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [search.activeResult]);
 
   const sendContent = async (content: string, parentId: string | null) => {
@@ -301,6 +317,21 @@ export function ChatWorkspace({
           />
         )}
 
+        <div className="mobile-thread-center">
+          <ThreadCenter
+            messages={messages}
+            repliesByParent={repliesByParent}
+            loading={threadsLoading}
+            error={threadError}
+            onOpenThread={(messageId) => {
+              setExpandedThreads((current) => new Set(current).add(messageId));
+              window.requestAnimationFrame(() => {
+                messageRefs.current.get(messageId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+              });
+            }}
+          />
+        </div>
+
         <div className="messages" ref={messagesContainerRef} onScroll={handleScroll}>
           {loading ? (
             <div className="messages-skeleton">
@@ -428,72 +459,44 @@ export function ChatWorkspace({
                       </div>
                     </div>
                   )}
-                  {hasThread(row.message.id) && (
-                    <div className="thread-indicator">
-                      <button type="button" className="thread-toggle" onClick={() => {
-                        const newExpanded = new Set(expandedThreads);
-                        if (newExpanded.has(row.message.id)) {
-                          newExpanded.delete(row.message.id);
-                        } else {
-                          newExpanded.add(row.message.id);
-                        }
-                        setExpandedThreads(newExpanded);
-                      }}>
-                        <MessageSquare size={12} /> {getThreadCount(row.message.id)} 条回复
-                        {expandedThreads.has(row.message.id) ? " ▼" : " ▶"}
-                      </button>
-                      {expandedThreads.has(row.message.id) && (
-                        <div className="thread-replies">
-                          {getThreadReplies(row.message.id).map((reply, idx) => (
-                            <div key={idx} className="thread-reply">
-                              <span className="thread-reply-label">回复：</span>
-                              <Markdown content={reply} />
-                              <button type="button" className="thread-reply-delete" onClick={() => {
-                                // Remove reply by index
-                                const replies = getThreadReplies(row.message.id);
-                                if (replies.length > 0) {
-                                  // We need to use the removeReply function
-                                  // For now, we'll just remove by index
-                                  removeReply(row.message.id, idx);
-                                }
-                              }}>
-                                <Trash2 size={10} />
-                              </button>
-                            </div>
-                          ))}
-                          <button type="button" className="thread-clear-btn" onClick={() => {
-                            clearThread(row.message.id);
-                          }}>
-                            清空线程
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {replyingTo === row.message.id && (
-                    <div className="reply-input">
-                      <textarea
-                        value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
-                        placeholder="输入回复内容..."
-                        rows={2}
-                      />
-                      <div className="reply-actions">
-                        <button type="button" className="ghost-button" onClick={() => setReplyingTo(null)}>取消</button>
-                        <button type="button" className="primary-button" onClick={() => {
-                          if (replyContent.trim()) {
-                            addReply(row.message.id, replyContent.trim());
-                            setReplyContent("");
-                            setReplyingTo(null);
-                            // Auto-expand the thread
-                            const newExpanded = new Set(expandedThreads);
-                            newExpanded.add(row.message.id);
-                            setExpandedThreads(newExpanded);
-                          }
-                        }} disabled={!replyContent.trim()}>发送回复</button>
-                      </div>
-                    </div>
-                  )}
+                  <MessageThread
+                    messageId={row.message.id}
+                    replies={getThreadReplies(row.message.id)}
+                    expanded={expandedThreads.has(row.message.id)}
+                    composing={replyingTo === row.message.id}
+                    replyContent={replyContent}
+                    pendingIds={threadPendingIds}
+                    error={threadError}
+                    onToggle={() => {
+                      setExpandedThreads((current) => {
+                        const next = new Set(current);
+                        if (next.has(row.message.id)) next.delete(row.message.id);
+                        else next.add(row.message.id);
+                        return next;
+                      });
+                    }}
+                    onReplyContentChange={setReplyContent}
+                    onCancelReply={() => {
+                      setReplyingTo(null);
+                      setReplyContent("");
+                    }}
+                    onAddReply={async () => {
+                      if (!replyContent.trim()) return;
+                      try {
+                        await addReply(row.message.id, replyContent.trim());
+                        setReplyContent("");
+                        setReplyingTo(null);
+                        setExpandedThreads((current) => new Set(current).add(row.message.id));
+                        onNotice("线程回复已保存并同步。");
+                      } catch {
+                        // The thread component renders the hook error.
+                      }
+                    }}
+                    onUpdateReply={updateReply}
+                    onRemoveReply={removeReply}
+                    onClearThread={() => clearThread(row.message.id)}
+                    onNotice={onNotice}
+                  />
                 </div>
               </article>
               </div>
@@ -546,8 +549,21 @@ export function ChatWorkspace({
         <h3>会话信息</h3>
         <InfoLine label="消息数" value={String(conversation?.messages.length || 0)} />
         <InfoLine label="分支数" value={String(leaves.length || 0)} />
-        <InfoLine label="线程数" value={String(Object.keys(threads).filter((id) => threads[id].replies.length > 0).length)} />
+        <InfoLine label="线程数" value={String(Object.keys(repliesByParent).length)} />
         <InfoLine label="置顶数" value={String(getPinnedMessages(messages.map((m) => m.id)).length)} />
+        <ThreadCenter
+          messages={messages}
+          repliesByParent={repliesByParent}
+          loading={threadsLoading}
+          error={threadError}
+          onOpenThread={(messageId) => {
+            setPanelOpen(true);
+            setExpandedThreads((current) => new Set(current).add(messageId));
+            window.requestAnimationFrame(() => {
+              messageRefs.current.get(messageId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+          }}
+        />
         {getPinnedMessages(messages.map((m) => m.id)).length > 0 && (
           <div className="pinned-section">
             <span className="pinned-header"><Pin size={12} /> 置顶消息</span>

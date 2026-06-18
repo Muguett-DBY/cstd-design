@@ -1,6 +1,37 @@
 # Iteration Log
 
-## Round 40 (latest)
+## Round 41 (latest)
+
+**Previous direction**: Message threading improvements
+
+**Flagship**: Durable D1-backed Thread Center
+
+### Completed
+- Replaced browser-local anonymous thread strings with authenticated D1 records tied to conversations and parent messages
+- Added add/edit/delete/clear APIs, input validation, stable IDs/timestamps, indexes, and chat-deletion cleanup
+- Added a desktop and mobile Thread Center with reply counts, latest activity, parent previews, and jump-to-message behavior
+- Extracted focused `MessageThread` and `ThreadCenter` components from the chat workspace
+- Added stale-response protection, mutation loading/error states, and search support for structured replies
+
+### Verified
+- ✅ 25 unit tests pass, including validation, grouping, and stale request coverage
+- ✅ Functions typecheck, zero-warning ESLint, and production build pass
+- ✅ Local Pages + D1 QA passed at 1440×900 and 390×844
+- ✅ Create, reload persistence, Thread Center jump, edit, delete, empty state, and console health verified
+- ⏳ GitHub Actions pending push
+
+### Risks
+- Older localStorage thread notes are not migrated because they had no conversation-safe ownership metadata
+- Other message actions (pin/bookmark/edit/forward) still use browser-local state
+
+### Next Direction
+1. Replace the prompt-based forwarding placeholder with a real conversation picker and actual target-conversation insertion
+2. Persist pin/bookmark/edit metadata server-side for cross-device consistency
+3. Add per-thread unread/activity indicators if thread volume grows
+
+**Recommended next flagship**: Complete a real message-forwarding workflow and migrate the remaining high-value message actions off localStorage.
+
+## Round 40
 
 **Flagship**: Conversation search improvements with date range filter
 

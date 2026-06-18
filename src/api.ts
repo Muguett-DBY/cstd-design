@@ -1,4 +1,4 @@
-import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, ImageSize, VideoPreset } from "./types";
+import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, ImageSize, ThreadReply, VideoPreset } from "./types";
 
 const UNAUTHORIZED_EVENT = "auth:unauthorized";
 
@@ -42,6 +42,25 @@ export const api = {
   renameConversation: (id: string, title: string) => requestJson<{ ok: true }>(`/api/conversations/${id}`, { method: "PATCH", body: JSON.stringify({ title }) }),
   switchConversationBranch: (id: string, activeLeafId: string) => requestJson<{ ok: true }>(`/api/conversations/${id}`, { method: "PATCH", body: JSON.stringify({ activeLeafId }) }),
   deleteConversation: (id: string) => requestJson<{ ok: true }>(`/api/conversations/${id}`, { method: "DELETE" }),
+  threadReplies: (conversationId: string) =>
+    requestJson<{ replies: ThreadReply[] }>(`/api/conversations/${conversationId}/threads`),
+  createThreadReply: (conversationId: string, parentMessageId: string, content: string) =>
+    requestJson<{ reply: ThreadReply }>(`/api/conversations/${conversationId}/threads`, {
+      method: "POST",
+      body: JSON.stringify({ parentMessageId, content }),
+    }),
+  updateThreadReply: (id: string, content: string) =>
+    requestJson<{ reply: ThreadReply }>(`/api/threads/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ content }),
+    }),
+  deleteThreadReply: (id: string) =>
+    requestJson<{ ok: true }>(`/api/threads/${id}`, { method: "DELETE" }),
+  clearMessageThread: (conversationId: string, parentMessageId: string) =>
+    requestJson<{ ok: true; deleted: number }>(
+      `/api/conversations/${conversationId}/threads?parentMessageId=${encodeURIComponent(parentMessageId)}`,
+      { method: "DELETE" },
+    ),
   upload: (files: File[]) => {
     const form = new FormData();
     for (const file of files) form.append("files", file);
