@@ -7,6 +7,7 @@ interface ForwardRecord {
   content: string;
   forwardedAt: string;
   targetConversation: string;
+  targetConversationId?: string;
 }
 
 type ForwardedMessages = ForwardRecord[];
@@ -27,7 +28,7 @@ function saveForwarded(forwarded: ForwardedMessages) {
 export function useMessageForwarding() {
   const [forwarded, setForwarded] = useState<ForwardedMessages>(loadForwarded);
 
-  const forwardMessage = useCallback((messageId: string, content: string, targetConversation: string) => {
+  const forwardMessage = useCallback((messageId: string, content: string, targetConversation: string, targetConversationId?: string) => {
     setForwarded((prev) => {
       const updated = [
         ...prev,
@@ -36,6 +37,7 @@ export function useMessageForwarding() {
           content,
           forwardedAt: new Date().toISOString(),
           targetConversation,
+          targetConversationId,
         },
       ];
       saveForwarded(updated);
