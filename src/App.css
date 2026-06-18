@@ -1233,8 +1233,8 @@ button:disabled {
 .message-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 10px;
 }
 
 .message-actions button {
@@ -1242,11 +1242,13 @@ button:disabled {
   background: var(--soft);
   border-radius: 999px;
   color: var(--muted);
-  padding: 6px 10px;
+  padding: 5px 10px;
   display: inline-flex;
-  gap: 5px;
+  gap: 4px;
   align-items: center;
+  font-size: 12px;
   transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
 }
 
 .message-actions button:hover {
