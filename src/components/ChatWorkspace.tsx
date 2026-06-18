@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Bookmark, Check, Copy, Download, Edit3, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Bookmark, Check, Copy, Download, Edit3, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -19,6 +19,7 @@ import { useMessagePinning } from "../hooks/useMessagePinning";
 import { useMessageThreading } from "../hooks/useMessageThreading";
 import { useMessageEditing } from "../hooks/useMessageEditing";
 import { useMessageBookmarking } from "../hooks/useMessageBookmarking";
+import { useMessageForwarding } from "../hooks/useMessageForwarding";
 import { ReactionPicker } from "./ReactionPicker";
 
 const ASSISTANT_NAME = "助手";
@@ -102,6 +103,7 @@ export function ChatWorkspace({
   const { threads, getThreadReplies, addReply, removeReply, hasThread, getThreadCount } = useMessageThreading();
   const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking();
+  const { forwardMessage, getForwardedMessages } = useMessageForwarding();
   const search = useMessageSearch(messages, threads);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -366,6 +368,15 @@ export function ChatWorkspace({
                     <button type="button" onClick={() => toggleBookmark(row.message.id)} className={isBookmarked(row.message.id) ? "bookmarked" : ""} title={isBookmarked(row.message.id) ? "取消书签" : "添加书签"}>
                       <Bookmark size={14} /> {isBookmarked(row.message.id) ? "已书签" : "书签"}
                     </button>
+                    <button type="button" onClick={() => {
+                      const target = prompt("输入目标会话名称：");
+                      if (target) {
+                        forwardMessage(row.message.id, row.message.content, target);
+                        onNotice(`消息已转发到"${target}"`);
+                      }
+                    }} title="转发消息">
+                      <Forward size={14} /> 转发
+                    </button>
                     {row.message.role === "user" && editingMessage !== row.message.id && (
                       <button type="button" onClick={() => {
                         setEditingMessage(row.message.id);
@@ -574,6 +585,19 @@ export function ChatWorkspace({
                   </button>
                 );
               })}
+            </div>
+          </div>
+        )}
+        {getForwardedMessages().length > 0 && (
+          <div className="pinned-section">
+            <span className="pinned-header"><Forward size={12} /> 转发记录</span>
+            <div className="pinned-list">
+              {getForwardedMessages().slice(-5).map((f, idx) => (
+                <div key={idx} className="pinned-item">
+                  <span className="forward-target">→ {f.targetConversation}</span>
+                  {f.content.slice(0, 40)}{f.content.length > 40 ? "..." : ""}
+                </div>
+              ))}
             </div>
           </div>
         )}

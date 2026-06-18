@@ -1,6 +1,29 @@
 # Iteration Log
 
-## Round 36 (latest)
+## Round 37 (latest)
+
+**Flagship**: Message forwarding with forwarding history
+
+### Completed
+- Created `useMessageForwarding` hook with localStorage persistence
+- Added forward button to message actions UI
+- Added forwarding history tracking in localStorage
+- Added "Forwarded Messages" section in right panel
+- Added CSS for forwarding UI and forwarding target
+- Forwarding state persists across sessions via localStorage
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Conversation search improvements** — Add date range filter and message count filter
+2. **Message threading improvements** — Add more threading features
+3. **Conversation archiving** — Archive old conversations without deleting
+
+## Round 36 (24e2657)
 
 **Flagship**: Message bookmarking with quick access panel
 
