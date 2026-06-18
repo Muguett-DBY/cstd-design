@@ -73,6 +73,7 @@ export function useMessageThreading() {
   }, [threads]);
 
   return {
+    threads,
     getThread,
     getThreadReplies,
     addReply,

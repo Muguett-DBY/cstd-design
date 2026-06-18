@@ -1,6 +1,29 @@
 # Iteration Log
 
-## Round 29 (latest)
+## Round 30 (latest)
+
+**Flagship**: Message search within threads
+
+### Completed
+- Extended `useMessageSearch` hook to handle threads
+- Updated `MessageSearchBar` to show thread results indicator
+- Integrated thread search into ChatWorkspace
+- Added "Clear Thread" button to quickly remove all replies
+- Added CSS for thread indicator and clear thread button
+- Search now includes both main messages and thread replies
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Bulk archive** — Archive multiple conversations at once
+2. **Export preview** — Preview exported content before downloading
+3. **Conversation statistics** — Show message count, thread count, etc.
+
+## Round 29 (d71265c)
 
 **Flagship**: Export improvements with date range and message selection
 

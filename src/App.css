@@ -2747,6 +2747,26 @@ button:disabled {
   color: var(--danger);
 }
 
+.thread-clear-btn {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  margin-top: 8px;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.thread-clear-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.05);
+}
+
 .reply-input {
   margin-top: 8px;
   padding-top: 8px;
@@ -2940,4 +2960,16 @@ button:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.search-thread-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 2px 6px;
+  background: var(--soft);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--muted);
 }
