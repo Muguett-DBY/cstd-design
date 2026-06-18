@@ -450,9 +450,53 @@ export function Sidebar({
         </div>
       </section>
       <div className="keyboard-hints">
-        <span className="keyboard-hint"><kbd>Ctrl</kbd>+<kbd>K</kbd> 搜索</span>
-        <span className="keyboard-hint"><kbd>Ctrl</kbd>+<kbd>N</kbd> 新建</span>
-        <span className="keyboard-hint"><kbd>Ctrl</kbd>+<kbd>F</kbd> 查找消息</span>
+        <button type="button" className="keyboard-hints-toggle" onClick={() => {
+          const el = document.querySelector('.keyboard-shortcuts-panel');
+          if (el) {
+            el.classList.toggle('open');
+          }
+        }}>
+          快捷键帮助
+        </button>
+        <div className="keyboard-shortcuts-panel">
+          <div className="keyboard-shortcuts-header">
+            <span>键盘快捷键</span>
+          </div>
+          <div className="keyboard-shortcuts-list">
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">搜索会话</span>
+              <span className="keyboard-shortcut-keys"><kbd>Ctrl</kbd>+<kbd>K</kbd></span>
+            </div>
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">新建会话</span>
+              <span className="keyboard-shortcut-keys"><kbd>Ctrl</kbd>+<kbd>N</kbd></span>
+            </div>
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">查找消息</span>
+              <span className="keyboard-shortcut-keys"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>
+            </div>
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">发送消息</span>
+              <span className="keyboard-shortcut-keys"><kbd>Enter</kbd></span>
+            </div>
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">换行</span>
+              <span className="keyboard-shortcut-keys"><kbd>Shift</kbd>+<kbd>Enter</kbd></span>
+            </div>
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">关闭搜索</span>
+              <span className="keyboard-shortcut-keys"><kbd>Esc</kbd></span>
+            </div>
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">上一个搜索结果</span>
+              <span className="keyboard-shortcut-keys"><kbd>Shift</kbd>+<kbd>Enter</kbd></span>
+            </div>
+            <div className="keyboard-shortcut-item">
+              <span className="keyboard-shortcut-desc">下一个搜索结果</span>
+              <span className="keyboard-shortcut-keys"><kbd>Enter</kbd></span>
+            </div>
+          </div>
+        </div>
       </div>
       <UserFooter dark={dark} onThemeToggle={onThemeToggle} onLogout={onLogout} />
     </>
