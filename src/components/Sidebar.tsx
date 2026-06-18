@@ -8,6 +8,7 @@ import type { WorkspaceTab, ConversationSummary } from "../types";
 import { useConversationOrder } from "../hooks/useConversationOrder";
 import { useConversationFolders } from "../hooks/useConversationFolders";
 import { useConversationArchiving } from "../hooks/useConversationArchiving";
+import { useConversationMerging } from "../hooks/useConversationMerging";
 import type { Folder as FolderType } from "../hooks/useConversationFolders";
 
 type SortMode = "updatedAt" | "createdAt" | "title";
@@ -100,6 +101,8 @@ function ConversationCard({
   isBulkSelected,
   onToggleBulkSelect,
   bulkMode,
+  onMerge,
+  conversations,
 }: {
   item: ConversationSummary;
   isActive: boolean;
@@ -119,6 +122,8 @@ function ConversationCard({
   isBulkSelected: boolean;
   onToggleBulkSelect: () => void;
   bulkMode: boolean;
+  onMerge: (targetId: string) => void;
+  conversations: ConversationSummary[];
 }) {
   const snippet = item.lastMessage ? item.lastMessage.slice(0, 60) + (item.lastMessage.length > 60 ? "..." : "") : "";
   return (
@@ -159,6 +164,22 @@ function ConversationCard({
             <option value="">无文件夹</option>
             {folders.map((f) => (
               <option key={f.id} value={f.id}>{f.name}</option>
+            ))}
+          </select>
+          <select
+            className="folder-select"
+            value=""
+            onChange={(e) => {
+              if (e.target.value) {
+                onMerge(e.target.value);
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
+            title="合并到其他会话"
+          >
+            <option value="">合并</option>
+            {conversations.filter((c) => c.id !== item.id).map((c) => (
+              <option key={c.id} value={c.id}>{c.title.slice(0, 20)}</option>
             ))}
           </select>
           <button type="button" className="conversation-archive" aria-label={isArchived ? "取消归档" : "归档会话"} onClick={(e) => { e.stopPropagation(); onToggleArchive(); }} title={isArchived ? "取消归档" : "归档会话"}>
@@ -217,6 +238,7 @@ export function Sidebar({
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
   const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
   const { isArchived, toggleArchive, bulkArchive, bulkUnarchive } = useConversationArchiving();
+  const { mergeConversations } = useConversationMerging();
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -443,6 +465,10 @@ export function Sidebar({
                     });
                   }}
                   bulkMode={bulkMode}
+                  onMerge={(targetId) => {
+                    mergeConversations(item.id, targetId);
+                  }}
+                  conversations={conversations}
                 />
               ))}
             </>

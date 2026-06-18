@@ -1,6 +1,28 @@
 # Iteration Log
 
-## Round 34 (latest)
+## Round 35 (latest)
+
+**Flagship**: Conversation merging with merge history
+
+### Completed
+- Created `useConversationMerging` hook with localStorage persistence
+- Added merge dropdown to conversation card actions
+- Added merge history tracking in localStorage
+- Added CSS for merge UI and merge tags
+- Merge state persists across sessions via localStorage
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message bookmarking** — Bookmark important messages for quick access
+2. **Message forwarding** — Forward messages to other conversations
+3. **Conversation search improvements** — Add date range filter and message count filter
+
+## Round 34 (e00a2d0)
 
 **Flagship**: Message editing with edit history
 

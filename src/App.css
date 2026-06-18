@@ -359,6 +359,35 @@ button:disabled {
   border-color: var(--accent);
 }
 
+.conversation-merged-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--accent);
+  color: var(--on-accent-text);
+  white-space: nowrap;
+}
+
+.conversation-merge {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s;
+}
+
+.conversation-merge:hover {
+  color: var(--text);
+  background: var(--soft);
+}
+
 .conversation-count {
   display: inline-flex;
   align-items: center;
