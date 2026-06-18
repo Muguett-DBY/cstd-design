@@ -100,7 +100,7 @@ export function ChatWorkspace({
   const [showExportModal, setShowExportModal] = useState(false);
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
-  const { threads, getThreadReplies, addReply, removeReply, hasThread, getThreadCount } = useMessageThreading();
+  const { threads, getThreadReplies, addReply, removeReply, hasThread, getThreadCount, clearThread } = useMessageThreading();
   const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking();
   const { forwardMessage, getForwardedMessages } = useMessageForwarding();
@@ -462,11 +462,7 @@ export function ChatWorkspace({
                             </div>
                           ))}
                           <button type="button" className="thread-clear-btn" onClick={() => {
-                            // Clear all replies
-                            const replies = getThreadReplies(row.message.id);
-                            for (let i = replies.length - 1; i >= 0; i--) {
-                              removeReply(row.message.id, i);
-                            }
+                            clearThread(row.message.id);
                           }}>
                             清空线程
                           </button>

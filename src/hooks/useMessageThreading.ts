@@ -72,6 +72,15 @@ export function useMessageThreading() {
     return threads[messageId]?.replies.length || 0;
   }, [threads]);
 
+  const clearThread = useCallback((parentMessageId: string) => {
+    setThreads((prev) => {
+      const updated = { ...prev };
+      delete updated[parentMessageId];
+      saveThreads(updated);
+      return updated;
+    });
+  }, []);
+
   return {
     threads,
     getThread,
@@ -80,5 +89,6 @@ export function useMessageThreading() {
     removeReply,
     hasThread,
     getThreadCount,
+    clearThread,
   };
 }
