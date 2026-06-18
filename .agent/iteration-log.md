@@ -1,6 +1,37 @@
 # Iteration Log
 
-## Round 41 (latest)
+## Round 42 (latest)
+
+**Type**: UI/UX 体验升级
+
+**Flagship**: Authenticated workspace shell and chat experience polish
+
+### Completed
+- Reworked the core app shell palette, spacing, radii, shadows, and panel hierarchy for a calmer product feel
+- Upgraded the chat workspace title/action row, message cards, right-side conversation panel, composer, and loading/empty visual states
+- Improved mobile layout rhythm, bottom navigation sizing, message width, composer spacing, and touch-target consistency
+- Added semantic workspace navigation with `aria-current` state and a focused `TopBar` regression test
+- Normalized primary/ghost button states so disabled, hover, focus, and wrapped toolbar states remain readable
+
+### Verified
+- ✅ 26 unit tests pass, including the new `TopBar` navigation accessibility test
+- ✅ Functions typecheck, zero-warning ESLint, and production build pass
+- ✅ Rendered QA passed on desktop 1440×920, image workspace interaction, and mobile 390×844 with stubbed authenticated data
+- ✅ Console health checked during rendered QA with no warnings or errors
+- ⏳ GitHub Actions status to be checked after push
+
+### Risks
+- The broader app still has some dense localStorage-backed message-action surfaces that deserve a future workflow pass
+- Visual identity remains mascot-led; stronger brand assets would allow a larger leap in perceived maturity
+
+### Next Direction
+1. Replace prompt-based message forwarding with a real conversation picker flow
+2. Continue reducing localStorage-only message action state for cross-device consistency
+3. Audit image/video upload flows for richer progress, error recovery, and success confirmation states
+
+**Recommended next flagship**: Upgrade the message forwarding and saved-action workflow from local-only utilities into a polished cross-conversation interaction.
+
+## Round 41
 
 **Previous direction**: Message threading improvements
 
