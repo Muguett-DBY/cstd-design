@@ -289,7 +289,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
                   ) : (
                     <div
                       className="export-preview-html"
-                      dangerouslySetInnerHTML={{ __html: previewContent }}
+                      dangerouslySetInnerHTML={{ __html: previewContent.replace(/<script[^>]*>.*?<\/script>/gi, "").replace(/on\w+="[^"]*"/gi, "") }}
                     />
                   )}
                 </div>

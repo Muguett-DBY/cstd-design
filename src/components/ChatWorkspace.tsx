@@ -369,6 +369,8 @@ export function ChatWorkspace({
                       <Bookmark size={14} /> {isBookmarked(row.message.id) ? "已书签" : "书签"}
                     </button>
                     <button type="button" onClick={() => {
+                      // For now, use prompt() as a simple solution
+                      // In a real implementation, this would open a conversation picker modal
                       const target = prompt("输入目标会话名称：");
                       if (target) {
                         forwardMessage(row.message.id, row.message.content, target);
