@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X } from "lucide-react";
+import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye } from "lucide-react";
 
 const ASSISTANT_NAME = "助手";
 
@@ -59,6 +59,19 @@ function generateHTML(title: string, messages: { role: string; content: string; 
 </html>`;
 }
 
+function generateMarkdown(title: string, messages: { role: string; content: string; status: string }[]): string {
+  const date = new Date().toLocaleString("zh-CN");
+  const header = `# ${title}\n\n导出时间：${date}\n\n---\n\n`;
+  const body = messages
+    .filter((m) => m.status !== "streaming")
+    .map((m) => {
+      const role = m.role === "user" ? "**你**" : `**${ASSISTANT_NAME}**`;
+      return `${role}：\n\n${m.content}\n`;
+    })
+    .join("\n---\n\n");
+  return header + body;
+}
+
 function escapeHTML(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -84,6 +97,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const [dateRange, setDateRange] = useState<DateRange>({ start: "", end: "" });
   const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
   const [showMessageSelection, setShowMessageSelection] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const filteredMessages = useMemo(() => {
     let result = messages.filter((m) => m.status !== "streaming");
@@ -111,6 +125,13 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     return nonStreaming.length > 0 && selectedMessages.size === nonStreaming.length;
   }, [messages, selectedMessages]);
 
+  const previewContent = useMemo(() => {
+    if (format === "markdown") {
+      return generateMarkdown(title, filteredMessages);
+    }
+    return generateHTML(title, filteredMessages);
+  }, [title, filteredMessages, format]);
+
   const toggleAllMessages = () => {
     const nonStreaming = messages.filter((m) => m.status !== "streaming");
     if (allSelected) {
@@ -136,18 +157,11 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
 
   const handleExport = () => {
     const safeTitle = title.replace(/[/\\?%*:|"<>]/g, "_");
-    const date = new Date().toLocaleString("zh-CN");
 
     switch (format) {
       case "markdown": {
-        const header = `# ${title}\n\n导出时间：${date}\n\n---\n\n`;
-        const body = filteredMessages
-          .map((m) => {
-            const role = m.role === "user" ? "**你**" : `**${ASSISTANT_NAME}**`;
-            return `${role}：\n\n${m.content}\n`;
-          })
-          .join("\n---\n\n");
-        downloadFile(header + body, `${safeTitle}.md`, "text/markdown;charset=utf-8");
+        const content = generateMarkdown(title, filteredMessages);
+        downloadFile(content, `${safeTitle}.md`, "text/markdown;charset=utf-8");
         break;
       }
       case "html": {
@@ -248,6 +262,36 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
                       <span className="export-message-preview">{m.content.slice(0, 50)}{m.content.length > 50 ? "..." : ""}</span>
                     </label>
                   ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Preview Toggle */}
+          <div className="export-option-section">
+            <button
+              type="button"
+              className={`export-option-toggle${showPreview ? " active" : ""}`}
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              <Eye size={14} />
+              {showPreview ? "关闭预览" : "预览导出内容"}
+            </button>
+            {showPreview && (
+              <div className="export-preview">
+                <div className="export-preview-header">
+                  <span>预览内容</span>
+                  <span className="export-preview-count">{filteredMessages.length} 条消息</span>
+                </div>
+                <div className="export-preview-content">
+                  {format === "markdown" ? (
+                    <pre className="export-preview-markdown">{previewContent}</pre>
+                  ) : (
+                    <div
+                      className="export-preview-html"
+                      dangerouslySetInnerHTML={{ __html: previewContent }}
+                    />
+                  )}
                 </div>
               </div>
             )}

@@ -495,6 +495,8 @@ export function ChatWorkspace({
         <h3>会话信息</h3>
         <InfoLine label="消息数" value={String(conversation?.messages.length || 0)} />
         <InfoLine label="分支数" value={String(leaves.length || 0)} />
+        <InfoLine label="线程数" value={String(Object.keys(threads).filter((id) => threads[id].replies.length > 0).length)} />
+        <InfoLine label="置顶数" value={String(getPinnedMessages(messages.map((m) => m.id)).length)} />
         {getPinnedMessages(messages.map((m) => m.id)).length > 0 && (
           <div className="pinned-section">
             <span className="pinned-header"><Pin size={12} /> 置顶消息</span>
