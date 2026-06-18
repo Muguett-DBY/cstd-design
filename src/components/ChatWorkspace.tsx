@@ -17,6 +17,7 @@ import { useMessageSearch } from "../hooks/useMessageSearch";
 import { useMessageReactions } from "../hooks/useMessageReactions";
 import { useMessagePinning } from "../hooks/useMessagePinning";
 import { useMessageThreading } from "../hooks/useMessageThreading";
+import { useMessageEditing } from "../hooks/useMessageEditing";
 import { ReactionPicker } from "./ReactionPicker";
 
 const ASSISTANT_NAME = "助手";
@@ -98,11 +99,14 @@ export function ChatWorkspace({
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
   const { threads, getThreadReplies, addReply, removeReply, hasThread, getThreadCount } = useMessageThreading();
+  const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
   const search = useMessageSearch(messages, threads);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
+  const [editingMessage, setEditingMessage] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -332,7 +336,7 @@ export function ChatWorkspace({
                     {row.message.status === "streaming" && <em>正在生成...</em>}
                     {row.message.status === "interrupted" && <em>已中断</em>}
                   </div>
-                  <Markdown content={row.message.content || "正在思考..."} highlightQuery={search.query} />
+                  <Markdown content={getEditedContent(row.message.id) || row.message.content || "正在思考..."} highlightQuery={search.query} />
                   <div className="message-reactions">
                     {getReactions(row.message.id).map((emoji) => (
                       <button
@@ -357,6 +361,19 @@ export function ChatWorkspace({
                     <button type="button" onClick={() => togglePin(row.message.id)} className={isPinned(row.message.id) ? "pinned" : ""} title={isPinned(row.message.id) ? "取消置顶" : "置顶消息"}>
                       <Pin size={14} /> {isPinned(row.message.id) ? "已置顶" : "置顶"}
                     </button>
+                    {row.message.role === "user" && editingMessage !== row.message.id && (
+                      <button type="button" onClick={() => {
+                        setEditingMessage(row.message.id);
+                        setEditContent(getEditedContent(row.message.id) || row.message.content);
+                      }}>
+                        <Edit3 size={14} /> 编辑
+                      </button>
+                    )}
+                    {isEdited(row.message.id) && (
+                      <span className="edited-indicator" title={`已编辑 ${getEditCount(row.message.id)} 次`}>
+                        (已编辑)
+                      </span>
+                    )}
                     {row.message.role === "user" && (
                       <button type="button" onClick={() => setDraft({ content: row.message.content, selectedParentId: row.message.parentId || null })}>
                         <Edit3 size={14} /> 编辑后发送
@@ -373,6 +390,26 @@ export function ChatWorkspace({
                       </button>
                     )}
                   </div>
+                  {editingMessage === row.message.id && (
+                    <div className="message-edit-input">
+                      <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        placeholder="编辑消息内容..."
+                        rows={3}
+                      />
+                      <div className="edit-actions">
+                        <button type="button" className="ghost-button" onClick={() => setEditingMessage(null)}>取消</button>
+                        <button type="button" className="primary-button" onClick={() => {
+                          if (editContent.trim()) {
+                            editMessage(row.message.id, row.message.content, editContent.trim());
+                            setEditingMessage(null);
+                            onNotice("消息已编辑。");
+                          }
+                        }} disabled={!editContent.trim()}>保存</button>
+                      </div>
+                    </div>
+                  )}
                   {hasThread(row.message.id) && (
                     <div className="thread-indicator">
                       <button type="button" className="thread-toggle" onClick={() => {

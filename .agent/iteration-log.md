@@ -1,6 +1,30 @@
 # Iteration Log
 
-## Round 33 (latest)
+## Round 34 (latest)
+
+**Flagship**: Message editing with edit history
+
+### Completed
+- Created `useMessageEditing` hook with localStorage persistence
+- Added edit button to message actions UI
+- Added edit input textarea with save/cancel buttons
+- Added "已编辑" indicator on edited messages
+- Added CSS for edit input, edit actions, and edited indicator
+- Edit history is preserved in localStorage
+- Edited content is displayed in messages
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Conversation merging** — Merge two conversations into one
+2. **Message bookmarking** — Bookmark important messages for quick access
+3. **Message forwarding** — Forward messages to other conversations
+
+## Round 33 (1ba49ce)
 
 **Flagship**: Keyboard shortcuts with help panel
 
