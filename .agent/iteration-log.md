@@ -18,7 +18,7 @@
 - ✅ Functions typecheck, zero-warning ESLint, and production build pass
 - ✅ Rendered QA passed on desktop 1440×920, image workspace interaction, and mobile 390×844 with stubbed authenticated data
 - ✅ Console health checked during rendered QA with no warnings or errors
-- ⏳ GitHub Actions status to be checked after push
+- ✅ GitHub Actions `Deploy Cloudflare Pages` passed (run `27764831940`), including remote D1 migration and deployment
 
 ### Risks
 - The broader app still has some dense localStorage-backed message-action surfaces that deserve a future workflow pass
