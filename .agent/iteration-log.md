@@ -18,7 +18,7 @@
 - ✅ Functions typecheck, zero-warning ESLint, and production build pass
 - ✅ Local Pages + D1 QA passed at 1440×900 and 390×844
 - ✅ Create, reload persistence, Thread Center jump, edit, delete, empty state, and console health verified
-- ⏳ GitHub Actions pending push
+- ✅ GitHub Actions `Deploy Cloudflare Pages` passed (run `27761178761`), including remote D1 migration and deployment
 
 ### Risks
 - Older localStorage thread notes are not migrated because they had no conversation-safe ownership metadata
