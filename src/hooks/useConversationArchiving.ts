@@ -56,6 +56,28 @@ export function useConversationArchiving() {
     return conversationIds.filter((id) => !archived[id]);
   }, [archived]);
 
+  const bulkArchive = useCallback((conversationIds: string[]) => {
+    setArchived((prev) => {
+      const updated = { ...prev };
+      for (const id of conversationIds) {
+        updated[id] = true;
+      }
+      saveArchived(updated);
+      return updated;
+    });
+  }, []);
+
+  const bulkUnarchive = useCallback((conversationIds: string[]) => {
+    setArchived((prev) => {
+      const updated = { ...prev };
+      for (const id of conversationIds) {
+        updated[id] = false;
+      }
+      saveArchived(updated);
+      return updated;
+    });
+  }, []);
+
   return {
     isArchived,
     toggleArchive,
@@ -63,5 +85,7 @@ export function useConversationArchiving() {
     unarchiveConversation,
     getArchivedConversations,
     getUnarchivedConversations,
+    bulkArchive,
+    bulkUnarchive,
   };
 }
