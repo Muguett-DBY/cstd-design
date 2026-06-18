@@ -1,6 +1,29 @@
 # Iteration Log
 
-## Round 30 (latest)
+## Round 31 (latest)
+
+**Flagship**: Bulk archive with select mode
+
+### Completed
+- Added bulk select mode to sidebar with toggle button
+- Added "Select All" checkbox for quick selection
+- Added bulk archive/unarchive button
+- Updated `useConversationArchiving` hook with `bulkArchive` and `bulkUnarchive` functions
+- Added CSS for bulk select UI, bulk actions bar, and selected state
+- Bulk mode hides individual actions and shows checkboxes instead
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Export preview** — Preview exported content before downloading
+2. **Conversation statistics** — Show message count, thread count, etc.
+3. **Keyboard shortcuts** — Add more keyboard shortcuts for common actions
+
+## Round 30 (ef403b4)
 
 **Flagship**: Message search within threads
 

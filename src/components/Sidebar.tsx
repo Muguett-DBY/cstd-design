@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Archive, ArchiveRestore, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Tag, X } from "lucide-react";
+import { Archive, ArchiveRestore, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Square, Tag, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
@@ -97,6 +97,9 @@ function ConversationCard({
   folders,
   isArchived,
   onToggleArchive,
+  isBulkSelected,
+  onToggleBulkSelect,
+  bulkMode,
 }: {
   item: ConversationSummary;
   isActive: boolean;
@@ -113,21 +116,30 @@ function ConversationCard({
   folders: FolderType[];
   isArchived: boolean;
   onToggleArchive: () => void;
+  isBulkSelected: boolean;
+  onToggleBulkSelect: () => void;
+  bulkMode: boolean;
 }) {
   const snippet = item.lastMessage ? item.lastMessage.slice(0, 60) + (item.lastMessage.length > 60 ? "..." : "") : "";
   return (
     <div
-      className={`conversation-card-wrapper${dragOverId === item.id ? " drag-over" : ""}${isArchived ? " archived" : ""}`}
-      draggable
+      className={`conversation-card-wrapper${dragOverId === item.id ? " drag-over" : ""}${isArchived ? " archived" : ""}${isBulkSelected ? " bulk-selected" : ""}`}
+      draggable={!bulkMode}
       onDragStart={(e) => onDragStart(e, item.id)}
       onDragOver={(e) => onDragOver(e, item.id)}
       onDragLeave={onDragLeave}
       onDrop={(e) => onDrop(e, item.id)}
     >
-      <div className="drag-handle">
-        <GripVertical size={14} />
-      </div>
-      <button type="button" className={isActive ? "conversation-card active" : "conversation-card"} onClick={onSelect}>
+      {bulkMode ? (
+        <button type="button" className="bulk-select-btn" onClick={onToggleBulkSelect}>
+          {isBulkSelected ? <CheckSquare size={14} /> : <Square size={14} />}
+        </button>
+      ) : (
+        <div className="drag-handle">
+          <GripVertical size={14} />
+        </div>
+      )}
+      <button type="button" className={isActive ? "conversation-card active" : "conversation-card"} onClick={bulkMode ? onToggleBulkSelect : onSelect}>
         <div className="conversation-card-header">
           {folder && <span className="conversation-folder-tag" style={{ background: folder.color }}>{folder.name}</span>}
           {isArchived && <span className="conversation-archived-tag">已归档</span>}
@@ -136,25 +148,27 @@ function ConversationCard({
         {snippet && <span className="conversation-snippet">{snippet}</span>}
         <span>{timeAgo(item.updatedAt)}{item.messageCount ? ` · ${item.messageCount} 条消息` : ""}</span>
       </button>
-      <div className="conversation-card-actions">
-        <select
-          className="folder-select"
-          value={folder?.id || ""}
-          onChange={(e) => onAssignFolder(item.id, e.target.value || null)}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <option value="">无文件夹</option>
-          {folders.map((f) => (
-            <option key={f.id} value={f.id}>{f.name}</option>
-          ))}
-        </select>
-        <button type="button" className="conversation-archive" aria-label={isArchived ? "取消归档" : "归档会话"} onClick={(e) => { e.stopPropagation(); onToggleArchive(); }} title={isArchived ? "取消归档" : "归档会话"}>
-          {isArchived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
-        </button>
-        <button type="button" className="conversation-delete" aria-label="删除会话" onClick={(e) => { e.stopPropagation(); onRequestConfirm("删除会话", `确认删除会话"${item.title}"？此操作不可恢复。`, true, onDelete); }}>
-          <X size={12} />
-        </button>
-      </div>
+      {!bulkMode && (
+        <div className="conversation-card-actions">
+          <select
+            className="folder-select"
+            value={folder?.id || ""}
+            onChange={(e) => onAssignFolder(item.id, e.target.value || null)}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <option value="">无文件夹</option>
+            {folders.map((f) => (
+              <option key={f.id} value={f.id}>{f.name}</option>
+            ))}
+          </select>
+          <button type="button" className="conversation-archive" aria-label={isArchived ? "取消归档" : "归档会话"} onClick={(e) => { e.stopPropagation(); onToggleArchive(); }} title={isArchived ? "取消归档" : "归档会话"}>
+            {isArchived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
+          </button>
+          <button type="button" className="conversation-delete" aria-label="删除会话" onClick={(e) => { e.stopPropagation(); onRequestConfirm("删除会话", `确认删除会话"${item.title}"？此操作不可恢复。`, true, onDelete); }}>
+            <X size={12} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -195,12 +209,14 @@ export function Sidebar({
   const [showFolderInput, setShowFolderInput] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [showArchived, setShowArchived] = useState(false);
+  const [bulkMode, setBulkMode] = useState(false);
+  const [selectedConversations, setSelectedConversations] = useState<Set<string>>(new Set());
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
   const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
-  const { isArchived, toggleArchive } = useConversationArchiving();
+  const { isArchived, toggleArchive, bulkArchive, bulkUnarchive } = useConversationArchiving();
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -240,9 +256,16 @@ export function Sidebar({
       <section className="conversation-panel">
         <div className="panel-heading">
           <span>会话列表 {conversations.length > 0 && <span className="conversation-count">{conversations.length}</span>}</span>
-          <button type="button" className="icon-button" aria-label="新建会话" onClick={onCreateConversation}>
-            <Plus size={18} />
-          </button>
+          <div className="panel-heading-actions">
+            {conversations.length > 0 && (
+              <button type="button" className={`icon-button${bulkMode ? " active" : ""}`} aria-label="批量选择" onClick={() => { setBulkMode(!bulkMode); setSelectedConversations(new Set()); }} title={bulkMode ? "退出批量选择" : "批量选择"}>
+                {bulkMode ? <X size={18} /> : <CheckSquare size={18} />}
+              </button>
+            )}
+            <button type="button" className="icon-button" aria-label="新建会话" onClick={onCreateConversation}>
+              <Plus size={18} />
+            </button>
+          </div>
         </div>
         <label className="search-box">
           <Search size={16} />
@@ -352,29 +375,77 @@ export function Sidebar({
           {conversations.length === 0 ? (
             <div className="empty-conversations">{query ? "未找到匹配的会话" : "还没有会话，点击 + 新建一个"}</div>
           ) : (
-            reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
-              .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
-              .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id))
-              .map((item) => (
-              <ConversationCard
-                key={item.id}
-                item={item}
-                isActive={item.id === activeConversationId}
-                onSelect={() => onSelectConversation(item.id)}
-                onDelete={() => onDeleteConversation(item.id)}
-                onRequestConfirm={onRequestConfirm}
-                dragOverId={dragOverId}
-                onDragStart={onDragStart}
-                onDragOver={(e, id) => { onDragOver(e); setDragOverId(id); }}
-                onDragLeave={() => setDragOverId(null)}
-                onDrop={(e, id) => { onDrop(e, id); setDragOverId(null); }}
-                folder={getConversationFolder(item.id)}
-                onAssignFolder={assignToFolder}
-                folders={folders}
-                isArchived={isArchived(item.id)}
-                onToggleArchive={() => toggleArchive(item.id)}
-              />
-            ))
+            <>
+              {bulkMode && (
+                <div className="bulk-actions">
+                  <button type="button" className="bulk-select-all" onClick={() => {
+                    const filtered = reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
+                      .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
+                      .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id));
+                    if (selectedConversations.size === filtered.length) {
+                      setSelectedConversations(new Set());
+                    } else {
+                      setSelectedConversations(new Set(filtered.map((item) => item.id)));
+                    }
+                  }}>
+                    {selectedConversations.size === reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
+                      .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
+                      .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id)).length ? <CheckSquare size={14} /> : <Square size={14} />}
+                    全选
+                  </button>
+                  <span className="bulk-selected-count">已选 {selectedConversations.size} 项</span>
+                  <button type="button" className="bulk-archive-btn" disabled={selectedConversations.size === 0} onClick={() => {
+                    const ids = Array.from(selectedConversations);
+                    if (showArchived) {
+                      bulkUnarchive(ids);
+                    } else {
+                      bulkArchive(ids);
+                    }
+                    setSelectedConversations(new Set());
+                    setBulkMode(false);
+                  }}>
+                    {showArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
+                    {showArchived ? "取消归档" : "归档选中"}
+                  </button>
+                </div>
+              )}
+              {reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
+                .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
+                .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id))
+                .map((item) => (
+                <ConversationCard
+                  key={item.id}
+                  item={item}
+                  isActive={item.id === activeConversationId}
+                  onSelect={() => onSelectConversation(item.id)}
+                  onDelete={() => onDeleteConversation(item.id)}
+                  onRequestConfirm={onRequestConfirm}
+                  dragOverId={dragOverId}
+                  onDragStart={onDragStart}
+                  onDragOver={(e, id) => { onDragOver(e); setDragOverId(id); }}
+                  onDragLeave={() => setDragOverId(null)}
+                  onDrop={(e, id) => { onDrop(e, id); setDragOverId(null); }}
+                  folder={getConversationFolder(item.id)}
+                  onAssignFolder={assignToFolder}
+                  folders={folders}
+                  isArchived={isArchived(item.id)}
+                  onToggleArchive={() => toggleArchive(item.id)}
+                  isBulkSelected={selectedConversations.has(item.id)}
+                  onToggleBulkSelect={() => {
+                    setSelectedConversations((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(item.id)) {
+                        next.delete(item.id);
+                      } else {
+                        next.add(item.id);
+                      }
+                      return next;
+                    });
+                  }}
+                  bulkMode={bulkMode}
+                />
+              ))}
+            </>
           )}
         </div>
       </section>
