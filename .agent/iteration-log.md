@@ -1,6 +1,28 @@
 # Iteration Log
 
-## Round 32 (latest)
+## Round 33 (latest)
+
+**Flagship**: Keyboard shortcuts with help panel
+
+### Completed
+- Created `useKeyboardShortcuts` hook for managing keyboard shortcuts
+- Added keyboard shortcut help panel in Sidebar
+- Added shortcut hints for common actions (Ctrl+K, Ctrl+N, Ctrl+F, Enter, Shift+Enter, Esc)
+- Added CSS for keyboard shortcuts panel, shortcut items, and keyboard hint keys
+- Keyboard shortcuts help panel is toggleable
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message editing** — Allow users to edit sent messages
+2. **Conversation merging** — Merge two conversations into one
+3. **Message bookmarking** — Bookmark important messages for quick access
+
+## Round 32 (fd50bd5)
 
 **Flagship**: Export preview with conversation statistics
 

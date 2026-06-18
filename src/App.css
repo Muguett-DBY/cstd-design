@@ -2563,22 +2563,72 @@ button:disabled {
 
 .keyboard-hints {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
   padding: 10px 0;
   border-top: 1px solid var(--line);
   margin-top: auto;
 }
 
-.keyboard-hint {
-  font-size: 11px;
+.keyboard-hints-toggle {
+  border: none;
+  background: transparent;
   color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  text-align: left;
+  padding: 4px 0;
+  transition: color 0.15s;
 }
 
-.keyboard-hint kbd {
+.keyboard-hints-toggle:hover {
+  color: var(--text);
+}
+
+.keyboard-shortcuts-panel {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 4px;
+}
+
+.keyboard-shortcuts-panel.open {
+  display: block;
+}
+
+.keyboard-shortcuts-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.keyboard-shortcuts-list {
+  display: grid;
+  gap: 4px;
+}
+
+.keyboard-shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 0;
+  font-size: 11px;
+}
+
+.keyboard-shortcut-desc {
+  color: var(--text);
+}
+
+.keyboard-shortcut-keys {
+  display: flex;
+  gap: 2px;
+}
+
+.keyboard-hint kbd,
+.keyboard-shortcut-keys kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
