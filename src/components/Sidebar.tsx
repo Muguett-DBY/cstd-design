@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Archive, ArchiveRestore, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Square, Tag, X } from "lucide-react";
+import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Square, Tag, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
@@ -36,8 +36,9 @@ const MESSAGE_COUNT_OPTIONS: { value: MessageCountFilter; label: string }[] = [
   { value: "100+", label: "100+ 条" },
 ];
 
-function filterByDate(items: ConversationSummary[], filter: DateFilter): ConversationSummary[] {
-  if (filter === "all") return items;
+function filterByDate(items: ConversationSummary[], filter: DateFilter, dateRange?: { start: string; end: string }): ConversationSummary[] {
+  if (filter === "all" && (!dateRange?.start || !dateRange?.end)) return items;
+  
   const now = new Date();
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
@@ -45,6 +46,16 @@ function filterByDate(items: ConversationSummary[], filter: DateFilter): Convers
 
   return items.filter((item) => {
     const date = new Date(item.updatedAt);
+    
+    // Date range filter
+    if (dateRange?.start && dateRange?.end) {
+      const start = new Date(dateRange.start);
+      const end = new Date(dateRange.end);
+      end.setHours(23, 59, 59, 999);
+      if (date < start || date > end) return false;
+    }
+    
+    // Date filter
     switch (filter) {
       case "today": return date >= startOfDay;
       case "week": return date >= startOfWeek;
@@ -226,6 +237,7 @@ export function Sidebar({
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [messageCountFilter, setMessageCountFilter] = useState<MessageCountFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [showFolderInput, setShowFolderInput] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
@@ -328,6 +340,24 @@ export function Sidebar({
                 ))}
               </div>
             </div>
+            <div className="filter-group">
+              <span className="filter-label"><Calendar size={12} /> 日期范围</span>
+              <div className="filter-date-range">
+                <input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  className="filter-date-input"
+                />
+                <span className="filter-date-separator">至</span>
+                <input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  className="filter-date-input"
+                />
+              </div>
+            </div>
           </div>
         )}
         <div className="sort-bar">
@@ -401,7 +431,7 @@ export function Sidebar({
               {bulkMode && (
                 <div className="bulk-actions">
                   <button type="button" className="bulk-select-all" onClick={() => {
-                    const filtered = reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
+                    const filtered = reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter, dateRange), messageCountFilter), sortMode))
                       .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
                       .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id));
                     if (selectedConversations.size === filtered.length) {
@@ -410,7 +440,7 @@ export function Sidebar({
                       setSelectedConversations(new Set(filtered.map((item) => item.id)));
                     }
                   }}>
-                    {selectedConversations.size === reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
+                    {selectedConversations.size === reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter, dateRange), messageCountFilter), sortMode))
                       .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
                       .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id)).length ? <CheckSquare size={14} /> : <Square size={14} />}
                     全选
@@ -431,7 +461,7 @@ export function Sidebar({
                   </button>
                 </div>
               )}
-              {reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
+              {reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter, dateRange), messageCountFilter), sortMode))
                 .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
                 .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id))
                 .map((item) => (

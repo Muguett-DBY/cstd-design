@@ -1,6 +1,29 @@
 # Iteration Log
 
-## Round 39 (latest)
+## Round 40 (latest)
+
+**Flagship**: Conversation search improvements with date range filter
+
+### Completed
+- Added date range filter to conversation search UI
+- Added date range state management
+- Updated filterByDate function to handle date range filter
+- Updated conversation list rendering to use date range filter
+- Added CSS for date range inputs and separators
+- Added Calendar icon to filter panel
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message threading improvements** — Add more threading features
+2. **Conversation archiving** — Archive old conversations without deleting
+3. **Bulk archive** — Archive multiple conversations at once
+
+## Round 39 (7d274c8)
 
 **Type**: UI/UX 体验升级
 
