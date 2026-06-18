@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Tag, X } from "lucide-react";
+import { Archive, ArchiveRestore, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Tag, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
@@ -7,6 +7,7 @@ import { timeAgo } from "../app-state";
 import type { WorkspaceTab, ConversationSummary } from "../types";
 import { useConversationOrder } from "../hooks/useConversationOrder";
 import { useConversationFolders } from "../hooks/useConversationFolders";
+import { useConversationArchiving } from "../hooks/useConversationArchiving";
 import type { Folder as FolderType } from "../hooks/useConversationFolders";
 
 type SortMode = "updatedAt" | "createdAt" | "title";
@@ -94,6 +95,8 @@ function ConversationCard({
   folder,
   onAssignFolder,
   folders,
+  isArchived,
+  onToggleArchive,
 }: {
   item: ConversationSummary;
   isActive: boolean;
@@ -108,11 +111,13 @@ function ConversationCard({
   folder: FolderType | null;
   onAssignFolder: (conversationId: string, folderId: string | null) => void;
   folders: FolderType[];
+  isArchived: boolean;
+  onToggleArchive: () => void;
 }) {
   const snippet = item.lastMessage ? item.lastMessage.slice(0, 60) + (item.lastMessage.length > 60 ? "..." : "") : "";
   return (
     <div
-      className={`conversation-card-wrapper${dragOverId === item.id ? " drag-over" : ""}`}
+      className={`conversation-card-wrapper${dragOverId === item.id ? " drag-over" : ""}${isArchived ? " archived" : ""}`}
       draggable
       onDragStart={(e) => onDragStart(e, item.id)}
       onDragOver={(e) => onDragOver(e, item.id)}
@@ -125,6 +130,7 @@ function ConversationCard({
       <button type="button" className={isActive ? "conversation-card active" : "conversation-card"} onClick={onSelect}>
         <div className="conversation-card-header">
           {folder && <span className="conversation-folder-tag" style={{ background: folder.color }}>{folder.name}</span>}
+          {isArchived && <span className="conversation-archived-tag">已归档</span>}
           <strong>{item.title}</strong>
         </div>
         {snippet && <span className="conversation-snippet">{snippet}</span>}
@@ -142,6 +148,9 @@ function ConversationCard({
             <option key={f.id} value={f.id}>{f.name}</option>
           ))}
         </select>
+        <button type="button" className="conversation-archive" aria-label={isArchived ? "取消归档" : "归档会话"} onClick={(e) => { e.stopPropagation(); onToggleArchive(); }} title={isArchived ? "取消归档" : "归档会话"}>
+          {isArchived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
+        </button>
         <button type="button" className="conversation-delete" aria-label="删除会话" onClick={(e) => { e.stopPropagation(); onRequestConfirm("删除会话", `确认删除会话"${item.title}"？此操作不可恢复。`, true, onDelete); }}>
           <X size={12} />
         </button>
@@ -185,11 +194,13 @@ export function Sidebar({
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const [showFolderInput, setShowFolderInput] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
   const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
+  const { isArchived, toggleArchive } = useConversationArchiving();
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -305,6 +316,9 @@ export function Sidebar({
               </span>
             </button>
           ))}
+          <button type="button" className={`folder-chip${showArchived ? " active" : ""}`} onClick={() => setShowArchived(!showArchived)}>
+            <Archive size={12} /> 归档
+          </button>
           <button type="button" className="folder-add-btn" onClick={() => setShowFolderInput(!showFolderInput)} title="新建文件夹">
             <FolderPlus size={14} />
           </button>
@@ -340,6 +354,7 @@ export function Sidebar({
           ) : (
             reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter), messageCountFilter), sortMode))
               .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
+              .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id))
               .map((item) => (
               <ConversationCard
                 key={item.id}
@@ -356,6 +371,8 @@ export function Sidebar({
                 folder={getConversationFolder(item.id)}
                 onAssignFolder={assignToFolder}
                 folders={folders}
+                isArchived={isArchived(item.id)}
+                onToggleArchive={() => toggleArchive(item.id)}
               />
             ))
           )}
