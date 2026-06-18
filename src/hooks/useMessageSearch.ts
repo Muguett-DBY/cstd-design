@@ -8,9 +8,17 @@ export interface SearchResult {
   matchStart: number;
   matchEnd: number;
   snippet: string;
+  isThreadReply?: boolean;
+  parentMessageId?: string;
+  replyIndex?: number;
 }
 
-export function useMessageSearch(messages: ChatMessage[]) {
+interface Thread {
+  parentMessageId: string;
+  replies: string[];
+}
+
+export function useMessageSearch(messages: ChatMessage[], threads: Record<string, Thread> = {}) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -20,6 +28,7 @@ export function useMessageSearch(messages: ChatMessage[]) {
     const q = query.toLowerCase();
     const found: SearchResult[] = [];
 
+    // Search through main messages
     for (const message of messages) {
       if (message.status === "streaming") continue;
       const content = message.content;
@@ -48,10 +57,45 @@ export function useMessageSearch(messages: ChatMessage[]) {
 
         startIndex = matchIndex + 1;
       }
+
+      // Search through thread replies for this message
+      const thread = threads[message.id];
+      if (thread && thread.replies.length > 0) {
+        thread.replies.forEach((reply, replyIdx) => {
+          const lowerReply = reply.toLowerCase();
+          let replyStartIndex = 0;
+
+          while (replyStartIndex < lowerReply.length) {
+            const matchIndex = lowerReply.indexOf(q, replyStartIndex);
+            if (matchIndex === -1) break;
+
+            const matchEnd = matchIndex + query.length;
+            const snippetStart = Math.max(0, matchIndex - 20);
+            const snippetEnd = Math.min(reply.length, matchEnd + 20);
+            const prefix = snippetStart > 0 ? "..." : "";
+            const suffix = snippetEnd < reply.length ? "..." : "";
+            const snippet = prefix + reply.slice(snippetStart, snippetEnd) + suffix;
+
+            found.push({
+              messageId: message.id,
+              role: message.role,
+              content: reply,
+              matchStart: matchIndex,
+              matchEnd,
+              snippet,
+              isThreadReply: true,
+              parentMessageId: message.id,
+              replyIndex: replyIdx,
+            });
+
+            replyStartIndex = matchIndex + 1;
+          }
+        });
+      }
     }
 
     return found;
-  }, [query, messages]);
+  }, [query, messages, threads]);
 
   const totalResults = results.length;
 

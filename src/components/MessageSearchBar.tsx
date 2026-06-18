@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ChevronDown, ChevronUp, Search, X } from "lucide-react";
+import { ChevronDown, ChevronUp, MessageSquare, Search, X } from "lucide-react";
 
 export function MessageSearchBar({
   query,
@@ -9,6 +9,7 @@ export function MessageSearchBar({
   onNext,
   onPrev,
   onClose,
+  threadResults = 0,
 }: {
   query: string;
   onQueryChange: (q: string) => void;
@@ -17,6 +18,7 @@ export function MessageSearchBar({
   onNext: () => void;
   onPrev: () => void;
   onClose: () => void;
+  threadResults?: number;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -45,6 +47,11 @@ export function MessageSearchBar({
       {totalResults > 0 && (
         <span className="search-result-count">
           {activeIndex + 1}/{totalResults}
+          {threadResults > 0 && (
+            <span className="search-thread-indicator" title={`包含 ${threadResults} 个线程回复结果`}>
+              <MessageSquare size={10} /> {threadResults}
+            </span>
+          )}
         </span>
       )}
       {query && totalResults === 0 && (

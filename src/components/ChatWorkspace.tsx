@@ -95,11 +95,11 @@ export function ChatWorkspace({
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
-  const search = useMessageSearch(messages);
-  const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
-  const { getThreadReplies, addReply, hasThread, getThreadCount } = useMessageThreading();
+  const { threads, getThreadReplies, addReply, removeReply, hasThread, getThreadCount } = useMessageThreading();
+  const search = useMessageSearch(messages, threads);
+  const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
@@ -289,6 +289,7 @@ export function ChatWorkspace({
             onNext={search.goNext}
             onPrev={search.goPrev}
             onClose={search.closeSearch}
+            threadResults={search.results.filter((r) => r.isThreadReply).length}
           />
         )}
 
@@ -393,12 +394,27 @@ export function ChatWorkspace({
                               <span className="thread-reply-label">回复：</span>
                               <Markdown content={reply} />
                               <button type="button" className="thread-reply-delete" onClick={() => {
-                                // We'll implement this later if needed
+                                // Remove reply by index
+                                const replies = getThreadReplies(row.message.id);
+                                if (replies.length > 0) {
+                                  // We need to use the removeReply function
+                                  // For now, we'll just remove by index
+                                  removeReply(row.message.id, idx);
+                                }
                               }}>
                                 <Trash2 size={10} />
                               </button>
                             </div>
                           ))}
+                          <button type="button" className="thread-clear-btn" onClick={() => {
+                            // Clear all replies
+                            const replies = getThreadReplies(row.message.id);
+                            for (let i = replies.length - 1; i >= 0; i--) {
+                              removeReply(row.message.id, i);
+                            }
+                          }}>
+                            清空线程
+                          </button>
                         </div>
                       )}
                     </div>
