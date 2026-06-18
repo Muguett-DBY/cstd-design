@@ -544,6 +544,33 @@ button:disabled {
   font-weight: 600;
 }
 
+.filter-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.filter-date-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.filter-date-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.filter-date-separator {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .folder-bar {
   display: flex;
   flex-wrap: wrap;
