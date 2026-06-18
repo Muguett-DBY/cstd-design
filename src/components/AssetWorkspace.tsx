@@ -40,16 +40,18 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   };
 
   const deleteSelected = () => {
-    const count = selected.size;
+    const selectedIds = Array.from(selected);
+    const count = selectedIds.length;
     onRequestConfirm("批量删除", `确认永久删除选中的 ${count} 个素材？此操作不可恢复。`, true, async () => {
-      for (const id of selected) {
-        try {
-          await api.deleteAsset(id);
-        } catch { /* continue */ }
-      }
+      const results = await Promise.allSettled(selectedIds.map((id) => api.deleteAsset(id)));
+      const failedCount = results.filter((result) => result.status === "rejected").length;
       setSelected(new Set());
       await onAssetsChanged();
-      onNotice(`已删除 ${count} 个素材。`);
+      if (failedCount > 0) {
+        onNotice(`已删除 ${count - failedCount} 个素材，${failedCount} 个删除失败。`);
+      } else {
+        onNotice(`已删除 ${count} 个素材。`);
+      }
     });
   };
 
