@@ -2818,3 +2818,126 @@ button:disabled {
   color: var(--text);
   background: var(--soft);
 }
+
+.export-option-section {
+  margin-bottom: 16px;
+}
+
+.export-option-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.export-option-toggle:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.export-option-toggle.active {
+  background: var(--soft);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.export-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.export-date-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.export-date-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.export-date-separator {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.export-message-selection {
+  margin-top: 8px;
+}
+
+.export-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.export-select-all:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.export-message-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.export-message-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.export-message-item:last-child {
+  border-bottom: none;
+}
+
+.export-message-item:hover {
+  background: var(--soft);
+}
+
+.export-message-item input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--accent);
+}
+
+.export-message-role {
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 24px;
+}
+
+.export-message-preview {
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
