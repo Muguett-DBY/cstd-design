@@ -28,7 +28,11 @@ export async function clearWorkspaceScope(env: Env, scope: ClearScope) {
   if (scope === "chat" || scope === "all") {
     result.messages = await countRows(env, "messages");
     result.conversations = await countRows(env, "conversations");
-    await env.DB.batch([env.DB.prepare(`DELETE FROM messages`), env.DB.prepare(`DELETE FROM conversations`)]);
+    await env.DB.batch([
+      env.DB.prepare(`DELETE FROM message_threads`),
+      env.DB.prepare(`DELETE FROM messages`),
+      env.DB.prepare(`DELETE FROM conversations`),
+    ]);
     if (scope === "chat") return result;
   }
 

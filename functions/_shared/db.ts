@@ -68,7 +68,10 @@ export async function setConversationActiveLeaf(env: Env, id: string, activeLeaf
 
 export async function softDeleteConversation(env: Env, id: string) {
   const now = new Date().toISOString();
-  await env.DB.prepare(`UPDATE conversations SET deleted_at = ?1, updated_at = ?1 WHERE id = ?2`).bind(now, id).run();
+  await env.DB.batch([
+    env.DB.prepare(`DELETE FROM message_threads WHERE conversation_id = ?1`).bind(id),
+    env.DB.prepare(`UPDATE conversations SET deleted_at = ?1, updated_at = ?1 WHERE id = ?2`).bind(now, id),
+  ]);
 }
 
 export async function insertMessage(

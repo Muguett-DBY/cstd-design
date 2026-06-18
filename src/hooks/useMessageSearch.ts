@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import type { ChatMessage } from "../types";
+import type { ChatMessage, ThreadReply } from "../types";
 
 export interface SearchResult {
   messageId: string;
@@ -13,12 +13,7 @@ export interface SearchResult {
   replyIndex?: number;
 }
 
-interface Thread {
-  parentMessageId: string;
-  replies: string[];
-}
-
-export function useMessageSearch(messages: ChatMessage[], threads: Record<string, Thread> = {}) {
+export function useMessageSearch(messages: ChatMessage[], threads: Record<string, ThreadReply[]> = {}) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
@@ -59,10 +54,10 @@ export function useMessageSearch(messages: ChatMessage[], threads: Record<string
       }
 
       // Search through thread replies for this message
-      const thread = threads[message.id];
-      if (thread && thread.replies.length > 0) {
-        thread.replies.forEach((reply, replyIdx) => {
-          const lowerReply = reply.toLowerCase();
+      const threadReplies = threads[message.id];
+      if (threadReplies?.length) {
+        threadReplies.forEach((reply, replyIdx) => {
+          const lowerReply = reply.content.toLowerCase();
           let replyStartIndex = 0;
 
           while (replyStartIndex < lowerReply.length) {
@@ -71,15 +66,15 @@ export function useMessageSearch(messages: ChatMessage[], threads: Record<string
 
             const matchEnd = matchIndex + query.length;
             const snippetStart = Math.max(0, matchIndex - 20);
-            const snippetEnd = Math.min(reply.length, matchEnd + 20);
+            const snippetEnd = Math.min(reply.content.length, matchEnd + 20);
             const prefix = snippetStart > 0 ? "..." : "";
-            const suffix = snippetEnd < reply.length ? "..." : "";
-            const snippet = prefix + reply.slice(snippetStart, snippetEnd) + suffix;
+            const suffix = snippetEnd < reply.content.length ? "..." : "";
+            const snippet = prefix + reply.content.slice(snippetStart, snippetEnd) + suffix;
 
             found.push({
               messageId: message.id,
               role: message.role,
-              content: reply,
+              content: reply.content,
               matchStart: matchIndex,
               matchEnd,
               snippet,

@@ -3,6 +3,7 @@ import { z } from "zod";
 const uuid = z.string().uuid();
 const title = z.string().trim().min(1).max(80);
 const prompt = z.string().trim().min(1).max(8_000);
+const threadContent = z.string().trim().min(1).max(4_000);
 
 export const LoginRequestSchema = z.object({
   password: z.string().min(1).max(256),
@@ -21,6 +22,15 @@ export const ChatRequestSchema = z.object({
   conversationId: uuid.optional(),
   parentId: uuid.nullable().optional(),
   content: prompt,
+}).strict();
+
+export const CreateThreadReplySchema = z.object({
+  parentMessageId: uuid,
+  content: threadContent,
+}).strict();
+
+export const UpdateThreadReplySchema = z.object({
+  content: threadContent,
 }).strict();
 
 export const ImageRequestSchema = z.object({

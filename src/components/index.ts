@@ -21,3 +21,5 @@ export { VideoWorkspace } from "./VideoWorkspace";
 export { AssetWorkspace } from "./AssetWorkspace";
 export { Sidebar } from "./Sidebar";
 export { NetworkBanner } from "./NetworkBanner";
+export { MessageThread } from "./MessageThread";
+export { ThreadCenter } from "./ThreadCenter";

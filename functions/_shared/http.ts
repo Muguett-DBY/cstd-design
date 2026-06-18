@@ -77,6 +77,16 @@ export async function ensureSchema(db: D1Database) {
       updated_at TEXT NOT NULL
     )`),
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages (conversation_id, created_at)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS message_threads (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL,
+      parent_message_id TEXT NOT NULL,
+      content TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_message_threads_conversation ON message_threads (conversation_id, updated_at DESC)`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_message_threads_parent ON message_threads (parent_message_id, created_at)`),
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_conversations_updated ON conversations (deleted_at, updated_at)`),
     db.prepare(`CREATE TABLE IF NOT EXISTS assets (
       id TEXT PRIMARY KEY,

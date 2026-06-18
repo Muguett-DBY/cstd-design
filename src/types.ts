@@ -20,6 +20,15 @@ export interface ChatMessage {
   createdAt?: string;
 }
 
+export interface ThreadReply {
+  id: string;
+  conversationId: string;
+  parentMessageId: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ConversationDetail extends ConversationSummary {
   messages: ChatMessage[];
 }
