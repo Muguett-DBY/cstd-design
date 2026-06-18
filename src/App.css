@@ -388,6 +388,15 @@ button:disabled {
   background: var(--soft);
 }
 
+.bookmarked {
+  background: var(--accent);
+  color: var(--on-accent-text);
+}
+
+.bookmarked:hover {
+  background: var(--accent-strong);
+}
+
 .conversation-count {
   display: inline-flex;
   align-items: center;

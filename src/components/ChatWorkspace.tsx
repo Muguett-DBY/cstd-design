@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Check, Copy, Download, Edit3, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Bookmark, Check, Copy, Download, Edit3, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -18,6 +18,7 @@ import { useMessageReactions } from "../hooks/useMessageReactions";
 import { useMessagePinning } from "../hooks/useMessagePinning";
 import { useMessageThreading } from "../hooks/useMessageThreading";
 import { useMessageEditing } from "../hooks/useMessageEditing";
+import { useMessageBookmarking } from "../hooks/useMessageBookmarking";
 import { ReactionPicker } from "./ReactionPicker";
 
 const ASSISTANT_NAME = "助手";
@@ -100,6 +101,7 @@ export function ChatWorkspace({
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
   const { threads, getThreadReplies, addReply, removeReply, hasThread, getThreadCount } = useMessageThreading();
   const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
+  const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking();
   const search = useMessageSearch(messages, threads);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -361,6 +363,9 @@ export function ChatWorkspace({
                     <button type="button" onClick={() => togglePin(row.message.id)} className={isPinned(row.message.id) ? "pinned" : ""} title={isPinned(row.message.id) ? "取消置顶" : "置顶消息"}>
                       <Pin size={14} /> {isPinned(row.message.id) ? "已置顶" : "置顶"}
                     </button>
+                    <button type="button" onClick={() => toggleBookmark(row.message.id)} className={isBookmarked(row.message.id) ? "bookmarked" : ""} title={isBookmarked(row.message.id) ? "取消书签" : "添加书签"}>
+                      <Bookmark size={14} /> {isBookmarked(row.message.id) ? "已书签" : "书签"}
+                    </button>
                     {row.message.role === "user" && editingMessage !== row.message.id && (
                       <button type="button" onClick={() => {
                         setEditingMessage(row.message.id);
@@ -539,6 +544,25 @@ export function ChatWorkspace({
             <span className="pinned-header"><Pin size={12} /> 置顶消息</span>
             <div className="pinned-list">
               {getPinnedMessages(messages.map((m) => m.id)).map((id) => {
+                const msg = messages.find((m) => m.id === id);
+                if (!msg) return null;
+                return (
+                  <button key={id} type="button" className="pinned-item" onClick={() => {
+                    const el = messageRefs.current.get(id);
+                    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                  }}>
+                    {msg.content.slice(0, 50)}{msg.content.length > 50 ? "..." : ""}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {getBookmarkedMessages(messages.map((m) => m.id)).length > 0 && (
+          <div className="pinned-section">
+            <span className="pinned-header"><Bookmark size={12} /> 书签消息</span>
+            <div className="pinned-list">
+              {getBookmarkedMessages(messages.map((m) => m.id)).map((id) => {
                 const msg = messages.find((m) => m.id === id);
                 if (!msg) return null;
                 return (

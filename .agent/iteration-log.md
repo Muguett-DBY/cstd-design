@@ -1,6 +1,28 @@
 # Iteration Log
 
-## Round 35 (latest)
+## Round 36 (latest)
+
+**Flagship**: Message bookmarking with quick access panel
+
+### Completed
+- Created `useMessageBookmarking` hook with localStorage persistence
+- Added bookmark button to message actions UI
+- Added "Bookmarked Messages" section in right panel
+- Added CSS for bookmark UI and bookmark button
+- Bookmark state persists across sessions via localStorage
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message forwarding** — Forward messages to other conversations
+2. **Conversation search improvements** — Add date range filter and message count filter
+3. **Message threading improvements** — Add more threading features
+
+## Round 35 (cc703ec)
 
 **Flagship**: Conversation merging with merge history
 
