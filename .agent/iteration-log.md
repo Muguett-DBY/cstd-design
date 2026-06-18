@@ -1,6 +1,30 @@
 # Iteration Log
 
-## Round 27 (latest)
+## Round 28 (latest)
+
+**Flagship**: Conversation archiving with filter
+
+### Completed
+- Created `useConversationArchiving` hook with localStorage persistence
+- Added archive/unarchive button to conversation card
+- Added "Archived" filter option in sidebar folder bar
+- Added archived state visual indicator (dimmed opacity)
+- Added "已归档" tag on archived conversations
+- Added CSS for archived state, archived tag, and archive button
+- Archive state persists across sessions via localStorage
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Export improvements** — Add more export options (date range, selected messages)
+2. **Message search within threads** — Search through threaded replies
+3. **Bulk archive** — Archive multiple conversations at once
+
+## Round 27 (7de81d9)
 
 **Type**: Health check and stability improvements
 

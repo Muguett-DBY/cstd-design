@@ -1,0 +1,67 @@
+import { useCallback, useState } from "react";
+
+const STORAGE_KEY = "cstd-design:archivedConversations";
+
+type ArchivedConversations = Record<string, boolean>;
+
+function loadArchived(): ArchivedConversations {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveArchived(archived: ArchivedConversations) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(archived));
+}
+
+export function useConversationArchiving() {
+  const [archived, setArchived] = useState<ArchivedConversations>(loadArchived);
+
+  const isArchived = useCallback((conversationId: string): boolean => {
+    return archived[conversationId] || false;
+  }, [archived]);
+
+  const toggleArchive = useCallback((conversationId: string) => {
+    setArchived((prev) => {
+      const updated = { ...prev, [conversationId]: !prev[conversationId] };
+      saveArchived(updated);
+      return updated;
+    });
+  }, []);
+
+  const archiveConversation = useCallback((conversationId: string) => {
+    setArchived((prev) => {
+      const updated = { ...prev, [conversationId]: true };
+      saveArchived(updated);
+      return updated;
+    });
+  }, []);
+
+  const unarchiveConversation = useCallback((conversationId: string) => {
+    setArchived((prev) => {
+      const updated = { ...prev, [conversationId]: false };
+      saveArchived(updated);
+      return updated;
+    });
+  }, []);
+
+  const getArchivedConversations = useCallback((conversationIds: string[]): string[] => {
+    return conversationIds.filter((id) => archived[id]);
+  }, [archived]);
+
+  const getUnarchivedConversations = useCallback((conversationIds: string[]): string[] => {
+    return conversationIds.filter((id) => !archived[id]);
+  }, [archived]);
+
+  return {
+    isArchived,
+    toggleArchive,
+    archiveConversation,
+    unarchiveConversation,
+    getArchivedConversations,
+    getUnarchivedConversations,
+  };
+}
