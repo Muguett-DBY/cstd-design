@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FileText, FileCode, Printer, X } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X } from "lucide-react";
 
 const ASSISTANT_NAME = "助手";
 
@@ -9,7 +9,12 @@ interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  messages: { role: string; content: string; status: string }[];
+  messages: { id?: string; role: string; content: string; status: string; createdAt?: string }[];
+}
+
+interface DateRange {
+  start: string;
+  end: string;
 }
 
 function generateHTML(title: string, messages: { role: string; content: string; status: string }[]): string {
@@ -75,6 +80,57 @@ function downloadFile(content: string, filename: string, mimeType: string) {
 
 export function ExportModal({ isOpen, onClose, title, messages }: ExportModalProps) {
   const [format, setFormat] = useState<ExportFormat>("markdown");
+  const [useDateRange, setUseDateRange] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange>({ start: "", end: "" });
+  const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
+  const [showMessageSelection, setShowMessageSelection] = useState(false);
+
+  const filteredMessages = useMemo(() => {
+    let result = messages.filter((m) => m.status !== "streaming");
+
+    if (useDateRange && dateRange.start && dateRange.end) {
+      const start = new Date(dateRange.start);
+      const end = new Date(dateRange.end);
+      end.setHours(23, 59, 59, 999);
+      result = result.filter((m) => {
+        if (!m.createdAt) return false;
+        const date = new Date(m.createdAt);
+        return date >= start && date <= end;
+      });
+    }
+
+    if (showMessageSelection && selectedMessages.size > 0) {
+      result = result.filter((_, index) => selectedMessages.has(index));
+    }
+
+    return result;
+  }, [messages, useDateRange, dateRange, showMessageSelection, selectedMessages]);
+
+  const allSelected = useMemo(() => {
+    const nonStreaming = messages.filter((m) => m.status !== "streaming");
+    return nonStreaming.length > 0 && selectedMessages.size === nonStreaming.length;
+  }, [messages, selectedMessages]);
+
+  const toggleAllMessages = () => {
+    const nonStreaming = messages.filter((m) => m.status !== "streaming");
+    if (allSelected) {
+      setSelectedMessages(new Set());
+    } else {
+      setSelectedMessages(new Set(nonStreaming.map((_, index) => index)));
+    }
+  };
+
+  const toggleMessage = (index: number) => {
+    setSelectedMessages((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -85,8 +141,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     switch (format) {
       case "markdown": {
         const header = `# ${title}\n\n导出时间：${date}\n\n---\n\n`;
-        const body = messages
-          .filter((m) => m.status !== "streaming")
+        const body = filteredMessages
           .map((m) => {
             const role = m.role === "user" ? "**你**" : `**${ASSISTANT_NAME}**`;
             return `${role}：\n\n${m.content}\n`;
@@ -96,12 +151,12 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         break;
       }
       case "html": {
-        const html = generateHTML(title, messages);
+        const html = generateHTML(title, filteredMessages);
         downloadFile(html, `${safeTitle}.html`, "text/html;charset=utf-8");
         break;
       }
       case "pdf": {
-        const html = generateHTML(title, messages);
+        const html = generateHTML(title, filteredMessages);
         const printWindow = window.open("", "_blank");
         if (printWindow) {
           printWindow.document.write(html);
@@ -130,7 +185,75 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         </div>
         <div className="export-modal-body">
           <p className="export-modal-title">{title}</p>
-          <p className="export-modal-count">{messages.filter((m) => m.status !== "streaming").length} 条消息</p>
+          <p className="export-modal-count">{filteredMessages.length} 条消息</p>
+
+          {/* Date Range Selection */}
+          <div className="export-option-section">
+            <button
+              type="button"
+              className={`export-option-toggle${useDateRange ? " active" : ""}`}
+              onClick={() => setUseDateRange(!useDateRange)}
+            >
+              <Calendar size={14} />
+              {useDateRange ? "关闭日期筛选" : "按日期筛选"}
+            </button>
+            {useDateRange && (
+              <div className="export-date-range">
+                <input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                  className="export-date-input"
+                />
+                <span className="export-date-separator">至</span>
+                <input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                  className="export-date-input"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Message Selection */}
+          <div className="export-option-section">
+            <button
+              type="button"
+              className={`export-option-toggle${showMessageSelection ? " active" : ""}`}
+              onClick={() => setShowMessageSelection(!showMessageSelection)}
+            >
+              <CheckSquare size={14} />
+              {showMessageSelection ? "关闭消息选择" : "选择消息"}
+            </button>
+            {showMessageSelection && (
+              <div className="export-message-selection">
+                <button
+                  type="button"
+                  className="export-select-all"
+                  onClick={toggleAllMessages}
+                >
+                  {allSelected ? <Square size={14} /> : <CheckSquare size={14} />}
+                  {allSelected ? "取消全选" : "全选"}
+                </button>
+                <div className="export-message-list">
+                  {messages.filter((m) => m.status !== "streaming").map((m, index) => (
+                    <label key={index} className="export-message-item">
+                      <input
+                        type="checkbox"
+                        checked={selectedMessages.has(index)}
+                        onChange={() => toggleMessage(index)}
+                      />
+                      <span className="export-message-role">{m.role === "user" ? "你" : ASSISTANT_NAME}</span>
+                      <span className="export-message-preview">{m.content.slice(0, 50)}{m.content.length > 50 ? "..." : ""}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Format Selection */}
           <div className="export-format-options">
             <button
               type="button"

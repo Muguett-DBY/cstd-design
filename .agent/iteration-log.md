@@ -1,6 +1,30 @@
 # Iteration Log
 
-## Round 28 (latest)
+## Round 29 (latest)
+
+**Flagship**: Export improvements with date range and message selection
+
+### Completed
+- Added date range selection UI with start/end date inputs
+- Added message selection UI with checkboxes
+- Added "Select All" checkbox for quick message selection
+- Added collapsible date range and message selection panels
+- Updated export logic to handle filtered messages
+- Added CSS for date range inputs, message selection list, and toggle buttons
+- Export now supports filtering by date range and selected messages
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Message search within threads** — Search through threaded replies
+2. **Bulk archive** — Archive multiple conversations at once
+3. **Export preview** — Preview exported content before downloading
+
+## Round 28 (804fdce)
 
 **Flagship**: Conversation archiving with filter
 
