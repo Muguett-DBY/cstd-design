@@ -1299,6 +1299,12 @@ button:disabled {
   background: var(--soft);
 }
 
+.forward-target {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .message-actions button.copied {
   background: var(--accent);
   color: var(--on-accent-text);
