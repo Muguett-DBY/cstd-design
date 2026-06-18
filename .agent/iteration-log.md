@@ -1,6 +1,29 @@
 # Iteration Log
 
-## Round 31 (latest)
+## Round 32 (latest)
+
+**Flagship**: Export preview with conversation statistics
+
+### Completed
+- Added export preview panel in ExportModal
+- Added preview toggle button to show/hide preview
+- Added preview rendering for Markdown and HTML formats
+- Added CSS for preview panel, preview content, and preview header
+- Added conversation statistics panel showing message count, thread count, and pinned count
+- Export now supports previewing content before downloading
+
+### Verified
+- ✅ TypeScript compiles cleanly
+- ✅ ESLint passes with 0 warnings
+- ✅ All 22 unit tests pass
+- ✅ Production build succeeds
+
+### Next Direction
+1. **Keyboard shortcuts** — Add more keyboard shortcuts for common actions
+2. **Message editing** — Allow users to edit sent messages
+3. **Conversation merging** — Merge two conversations into one
+
+## Round 31 (53db7c8)
 
 **Flagship**: Bulk archive with select mode
 
