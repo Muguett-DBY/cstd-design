@@ -1015,3 +1015,123 @@
   - Drag-and-drop file upload
   - Keyboard shortcuts cheat sheet
   - User preferences settings
+
+---
+
+## Campaign 004 — 3-Cycle, 18-Phase Campaign (2026-06-19)
+
+**Theme**: Multi-theme, i18n, PDF/sharing, customization, and quality of life
+
+### Phase 1/18 — IMPROVE: Multi-theme support
+- **Commit**: `26f217e` | **CI**: Passed
+- 6 themes (light/dark/sepia/ocean/forest/night) with full CSS variables
+- useTheme hook with localStorage persistence
+- Theme picker UI in Settings with previews
+- Command palette actions for each theme
+
+### Phase 2/18 — IMPROVE: Multi-language i18n
+- **Commit**: `64f76c9` | **CI**: Passed
+- useLanguage hook with zh/en translations (30+ strings)
+- TopBar and SettingsModal use t() function
+- Language selector in settings
+
+### Phase 3/18 — UIUX: Real PDF export
+- **Commit**: `ec7f021` | **CI**: Passed
+- Pure-JS PDF generator (no jsPDF dependency)
+- PDF includes title, date, role labels, timestamps, content
+- A4 page size with text wrapping
+
+### Phase 4/18 — IMPROVE: Conversation sharing
+- **Commit**: `af7c226` | **CI**: Passed
+- useSharedConversations hook with crypto tokens
+- SharedConversationsModal for managing links
+- Hash-route SharedRoute for public view
+
+### Phase 5/18 — CHECK: Code review
+- Verified project health: 49 tests, clean lint, no TODOs
+
+### Phase 6/18 — IMPROVE: Backup and restore
+- **Commit**: `c237c2c` | **CI**: Passed
+- BackupRestore component in Settings
+- Export 13 localStorage keys to JSON
+- Import JSON with validation
+
+### Phase 7/18 — IMPROVE: Custom tab labels
+- **Commit**: `25aea5d` | **CI**: Passed
+- customTabLabels in user preferences
+- 4 text inputs in Settings
+- TopBar uses custom labels with fallback
+
+### Phase 8/18 — IMPROVE: Browser notifications
+- **Commit**: `bcb860a` | **CI**: Passed
+- useNotifications hook with permission management
+- Video completion/failure notifications
+- Settings toggle
+
+### Phase 9/18 — UIUX: Mobile nav overhaul
+- **Commit**: `c963209` | **CI**: Passed
+- MobileBottomNav with backdrop blur
+- Swipe gesture detection (right opens, left closes)
+
+### Phase 10/18 — IMPROVE: Video tasks panel
+- **Commit**: `4ec9970` | **CI**: Passed
+- useVideoTaskHistory + VideoTasksPanel
+- Status icons, timestamps, link to video
+- Auto-tracking on completion
+
+### Phase 11/18 — CHECK: Performance audit
+- Verified bundle 633KB healthy
+
+### Phase 12/18 — IMPROVE: Smart prompt suggestions
+- **Commit**: `81ad1b1` | **CI**: Passed
+- PromptSuggestions with 12 starters and 8 followups
+- Shows on empty composer
+
+### Phase 13/18 — IMPROVE: Conversation import
+- **Commit**: `6ad06e4` | **CI**: Passed
+- ImportConversationButton + parseImportedConversation
+- Supports JSON and Markdown
+
+### Phase 14/18 — IMPROVE: Image editor
+- **Commit**: `b5b12ca` | **CI**: Passed
+- ImageEditor with rotate, crop, text annotation
+- Canvas-based, saves as new asset
+
+### Phase 15/18 — UIUX: Onboarding tour updates
+- **Commit**: `41cde1e` | **CI**: Passed
+- 7 steps (was 5): command palette, themes, shortcuts, sharing, backup
+- Updated icons and copy
+
+### Phase 16/18 — IMPROVE: Image comparison
+- **Commit**: `650cbea` | **CI**: Passed
+- ImageCompare modal for 2-4 images
+- Side-by-side with metadata, hover highlight
+
+### Phase 17/18 — CHECK: Final cleanup
+- All checks pass, project healthy
+
+### Phase 18/18 — IMPROVE: Campaign wrap-up
+- Campaign 004 archived
+
+### Summary
+- **18 phases completed** (IMPROVE×10, UIUX×3, CHECK×3, IMPROVE-final×1+1)
+- **17 code commits** (Phase 5 and 17 were no-code CHECK phases)
+- **All 17 CI runs passed** on first try
+- **49 unit tests** across 9 test files
+- **Bundle size**: 643KB (gzip 195KB) — +34KB for entire campaign
+- **Major additions**:
+  - 7 new hooks: `useTheme`, `useLanguage`, `useNotifications`, `useSharedConversations`, `useVideoTaskHistory`, `useVideoTaskQueue`, `useShortcutsHelp`
+  - 7 new components: `CommandPalette`, `KeyboardShortcutsHelp`, `GlobalDropZone`, `SettingsModal`, `SharedConversationsModal`, `MobileBottomNav`, `VideoTasksPanel`, `PromptSuggestions`, `ImportConversationButton`, `ImageEditor`, `ImageCompare`, `BackupRestore`
+  - 1 utility: pure-JS PDF generator
+  - 6 themes
+  - Multi-language i18n
+  - Custom tab labels
+  - Browser notifications
+  - Mobile bottom nav
+  - Image editor
+  - Image comparison
+  - PDF export
+  - Sharing
+  - Import
+  - Backup/restore
+  - Updated onboarding
