@@ -3196,6 +3196,136 @@ button:disabled {
   flex-shrink: 0;
 }
 
+.search-saved-item {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--border, transparent);
+}
+
+.search-saved-item .search-history-item {
+  flex: 1;
+}
+
+.search-saved-meta {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.search-saved-delete {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 0 10px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.search-saved-delete:hover {
+  color: var(--danger, #c33);
+  background: var(--soft);
+}
+
+.search-filter-wrapper {
+  position: relative;
+}
+
+.search-filter-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.search-filter-btn:hover,
+.search-filter-btn.active {
+  background: var(--soft);
+  color: var(--accent);
+}
+
+.search-filters-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--bg);
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 10;
+}
+
+.search-filter-group {
+  display: grid;
+  gap: 4px;
+}
+
+.search-filter-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.search-filter-pill {
+  border: 1px solid var(--border, #ddd);
+  background: var(--soft);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.search-filter-pill:hover {
+  background: var(--bg);
+}
+
+.search-filter-pill.active {
+  background: var(--accent);
+  color: var(--accent-contrast, #fff);
+  border-color: var(--accent);
+}
+
+.search-save-btn {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  padding: 6px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: left;
+}
+
+.search-save-btn:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.search-save-btn:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .search-result-count {
   font-size: 12px;
   color: var(--muted);
