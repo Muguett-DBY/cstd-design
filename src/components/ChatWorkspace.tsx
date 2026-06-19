@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Bookmark, Check, Copy, Download, Edit3, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Bookmark, Check, Copy, Download, Edit3, FileText, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Save, Search, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -20,6 +20,7 @@ import { useMessageThreading } from "../hooks/useMessageThreading";
 import { useMessageEditing } from "../hooks/useMessageEditing";
 import { useMessageBookmarking } from "../hooks/useMessageBookmarking";
 import { useMessageForwarding } from "../hooks/useMessageForwarding";
+import { useChatPromptTemplates } from "../hooks/useChatPromptTemplates";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
@@ -101,6 +102,8 @@ export function ChatWorkspace({
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const { templates, save, remove } = useChatPromptTemplates();
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions(conversation?.id || null);
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning(conversation?.id || null);
   const {
@@ -517,6 +520,42 @@ export function ChatWorkspace({
 
         <div className="composer">
           {draft.selectedParentId !== null && <div className="draft-note">正在从旧问题处分支。发送后会保留原分支。</div>}
+          {draft.content.trim() && (
+            <div className="template-actions">
+              <button type="button" className="ghost-button" onClick={() => {
+                const name = draft.content.trim().slice(0, 30);
+                save(name, draft.content);
+                onNotice(`模板"${name}"已保存。`);
+              }}>
+                <Save size={14} /> 保存为模板
+              </button>
+              <button type="button" className="ghost-button" onClick={() => setShowTemplates((s) => !s)}>
+                <FileText size={14} /> {showTemplates ? "收起模板" : "使用模板"}
+              </button>
+            </div>
+          )}
+          {showTemplates && (
+            <div className="template-list" role="list">
+              {templates.length === 0 ? (
+                <p className="template-empty">暂无保存的模板。输入提示词后点击"保存为模板"。</p>
+              ) : (
+                templates.map((t) => (
+                  <div key={t.id} className="template-item" role="listitem">
+                    <button type="button" className="template-name" onClick={() => {
+                      setDraft({ ...draft, content: t.prompt });
+                      setShowTemplates(false);
+                      window.requestAnimationFrame(() => textareaRef.current?.focus());
+                    }}>
+                      <span>{t.name}</span>
+                    </button>
+                    <button type="button" className="template-delete" onClick={() => remove(t.id)} aria-label={`删除模板 ${t.name}`}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
           <textarea
             ref={textareaRef}
             value={draft.content}
