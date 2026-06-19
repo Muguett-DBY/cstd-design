@@ -28,13 +28,26 @@
 
 ### Phase 2/18 — IMPROVE: Lightbox keyboard navigation
 
+**Status**: DONE
+**Commit**: `5e712bc`
+**CI**: Passed (run `27818678008`)
+
+**Completed**:
+- Added Home/End key support for first/last asset
+- Added Tab/Shift+Tab focus trap
+- Added auto-focus on lightbox mount
+- Added aria-live="polite" to counter
+- Improved aria-label with position info
+
+### Phase 3/18 — UIUX: Image/video result card consistency
+
 **Status**: RUNNING
-**Started**: 2026-06-19T09:50:00Z
+**Started**: 2026-06-19T09:55:00Z
 
 **Plan**:
-- Add arrow key navigation between assets
-- Add Escape key to close lightbox
-- Add focus trap within lightbox
-- Add ARIA labels for accessibility
+- Create unified ResultCard component
+- Apply consistent styling to image and video result cards
+- Add consistent metadata display
+- Improve hover and focus states
 
 **Verification**: lint, typecheck, tests, build, CI
