@@ -1,6 +1,36 @@
 # Iteration Log
 
-## Round 42 (latest)
+## Round 43 (latest)
+
+**Type**: 产品功能升级
+
+**Flagship**: Conversation picker modal for message forwarding
+
+### Completed
+- Created `ConversationPickerModal` component with searchable conversation list, keyboard-friendly selection, and loading states
+- Upgraded `useMessageForwarding` hook from localStorage-only logging to real API-based forwarding via `streamChat`
+- Replaced native `prompt()` dialog with polished modal UI for selecting target conversations
+- Added forwarding history panel with conversation name and content preview
+- Added CSS for picker modal (search, list items, icons, hover states, animations)
+- Fixed duplicate import lint error and useEffect setState lint warning
+
+### Verified
+- ✅ 27 unit tests pass
+- ✅ TypeScript clean, zero-warning ESLint, production build pass
+- ✅ GitHub Actions CI passed (run `27812236529`)
+
+### Risks
+- Forwarding triggers an AI response in the target conversation (by design, as the message is sent via `streamChat`)
+- No undo for forwarding — the forwarding log is append-only in localStorage
+
+### Next Direction
+1. Add undo capability for message forwarding
+2. Add message forwarding to thread replies (currently only works on main messages)
+3. Create a "Forwarded from" indicator in the target conversation
+
+**Recommended next flagship**: Add thread reply forwarding and a forwarded-message indicator.
+
+## Round 42
 
 **Type**: UI/UX 体验升级
 
