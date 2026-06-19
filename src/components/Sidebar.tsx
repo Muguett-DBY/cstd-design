@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GitMerge, GripVertical, MessageSquare, Plus, Search, Square, Tag, X } from "lucide-react";
+import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GitMerge, GripVertical, MessageSquare, Pin, Plus, Search, Square, Star, Tag, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
@@ -8,6 +8,7 @@ import type { WorkspaceTab, ConversationSummary } from "../types";
 import { useConversationOrder } from "../hooks/useConversationOrder";
 import { useConversationFolders } from "../hooks/useConversationFolders";
 import { useConversationArchiving } from "../hooks/useConversationArchiving";
+import { usePinnedConversations, partitionPinned } from "../hooks/usePinnedConversations";
 import { useConversationMerging } from "../hooks/useConversationMerging";
 import type { Folder as FolderType } from "../hooks/useConversationFolders";
 
@@ -114,6 +115,8 @@ function ConversationCard({
   bulkMode,
   onMerge,
   conversations,
+  pinned,
+  onTogglePin,
 }: {
   item: ConversationSummary;
   isActive: boolean;
@@ -135,6 +138,8 @@ function ConversationCard({
   bulkMode: boolean;
   onMerge: (targetId: string) => void;
   conversations: ConversationSummary[];
+  pinned: boolean;
+  onTogglePin: () => void;
 }) {
   const snippet = item.lastMessage ? item.lastMessage.slice(0, 60) + (item.lastMessage.length > 60 ? "..." : "") : "";
   return (
@@ -159,6 +164,7 @@ function ConversationCard({
         <div className="conversation-card-header">
           {folder && <span className="conversation-folder-tag" style={{ background: folder.color }}>{folder.name}</span>}
           {isArchived && <span className="conversation-archived-tag">已归档</span>}
+          {pinned && <Star size={12} className="conversation-pinned-icon" aria-label="已置顶" />}
           <strong>{item.title}</strong>
         </div>
         {snippet && <span className="conversation-snippet">{snippet}</span>}
@@ -198,6 +204,9 @@ function ConversationCard({
           </select>
           <button type="button" className="conversation-archive" aria-label={isArchived ? "取消归档" : "归档会话"} onClick={(e) => { e.stopPropagation(); onToggleArchive(); }} title={isArchived ? "取消归档" : "归档会话"}>
             {isArchived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
+          </button>
+          <button type="button" className={`conversation-pin${pinned ? " pinned" : ""}`} aria-label={pinned ? "取消置顶" : "置顶会话"} onClick={(e) => { e.stopPropagation(); onTogglePin(); }} title={pinned ? "取消置顶" : "置顶会话"} aria-pressed={pinned}>
+            <Pin size={12} />
           </button>
           <button type="button" className="conversation-delete" aria-label="删除会话" onClick={(e) => { e.stopPropagation(); onRequestConfirm("删除会话", `确认删除会话"${item.title}"？此操作不可恢复。`, true, onDelete); }}>
             <X size={12} />
@@ -253,6 +262,7 @@ export function Sidebar({
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
   const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
   const { isArchived, toggleArchive, bulkArchive, bulkUnarchive } = useConversationArchiving();
+  const { toggle: togglePinned, isPinned } = usePinnedConversations();
   const { mergeConversations, merged } = useConversationMerging();
 
   useEffect(() => {
@@ -471,10 +481,65 @@ export function Sidebar({
                   </button>
                 </div>
               )}
-              {reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter, dateRange), messageCountFilter), sortMode))
-                .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
-                .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id))
-                .map((item) => (
+              {(() => {
+                const allFiltered = reorder(sortConversations(filterByMessageCount(filterByDate(conversations, dateFilter, dateRange), messageCountFilter), sortMode))
+                  .filter((item) => !selectedFolder || getConversationFolder(item.id)?.id === selectedFolder)
+                  .filter((item) => showArchived ? isArchived(item.id) : !isArchived(item.id));
+                const pinnedIds = new Set<string>();
+                for (const c of allFiltered) if (isPinned(c.id)) pinnedIds.add(c.id);
+                const { pinnedItems: pinnedList, otherItems: otherList } = partitionPinned(allFiltered, pinnedIds);
+                return (
+                  <>
+                    {pinnedList.length > 0 && !showArchived && (
+                      <div className="conversation-section-header">
+                        <Star size={11} /> 置顶
+                      </div>
+                    )}
+                    {pinnedList.map((item) => (
+                      <ConversationCard
+                        key={item.id}
+                        item={item}
+                        isActive={item.id === activeConversationId}
+                        onSelect={() => onSelectConversation(item.id)}
+                        onDelete={() => onDeleteConversation(item.id)}
+                        onRequestConfirm={onRequestConfirm}
+                        dragOverId={dragOverId}
+                        onDragStart={onDragStart}
+                        onDragOver={(e, id) => { onDragOver(e); setDragOverId(id); }}
+                        onDragLeave={() => setDragOverId(null)}
+                        onDrop={(e, id) => { onDrop(e, id); setDragOverId(null); }}
+                        folder={getConversationFolder(item.id)}
+                        onAssignFolder={assignToFolder}
+                        folders={folders}
+                        isArchived={isArchived(item.id)}
+                        onToggleArchive={() => toggleArchive(item.id)}
+                        isBulkSelected={selectedConversations.has(item.id)}
+                        onToggleBulkSelect={() => {
+                          setSelectedConversations((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(item.id)) {
+                              next.delete(item.id);
+                            } else {
+                              next.add(item.id);
+                            }
+                            return next;
+                          });
+                        }}
+                        bulkMode={bulkMode}
+                        onMerge={(targetId) => {
+                          mergeConversations(item.id, targetId);
+                        }}
+                        conversations={conversations}
+                        pinned={true}
+                        onTogglePin={() => togglePinned(item.id)}
+                      />
+                    ))}
+                    {pinnedList.length > 0 && otherList.length > 0 && !showArchived && (
+                      <div className="conversation-section-header">
+                        所有会话
+                      </div>
+                    )}
+                    {otherList.map((item) => (
                 <ConversationCard
                   key={item.id}
                   item={item}
@@ -509,8 +574,13 @@ export function Sidebar({
                     mergeConversations(item.id, targetId);
                   }}
                   conversations={conversations}
+                  pinned={isPinned(item.id)}
+                  onTogglePin={() => togglePinned(item.id)}
                 />
               ))}
+                  </>
+                );
+              })()}
             </>
           )}
         </div>
