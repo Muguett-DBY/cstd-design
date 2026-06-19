@@ -64,15 +64,27 @@
 
 ### Phase 5/18 — CHECK: Full project health check
 
+**Status**: DONE
+**Commit**: `3ab248e`
+**CI**: Passed (run `27814688994`)
+
+**Completed**:
+- Full lint, typecheck, test, build suite passes (27 tests, 0 warnings)
+- Security audit found and fixed: race condition in bookmark/pin creation (added UNIQUE constraints)
+- Added UUID validation for all URL parameters in bookmark/pin endpoints
+- Improved error codes: 409 Conflict for duplicates instead of ambiguous 404
+- Used `INSERT ... ON CONFLICT DO NOTHING` for atomic upsert behavior
+- Verified no SQL injection risks (all parameterized queries)
+
+### Phase 6/18 — IMPROVE: Conversation export improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:25:00Z
+**Started**: 2026-06-19T08:30:00Z
 
 **Plan**:
-- Run full lint, typecheck, test, build suite
-- Check for security issues (XSS, CSRF, input validation)
-- Check for edge cases in API endpoints
-- Check for dead code, unused imports, type gaps
-- Check for error handling gaps
-- Fix any issues found
+- Add conversation selector to export modal (export multiple conversations)
+- Add plain text export format
+- Improve export preview with syntax highlighting
+- Add export history tracking
 
 **Verification**: lint, typecheck, tests, build, CI
