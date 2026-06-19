@@ -1,5 +1,21 @@
-import { useEffect, useRef } from "react";
-import { ChevronDown, ChevronUp, MessageSquare, Search, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp, Clock, MessageSquare, Search, X } from "lucide-react";
+
+const SEARCH_HISTORY_KEY = "cstd-design:searchHistory";
+const MAX_HISTORY = 5;
+
+function loadSearchHistory(): string[] {
+  try {
+    const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSearchHistory(history: string[]) {
+  localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+}
 
 export function MessageSearchBar({
   query,
@@ -21,10 +37,29 @@ export function MessageSearchBar({
   threadResults?: number;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [history, setHistory] = useState<string[]>(loadSearchHistory);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  const addToHistory = (q: string) => {
+    if (!q.trim()) return;
+    const updated = [q, ...history.filter((h) => h !== q)].slice(0, MAX_HISTORY);
+    setHistory(updated);
+    saveSearchHistory(updated);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addToHistory(query);
+      if (e.shiftKey) onPrev();
+      else onNext();
+    }
+    if (e.key === "Escape") onClose();
+  };
 
   return (
     <div className="message-search-bar">
@@ -33,17 +68,31 @@ export function MessageSearchBar({
         ref={inputRef}
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
+        onFocus={() => { if (history.length > 0) setShowHistory(true); }}
+        onBlur={() => { setTimeout(() => setShowHistory(false), 200); }}
         placeholder="搜索消息内容..."
         className="message-search-input"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            if (e.shiftKey) onPrev();
-            else onNext();
-          }
-          if (e.key === "Escape") onClose();
-        }}
+        onKeyDown={handleKeyDown}
       />
+      {showHistory && history.length > 0 && !query && (
+        <div className="search-history-dropdown">
+          {history.map((h, i) => (
+            <button
+              key={i}
+              type="button"
+              className="search-history-item"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onQueryChange(h);
+                setShowHistory(false);
+              }}
+            >
+              <Clock size={12} />
+              {h}
+            </button>
+          ))}
+        </div>
+      )}
       {totalResults > 0 && (
         <span className="search-result-count">
           {activeIndex + 1}/{totalResults}

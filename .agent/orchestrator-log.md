@@ -168,13 +168,25 @@
 
 ### Phase 13/18 — IMPROVE: Conversation merge improvements
 
+**Status**: DONE
+**Commit**: `9d1c556`
+**CI**: Passed (run `27816981115`)
+
+**Completed**:
+- Added merge confirmation dialog before executing merge
+- Added merge history display in sidebar with GitMerge icon
+- Shows last 3 merge records with source and target conversation names
+- Exported `merged` state from useConversationMerging hook
+
+### Phase 14/18 — IMPROVE: Message search improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T09:10:00Z
+**Started**: 2026-06-19T09:15:00Z
 
 **Plan**:
-- Add merge preview before executing merge
-- Add selective message merge (choose which messages to merge)
-- Improve merge history tracking
-- Add merge undo capability
+- Add search within thread replies
+- Add search result count display
+- Improve search result highlighting
+- Add search keyboard shortcuts
 
 **Verification**: lint, typecheck, tests, build, CI
