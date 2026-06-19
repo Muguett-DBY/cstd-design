@@ -3042,6 +3042,36 @@ button:disabled {
   margin-bottom: 6px;
 }
 
+.keyboard-shortcuts-search {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-muted);
+  font-size: 11px;
+  color: var(--text);
+  margin-bottom: 6px;
+  outline: none;
+}
+
+.keyboard-shortcuts-search:focus {
+  border-color: var(--accent);
+}
+
+.keyboard-shortcuts-search::placeholder {
+  color: var(--muted);
+}
+
+.keyboard-shortcut-category {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 0 2px;
+  margin-top: 4px;
+}
+
 .keyboard-shortcuts-list {
   display: grid;
   gap: 4px;

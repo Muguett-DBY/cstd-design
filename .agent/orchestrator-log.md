@@ -90,14 +90,27 @@
 
 ### Phase 7/18 — IMPROVE: Move message reactions and edits to D1-backed persistence
 
+**Status**: DONE
+**Commit**: `43d2add` (fix: `1ee7565`)
+**CI**: Passed (run `27815300401`)
+
+**Completed**:
+- Added D1 migration `0009_reactions_and_edits.sql` for reactions and message_edits tables
+- Created `functions/_shared/reactions.ts` and `functions/_shared/edits.ts` data access modules
+- Created API endpoints: `GET/POST /api/conversations/:id/reactions`, `GET/POST /api/conversations/:id/edits`
+- Updated `useMessageReactions` hook to use D1 API with optimistic updates
+- Updated `useMessageEditing` hook to use D1 API with optimistic updates
+- Fixed CI import path issue (same pattern as bookmarks/pins)
+
+### Phase 8/18 — IMPROVE: Keyboard shortcut help panel improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:35:00Z
+**Started**: 2026-06-19T08:40:00Z
 
 **Plan**:
-- Add D1 schema for reactions and edit history tables
-- Create server-side API endpoints for CRUD operations
-- Update `useMessageReactions` hook to use API instead of localStorage
-- Update `useMessageEditing` hook to use API instead of localStorage
-- Maintain backward compatibility
+- Improve keyboard shortcut help panel with categories
+- Add search/filter for shortcuts
+- Add shortcut descriptions and context
+- Improve visual design of help panel
 
 **Verification**: lint, typecheck, tests, build, CI
