@@ -16,6 +16,7 @@ import {
 import { useToast } from "./components/toast-context";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { NetworkBanner } from "./components/NetworkBanner";
+import { OnboardingTour } from "./components/OnboardingTour";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
 const VideoWorkspace = lazy(() => import("./components/VideoWorkspace").then((m) => ({ default: m.VideoWorkspace })));
@@ -274,6 +275,8 @@ function AppInner() {
         }}
         onCancel={closeConfirm}
       />
+
+      <OnboardingTour />
 
       <main className="workspace">
         <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />

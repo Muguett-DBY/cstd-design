@@ -66,14 +66,26 @@
 
 ### Phase 5/18 — CHECK: Accessibility audit (WCAG compliance)
 
+**Status**: DONE
+**Commit**: `fca4c90`
+**CI**: Passed (run `27819690963`)
+
+**Completed**:
+- Added role=dialog, aria-modal, aria-labelledby to ExportModal and ConversationPickerModal
+- Added Escape key handlers and body scroll lock to both modals
+- Added focus management (auto-focus on open)
+- Fixed ResultCard keyboard handler (Enter/Space to preview)
+- Improved task status badge color contrast for AA compliance (darker text, stronger backgrounds)
+
+### Phase 6/18 — IMPROVE: Onboarding tour for new users
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:05:00Z
+**Started**: 2026-06-19T10:10:00Z
 
 **Plan**:
-- Audit all components for ARIA labels
-- Check keyboard navigation
-- Check focus management
-- Check color contrast
-- Fix any issues found
+- Create welcome tour component
+- Add tooltips for key features
+- Show feature highlights on first visit
+- Track onboarding completion in localStorage
 
 **Verification**: lint, typecheck, tests, build, CI
