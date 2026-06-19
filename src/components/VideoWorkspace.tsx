@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Clock, Film, Hourglass, RefreshCw, Timer, XCircle } from "lucide-react";
+import { BookMarked, CheckCircle2, Clock, Film, Hourglass, RefreshCw, Timer, XCircle } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, imageAssetsForReference, videoPresetToRequest, videoStatusLabel } from "../app-state";
 import type { AssetItem, VideoPreset } from "../types";
@@ -7,6 +7,7 @@ import { ClearAllButton } from "./ClearAllButton";
 import { ReferencePicker } from "./ReferencePicker";
 import { PreviewRail } from "./PreviewRail";
 import { Segmented } from "./Segmented";
+import { useVideoPresets } from "../hooks/useVideoPresets";
 
 const STATUS_ICONS: Record<string, typeof Clock> = {
   queued: Hourglass,
@@ -52,6 +53,8 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [showPresets, setShowPresets] = useState(false);
+  const videoPresets = useVideoPresets();
   const errorCountRef = useRef(0);
   const taskStartRef = useRef<number | null>(null);
   const referenceAssets = imageAssetsForReference(assets);
@@ -130,6 +133,44 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           />
         </div>
         <p>视频生成期间请保持页面打开。关闭页面后任务会被视为放弃。</p>
+        <div className="preset-toggle-row">
+          <button type="button" className="ghost-button" onClick={() => setShowPresets(!showPresets)}>
+            <BookMarked size={14} /> {showPresets ? "收起预设" : `使用预设（${videoPresets.presets.length}）`}
+          </button>
+        </div>
+        {showPresets && (
+          <div className="video-preset-list" role="list">
+            {videoPresets.presets.map((p) => (
+              <div key={p.id} className="video-preset-item" role="listitem">
+                <button
+                  type="button"
+                  className="video-preset-card"
+                  onClick={() => {
+                    setPrompt(p.prompt);
+                    setPreset(p.preset);
+                    setFps(p.fps);
+                    setRatio(p.aspectRatio);
+                    setShowPresets(false);
+                  }}
+                >
+                  <strong>{p.name}</strong>
+                  <span className="video-preset-desc">{p.description}</span>
+                  <span className="video-preset-meta">{p.preset} · {p.fps}fps · {p.aspectRatio}</span>
+                </button>
+                {p.id.startsWith("seed-") === false && (
+                  <button
+                    type="button"
+                    className="video-preset-remove"
+                    onClick={() => videoPresets.remove(p.id)}
+                    aria-label={`删除预设 ${p.name}`}
+                  >
+                    <XCircle size={14} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
         <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} maxLength={8000} disabled={creating || (videoTask !== null && videoTask.status !== "failed" && videoTask.status !== "completed")} placeholder="描述画面、动作、镜头和氛围..." />
         <Segmented<VideoPreset>
           value={preset}
