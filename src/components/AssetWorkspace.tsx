@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeftRight, Download, Eye, RefreshCw, Tag, Trash2 } from "lucide-react";
+import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
@@ -10,6 +10,9 @@ import { Segmented } from "./Segmented";
 import { useAssetTags } from "../hooks/useAssetTags";
 import { TagPicker } from "./TagPicker";
 import { ImageCompare } from "./ImageCompare";
+import { useCollections } from "../hooks/useCollections";
+import { CollectionPicker } from "./CollectionPicker";
+import { CollectionsManager } from "./CollectionsManager";
 
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
@@ -17,13 +20,20 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [lastClicked, setLastClicked] = useState<number | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const [activeCollection, setActiveCollection] = useState<string | null>(null);
+  const collections = useCollections();
   const { addTag, removeTag, getTags, allTags } = useAssetTags();
   const allAssets = assets;
   const byKind = filterAssets(allAssets, filter);
-  const visible = tagFilter ? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && getTags(a.id).includes(tagFilter)) : byKind;
+  const byCollection = activeCollection ? collections.filterByCollection(byKind.map((a) => a.id), activeCollection) : byKind.map((a) => a.id);
+  const byCollectionSet = new Set(byCollection);
+  const byTag = tagFilter ? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && byCollectionSet.has(a.id) && getTags(a.id).includes(tagFilter)) : null;
+  const visible = byTag ?? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && byCollectionSet.has(a.id));
   const totalSize = visible.reduce((sum, a) => sum + a.size, 0);
   const [showTagPickerFor, setShowTagPickerFor] = useState<string | null>(null);
   const [showCompare, setShowCompare] = useState(false);
+  const [showCollectionPickerFor, setShowCollectionPickerFor] = useState<string | null>(null);
+  const [showCollectionsManager, setShowCollectionsManager] = useState(false);
 
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {
@@ -97,6 +107,36 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             ]}
             onChange={(v) => { setFilter(v); setSelected(new Set()); }}
           />
+          {collections.collections.length > 0 && (
+            <div className="tag-filter">
+              <span className="tag-filter-label">集合：</span>
+              <button
+                type="button"
+                className={`tag-chip clickable${activeCollection === null ? " active" : ""}`}
+                onClick={() => setActiveCollection(null)}
+              >
+                全部
+              </button>
+              {collections.collections.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  className={`tag-chip clickable${activeCollection === c.id ? " active" : ""}`}
+                  onClick={() => setActiveCollection(activeCollection === c.id ? null : c.id)}
+                >
+                  {c.name} ({c.assetIds.length})
+                </button>
+              ))}
+              <button
+                type="button"
+                className="ghost-button-small"
+                onClick={() => setShowCollectionsManager(true)}
+                title="管理集合"
+              >
+                <FolderPlus size={12} />
+              </button>
+            </div>
+          )}
           {allTags().length > 0 && (
             <div className="tag-filter">
               <span className="tag-filter-label">标签：</span>
@@ -119,6 +159,14 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               ))}
             </div>
           )}
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => setShowCollectionsManager(true)}
+            title="管理集合"
+          >
+            <Folder size={14} /> 集合 ({collections.collections.length})
+          </button>
           <ClearAllButton label="清空素材库" onClear={async () => {
             await onClearAll();
             await onAssetsChanged();
@@ -190,6 +238,15 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                   >
                     <Tag size={14} /> 标签
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCollectionPickerFor(showCollectionPickerFor === asset.id ? null : asset.id)}
+                    className={showCollectionPickerFor === asset.id ? "active" : ""}
+                    aria-label="收藏到集合"
+                    title="收藏到集合"
+                  >
+                    <Folder size={14} /> 收藏
+                  </button>
                   <a href={`${asset.url}?download=1`}>下载</a>
                   <button type="button" className="danger" disabled={deletingId === asset.id} onClick={() => {
                     onRequestConfirm(
@@ -222,11 +279,31 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                     />
                   </div>
                 )}
+                {showCollectionPickerFor === asset.id && (
+                  <div className="asset-tag-picker-wrapper">
+                    <CollectionPicker
+                      assetId={asset.id}
+                      collections={collections.collections}
+                      onCreate={collections.create}
+                      onAdd={collections.addAsset}
+                      onRemove={collections.removeAsset}
+                      onClose={() => setShowCollectionPickerFor(null)}
+                    />
+                  </div>
+                )}
               </article>
             ))}
           </>
         )}
       </div>
+      <CollectionsManager
+        open={showCollectionsManager}
+        onClose={() => setShowCollectionsManager(false)}
+        collections={collections.collections}
+        onCreate={collections.create}
+        onRemove={collections.remove}
+        onUpdate={collections.update}
+      />
     </section>
   );
 }
