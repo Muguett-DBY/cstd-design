@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Bookmark, Check, CheckSquare, Copy, Download, Edit3, FileText, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Save, Search, Send, Square, Trash2, X } from "lucide-react";
+import { Bot, Bookmark, Check, CheckSquare, Copy, Download, Edit, Edit3, FileText, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Save, Search, Send, Square, Trash2, X } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { AssetItem, ChatMessage, ChatStreamEvent, ConversationDetail, ConversationSummary } from "../types";
@@ -27,6 +27,7 @@ import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
 import { ConversationPickerModal } from "./ConversationPickerModal";
 import { StatsPanel } from "./StatsPanel";
+import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 
 const ASSISTANT_NAME = "助手";
 
@@ -113,6 +114,7 @@ export function ChatWorkspace({
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
   const lastBulkIndexRef = useRef<number | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions(conversation?.id || null);
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning(conversation?.id || null);
   const {
@@ -509,7 +511,55 @@ export function ChatWorkspace({
                 ref={(el) => { messageRefs.current.set(row.message.id, el); }}
                 className={search.activeResult?.messageId === row.message.id ? "search-active-message" : undefined}
               >
-              <article className={`message ${row.message.role}${bulkMode ? " bulk-mode" : ""}${bulkSelected.has(row.message.id) ? " bulk-selected" : ""}`}>
+              <article
+                className={`message ${row.message.role}${bulkMode ? " bulk-mode" : ""}${bulkSelected.has(row.message.id) ? " bulk-selected" : ""}`}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  const items: ContextMenuItem[] = [
+                    {
+                      id: "copy",
+                      label: "复制",
+                      icon: Copy,
+                      onClick: () => { void navigator.clipboard.writeText(row.message.content || ""); onNotice("已复制。"); },
+                    },
+                    { id: "sep1", label: "", icon: Copy, onClick: () => {}, separator: true },
+                    {
+                      id: "edit",
+                      label: "编辑",
+                      icon: Edit,
+                      onClick: () => { setEditingMessage(row.message.id); setEditContent(getEditedContent(row.message.id) || row.message.content); },
+                    },
+                    {
+                      id: "thread",
+                      label: "在新线程中回复",
+                      icon: MessageSquare,
+                      onClick: () => { setReplyingTo(row.message.id); setReplyContent(""); },
+                    },
+                    {
+                      id: "pin",
+                      label: isPinned(row.message.id) ? "取消置顶" : "置顶",
+                      icon: Pin,
+                      onClick: () => { void togglePin(row.message.id); },
+                    },
+                    {
+                      id: "bookmark",
+                      label: isBookmarked(row.message.id) ? "取消书签" : "书签",
+                      icon: Bookmark,
+                      onClick: () => { void toggleBookmark(row.message.id); },
+                    },
+                  ];
+                  if (row.message.role === "user") {
+                    items.push({ id: "sep2", label: "", icon: Trash2, onClick: () => {}, separator: true });
+                    items.push({
+                      id: "copy-text",
+                      label: "复制消息 ID",
+                      icon: Copy,
+                      onClick: () => { void navigator.clipboard.writeText(row.message.id); onNotice("已复制消息 ID。"); },
+                    });
+                  }
+                  setContextMenu({ x: e.clientX, y: e.clientY, items });
+                }}
+              >
                 {bulkMode && row.message.status !== "streaming" && (
                   <label
                     className="message-bulk-checkbox"
@@ -876,6 +926,14 @@ export function ChatWorkspace({
           }
         }}
       />
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenu.items}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </section>
   );
 }
