@@ -1,16 +1,21 @@
 import { Settings as SettingsIcon, X } from "lucide-react";
 import type { UserPreferences } from "../hooks/useUserPreferences";
+import { THEMES, type ThemeId } from "../hooks/useTheme";
 
 export function SettingsModal({
   open,
   onClose,
   prefs,
   onUpdate,
+  theme,
+  onThemeChange,
 }: {
   open: boolean;
   onClose: () => void;
   prefs: UserPreferences;
   onUpdate: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
+  theme: ThemeId;
+  onThemeChange: (theme: ThemeId) => void;
 }) {
   if (!open) return null;
 
@@ -24,6 +29,24 @@ export function SettingsModal({
           </button>
         </div>
         <div className="settings-content">
+          <section className="settings-section">
+            <h4>主题外观</h4>
+            <div className="theme-picker-grid">
+              {THEMES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`theme-picker-card${theme === t.id ? " active" : ""}`}
+                  onClick={() => onThemeChange(t.id)}
+                  aria-pressed={theme === t.id}
+                >
+                  <span className={`theme-preview theme-preview-${t.id}`} aria-hidden="true" />
+                  <strong>{t.label}</strong>
+                  <span className="theme-picker-desc">{t.description}</span>
+                </button>
+              ))}
+            </div>
+          </section>
           <section className="settings-section">
             <h4>图片生成</h4>
             <div className="settings-field">
