@@ -2,12 +2,12 @@ import { useCallback, useState } from "react";
 
 const STORAGE_KEY = "cstd-design:forwardedMessages";
 
-interface ForwardRecord {
+export interface ForwardRecord {
   messageId: string;
   content: string;
   forwardedAt: string;
   targetConversation: string;
-  targetConversationId?: string;
+  targetConversationId: string;
 }
 
 type ForwardedMessages = ForwardRecord[];
@@ -28,7 +28,7 @@ function saveForwarded(forwarded: ForwardedMessages) {
 export function useMessageForwarding() {
   const [forwarded, setForwarded] = useState<ForwardedMessages>(loadForwarded);
 
-  const forwardMessage = useCallback((messageId: string, content: string, targetConversation: string, targetConversationId?: string) => {
+  const logForward = useCallback((messageId: string, content: string, targetConversation: string, targetConversationId: string) => {
     setForwarded((prev) => {
       const updated = [
         ...prev,
@@ -53,9 +53,18 @@ export function useMessageForwarding() {
     return forwarded.filter((f) => f.messageId === messageId).length;
   }, [forwarded]);
 
+  const removeForward = useCallback((index: number) => {
+    setForwarded((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      saveForwarded(updated);
+      return updated;
+    });
+  }, []);
+
   return {
-    forwardMessage,
+    logForward,
     getForwardedMessages,
     getForwardCount,
+    removeForward,
   };
 }

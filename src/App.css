@@ -837,6 +837,133 @@ button:disabled {
   border-top: 1px solid var(--line);
 }
 
+.picker-modal {
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.picker-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.picker-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.picker-search svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.picker-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+}
+
+.picker-search input::placeholder {
+  color: var(--muted);
+}
+
+.picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.picker-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.picker-error {
+  color: var(--danger);
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.15s;
+  color: var(--text);
+}
+
+.picker-item:hover {
+  background: var(--soft);
+  border-color: var(--line);
+}
+
+.picker-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--surface-muted);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.picker-item:hover .picker-item-icon {
+  background: var(--accent);
+  color: var(--on-accent-text);
+}
+
+.picker-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.picker-item-title {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.picker-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.picker-item-time {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
@@ -1415,6 +1542,18 @@ button:disabled {
   font-size: 11px;
   color: var(--accent);
   font-weight: 600;
+}
+
+.forward-item {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.forward-preview {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.3;
 }
 
 .message-actions button.copied {

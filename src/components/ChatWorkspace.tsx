@@ -23,6 +23,7 @@ import { useMessageForwarding } from "../hooks/useMessageForwarding";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
+import { ConversationPickerModal } from "./ConversationPickerModal";
 
 const ASSISTANT_NAME = "助手";
 
@@ -115,7 +116,7 @@ export function ChatWorkspace({
   } = useMessageThreading(conversation?.id || null);
   const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking();
-  const { forwardMessage, getForwardedMessages } = useMessageForwarding();
+  const { logForward, getForwardedMessages } = useMessageForwarding();
   const search = useMessageSearch(messages, repliesByParent);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -123,6 +124,8 @@ export function ChatWorkspace({
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
   const [editingMessage, setEditingMessage] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
+  const [pendingForward, setPendingForward] = useState<{ messageId: string; content: string } | null>(null);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -400,13 +403,8 @@ export function ChatWorkspace({
                       <Bookmark size={14} /> {isBookmarked(row.message.id) ? "已书签" : "书签"}
                     </button>
                     <button type="button" onClick={() => {
-                      // For now, use prompt() as a simple solution
-                      // In a real implementation, this would open a conversation picker modal
-                      const target = prompt("输入目标会话名称：");
-                      if (target) {
-                        forwardMessage(row.message.id, row.message.content, target);
-                        onNotice(`消息已转发到"${target}"`);
-                      }
+                      setPendingForward({ messageId: row.message.id, content: row.message.content });
+                      setShowPicker(true);
                     }} title="转发消息">
                       <Forward size={14} /> 转发
                     </button>
@@ -607,9 +605,9 @@ export function ChatWorkspace({
             <span className="pinned-header"><Forward size={12} /> 转发记录</span>
             <div className="pinned-list">
               {getForwardedMessages().slice(-5).map((f, idx) => (
-                <div key={idx} className="pinned-item">
+                <div key={idx} className="pinned-item forward-item">
                   <span className="forward-target">→ {f.targetConversation}</span>
-                  {f.content.slice(0, 40)}{f.content.length > 40 ? "..." : ""}
+                  <span className="forward-preview">{f.content.slice(0, 40)}{f.content.length > 40 ? "..." : ""}</span>
                 </div>
               ))}
             </div>
@@ -631,6 +629,28 @@ export function ChatWorkspace({
         onClose={() => setShowExportModal(false)}
         title={conversation?.title || "新会话"}
         messages={messages}
+      />
+
+      <ConversationPickerModal
+        isOpen={showPicker}
+        onClose={() => { setShowPicker(false); setPendingForward(null); }}
+        excludeId={conversation?.id}
+        onSelect={async (target) => {
+          if (!pendingForward) return;
+          const { messageId, content } = pendingForward;
+          try {
+            await streamChat(
+              { conversationId: target.id, content },
+              { onEvent: () => {} },
+            );
+            logForward(messageId, content, target.title, target.id);
+            onNotice(`消息已转发到"${target.title}"`);
+          } catch {
+            onNotice("转发失败，请重试");
+          } finally {
+            setPendingForward(null);
+          }
+        }}
       />
     </section>
   );
