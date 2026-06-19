@@ -16,6 +16,8 @@ export function SettingsModal({
   t,
   onNotice,
   notifications,
+  autoTheme,
+  onAutoThemeChange,
 }: {
   open: boolean;
   onClose: () => void;
@@ -33,6 +35,8 @@ export function SettingsModal({
     request: () => Promise<NotificationPermission | "unsupported">;
     setEnabled: (enabled: boolean) => void;
   };
+  autoTheme: boolean;
+  onAutoThemeChange: (enabled: boolean) => void;
 }) {
   if (!open) return null;
 
@@ -48,6 +52,14 @@ export function SettingsModal({
         <div className="settings-content">
           <section className="settings-section">
             <h4>{t("settings.theme")}</h4>
+            <label className="settings-toggle">
+              <input
+                type="checkbox"
+                checked={autoTheme}
+                onChange={(e) => onAutoThemeChange(e.target.checked)}
+              />
+              <span>根据时间自动切换（白天亮色，夜晚暗色）</span>
+            </label>
             <div className="settings-field">
               <label htmlFor="lang-select">{t("settings.language")}</label>
               <select

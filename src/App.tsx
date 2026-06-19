@@ -78,11 +78,13 @@ function AppInner() {
     window.addEventListener("hashchange", handler);
     return () => window.removeEventListener("hashchange", handler);
   }, []);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, autoMode, setAutoMode } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const notifications = useNotifications();
   const videoHistory = useVideoTaskHistory();
   const usageStats = useUsageStats();
+  const autoTheme = autoMode;
+  const onAutoThemeChange = setAutoMode;
 
   // Confirm dialog state
   const [confirmState, setConfirmState] = useState<{
@@ -565,6 +567,8 @@ function AppInner() {
         t={t}
         onNotice={(msg: string) => toast(msg, "info")}
         notifications={notifications}
+        autoTheme={autoTheme}
+        onAutoThemeChange={onAutoThemeChange}
       />
 
       <SharedConversationsModal
