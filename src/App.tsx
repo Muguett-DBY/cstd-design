@@ -28,6 +28,7 @@ import { useLanguage } from "./hooks/useLanguage";
 import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
 import { useNotifications } from "./hooks/useNotifications";
 import { SharedConversationsModal, SharedRoute } from "./components/SharedConversationsModal";
+import { MobileBottomNav } from "./components/MobileBottomNav";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -107,6 +108,36 @@ function AppInner() {
   }, [theme]);
 
   useEffect(() => onUnauthorized(() => { setAuthenticated(false); }), []);
+
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      touchStartX = t.clientX;
+      touchStartY = t.clientY;
+      touchStartTime = Date.now();
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      if (Date.now() - touchStartTime > 400) return;
+      const t = e.changedTouches[0];
+      const deltaX = t.clientX - touchStartX;
+      const deltaY = Math.abs(t.clientY - touchStartY);
+      if (deltaY > 80) return;
+      if (deltaX > 60 && touchStartX < 40 && !mobileSidebarOpen) {
+        setMobileSidebarOpen(true);
+      } else if (deltaX < -60 && mobileSidebarOpen) {
+        setMobileSidebarOpen(false);
+      }
+    };
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [mobileSidebarOpen]);
 
   const mobileDrawerRef = useRef<HTMLElement | null>(null);
 
@@ -475,6 +506,7 @@ function AppInner() {
 
       <main className="workspace">
         <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} t={t} customLabels={userPrefs.prefs.customTabLabels} />
+        <MobileBottomNav activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />
         {activeTab === "chat" && (
           <ErrorBoundary key="chat">
           <ChatWorkspace
