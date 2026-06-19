@@ -32,6 +32,7 @@ import { MobileBottomNav } from "./components/MobileBottomNav";
 import { VideoTasksPanel } from "./components/VideoTasksPanel";
 import { useVideoTaskHistory } from "./hooks/useVideoTaskHistory";
 import { ImageEditor } from "./components/ImageEditor";
+import { GlobalSearchModal } from "./components/GlobalSearchModal";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -191,6 +192,7 @@ function AppInner() {
   }, [toast]);
 
   const [editingAsset, setEditingAsset] = useState<AssetItem | null>(null);
+  const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
 
   const openLightbox = useCallback((asset: AssetItem) => {
     setLightboxAsset(asset);
@@ -302,6 +304,9 @@ function AppInner() {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setCommandPaletteOpen(true);
+      } else if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key.toLowerCase() === "f") {
+        event.preventDefault();
+        setGlobalSearchOpen(true);
       }
     };
     window.addEventListener("keydown", handler);
@@ -529,6 +534,16 @@ function AppInner() {
         open={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
         items={commandItems}
+      />
+
+      <GlobalSearchModal
+        open={globalSearchOpen}
+        onClose={() => setGlobalSearchOpen(false)}
+        conversations={conversations}
+        activeMessages={activeMessages}
+        assets={assets}
+        onSelectConversation={(id) => { void openConversation(id); }}
+        onSelectAsset={openLightbox}
       />
 
       <KeyboardShortcutsHelp
