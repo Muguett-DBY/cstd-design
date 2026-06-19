@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import { api, onUnauthorized } from "./api";
 import { appendChatEvent, buildActiveBranch, branchLeaves } from "./app-state";
@@ -10,16 +10,17 @@ import {
   LoginPage,
   TopBar,
   ChatWorkspace,
-  ImageWorkspace,
-  VideoWorkspace,
-  AssetWorkspace,
-  Lightbox,
   Sidebar,
   ConfirmDialog,
 } from "./components";
 import { useToast } from "./components/toast-context";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { NetworkBanner } from "./components/NetworkBanner";
+
+const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
+const VideoWorkspace = lazy(() => import("./components/VideoWorkspace").then((m) => ({ default: m.VideoWorkspace })));
+const AssetWorkspace = lazy(() => import("./components/AssetWorkspace").then((m) => ({ default: m.AssetWorkspace })));
+const Lightbox = lazy(() => import("./components/Lightbox").then((m) => ({ default: m.Lightbox })));
 
 const CLEAR_LABELS: Record<ClearScope, string> = {
   all: "全部内容",
@@ -258,7 +259,7 @@ function AppInner() {
       </aside>
       {mobileSidebarOpen && <button type="button" className="mobile-backdrop" aria-label="关闭会话列表" onClick={() => setMobileSidebarOpen(false)} />}
 
-      {lightboxAsset && <Lightbox key={lightboxAsset.id} assets={lightboxAssets.length ? lightboxAssets : [lightboxAsset]} startIndex={lightboxAssets.indexOf(lightboxAsset) >= 0 ? lightboxAssets.indexOf(lightboxAsset) : 0} onClose={() => { setLightboxAsset(null); setLightboxAssets([]); }} />}
+      {lightboxAsset && <Suspense fallback={null}><Lightbox key={lightboxAsset.id} assets={lightboxAssets.length ? lightboxAssets : [lightboxAsset]} startIndex={lightboxAssets.indexOf(lightboxAsset) >= 0 ? lightboxAssets.indexOf(lightboxAsset) : 0} onClose={() => { setLightboxAsset(null); setLightboxAssets([]); }} /></Suspense>}
 
       <ConfirmDialog
         open={confirmState.open}
@@ -362,17 +363,23 @@ function AppInner() {
         )}
         {activeTab === "image" && (
           <ErrorBoundary key="image">
+          <Suspense fallback={<div className="messages-skeleton"><div className="message-skeleton"><div className="skeleton-avatar" /><div className="skeleton-body"><div className="skeleton-line" /></div></div></div>}>
           <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={openLightbox} online={online} />
+          </Suspense>
           </ErrorBoundary>
         )}
         {activeTab === "video" && (
           <ErrorBoundary key="video">
+          <Suspense fallback={<div className="messages-skeleton"><div className="message-skeleton"><div className="skeleton-avatar" /><div className="skeleton-body"><div className="skeleton-line" /></div></div></div>}>
           <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} videoTask={videoTask} onVideoTaskChange={setVideoTask} submittedPrompt={videoSubmittedPrompt} onSubmittedPromptChange={setVideoSubmittedPrompt} online={online} />
+          </Suspense>
           </ErrorBoundary>
         )}
         {activeTab === "assets" && (
           <ErrorBoundary key="assets">
+          <Suspense fallback={<div className="messages-skeleton"><div className="message-skeleton"><div className="skeleton-avatar" /><div className="skeleton-body"><div className="skeleton-line" /></div></div></div>}>
           <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={openLightbox} onRequestConfirm={requestConfirm} />
+          </Suspense>
           </ErrorBoundary>
         )}
         </main>

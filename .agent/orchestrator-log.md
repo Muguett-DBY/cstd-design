@@ -141,14 +141,27 @@
 
 ### Phase 11/18 — CHECK: Security and edge case audit
 
+**Status**: DONE
+**Commit**: `49c29c7`
+**CI**: Passed (run `27816215828`)
+
+**Completed**:
+- Full security audit of API endpoints
+- Added rate limiting to all new write endpoints (bookmarks, pins, reactions, edits)
+- Verified no SQL injection risks (all parameterized queries)
+- Verified no XSS risks (JSON-only responses, no HTML reflection)
+- Verified no CSRF risks (SameSite=Lax + JSON content type)
+- Verified all inputs validated with Zod `.strict()` schemas
+
+### Phase 12/18 — IMPROVE: Performance and code splitting
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:55:00Z
+**Started**: 2026-06-19T09:00:00Z
 
 **Plan**:
-- Audit API validation across all endpoints
-- Check for XSS risks in dangerouslySetInnerHTML usage
-- Check for CSRF vulnerabilities
-- Check input sanitization
-- Check error handling gaps
+- Analyze bundle size for code splitting opportunities
+- Add lazy loading for heavy components
+- Optimize render performance
+- Add virtualization for large lists if needed
 
 **Verification**: lint, typecheck, tests, build, CI
