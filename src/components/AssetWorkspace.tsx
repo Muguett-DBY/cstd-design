@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Eye, RefreshCw, Trash2 } from "lucide-react";
+import { Download, Eye, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
@@ -7,14 +7,21 @@ import { AssetMeta } from "./AssetMeta";
 import { ClearAllButton } from "./ClearAllButton";
 import { EmptyState } from "./EmptyState";
 import { Segmented } from "./Segmented";
+import { useAssetTags } from "../hooks/useAssetTags";
+import { TagPicker } from "./TagPicker";
 
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [lastClicked, setLastClicked] = useState<number | null>(null);
-  const visible = filterAssets(assets, filter);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const { addTag, removeTag, getTags, allTags } = useAssetTags();
+  const allAssets = assets;
+  const byKind = filterAssets(allAssets, filter);
+  const visible = tagFilter ? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && getTags(a.id).includes(tagFilter)) : byKind;
   const totalSize = visible.reduce((sum, a) => sum + a.size, 0);
+  const [showTagPickerFor, setShowTagPickerFor] = useState<string | null>(null);
 
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {
@@ -82,6 +89,28 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             ]}
             onChange={(v) => { setFilter(v); setSelected(new Set()); }}
           />
+          {allTags().length > 0 && (
+            <div className="tag-filter">
+              <span className="tag-filter-label">标签：</span>
+              <button
+                type="button"
+                className={`tag-chip clickable${tagFilter === null ? " active" : ""}`}
+                onClick={() => setTagFilter(null)}
+              >
+                全部
+              </button>
+              {allTags().map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`tag-chip clickable${tagFilter === tag ? " active" : ""}`}
+                  onClick={() => setTagFilter(tagFilter === tag ? null : tag)}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
           <ClearAllButton label="清空素材库" onClear={async () => {
             await onClearAll();
             await onAssetsChanged();
@@ -128,8 +157,26 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                   <strong>{asset.filename}</strong>
                   <span>{asset.kind} · {formatBytes(asset.size)}</span>
                   <AssetMeta asset={asset} />
+                  {getTags(asset.id).length > 0 && (
+                    <div className="asset-tag-chips">
+                      {getTags(asset.id).map((tag) => (
+                        <span key={tag} className="tag-chip small">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="asset-actions">
+                  <button
+                    type="button"
+                    onClick={() => setShowTagPickerFor(showTagPickerFor === asset.id ? null : asset.id)}
+                    className={showTagPickerFor === asset.id ? "active" : ""}
+                    aria-label="编辑标签"
+                    title="编辑标签"
+                  >
+                    <Tag size={14} /> 标签
+                  </button>
                   <a href={`${asset.url}?download=1`}>下载</a>
                   <button type="button" className="danger" disabled={deletingId === asset.id} onClick={() => {
                     onRequestConfirm(
@@ -150,6 +197,18 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                     {deletingId === asset.id ? <><RefreshCw size={14} className="spin" /> 删除中</> : "删除"}
                   </button>
                 </div>
+                {showTagPickerFor === asset.id && (
+                  <div className="asset-tag-picker-wrapper">
+                    <TagPicker
+                      assetId={asset.id}
+                      onClose={() => setShowTagPickerFor(null)}
+                      getTags={getTags}
+                      allTags={allTags}
+                      addTag={addTag}
+                      removeTag={removeTag}
+                    />
+                  </div>
+                )}
               </article>
             ))}
           </>
