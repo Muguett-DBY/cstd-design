@@ -19,7 +19,9 @@ import { useVideoTaskPersistence } from "./hooks/useVideoTaskPersistence";
 import { NetworkBanner } from "./components/NetworkBanner";
 import { OnboardingTour } from "./components/OnboardingTour";
 import { CommandPalette, type CommandItem } from "./components/CommandPalette";
-import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText } from "lucide-react";
+import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
+import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
+import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
 const VideoWorkspace = lazy(() => import("./components/VideoWorkspace").then((m) => ({ default: m.VideoWorkspace })));
@@ -50,6 +52,7 @@ function AppInner() {
   const { task: videoTask, setTask: setVideoTask } = useVideoTaskPersistence();
   const [videoSubmittedPrompt, setVideoSubmittedPrompt] = useState("");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  const shortcutsHelp = useShortcutsHelp();
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("cstd-design:dark");
     if (stored !== null) return stored === "true";
@@ -270,10 +273,20 @@ function AppInner() {
         keywords: ["dark", "light", "theme"],
         perform: () => { document.documentElement.classList.toggle("theme-dark"); },
       },
+      {
+        id: "action-shortcuts",
+        label: "查看快捷键",
+        description: "显示所有键盘快捷键",
+        icon: Keyboard,
+        group: "action",
+        shortcut: "Ctrl+/",
+        keywords: ["help", "shortcut", "keyboard", "key"],
+        perform: () => { shortcutsHelp.setOpen(true); },
+      },
     ];
 
     return [...navItems, ...convItems, ...actionItems];
-  }, [conversations, openConversation, handleCreateConversation]);
+  }, [conversations, openConversation, handleCreateConversation, shortcutsHelp]);
 
   if (booting) return <Splash />;
   if (!authenticated) {
@@ -355,6 +368,11 @@ function AppInner() {
         open={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
         items={commandItems}
+      />
+
+      <KeyboardShortcutsHelp
+        open={shortcutsHelp.open}
+        onClose={() => shortcutsHelp.setOpen(false)}
       />
 
       <main className="workspace">
