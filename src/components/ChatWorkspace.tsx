@@ -102,7 +102,7 @@ export function ChatWorkspace({
   const [panelOpen, setPanelOpen] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
-  const { isPinned, togglePin, getPinnedMessages } = useMessagePinning();
+  const { isPinned, togglePin, getPinnedMessages } = useMessagePinning(conversation?.id || null);
   const {
     repliesByParent,
     loading: threadsLoading,
@@ -115,7 +115,7 @@ export function ChatWorkspace({
     getThreadReplies,
   } = useMessageThreading(conversation?.id || null);
   const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
-  const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking();
+  const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking(conversation?.id || null);
   const { logForward, getForwardedMessages, getForwardCount } = useMessageForwarding();
   const search = useMessageSearch(messages, repliesByParent);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());

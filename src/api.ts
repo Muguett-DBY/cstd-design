@@ -75,6 +75,12 @@ export const api = {
   videoTask: (id: string) => requestJson<{ task: { id: string; status: string; progress: number; assetId?: string; assetUrl?: string } }>(`/api/videos/${id}`),
   abandonVideo: (id: string) => requestJson<{ ok: true }>(`/api/videos/${id}`, { method: "DELETE" }),
   clearScope: (scope: ClearScope) => requestJson<{ ok: true; deleted: { conversations: number; messages: number; assets: number; videoTasks: number; r2Objects: number } }>(`/api/clear/${scope}`, { method: "DELETE" }),
+  bookmarks: (conversationId: string) => requestJson<{ bookmarks: { id: string; messageId: string; conversationId: string; createdAt: string }[] }>(`/api/conversations/${conversationId}/bookmarks`),
+  addBookmark: (conversationId: string, messageId: string) => requestJson<{ bookmark: { id: string; messageId: string; conversationId: string; createdAt: string } }>(`/api/conversations/${conversationId}/bookmarks`, { method: "POST", body: JSON.stringify({ messageId }) }),
+  removeBookmark: (id: string) => requestJson<{ ok: true }>(`/api/bookmarks/${id}`, { method: "DELETE" }),
+  pins: (conversationId: string) => requestJson<{ pins: { id: string; messageId: string; conversationId: string; createdAt: string }[] }>(`/api/conversations/${conversationId}/pins`),
+  addPin: (conversationId: string, messageId: string) => requestJson<{ pin: { id: string; messageId: string; conversationId: string; createdAt: string } }>(`/api/conversations/${conversationId}/pins`, { method: "POST", body: JSON.stringify({ messageId }) }),
+  removePin: (id: string) => requestJson<{ ok: true }>(`/api/pins/${id}`, { method: "DELETE" }),
 };
 
 const STREAM_TIMEOUT_MS = 120_000;

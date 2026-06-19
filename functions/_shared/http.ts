@@ -107,6 +107,22 @@ export async function ensureSchema(db: D1Database) {
       updated_at TEXT NOT NULL
     )`),
     db.prepare(`CREATE INDEX IF NOT EXISTS idx_video_tasks_active ON video_tasks (asset_id, status, created_at)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS bookmarks (
+      id TEXT PRIMARY KEY,
+      message_id TEXT NOT NULL,
+      conversation_id TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_bookmarks_conversation ON bookmarks (conversation_id, created_at DESC)`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_bookmarks_message ON bookmarks (message_id)`),
+    db.prepare(`CREATE TABLE IF NOT EXISTS pins (
+      id TEXT PRIMARY KEY,
+      message_id TEXT NOT NULL,
+      conversation_id TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_pins_conversation ON pins (conversation_id, created_at DESC)`),
+    db.prepare(`CREATE INDEX IF NOT EXISTS idx_pins_message ON pins (message_id)`),
   ]);
 }
 

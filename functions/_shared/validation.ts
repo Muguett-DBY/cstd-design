@@ -57,6 +57,14 @@ export const VideoRequestSchema = z.object({
   { message: "unsupported video size" },
 );
 
+export const CreateBookmarkSchema = z.object({
+  messageId: uuid,
+}).strict();
+
+export const CreatePinSchema = z.object({
+  messageId: uuid,
+}).strict();
+
 export function parseRequest<T>(schema: z.ZodType<T>, input: unknown) {
   const parsed = schema.safeParse(input);
   return parsed.success ? { ok: true as const, data: parsed.data } : { ok: false as const, error: "请求参数无效，请检查后重试。" };
