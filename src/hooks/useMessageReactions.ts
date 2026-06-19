@@ -1,42 +1,44 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { api } from "../api";
 
-const STORAGE_KEY = "cstd-design:messageReactions";
 const QUICK_EMOJIS = ["👍", "❤️", "😊", "🎉", "🤔", "👀"];
 
-type Reactions = Record<string, string[]>;
+export function useMessageReactions(conversationId: string | null) {
+  const [reactions, setReactions] = useState<Record<string, string[]>>({});
+  const loadedRef = useRef(false);
 
-function loadReactions(): Reactions {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveReactions(reactions: Reactions) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(reactions));
-}
-
-export function useMessageReactions() {
-  const [reactions, setReactions] = useState<Reactions>(loadReactions);
+  useEffect(() => {
+    if (!conversationId) {
+      loadedRef.current = true;
+      return;
+    }
+    loadedRef.current = false;
+    api.reactions(conversationId)
+      .then((res) => { setReactions(res.reactions); loadedRef.current = true; })
+      .catch(() => { loadedRef.current = true; });
+  }, [conversationId]);
 
   const getReactions = useCallback((messageId: string): string[] => {
     return reactions[messageId] || [];
   }, [reactions]);
 
-  const toggleReaction = useCallback((messageId: string, emoji: string) => {
-    setReactions((prev) => {
-      const current = prev[messageId] || [];
-      const hasReaction = current.includes(emoji);
-      const updated = hasReaction
-        ? current.filter((e) => e !== emoji)
-        : [...current, emoji];
-      const next = { ...prev, [messageId]: updated };
-      saveReactions(next);
-      return next;
-    });
-  }, []);
+  const toggleReaction = useCallback(async (messageId: string, emoji: string) => {
+    if (!conversationId) return;
+    const prev = reactions[messageId] || [];
+    const hasReaction = prev.includes(emoji);
+    setReactions((r) => ({
+      ...r,
+      [messageId]: hasReaction ? prev.filter((e) => e !== emoji) : [...prev, emoji],
+    }));
+    try {
+      await api.toggleReaction(conversationId, messageId, emoji);
+    } catch {
+      setReactions((r) => ({
+        ...r,
+        [messageId]: hasReaction ? [...(r[messageId] || []), emoji] : (r[messageId] || []).filter((e) => e !== emoji),
+      }));
+    }
+  }, [conversationId, reactions]);
 
   const hasReaction = useCallback((messageId: string, emoji: string): boolean => {
     return (reactions[messageId] || []).includes(emoji);

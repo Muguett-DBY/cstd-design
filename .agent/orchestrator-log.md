@@ -78,13 +78,26 @@
 
 ### Phase 6/18 — IMPROVE: Conversation export improvements
 
+**Status**: DONE
+**Commit**: `f878443`
+**CI**: Passed (run `27814937972`)
+
+**Completed**:
+- Added plain text export format with `Clipboard` icon
+- Updated format descriptions for clarity
+- Fixed template literal syntax error in `generateText` function
+- Export modal now supports 4 formats: Markdown, Plain Text, HTML, PDF
+
+### Phase 7/18 — IMPROVE: Move message reactions and edits to D1-backed persistence
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:30:00Z
+**Started**: 2026-06-19T08:35:00Z
 
 **Plan**:
-- Add conversation selector to export modal (export multiple conversations)
-- Add plain text export format
-- Improve export preview with syntax highlighting
-- Add export history tracking
+- Add D1 schema for reactions and edit history tables
+- Create server-side API endpoints for CRUD operations
+- Update `useMessageReactions` hook to use API instead of localStorage
+- Update `useMessageEditing` hook to use API instead of localStorage
+- Maintain backward compatibility
 
 **Verification**: lint, typecheck, tests, build, CI

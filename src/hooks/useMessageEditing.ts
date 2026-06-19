@@ -1,6 +1,5 @@
-import { useCallback, useState } from "react";
-
-const STORAGE_KEY = "cstd-design:editedMessages";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { api } from "../api";
 
 interface EditRecord {
   originalContent: string;
@@ -8,23 +7,31 @@ interface EditRecord {
   editedAt: string;
 }
 
-type EditedMessages = Record<string, EditRecord[]>;
+export function useMessageEditing(conversationId: string | null) {
+  const [edited, setEdited] = useState<Record<string, EditRecord[]>>({});
+  const loadedRef = useRef(false);
 
-function loadEdited(): EditedMessages {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveEdited(edited: EditedMessages) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(edited));
-}
-
-export function useMessageEditing() {
-  const [edited, setEdited] = useState<EditedMessages>(loadEdited);
+  useEffect(() => {
+    if (!conversationId) {
+      loadedRef.current = true;
+      return;
+    }
+    loadedRef.current = false;
+    api.edits(conversationId)
+      .then((res) => {
+        const map: Record<string, EditRecord[]> = {};
+        for (const [msgId, edits] of Object.entries(res.edits)) {
+          map[msgId] = edits.map((e) => ({
+            originalContent: e.originalContent,
+            editedContent: e.editedContent,
+            editedAt: e.createdAt,
+          }));
+        }
+        setEdited(map);
+        loadedRef.current = true;
+      })
+      .catch(() => { loadedRef.current = true; });
+  }, [conversationId]);
 
   const getEditedContent = useCallback((messageId: string): string | null => {
     const history = edited[messageId];
@@ -38,24 +45,26 @@ export function useMessageEditing() {
     return edited[messageId] || [];
   }, [edited]);
 
-  const editMessage = useCallback((messageId: string, originalContent: string, newContent: string) => {
-    setEdited((prev) => {
-      const history = prev[messageId] || [];
-      const updated = {
+  const editMessage = useCallback(async (messageId: string, originalContent: string, newContent: string) => {
+    if (!conversationId) return;
+    const record: EditRecord = {
+      originalContent,
+      editedContent: newContent,
+      editedAt: new Date().toISOString(),
+    };
+    setEdited((prev) => ({
+      ...prev,
+      [messageId]: [...(prev[messageId] || []), record],
+    }));
+    try {
+      await api.addEdit(conversationId, messageId, originalContent, newContent);
+    } catch {
+      setEdited((prev) => ({
         ...prev,
-        [messageId]: [
-          ...history,
-          {
-            originalContent,
-            editedContent: newContent,
-            editedAt: new Date().toISOString(),
-          },
-        ],
-      };
-      saveEdited(updated);
-      return updated;
-    });
-  }, []);
+        [messageId]: (prev[messageId] || []).filter((e) => e.editedAt !== record.editedAt),
+      }));
+    }
+  }, [conversationId]);
 
   const isEdited = useCallback((messageId: string): boolean => {
     return !!edited[messageId] && edited[messageId].length > 0;

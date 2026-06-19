@@ -101,7 +101,7 @@ export function ChatWorkspace({
   const [userScrolledUp, setUserScrolledUp] = useState(false);
   const [panelOpen, setPanelOpen] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
-  const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions();
+  const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions(conversation?.id || null);
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning(conversation?.id || null);
   const {
     repliesByParent,
@@ -114,7 +114,7 @@ export function ChatWorkspace({
     clearThread,
     getThreadReplies,
   } = useMessageThreading(conversation?.id || null);
-  const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
+  const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing(conversation?.id || null);
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking(conversation?.id || null);
   const { logForward, getForwardedMessages, getForwardCount } = useMessageForwarding();
   const search = useMessageSearch(messages, repliesByParent);
