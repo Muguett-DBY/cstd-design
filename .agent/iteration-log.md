@@ -1,5 +1,96 @@
 # Iteration Log
 
+## Campaign 001 — 3-Cycle, 18-Phase Campaign (2026-06-19)
+
+**Theme**: Cross-device data consistency, upload flow maturity, and thread forwarding
+
+### Phase 1/18 — IMPROVE: Thread reply forwarding + forwarded message indicator
+- **Commit**: `3e70e61` | **CI**: Passed
+- Extended `ForwardRecord` type, added forwarding to thread replies, added "已转发" badge
+
+### Phase 2/18 — IMPROVE: Upload flow progress, error recovery, success confirmation
+- **Commit**: `2edf0f6` | **CI**: Passed
+- Replaced fetch with XHR for progress tracking, added file validation, cancel, and success summary
+
+### Phase 3/18 — UIUX: Upload area and asset workspace visual polish
+- **Commit**: `6c099e8` | **CI**: Passed
+- Polished upload box states, asset card metadata, empty states, dark mode support
+
+### Phase 4/18 — IMPROVE: Move bookmarks and pins to D1-backed persistence
+- **Commit**: `dcb1dcb` | **CI**: Passed
+- Added D1 schema, server endpoints, client hooks for bookmarks and pins
+
+### Phase 5/18 — CHECK: Full project health check
+- **Commit**: `3ab248e` | **CI**: Passed
+- Fixed race condition with UNIQUE constraints, added UUID validation, improved error codes
+
+### Phase 6/18 — IMPROVE: Conversation export improvements
+- **Commit**: `f878443` | **CI**: Passed
+- Added plain text export format with Clipboard icon
+
+### Phase 7/18 — IMPROVE: Move reactions and edits to D1-backed persistence
+- **Commit**: `43d2add` | **CI**: Passed
+- Added D1 schema, server endpoints, client hooks for reactions and edits
+
+### Phase 8/18 — IMPROVE: Keyboard shortcut help panel improvements
+- **Commit**: `a5ec7b7` | **CI**: Passed
+- Added category headers, search/filter input, improved visual hierarchy
+
+### Phase 9/18 — UIUX: Mobile experience audit and improvements
+- **Commit**: `7f5a4fd` | **CI**: Passed
+- Improved mobile touch targets, modal sizes, message action buttons
+
+### Phase 10/18 — IMPROVE: Conversation archive improvements
+- **Commit**: `72c10db` | **CI**: Passed
+- Added archive count badge to filter chip
+
+### Phase 11/18 — CHECK: Security and edge case audit
+- **Commit**: `49c29c7` | **CI**: Passed
+- Added rate limiting to all new write endpoints
+
+### Phase 12/18 — IMPROVE: Performance and code splitting
+- **Commit**: `ab6d82d` | **CI**: Passed
+- Lazy-loaded workspace components, ExportModal, Lightbox. Bundle reduced from 607KB to 569KB
+
+### Phase 13/18 — IMPROVE: Conversation merge improvements
+- **Commit**: `9d1c556` | **CI**: Passed
+- Added merge confirmation dialog, merge history display
+
+### Phase 14/18 — IMPROVE: Message search improvements
+- **Commit**: `2530e46` | **CI**: Passed
+- Added search history dropdown with recent search recall
+
+### Phase 15/18 — UIUX: Empty states and loading states polish
+- **Commit**: `c63348f` | **CI**: Passed
+- Added SkeletonLoader component, ChatEmptyState, icon prop for EmptyState
+
+### Phase 16/18 — IMPROVE: Thread management improvements
+- **Commit**: `f243520` | **CI**: Passed
+- Added search to ThreadCenter with filtering
+
+### Phase 17/18 — CHECK: Final health check and cleanup
+- **Commit**: `f842a83` | **CI**: Passed
+- Full health check passed: 27 tests, TypeScript clean, ESLint 0 warnings
+
+### Phase 18/18 — IMPROVE: Campaign wrap-up and final polish
+- **Status**: COMPLETED
+- **Commit**: Campaign state updated
+
+### Campaign 001 Summary
+- **18 phases completed** across 3 cycles
+- **15 IMPROVE phases**: Thread forwarding, upload progress, D1 persistence (bookmarks, pins, reactions, edits), export formats, keyboard shortcuts, archive improvements, performance/code splitting, merge improvements, search history, thread search
+- **3 UIUX phases**: Upload/asset polish, mobile improvements, empty states/skeletons
+- **3 CHECK phases**: Health check, security audit, final health check
+- **Key achievements**:
+  - Migrated bookmarks, pins, reactions, edits from localStorage to D1
+  - Added upload progress tracking with cancel support
+  - Added plain text export format
+  - Improved mobile touch targets
+  - Added search history and thread search
+  - Reduced bundle size from 607KB to 569KB
+  - Added rate limiting to all new endpoints
+  - Fixed race conditions with UNIQUE constraints
+
 ## Round 43 (latest)
 
 **Type**: 产品功能升级
