@@ -288,6 +288,34 @@ export function ChatWorkspace({
     }
   };
 
+  const quickExportMarkdown = () => {
+    if (!conversation) return;
+    const title = conversation.title;
+    const date = new Date().toISOString().slice(0, 10);
+    const safeTitle = (title || "对话").replace(/[\\/:*?"<>|]/g, "_").slice(0, 64);
+    const body = messages
+      .filter((m) => m.status !== "streaming")
+      .map((m) => {
+        const role = m.role === "user" ? "**你**" : `**${ASSISTANT_NAME}**`;
+        const timestamp = m.createdAt ? `\n\n<sub>${new Date(m.createdAt).toLocaleString("zh-CN")}</sub>` : "";
+        return `${role}：${timestamp}\n\n${m.content}`;
+      })
+      .join("\n\n---\n\n");
+    const text = `# ${title}\n\n*导出于 ${date}*\n\n${body}\n`;
+    try {
+      const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${safeTitle}-${date}.md`;
+      a.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      onNotice("已导出为 Markdown 文件。");
+    } catch {
+      onNotice("导出失败，请重试。");
+    }
+  };
+
   const toggleBulk = (messageId: string, index: number, shiftKey: boolean) => {
     setBulkSelected((prev) => {
       const next = new Set(prev);
@@ -390,8 +418,11 @@ export function ChatWorkspace({
             <button type="button" className="ghost-button" onClick={copyAllAsText} disabled={!conversation || messages.length === 0} title="复制全部对话">
               <Copy size={16} /> 复制全部
             </button>
+            <button type="button" className="ghost-button" onClick={quickExportMarkdown} disabled={!conversation || messages.length === 0} title="快速导出为 Markdown 文件">
+              <Download size={16} /> 快速导出
+            </button>
             <button type="button" className="ghost-button" onClick={() => setShowExportModal(true)} disabled={!conversation || messages.length === 0}>
-              <Download size={16} /> 导出
+              <FileText size={16} /> 高级导出
             </button>
             <button type="button" className="ghost-button danger" onClick={onDelete} disabled={!conversation}>
               <Trash2 size={16} /> 删除
