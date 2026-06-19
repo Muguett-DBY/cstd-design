@@ -17,7 +17,7 @@ describe("TopBar", () => {
       };
       return map[key] || key;
     };
-    render(<TopBar activeTab="chat" onTabChange={vi.fn()} onOpenSidebar={vi.fn()} t={t as never} />);
+    render(<TopBar activeTab="chat" onTabChange={vi.fn()} onOpenSidebar={vi.fn()} t={t as never} customLabels={{ chat: "", image: "", video: "", assets: "" }} />);
 
     const nav = screen.getByRole("navigation", { name: /工作区切换|workspace/i });
     const active = screen.getByRole("button", { name: /Chat/i });

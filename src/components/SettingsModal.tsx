@@ -119,6 +119,50 @@ export function SettingsModal({
           </section>
           <section className="settings-section">
             <h4>{t("settings.chat")}</h4>
+            <div className="settings-field">
+              <label htmlFor="tab-label-chat">聊天标签</label>
+              <input
+                id="tab-label-chat"
+                type="text"
+                placeholder="留空使用默认"
+                value={prefs.customTabLabels.chat}
+                maxLength={12}
+                onChange={(e) => onUpdate("customTabLabels", { ...prefs.customTabLabels, chat: e.target.value })}
+              />
+            </div>
+            <div className="settings-field">
+              <label htmlFor="tab-label-image">图片标签</label>
+              <input
+                id="tab-label-image"
+                type="text"
+                placeholder="留空使用默认"
+                value={prefs.customTabLabels.image}
+                maxLength={12}
+                onChange={(e) => onUpdate("customTabLabels", { ...prefs.customTabLabels, image: e.target.value })}
+              />
+            </div>
+            <div className="settings-field">
+              <label htmlFor="tab-label-video">视频标签</label>
+              <input
+                id="tab-label-video"
+                type="text"
+                placeholder="留空使用默认"
+                value={prefs.customTabLabels.video}
+                maxLength={12}
+                onChange={(e) => onUpdate("customTabLabels", { ...prefs.customTabLabels, video: e.target.value })}
+              />
+            </div>
+            <div className="settings-field">
+              <label htmlFor="tab-label-assets">素材库标签</label>
+              <input
+                id="tab-label-assets"
+                type="text"
+                placeholder="留空使用默认"
+                value={prefs.customTabLabels.assets}
+                maxLength={12}
+                onChange={(e) => onUpdate("customTabLabels", { ...prefs.customTabLabels, assets: e.target.value })}
+              />
+            </div>
             <label className="settings-toggle">
               <input type="checkbox" checked={prefs.autoSaveDraft} onChange={(e) => onUpdate("autoSaveDraft", e.target.checked)} />
               <span>自动保存草稿</span>
