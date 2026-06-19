@@ -2,29 +2,54 @@ import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, Conver
 
 const UNAUTHORIZED_EVENT = "auth:unauthorized";
 
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 800;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function isRetryable(status: number): boolean {
+  return status >= 500 || status === 408 || status === 429;
+}
+
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      ...init,
-      headers: {
-        ...(init?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-        ...(init?.headers || {}),
-      },
-    });
-  } catch {
-    throw new Error("网络连接失败，请检查网络后重试。");
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        ...init,
+        headers: {
+          ...(init?.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+          ...(init?.headers || {}),
+        },
+      });
+    } catch {
+      lastError = new Error("网络连接失败，请检查网络后重试。");
+      if (attempt < MAX_RETRIES) {
+        await delay(RETRY_DELAY_MS * Math.pow(2, attempt));
+        continue;
+      }
+      throw lastError;
+    }
+    if (response.status === 401) {
+      window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
+      throw new Error("请先登录。");
+    }
+    if (!response.ok) {
+      if (isRetryable(response.status) && attempt < MAX_RETRIES) {
+        await delay(RETRY_DELAY_MS * Math.pow(2, attempt));
+        continue;
+      }
+      let body: { error?: string } = {};
+      try { body = await response.json(); } catch { /* ignore parse errors */ }
+      if (response.status === 429) throw new Error(body.error || "请求过于频繁，请稍后重试。");
+      throw new Error(body.error || "请求失败。");
+    }
+    return await response.json() as T;
   }
-  const body = await response.json().catch(() => ({}));
-  if (response.status === 401) {
-    window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
-    throw new Error("请先登录。");
-  }
-  if (!response.ok) {
-    if (response.status === 429) throw new Error(body.error || "请求过于频繁，请稍后重试。");
-    throw new Error(body.error || "请求失败。");
-  }
-  return body as T;
+  throw lastError || new Error("请求失败。");
 }
 
 export function onUnauthorized(handler: () => void) {
