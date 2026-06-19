@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FileText, ImageIcon, RefreshCw, Save, Sparkles, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, imageAssetsForReference, readStoredImageSize } from "../app-state";
-import { usePromptTemplates } from "../hooks/usePromptTemplates";
+import { usePromptTemplates, expandVariables } from "../hooks/usePromptTemplates";
 import type { AssetItem, ImageSize } from "../types";
 import { ClearAllButton } from "./ClearAllButton";
 import { ReferencePicker } from "./ReferencePicker";
@@ -116,7 +116,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             ) : (
               templates.map((t) => (
                 <div key={t.id} className="template-item">
-                  <button type="button" className="template-name" onClick={() => { setPrompt(t.prompt); setShowTemplates(false); }}>
+                  <button type="button" className="template-name" onClick={() => { setPrompt(expandVariables(t.prompt)); setShowTemplates(false); }}>
                     <span>{t.name}</span>
                   </button>
                   <button type="button" className="template-delete" onClick={() => remove(t.id)} aria-label="删除模板">
