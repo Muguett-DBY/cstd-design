@@ -21,6 +21,8 @@ import { OnboardingTour } from "./components/OnboardingTour";
 import { CommandPalette, type CommandItem } from "./components/CommandPalette";
 import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
 import { GlobalDropZone } from "./components/GlobalDropZone";
+import { SettingsModal } from "./components/SettingsModal";
+import { useUserPreferences } from "./hooks/useUserPreferences";
 import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
@@ -54,6 +56,8 @@ function AppInner() {
   const [videoSubmittedPrompt, setVideoSubmittedPrompt] = useState("");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const shortcutsHelp = useShortcutsHelp();
+  const userPrefs = useUserPreferences();
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("cstd-design:dark");
     if (stored !== null) return stored === "true";
@@ -284,6 +288,15 @@ function AppInner() {
         keywords: ["help", "shortcut", "keyboard", "key"],
         perform: () => { shortcutsHelp.setOpen(true); },
       },
+      {
+        id: "action-settings",
+        label: "偏好设置",
+        description: "默认尺寸、风格、帧率等",
+        icon: Settings,
+        group: "action",
+        keywords: ["settings", "preferences", "config", "options"],
+        perform: () => { setSettingsOpen(true); },
+      },
     ];
 
     return [...navItems, ...convItems, ...actionItems];
@@ -379,6 +392,13 @@ function AppInner() {
       <KeyboardShortcutsHelp
         open={shortcutsHelp.open}
         onClose={() => shortcutsHelp.setOpen(false)}
+      />
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        prefs={userPrefs.prefs}
+        onUpdate={userPrefs.update}
       />
 
       <main className="workspace">
