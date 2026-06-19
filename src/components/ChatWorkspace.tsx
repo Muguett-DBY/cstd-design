@@ -28,6 +28,7 @@ import { ThreadCenter } from "./ThreadCenter";
 import { ConversationPickerModal } from "./ConversationPickerModal";
 import { StatsPanel } from "./StatsPanel";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
+import { PdfExportButton } from "./PdfExportButton";
 
 const ASSISTANT_NAME = "助手";
 
@@ -423,6 +424,13 @@ export function ChatWorkspace({
             <button type="button" className="ghost-button" onClick={quickExportMarkdown} disabled={!conversation || messages.length === 0} title="快速导出为 Markdown 文件">
               <Download size={16} /> 快速导出
             </button>
+            <PdfExportButton
+              title={conversation?.title || "conversation"}
+              messages={messages
+                .filter((m) => m.status !== "streaming")
+                .map((m) => ({ role: m.role, content: m.content, createdAt: m.createdAt }))}
+              onNotice={onNotice}
+            />
             <button type="button" className="ghost-button" onClick={() => setShowExportModal(true)} disabled={!conversation || messages.length === 0}>
               <FileText size={16} /> 高级导出
             </button>
