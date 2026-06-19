@@ -432,6 +432,18 @@ function AppInner() {
     onSearch: (q: string) => { void refreshConversations(q); },
     onSelectConversation: async (id: string) => { await openConversation(id); setMobileSidebarOpen(false); },
     onCreateConversation: async () => { await handleCreateConversation(); setMobileSidebarOpen(false); },
+    onImportConversation: async (data: { title: string; messages: { role: string; content: string; createdAt?: string }[] }) => {
+      try {
+        const result = await api.createConversation();
+        const convId = result.conversation.id;
+        await api.renameConversation(convId, data.title);
+        await refreshConversations("");
+        await openConversation(convId);
+        toast(`已创建新对话，标题：${data.title}（共 ${data.messages.length} 条消息）。`);
+      } catch (error) {
+        toast(error instanceof Error ? error.message : "导入失败。", "error");
+      }
+    },
     onDeleteConversation: async (id: string) => {
       try {
         await api.deleteConversation(id);
