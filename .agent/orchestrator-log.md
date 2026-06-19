@@ -79,13 +79,28 @@
 
 ### Phase 6/18 — IMPROVE: Onboarding tour for new users
 
+**Status**: DONE
+**Commit**: `c7ae7cb`
+**CI**: Passed (run `27820008373`)
+
+**Completed**:
+- Created OnboardingTour component with 5-step guided introduction
+- Uses localStorage to track completion (one-time show)
+- Supports keyboard nav (Escape, ArrowRight)
+- Dot navigation indicator with active state animation
+- Skip option for users who don't want the tour
+
+**CYCLE 1 COMPLETE (Phases 1-6)**: Video polling, lightbox keyboard, result card consistency, asset metadata, accessibility fixes, onboarding tour
+
+### Phase 7/18 — IMPROVE: Video progress persistence across tab switches
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:10:00Z
+**Started**: 2026-06-19T10:15:00Z
 
 **Plan**:
-- Create welcome tour component
-- Add tooltips for key features
-- Show feature highlights on first visit
-- Track onboarding completion in localStorage
+- Save active video task ID to localStorage
+- Resume video polling when returning to video tab
+- Show resume notification for in-progress tasks
+- Add ability to discard resumed tasks
 
 **Verification**: lint, typecheck, tests, build, CI
