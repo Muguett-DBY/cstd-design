@@ -94,13 +94,25 @@
 
 ### Phase 7/18 — IMPROVE: Video progress persistence across tab switches
 
+**Status**: DONE
+**Commit**: `1412ad7`
+**CI**: Passed (run `27820493484`)
+
+**Completed**:
+- Added useVideoTaskPersistence hook with localStorage persistence
+- Video task state now survives tab switches and page refresh
+- Auto-clears on completion or failure
+- ClearScope now also clears video task
+
+### Phase 8/18 — IMPROVE: Image regeneration with style reference
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:15:00Z
+**Started**: 2026-06-19T10:20:00Z
 
 **Plan**:
-- Save active video task ID to localStorage
-- Resume video polling when returning to video tab
-- Show resume notification for in-progress tasks
-- Add ability to discard resumed tasks
+- Add regenerate button to ResultCard
+- Use previous result as style reference for regeneration
+- Allow editing prompt before regenerating
+- Show regeneration progress in result card
 
 **Verification**: lint, typecheck, tests, build, CI

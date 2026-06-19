@@ -1,4 +1,4 @@
-import { CheckCircle2, Image as ImageIcon, Film } from "lucide-react";
+import { CheckCircle2, Image as ImageIcon, Film, RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface ResultCardProps {
@@ -8,10 +8,11 @@ interface ResultCardProps {
   prompt?: string;
   onPreview?: () => void;
   onDownload?: () => void;
+  onRegenerate?: () => void;
   metadata?: ReactNode;
 }
 
-export function ResultCard({ type, mediaUrl, filename, prompt, onPreview, onDownload, metadata }: ResultCardProps) {
+export function ResultCard({ type, mediaUrl, filename, prompt, onPreview, onDownload, onRegenerate, metadata }: ResultCardProps) {
   const Icon = type === "image" ? CheckCircle2 : Film;
   const label = type === "image" ? "最近生成图片" : "最近生成视频";
 
@@ -37,11 +38,18 @@ export function ResultCard({ type, mediaUrl, filename, prompt, onPreview, onDown
         )}
       </div>
       {prompt && <p className="result-card-prompt">"{prompt.slice(0, 60)}{prompt.length > 60 ? "..." : ""}"</p>}
-      {onDownload && (
-        <a href={`${mediaUrl}?download=1`} className="result-card-download" download={filename}>
-          <ImageIcon size={14} /> 下载 {type === "image" ? "图片" : "视频"}
-        </a>
-      )}
+      <div className="result-card-actions">
+        {onRegenerate && (
+          <button type="button" className="ghost-button" onClick={onRegenerate}>
+            <RefreshCw size={14} /> 以此为参考重新生成
+          </button>
+        )}
+        {onDownload && (
+          <a href={`${mediaUrl}?download=1`} className="result-card-download" download={filename}>
+            <ImageIcon size={14} /> 下载 {type === "image" ? "图片" : "视频"}
+          </a>
+        )}
+      </div>
     </div>
   );
 }
