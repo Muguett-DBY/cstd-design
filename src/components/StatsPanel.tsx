@@ -64,10 +64,12 @@ export function StatsPanel({
   conversations,
   messages,
   assets,
+  usage,
 }: {
   conversations: ConversationSummary[];
   messages: ChatMessage[];
   assets: AssetItem[];
+  usage: { messageSent: number; imageGenerated: number; videoGenerated: number; imageEdited: number; videoAbandoned: number };
 }) {
   const stats = useMemo(() => computeStats(conversations, messages, assets), [conversations, messages, assets]);
   const maxDay = Math.max(1, ...stats.messagesPerDay.map((d) => d.count));
@@ -79,7 +81,7 @@ export function StatsPanel({
         <div className="stat-card">
           <div className="stat-icon"><MessageSquare size={18} /></div>
           <div className="stat-content">
-            <span className="stat-value">{stats.messageCount}</span>
+            <span className="stat-value">{usage.messageSent + stats.messageCount}</span>
             <span className="stat-label">消息</span>
           </div>
         </div>
@@ -93,14 +95,14 @@ export function StatsPanel({
         <div className="stat-card">
           <div className="stat-icon"><ImageIcon size={18} /></div>
           <div className="stat-content">
-            <span className="stat-value">{stats.imageCount}</span>
+            <span className="stat-value">{usage.imageGenerated + stats.imageCount}</span>
             <span className="stat-label">图片</span>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon"><Video size={18} /></div>
           <div className="stat-content">
-            <span className="stat-value">{stats.videoCount}</span>
+            <span className="stat-value">{usage.videoGenerated + stats.videoCount}</span>
             <span className="stat-label">视频</span>
           </div>
         </div>
