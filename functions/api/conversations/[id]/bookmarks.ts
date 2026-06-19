@@ -1,6 +1,6 @@
-import { createBookmark, listBookmarks } from "../../../../_shared/bookmarks";
-import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../../_shared/http";
-import { parseRequest, CreateBookmarkSchema } from "../../../../_shared/validation";
+import { createBookmark, listBookmarks } from "../../../_shared/bookmarks";
+import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
+import { parseRequest, CreateBookmarkSchema } from "../../../_shared/validation";
 
 export async function onRequestGet({ request, env, params }: PagesContext) {
   const auth = await requireSession(request, env);

@@ -1,6 +1,6 @@
-import { createPin, listPins } from "../../../../_shared/pins";
-import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../../_shared/http";
-import { parseRequest, CreatePinSchema } from "../../../../_shared/validation";
+import { createPin, listPins } from "../../../_shared/pins";
+import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
+import { parseRequest, CreatePinSchema } from "../../../_shared/validation";
 
 export async function onRequestGet({ request, env, params }: PagesContext) {
   const auth = await requireSession(request, env);
