@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Eye, RefreshCw, Tag, Trash2 } from "lucide-react";
+import { ArrowLeftRight, Download, Eye, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
@@ -9,6 +9,7 @@ import { EmptyState } from "./EmptyState";
 import { Segmented } from "./Segmented";
 import { useAssetTags } from "../hooks/useAssetTags";
 import { TagPicker } from "./TagPicker";
+import { ImageCompare } from "./ImageCompare";
 
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
@@ -22,6 +23,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const visible = tagFilter ? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && getTags(a.id).includes(tagFilter)) : byKind;
   const totalSize = visible.reduce((sum, a) => sum + a.size, 0);
   const [showTagPickerFor, setShowTagPickerFor] = useState<string | null>(null);
+  const [showCompare, setShowCompare] = useState(false);
 
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {
@@ -76,6 +78,12 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
 
   return (
     <section className="asset-page">
+      {showCompare && (
+        <ImageCompare
+          assets={visible.filter((a) => selected.has(a.id) && a.kind === "image").slice(0, 4)}
+          onClose={() => setShowCompare(false)}
+        />
+      )}
       <div className="asset-toolbar">
         <h3>素材库</h3>
         <div className="toolbar-actions">
@@ -122,6 +130,11 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
         {selected.size > 0 && (
           <span className="asset-batch-actions">
             <span className="asset-selected-count">已选 {selected.size} 项</span>
+            {selected.size >= 2 && selected.size <= 4 && (
+              <button type="button" className="ghost-button" onClick={() => setShowCompare(true)}>
+                <ArrowLeftRight size={14} /> 对比
+              </button>
+            )}
             <button type="button" className="ghost-button" onClick={downloadSelected}>
               <Download size={14} /> 下载选中
             </button>
