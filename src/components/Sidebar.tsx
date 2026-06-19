@@ -322,6 +322,7 @@ export function Sidebar({
                     type="button"
                     className={dateFilter === opt.value ? "filter-option active" : "filter-option"}
                     onClick={() => setDateFilter(opt.value)}
+                    aria-pressed={dateFilter === opt.value}
                   >
                     {opt.label}
                   </button>
@@ -337,6 +338,7 @@ export function Sidebar({
                     type="button"
                     className={messageCountFilter === opt.value ? "filter-option active" : "filter-option"}
                     onClick={() => setMessageCountFilter(opt.value)}
+                    aria-pressed={messageCountFilter === opt.value}
                   >
                     {opt.label}
                   </button>
@@ -370,6 +372,7 @@ export function Sidebar({
               type="button"
               className={sortMode === opt.value ? "sort-option active" : "sort-option"}
               onClick={() => setSortMode(opt.value)}
+              aria-pressed={sortMode === opt.value}
             >
               {sortMode === opt.value ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
               {opt.label}
@@ -377,7 +380,7 @@ export function Sidebar({
           ))}
         </div>
         <div className="folder-bar">
-          <button type="button" className={selectedFolder === null ? "folder-chip active" : "folder-chip"} onClick={() => setSelectedFolder(null)}>
+          <button type="button" className={selectedFolder === null ? "folder-chip active" : "folder-chip"} onClick={() => setSelectedFolder(null)} aria-pressed={selectedFolder === null}>
             <Tag size={12} /> 全部
           </button>
           {folders.map((f) => (
@@ -387,14 +390,15 @@ export function Sidebar({
               className={selectedFolder === f.id ? "folder-chip active" : "folder-chip"}
               style={{ borderColor: f.color }}
               onClick={() => setSelectedFolder(selectedFolder === f.id ? null : f.id)}
+              aria-pressed={selectedFolder === f.id}
             >
               <Folder size={12} style={{ color: f.color }} /> {f.name}
-              <span className="folder-delete" onClick={(e) => { e.stopPropagation(); deleteFolder(f.id); }} title="删除文件夹">
+              <span className="folder-delete" onClick={(e) => { e.stopPropagation(); deleteFolder(f.id); }} title="删除文件夹" role="button" tabIndex={0} aria-label="删除文件夹">
                 <X size={10} />
               </span>
             </button>
           ))}
-          <button type="button" className={`folder-chip${showArchived ? " active" : ""}`} onClick={() => setShowArchived(!showArchived)}>
+          <button type="button" className={`folder-chip${showArchived ? " active" : ""}`} onClick={() => setShowArchived(!showArchived)} aria-pressed={showArchived}>
             <Archive size={12} /> 归档
             {conversations.filter((c) => isArchived(c.id)).length > 0 && (
               <span className="folder-count">{conversations.filter((c) => isArchived(c.id)).length}</span>
