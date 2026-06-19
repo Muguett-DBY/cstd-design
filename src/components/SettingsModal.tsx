@@ -1,8 +1,79 @@
-import { Settings as SettingsIcon, X } from "lucide-react";
+import { Settings as SettingsIcon, X, Download, Upload } from "lucide-react";
+import { useRef } from "react";
 import type { UserPreferences } from "../hooks/useUserPreferences";
 import { THEMES, type ThemeId } from "../hooks/useTheme";
 import type { Language, TranslationKey } from "../hooks/useLanguage";
 import { BackupRestore } from "./BackupRestore";
+
+function exportSettingsProfile(args: {
+  theme: ThemeId;
+  language: Language;
+  prefs: UserPreferences;
+  customTabLabels: { chat: string; image: string; video: string; assets: string };
+  autoTheme: boolean;
+}) {
+  const profile = {
+    type: "cstd-design.settings",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    theme: args.theme,
+    language: args.language,
+    autoTheme: args.autoTheme,
+    preferences: args.prefs,
+    customTabLabels: args.customTabLabels,
+  };
+  const blob = new Blob([JSON.stringify(profile, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `cstd-design-settings-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function importSettingsProfile(
+  file: File,
+  callbacks: {
+    onTheme: (theme: ThemeId) => void;
+    onLanguage: (language: Language) => void;
+    onPrefs: (prefs: UserPreferences) => void;
+    onCustomTabLabels?: (labels: { chat: string; image: string; video: string; assets: string }) => void;
+    onAutoTheme: (enabled: boolean) => void;
+  }
+): Promise<{ ok: true; theme: ThemeId; language: Language } | { ok: false; error: string }> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(String(reader.result));
+        if (parsed.type !== "cstd-design.settings") {
+          resolve({ ok: false, error: "无效的配置文件" });
+          return;
+        }
+        if (parsed.theme && typeof parsed.theme === "string" && parsed.theme in THEMES) {
+          callbacks.onTheme(parsed.theme as ThemeId);
+        }
+        if (parsed.language && (parsed.language === "zh" || parsed.language === "en")) {
+          callbacks.onLanguage(parsed.language);
+        }
+        if (parsed.preferences && typeof parsed.preferences === "object") {
+          callbacks.onPrefs(parsed.preferences as UserPreferences);
+        }
+        if (parsed.customTabLabels && typeof parsed.customTabLabels === "object" && callbacks.onCustomTabLabels) {
+          callbacks.onCustomTabLabels(parsed.customTabLabels);
+        }
+        if (typeof parsed.autoTheme === "boolean") {
+          callbacks.onAutoTheme(parsed.autoTheme);
+        }
+        resolve({ ok: true, theme: parsed.theme, language: parsed.language });
+      } catch (err) {
+        resolve({ ok: false, error: err instanceof Error ? err.message : "解析失败" });
+      }
+    };
+    reader.onerror = () => resolve({ ok: false, error: "文件读取失败" });
+    reader.readAsText(file);
+  });
+}
 
 export function SettingsModal({
   open,
@@ -18,6 +89,8 @@ export function SettingsModal({
   notifications,
   autoTheme,
   onAutoThemeChange,
+  customTabLabels,
+  onCustomTabLabelsChange,
 }: {
   open: boolean;
   onClose: () => void;
@@ -37,6 +110,8 @@ export function SettingsModal({
   };
   autoTheme: boolean;
   onAutoThemeChange: (enabled: boolean) => void;
+  customTabLabels?: { chat: string; image: string; video: string; assets: string };
+  onCustomTabLabelsChange?: (labels: { chat: string; image: string; video: string; assets: string }) => void;
 }) {
   if (!open) return null;
 
@@ -218,6 +293,23 @@ export function SettingsModal({
               <span>启用声音反馈</span>
             </label>
           </section>
+          <section className="settings-section">
+            <h4>设置配置</h4>
+            <p className="settings-hint">导出/导入主题、语言、偏好等设置，便于多设备同步。</p>
+            <SettingsProfileButtons
+              theme={theme}
+              language={language}
+              prefs={prefs}
+              customTabLabels={customTabLabels}
+              autoTheme={autoTheme}
+              onTheme={onThemeChange}
+              onLanguage={onLanguageChange}
+              onPrefs={onUpdate}
+              onCustomTabLabels={onCustomTabLabelsChange}
+              onAutoTheme={onAutoThemeChange}
+              onNotice={onNotice}
+            />
+          </section>
           <BackupRestore onNotice={onNotice} />
         </div>
         <div className="settings-footer">
@@ -225,6 +317,82 @@ export function SettingsModal({
           <button type="button" className="primary-button" onClick={onClose}>{t("common.close")}</button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function SettingsProfileButtons({
+  theme,
+  language,
+  prefs,
+  customTabLabels,
+  autoTheme,
+  onTheme,
+  onLanguage,
+  onPrefs,
+  onCustomTabLabels,
+  onAutoTheme,
+  onNotice,
+}: {
+  theme: ThemeId;
+  language: Language;
+  prefs: UserPreferences;
+  customTabLabels?: { chat: string; image: string; video: string; assets: string };
+  autoTheme: boolean;
+  onTheme: (t: ThemeId) => void;
+  onLanguage: (l: Language) => void;
+  onPrefs: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
+  onCustomTabLabels?: (labels: { chat: string; image: string; video: string; assets: string }) => void;
+  onAutoTheme: (enabled: boolean) => void;
+  onNotice: (msg: string) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleExport = () => {
+    exportSettingsProfile({
+      theme,
+      language,
+      prefs,
+      customTabLabels: customTabLabels ?? { chat: "", image: "", video: "", assets: "" },
+      autoTheme,
+    });
+    onNotice("已导出设置配置");
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const result = await importSettingsProfile(file, {
+      onTheme,
+      onLanguage,
+      onPrefs: (next) => {
+        (Object.keys(next) as Array<keyof UserPreferences>).forEach((k) => {
+          onPrefs(k, next[k]);
+        });
+      },
+      onCustomTabLabels,
+      onAutoTheme,
+    });
+    if (result.ok) onNotice("已导入设置配置");
+    else onNotice(`导入失败: ${result.error}`);
+    e.target.value = "";
+  };
+
+  return (
+    <div className="settings-profile-buttons">
+      <button type="button" className="secondary-button" onClick={handleExport}>
+        <Download size={14} /> 导出设置
+      </button>
+      <button type="button" className="secondary-button" onClick={() => fileInputRef.current?.click()}>
+        <Upload size={14} /> 导入设置
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/json"
+        style={{ display: "none" }}
+        onChange={handleImport}
+      />
     </div>
   );
 }
