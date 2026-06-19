@@ -1,6 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 import type { ChatMessage, ThreadReply } from "../types";
 
+export type RoleFilter = "all" | "user" | "assistant";
+export type DateFilter = "all" | "today" | "week" | "month";
+
 export interface SearchResult {
   messageId: string;
   role: "user" | "assistant";
@@ -13,19 +16,35 @@ export interface SearchResult {
   replyIndex?: number;
 }
 
+function dateFilterCutoff(filter: DateFilter): number | null {
+  if (filter === "all") return null;
+  const now = Date.now();
+  if (filter === "today") return now - 24 * 60 * 60 * 1000;
+  if (filter === "week") return now - 7 * 24 * 60 * 60 * 1000;
+  if (filter === "month") return now - 30 * 24 * 60 * 60 * 1000;
+  return null;
+}
+
 export function useMessageSearch(messages: ChatMessage[], threads: Record<string, ThreadReply[]> = {}) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>("all");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
     const q = query.toLowerCase();
+    const cutoff = dateFilterCutoff(dateFilter);
     const found: SearchResult[] = [];
 
     // Search through main messages
     for (const message of messages) {
       if (message.status === "streaming") continue;
+      if (roleFilter !== "all" && message.role !== roleFilter) continue;
+      if (cutoff !== null && message.createdAt) {
+        if (new Date(message.createdAt).getTime() < cutoff) continue;
+      }
       const content = message.content;
       const lowerContent = content.toLowerCase();
       let startIndex = 0;
@@ -90,7 +109,7 @@ export function useMessageSearch(messages: ChatMessage[], threads: Record<string
     }
 
     return found;
-  }, [query, messages, threads]);
+  }, [query, messages, threads, roleFilter, dateFilter]);
 
   const totalResults = results.length;
 
@@ -128,5 +147,9 @@ export function useMessageSearch(messages: ChatMessage[], threads: Record<string
     isOpen,
     openSearch,
     closeSearch,
+    roleFilter,
+    setRoleFilter,
+    dateFilter,
+    setDateFilter,
   };
 }

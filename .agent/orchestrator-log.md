@@ -178,13 +178,25 @@
 
 ### Phase 14/18 — UIUX: Lightbox and asset grid polish
 
+**Status**: DONE
+**Commit**: `84bc4b5`
+**CI**: Passed (run `27822159044`)
+
+**Completed**:
+- Added image scale-on-hover (1.05x, 0.35s ease)
+- Added view hint Eye icon in corner of image previews
+- Improved lightbox button scale hover + active feedback
+- Better visual hierarchy and depth
+
+### Phase 15/18 — IMPROVE: Search filters and saved searches
+
 **Status**: RUNNING
-**Started**: 2026-06-19T11:05:00Z
+**Started**: 2026-06-19T11:10:00Z
 
 **Plan**:
-- Improve asset grid hover states
-- Add subtle animations
-- Polish lightbox controls
-- Improve visual hierarchy
+- Add filter by message type (user/assistant)
+- Add date range filter
+- Add saved searches with localStorage
+- Add filter UI in MessageSearchBar
 
 **Verification**: lint, typecheck, tests, build, CI

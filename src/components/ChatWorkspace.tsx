@@ -14,6 +14,7 @@ import { ScrollToBottom } from "./ScrollToBottom";
 import { MessageSearchBar } from "./MessageSearchBar";
 const ExportModal = lazy(() => import("./ExportModal").then((m) => ({ default: m.ExportModal })));
 import { useMessageSearch } from "../hooks/useMessageSearch";
+import { useSavedSearches } from "../hooks/useSavedSearches";
 import { useMessageReactions } from "../hooks/useMessageReactions";
 import { useMessagePinning } from "../hooks/useMessagePinning";
 import { useMessageThreading } from "../hooks/useMessageThreading";
@@ -121,6 +122,7 @@ export function ChatWorkspace({
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking(conversation?.id || null);
   const { logForward, getForwardedMessages, getForwardCount } = useMessageForwarding();
   const search = useMessageSearch(messages, repliesByParent);
+  const savedSearches = useSavedSearches();
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
@@ -320,6 +322,27 @@ export function ChatWorkspace({
             onPrev={search.goPrev}
             onClose={search.closeSearch}
             threadResults={search.results.filter((r) => r.isThreadReply).length}
+            roleFilter={search.roleFilter}
+            dateFilter={search.dateFilter}
+            onRoleFilterChange={search.setRoleFilter}
+            onDateFilterChange={search.setDateFilter}
+            onSaveSearch={() => {
+              const name = search.query.trim().slice(0, 20);
+              savedSearches.add({
+                name,
+                query: search.query,
+                roleFilter: search.roleFilter,
+                dateFilter: search.dateFilter,
+              });
+              onNotice(`已保存搜索"${name}"。`);
+            }}
+            savedSearches={savedSearches.saved}
+            onApplySavedSearch={(s) => {
+              search.setQuery(s.query);
+              search.setRoleFilter(s.roleFilter);
+              search.setDateFilter(s.dateFilter);
+            }}
+            onDeleteSavedSearch={savedSearches.remove}
           />
         )}
 
