@@ -4064,6 +4064,35 @@ button:disabled {
   font-size: 11px;
 }
 
+.thread-center-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background: var(--surface-muted);
+}
+
+.thread-center-search svg {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.thread-center-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+}
+
+.thread-center-search input::placeholder {
+  color: var(--muted);
+}
+
 .thread-center-state,
 .thread-center-empty {
   padding: 12px;

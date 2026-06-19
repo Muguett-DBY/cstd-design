@@ -193,13 +193,26 @@
 
 ### Phase 15/18 — UIUX: Empty states and loading states polish
 
+**Status**: DONE
+**Commit**: `c63348f`
+**CI**: Passed (run `27817480408`)
+
+**Completed**:
+- Added `SkeletonLoader` component with avatar and content lines
+- Added `ChatEmptyState` component with MessageSquare icon
+- Added `icon` prop to `EmptyState` for custom icons
+- Added CSS for skeleton loader with pulse animation
+- Improved empty state visual hierarchy
+
+### Phase 16/18 — IMPROVE: Thread management improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T09:20:00Z
+**Started**: 2026-06-19T09:25:00Z
 
 **Plan**:
-- Improve empty state visuals across workspaces
-- Add skeleton loading screens
-- Improve loading transitions
-- Polish empty state messaging
+- Add thread search within ThreadCenter
+- Add thread collapse all button
+- Improve thread action buttons
+- Add thread count indicator
 
 **Verification**: lint, typecheck, tests, build, CI
