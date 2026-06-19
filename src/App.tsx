@@ -31,6 +31,7 @@ import { SharedConversationsModal, SharedRoute } from "./components/SharedConver
 import { MobileBottomNav } from "./components/MobileBottomNav";
 import { VideoTasksPanel } from "./components/VideoTasksPanel";
 import { useVideoTaskHistory } from "./hooks/useVideoTaskHistory";
+import { ImageEditor } from "./components/ImageEditor";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -189,10 +190,16 @@ function AppInner() {
     }
   }, [toast]);
 
+  const [editingAsset, setEditingAsset] = useState<AssetItem | null>(null);
+
   const openLightbox = useCallback((asset: AssetItem) => {
     setLightboxAsset(asset);
     setLightboxAssets(assets);
   }, [assets]);
+
+  const handleEditAsset = useCallback((asset: AssetItem) => {
+    setEditingAsset(asset);
+  }, []);
 
   const refreshAssets = useCallback(async () => {
     try {
@@ -476,7 +483,26 @@ function AppInner() {
       </aside>
       {mobileSidebarOpen && <button type="button" className="mobile-backdrop" aria-label="关闭会话列表" onClick={() => setMobileSidebarOpen(false)} />}
 
-      {lightboxAsset && <Suspense fallback={null}><Lightbox key={lightboxAsset.id} assets={lightboxAssets.length ? lightboxAssets : [lightboxAsset]} startIndex={lightboxAssets.indexOf(lightboxAsset) >= 0 ? lightboxAssets.indexOf(lightboxAsset) : 0} onClose={() => { setLightboxAsset(null); setLightboxAssets([]); }} /></Suspense>}
+      {lightboxAsset && <Suspense fallback={null}><Lightbox key={lightboxAsset.id} assets={lightboxAssets.length ? lightboxAssets : [lightboxAsset]} startIndex={lightboxAssets.indexOf(lightboxAsset) >= 0 ? lightboxAssets.indexOf(lightboxAsset) : 0} onClose={() => { setLightboxAsset(null); setLightboxAssets([]); }} onEdit={handleEditAsset} /></Suspense>}
+      {editingAsset && (
+        <ImageEditor
+          src={editingAsset.url}
+          onClose={() => setEditingAsset(null)}
+          onNotice={(msg: string) => toast(msg, "info")}
+          onSave={async (blob) => {
+            try {
+              const filename = `edited-${editingAsset.filename}`;
+              const file = new File([blob], filename, { type: "image/png" });
+              await api.upload([file]);
+              await refreshAssets();
+              toast("编辑后的图片已保存到素材库。");
+              setEditingAsset(null);
+            } catch (error) {
+              toast(error instanceof Error ? error.message : "保存失败。", "error");
+            }
+          }}
+        />
+      )}
 
       <ConfirmDialog
         open={confirmState.open}

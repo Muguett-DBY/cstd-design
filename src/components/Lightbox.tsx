@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronLeft, ChevronRight, Download, Info, Maximize2, Minus, Plus, X } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Download, Edit, Info, Maximize2, Minus, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatBytes } from "../app-state";
 import type { AssetItem } from "../types";
@@ -26,7 +26,7 @@ function LightboxImage({ asset, zoom }: { asset: AssetItem; zoom: number }) {
   );
 }
 
-export function Lightbox({ assets, startIndex, onClose }: { assets: AssetItem[]; startIndex: number; onClose: () => void }) {
+export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: AssetItem[]; startIndex: number; onClose: () => void; onEdit?: (asset: AssetItem) => void }) {
   const [index, setIndex] = useState(startIndex);
   const [showInfo, setShowInfo] = useState(false);
   const [zoomByIndex, setZoomByIndex] = useState<Record<number, number>>({ [startIndex]: 1 });
@@ -132,6 +132,17 @@ export function Lightbox({ assets, startIndex, onClose }: { assets: AssetItem[];
         >
           <Info size={20} />
         </button>
+        {isImage && onEdit && (
+          <button
+            type="button"
+            className="lightbox-edit"
+            onClick={() => onEdit(asset)}
+            aria-label="编辑图片"
+            title="编辑"
+          >
+            <Edit size={20} />
+          </button>
+        )}
         <button
           type="button"
           className="lightbox-fullscreen"
