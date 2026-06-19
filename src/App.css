@@ -1930,7 +1930,7 @@ button:disabled {
   width: 100%;
   min-height: 54px;
   border-radius: 18px;
-  border: 1px dashed var(--accent);
+  border: 1.5px dashed var(--accent);
   background: var(--soft);
   color: var(--accent-strong);
   margin-top: 14px;
@@ -1938,8 +1938,14 @@ button:disabled {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  transition: border-color 0.2s, border-style 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
   position: relative;
+  font-size: 13px;
+}
+
+.upload-box:hover:not(:disabled) {
+  border-color: var(--accent-strong);
+  box-shadow: 0 2px 12px rgba(212, 137, 28, 0.1);
 }
 
 .upload-box.drag-over {
@@ -1947,12 +1953,14 @@ button:disabled {
   border-style: solid;
   background: var(--draft-bg);
   transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(212, 137, 28, 0.15);
 }
 
 .upload-box.uploading {
   border-style: solid;
   border-color: var(--accent);
   cursor: default;
+  background: var(--surface);
 }
 
 .upload-cancel-btn {
@@ -1986,10 +1994,10 @@ button:disabled {
 
 .upload-progress-bar {
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: var(--line);
   border-radius: 2px;
-  margin-top: 6px;
+  margin-top: 8px;
   overflow: hidden;
 }
 
@@ -1997,7 +2005,19 @@ button:disabled {
   height: 100%;
   background: linear-gradient(90deg, var(--accent), var(--accent-strong));
   border-radius: 2px;
-  transition: width 0.2s ease;
+  transition: width 0.3s ease;
+}
+
+.theme-dark .upload-box {
+  background: var(--surface-muted);
+}
+
+.theme-dark .upload-box.uploading {
+  background: var(--surface);
+}
+
+.theme-dark .upload-box.drag-over {
+  background: var(--draft-bg);
 }
 
 .field-row label {
@@ -2254,7 +2274,7 @@ button:disabled {
   border-radius: var(--radius-lg);
   overflow: hidden;
   position: relative;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .asset-card:hover {
@@ -2269,6 +2289,9 @@ button:disabled {
 .asset-preview {
   background: var(--soft);
   aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .asset-preview img,
@@ -2279,42 +2302,68 @@ button:disabled {
 }
 
 .asset-meta {
-  padding: 12px 14px;
+  padding: 10px 14px 4px;
   display: grid;
-  gap: 4px;
+  gap: 3px;
+}
+
+.asset-meta strong {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.asset-meta span {
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .asset-actions {
-  padding: 0 14px 14px;
+  padding: 4px 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .asset-actions button {
   border: none;
   background: transparent;
+  font-size: 12px;
 }
 
 .empty-state {
-  min-height: 220px;
-  border: 1px dashed var(--line-strong);
+  min-height: 240px;
+  border: 1.5px dashed var(--line-strong);
   border-radius: var(--radius-lg);
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 10px;
+  gap: 12px;
   color: var(--muted);
   text-align: center;
-  padding: 28px;
-  background: linear-gradient(180deg, rgba(255, 253, 248, 0.78), rgba(242, 238, 231, 0.72));
+  padding: 32px;
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.6), rgba(242, 238, 231, 0.5));
 }
 
 .empty-state strong {
   color: var(--text);
-  font-size: 18px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.empty-state p {
+  font-size: 13px;
+  max-width: 280px;
+  line-height: 1.5;
 }
 
 .empty-state img {
-  width: 72px;
-  filter: drop-shadow(0 10px 16px rgba(45, 34, 24, 0.12));
+  width: 64px;
+  opacity: 0.7;
+  filter: drop-shadow(0 8px 12px rgba(45, 34, 24, 0.1));
 }
 
 .login-page,

@@ -20,14 +20,28 @@
 
 ### Phase 2/18 — IMPROVE: Image/video upload flow progress, error recovery, success confirmation
 
+**Status**: DONE
+**Commit**: `2edf0f6`
+**CI**: Passed (run `27813611005`)
+
+**Completed**:
+- Replaced `fetch`-based upload with `XMLHttpRequest` for progress tracking
+- Added file size validation (50MB max) and type validation before upload
+- Added upload progress bar with percentage display
+- Added cancel button during upload
+- Added success summary showing file count after upload
+- Added drag type validation (only accepts file drags)
+- Added CSS for progress bar, cancel button, success icon
+
+### Phase 3/18 — UIUX: Upload area and asset workspace visual polish
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:05:00Z
+**Started**: 2026-06-19T08:10:00Z
 
 **Plan**:
-- Add upload progress tracking to AssetWorkspace
-- Add retry on upload failure
-- Add clear success confirmation after upload
-- Add file size validation before upload
-- Improve upload error messages
+- Polish upload area visual states (empty, dragging, uploading, success, error)
+- Improve asset card consistency and visual hierarchy
+- Enhance empty states for asset workspace
+- Improve loading states for asset grid
 
-**Verification**: lint, typecheck, tests, build, CI
+**Verification**: lint, typecheck, tests, build, CI, rendered QA
