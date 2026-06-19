@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Bot, Bookmark, Check, Copy, Download, Edit3, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Search, Send, Square, Trash2 } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
@@ -12,7 +12,7 @@ import { InfoLine } from "./InfoLine";
 import { EmptyState } from "./EmptyState";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { MessageSearchBar } from "./MessageSearchBar";
-import { ExportModal } from "./ExportModal";
+const ExportModal = lazy(() => import("./ExportModal").then((m) => ({ default: m.ExportModal })));
 import { useMessageSearch } from "../hooks/useMessageSearch";
 import { useMessageReactions } from "../hooks/useMessageReactions";
 import { useMessagePinning } from "../hooks/useMessagePinning";
@@ -633,12 +633,14 @@ export function ChatWorkspace({
         <img src="/brand/mascot.png" alt="" className="panel-mascot" />
       </aside>
 
+      <Suspense fallback={null}>
       <ExportModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
         title={conversation?.title || "新会话"}
         messages={messages}
       />
+      </Suspense>
 
       <ConversationPickerModal
         isOpen={showPicker}
