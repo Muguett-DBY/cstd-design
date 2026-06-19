@@ -2119,6 +2119,22 @@ button:disabled {
   margin-left: auto;
 }
 
+.task-elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: var(--surface);
+  border-radius: 6px;
+}
+
+.task-elapsed svg {
+  flex-shrink: 0;
+}
+
 .task-prompt {
   font-size: 13px;
   color: var(--muted);

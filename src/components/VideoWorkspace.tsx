@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, Clock, Film, Hourglass, RefreshCw, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, Film, Hourglass, RefreshCw, Timer, XCircle } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, imageAssetsForReference, videoPresetToRequest, videoStatusLabel } from "../app-state";
 import type { AssetItem, VideoPreset } from "../types";
@@ -18,6 +18,14 @@ const STATUS_ICONS: Record<string, typeof Clock> = {
 function TaskStatusBadge({ status }: { status: string }) {
   const Icon = STATUS_ICONS[status] || Clock;
   return <span className={`task-status-badge task-status-${status}`}><Icon size={14} /> {videoStatusLabel(status)}</span>;
+}
+
+function formatElapsed(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  if (minutes === 0) return `${seconds}秒`;
+  return `${minutes}分${remainingSeconds}秒`;
 }
 
 type VideoTask = { id: string; status: string; progress: number; assetUrl?: string };
@@ -43,9 +51,25 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   const [keyframes, setKeyframes] = useState(false);
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
   const [creating, setCreating] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const errorCountRef = useRef(0);
+  const taskStartRef = useRef<number | null>(null);
   const referenceAssets = imageAssetsForReference(assets);
   const presetInfo = videoPresetToRequest(preset);
+
+  useEffect(() => {
+    if (videoTask && (videoTask.status === "in_progress" || videoTask.status === "queued")) {
+      if (!taskStartRef.current) taskStartRef.current = Date.now();
+      const timer = window.setInterval(() => {
+        if (taskStartRef.current) setElapsed(Date.now() - taskStartRef.current);
+      }, 1000);
+      return () => window.clearInterval(timer);
+    } else {
+      if (videoTask?.status === "completed" || videoTask?.status === "failed") {
+        taskStartRef.current = null;
+      }
+    }
+  }, [videoTask?.status, videoTask?.id, videoTask]);
 
   useEffect(() => {
     if (!videoTask || videoTask.status === "completed" || videoTask.status === "failed") return;
@@ -147,7 +171,12 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             </div>
             {submittedPrompt && <p className="task-prompt">"{submittedPrompt.slice(0, 60)}{submittedPrompt.length > 60 ? "..." : ""}"</p>}
             <div className="progress"><span style={{ width: `${progressPercent}%` }} className={`progress-bar progress-${videoTask.status}`} /></div>
-            <p className="task-meta">{progressPercent}% · {presetInfo.numFrames} 帧{presetInfo.preset === "max" ? " · 较长" : presetInfo.preset === "short" ? " · 较短" : ""}</p>
+            <p className="task-meta">
+              {progressPercent}% · {presetInfo.numFrames} 帧{presetInfo.preset === "max" ? " · 较长" : presetInfo.preset === "short" ? " · 较短" : ""}
+            </p>
+            {(videoTask.status === "in_progress" || videoTask.status === "queued") && (
+              <p className="task-elapsed"><Timer size={12} /> 已用时 {formatElapsed(elapsed)}</p>
+            )}
             {videoTask.assetUrl && (
               <div className="task-result">
                 <video src={videoTask.assetUrl} controls className="task-video-preview" />
