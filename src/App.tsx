@@ -463,7 +463,7 @@ function AppInner() {
       />
 
       <main className="workspace">
-        <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} t={t} />
+        <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} t={t} customLabels={userPrefs.prefs.customTabLabels} />
         {activeTab === "chat" && (
           <ErrorBoundary key="chat">
           <ChatWorkspace

@@ -9,6 +9,12 @@ export interface UserPreferences {
   autoSaveDraft: boolean;
   showMessageTimestamps: boolean;
   enableSoundEffects: boolean;
+  customTabLabels: {
+    chat: string;
+    image: string;
+    video: string;
+    assets: string;
+  };
 }
 
 const STORAGE_KEY = "cstd-design:preferences";
@@ -22,6 +28,12 @@ const DEFAULT_PREFS: UserPreferences = {
   autoSaveDraft: true,
   showMessageTimestamps: true,
   enableSoundEffects: false,
+  customTabLabels: {
+    chat: "",
+    image: "",
+    video: "",
+    assets: "",
+  },
 };
 
 function loadPrefs(): UserPreferences {

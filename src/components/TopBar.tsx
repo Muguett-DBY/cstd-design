@@ -17,9 +17,10 @@ const TAB_DESCS: Record<WorkspaceTab, TranslationKey> = {
   assets: "topbar.assetsDesc",
 };
 
-export function TopBar({ activeTab, onTabChange, onOpenSidebar, t }: { activeTab: WorkspaceTab; onTabChange: (tab: WorkspaceTab) => void; onOpenSidebar: () => void; t: (key: TranslationKey) => string }) {
+export function TopBar({ activeTab, onTabChange, onOpenSidebar, t, customLabels }: { activeTab: WorkspaceTab; onTabChange: (tab: WorkspaceTab) => void; onOpenSidebar: () => void; t: (key: TranslationKey) => string; customLabels: Record<WorkspaceTab, string> }) {
   const active = TABS.find((tab) => tab.id === activeTab);
   const description = t(TAB_DESCS[activeTab]);
+  const labelFor = (id: WorkspaceTab) => customLabels[id]?.trim() || t(TAB_LABELS[id]);
   return (
     <header className="top-bar">
       <button type="button" className="mobile-menu-button" aria-label="打开会话列表" onClick={onOpenSidebar}>
@@ -27,7 +28,7 @@ export function TopBar({ activeTab, onTabChange, onOpenSidebar, t }: { activeTab
         会话
       </button>
       <div className="top-bar-copy">
-        <h2>{active ? t(TAB_LABELS[active.id]) : t("nav.chat")}</h2>
+        <h2>{active ? labelFor(active.id) : labelFor("chat")}</h2>
         <p>{description}</p>
       </div>
       <nav className="top-actions" aria-label="工作区切换">
@@ -43,7 +44,7 @@ export function TopBar({ activeTab, onTabChange, onOpenSidebar, t }: { activeTab
               onClick={() => onTabChange(tab.id)}
             >
               <Icon size={16} />
-              {t(TAB_LABELS[tab.id])}
+              {labelFor(tab.id)}
             </button>
           );
         })}
