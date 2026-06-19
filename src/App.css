@@ -2333,25 +2333,107 @@ button:disabled {
   gap: 12px;
 }
 
+.preview-rail h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.preview-rail-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--soft);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.preview-rail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.preview-rail-grid.expanded {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 .preview-card {
   text-decoration: none;
   color: var(--text);
   display: grid;
-  gap: 8px;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
 }
 
 .preview-card img,
 .preview-card video {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 1;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: 12px;
   border: 1px solid var(--line);
   background: var(--soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.preview-card:hover img,
+.preview-card:hover video {
+  transform: scale(1.04);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.preview-card-name {
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-card-meta {
+  font-size: 10px;
+  color: var(--muted);
 }
 
 .preview-card video:not([controls])::-webkit-media-controls-start-playback-button {
   display: none;
+}
+
+.preview-rail-toggle {
+  border: 1px dashed var(--border, #ddd);
+  background: transparent;
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.preview-rail-toggle:hover {
+  background: var(--soft);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.preview-rail-tip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 6px;
+  background: var(--soft);
+  border-radius: 4px;
 }
 
 .asset-page {
