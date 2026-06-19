@@ -190,13 +190,28 @@
 
 ### Phase 15/18 — IMPROVE: Search filters and saved searches
 
+**Status**: DONE
+**Commit**: `83b7907`
+**CI**: Passed (run `27822411430`)
+
+**Completed**:
+- Added useMessageSearch role/date filters (RoleFilter, DateFilter)
+- Created useSavedSearches hook (max 20 saved, localStorage)
+- Filter dropdown UI in MessageSearchBar with pills
+- Saved searches dropdown shows on input focus
+- Click saved search to apply query + filters
+- 49 tests pass, TypeScript clean, ESLint 0 warnings
+
+### Phase 16/18 — IMPROVE: Lightbox and asset grid improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T11:10:00Z
+**Started**: 2026-06-19T11:18:00Z
 
 **Plan**:
-- Add filter by message type (user/assistant)
-- Add date range filter
-- Add saved searches with localStorage
-- Add filter UI in MessageSearchBar
+- Add image zoom (mouse wheel + buttons)
+- Add fullscreen mode
+- Add video playback speed control
+- Add metadata display (EXIF for images, duration for videos)
+- Add keyboard shortcuts (Z=zoom, F=fullscreen, M=metadata)
 
 **Verification**: lint, typecheck, tests, build, CI
