@@ -59,5 +59,37 @@ export function useAssetTags() {
     return Array.from(set).sort();
   }, [tags]);
 
-  return { tags, addTag, removeTag, getTags, allTags };
+  const tagFrequency = useCallback((): Record<string, number> => {
+    const freq: Record<string, number> = {};
+    for (const list of Object.values(tags)) {
+      for (const t of list) {
+        freq[t] = (freq[t] || 0) + 1;
+      }
+    }
+    return freq;
+  }, [tags]);
+
+  const suggestTags = useCallback((source: string, limit = 4): string[] => {
+    const freq = tagFrequency();
+    const tokens = source
+      .toLowerCase()
+      .split(/[^a-z0-9\u4e00-\u9fff]+/)
+      .filter((t) => t.length >= 2);
+    if (tokens.length === 0) return [];
+    const scored = Object.entries(freq)
+      .map(([tag, count]) => {
+        let matches = 0;
+        for (const tok of tokens) {
+          if (tag.includes(tok) || tok.includes(tag)) matches += 1;
+        }
+        return { tag, score: matches * 10 + count, matches };
+      })
+      .filter((s) => s.matches > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map((s) => s.tag);
+    return scored;
+  }, [tagFrequency]);
+
+  return { tags, addTag, removeTag, getTags, allTags, tagFrequency, suggestTags };
 }
