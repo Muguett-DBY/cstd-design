@@ -1824,6 +1824,71 @@ button:disabled {
   font-style: italic;
 }
 
+.result-card {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  background: var(--soft);
+}
+
+.result-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-strong);
+  margin-bottom: 8px;
+}
+
+.result-card-meta {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.result-card-media {
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--surface);
+}
+
+.result-card-media:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.result-card-preview {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  display: block;
+}
+
+.result-card-prompt {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 8px 0 0;
+  font-style: italic;
+}
+
+.result-card-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--accent-strong);
+  text-decoration: none;
+}
+
+.result-card-download:hover {
+  text-decoration: underline;
+}
+
 .template-actions {
   display: flex;
   gap: 8px;

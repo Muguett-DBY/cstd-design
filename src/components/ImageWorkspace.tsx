@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, FileText, ImageIcon, RefreshCw, Save, Sparkles, Trash2 } from "lucide-react";
+import { FileText, ImageIcon, RefreshCw, Save, Sparkles, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, imageAssetsForReference, readStoredImageSize } from "../app-state";
 import { usePromptTemplates } from "../hooks/usePromptTemplates";
@@ -8,6 +8,7 @@ import { ClearAllButton } from "./ClearAllButton";
 import { ReferencePicker } from "./ReferencePicker";
 import { UploadBox } from "./UploadBox";
 import { PreviewRail } from "./PreviewRail";
+import { ResultCard } from "./ResultCard";
 import { Segmented } from "./Segmented";
 
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
@@ -121,14 +122,14 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           {loading ? <><RefreshCw size={16} className="spin" /> 生成中...</> : <><ImageIcon size={16} /> 生成图片</>}
         </button>
         {lastResult && !loading && (
-          <div className="image-result">
-            <div className="image-result-header">
-              <CheckCircle2 size={16} />
-              <span>最近生成</span>
-            </div>
-            <img src={lastResult.url} alt={lastResult.filename} className="image-result-preview" onClick={() => window.open(lastResult.url, "_blank")} />
-            <p className="image-result-prompt">"{lastResult.prompt.slice(0, 60)}{lastResult.prompt.length > 60 ? "..." : ""}"</p>
-          </div>
+          <ResultCard
+            type="image"
+            mediaUrl={lastResult.url}
+            filename={lastResult.filename}
+            prompt={lastResult.prompt}
+            onPreview={() => window.open(lastResult.url, "_blank")}
+            metadata={lastResult.filename}
+          />
         )}
       </div>
       <PreviewRail assets={filterAssets(assets, "image")} title="最近图片" onPreview={onPreview} />
