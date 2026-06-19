@@ -7,23 +7,22 @@ export interface PinRecord {
   createdAt: string;
 }
 
-export async function createPin(env: Env, input: { messageId: string; conversationId: string }): Promise<PinRecord | null> {
+export async function createPin(env: Env, input: { messageId: string; conversationId: string }): Promise<{ status: "created" | "duplicate" | "not_found"; pin?: PinRecord }> {
   const msg = await env.DB.prepare(`SELECT id FROM messages WHERE id = ?1 AND conversation_id = ?2`)
     .bind(input.messageId, input.conversationId)
     .first<{ id: string }>();
-  if (!msg) return null;
-
-  const existing = await env.DB.prepare(`SELECT id FROM pins WHERE message_id = ?1 AND conversation_id = ?2`)
-    .bind(input.messageId, input.conversationId)
-    .first<{ id: string }>();
-  if (existing) return null;
+  if (!msg) return { status: "not_found" };
 
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
-  await env.DB.prepare(`INSERT INTO pins (id, message_id, conversation_id, created_at) VALUES (?1, ?2, ?3, ?4)`)
+  const result = await env.DB.prepare(
+    `INSERT INTO pins (id, message_id, conversation_id, created_at) VALUES (?1, ?2, ?3, ?4) ON CONFLICT(message_id, conversation_id) DO NOTHING`
+  )
     .bind(id, input.messageId, input.conversationId, createdAt)
     .run();
-  return { id, messageId: input.messageId, conversationId: input.conversationId, createdAt };
+
+  if ((result.meta?.changes ?? 0) === 0) return { status: "duplicate" };
+  return { status: "created", pin: { id, messageId: input.messageId, conversationId: input.conversationId, createdAt } };
 }
 
 export async function listPins(env: Env, conversationId: string): Promise<PinRecord[]> {

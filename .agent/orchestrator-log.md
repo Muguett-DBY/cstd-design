@@ -49,15 +49,30 @@
 
 ### Phase 4/18 — IMPROVE: Move bookmarks and pins to D1-backed persistence
 
+**Status**: DONE
+**Commit**: `dcb1dcb` (fix: `62f5a37`)
+**CI**: Passed (run `27814404053`)
+
+**Completed**:
+- Added D1 migration `0008_bookmarks_and_pins.sql` for bookmarks and pins tables
+- Created `functions/_shared/bookmarks.ts` and `functions/_shared/pins.ts` data access modules
+- Created API endpoints: `GET/POST /api/conversations/:id/bookmarks`, `DELETE /api/bookmarks/:id`, `GET/POST /api/conversations/:id/pins`, `DELETE /api/pins/:id`
+- Added Zod validation schemas for bookmark and pin creation
+- Updated `useMessageBookmarking` and `useMessagePinning` hooks to use D1 API instead of localStorage
+- Updated `ensureSchema()` in `http.ts` to bootstrap new tables
+- Fixed CI import path issue (was `../../../../_shared/`, corrected to `../../../_shared/`)
+
+### Phase 5/18 — CHECK: Full project health check
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:15:00Z
+**Started**: 2026-06-19T08:25:00Z
 
 **Plan**:
-- Add D1 schema for bookmarks and pins tables
-- Create server-side API endpoints for CRUD operations
-- Update `useMessageBookmarking` hook to use API instead of localStorage
-- Update `useMessagePinning` hook to use API instead of localStorage
-- Add migration script for D1 schema
-- Maintain backward compatibility with localStorage fallback
+- Run full lint, typecheck, test, build suite
+- Check for security issues (XSS, CSRF, input validation)
+- Check for edge cases in API endpoints
+- Check for dead code, unused imports, type gaps
+- Check for error handling gaps
+- Fix any issues found
 
 **Verification**: lint, typecheck, tests, build, CI
