@@ -24,6 +24,7 @@ import { GlobalDropZone } from "./components/GlobalDropZone";
 import { SettingsModal } from "./components/SettingsModal";
 import { useUserPreferences } from "./hooks/useUserPreferences";
 import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
+import { useTheme, type ThemeId } from "./hooks/useTheme";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -58,11 +59,7 @@ function AppInner() {
   const shortcutsHelp = useShortcutsHelp();
   const userPrefs = useUserPreferences();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [dark, setDark] = useState(() => {
-    const stored = localStorage.getItem("cstd-design:dark");
-    if (stored !== null) return stored === "true";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  });
+  const { theme, setTheme } = useTheme();
 
   // Confirm dialog state
   const [confirmState, setConfirmState] = useState<{
@@ -82,11 +79,17 @@ function AppInner() {
   }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("theme-dark", dark);
-    localStorage.setItem("cstd-design:dark", String(dark));
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", dark ? "#1a1410" : "#fffaf1");
-  }, [dark]);
+    const colors: Record<ThemeId, string> = {
+      light: "#fffaf1",
+      dark: "#1a1410",
+      sepia: "#faf2e0",
+      ocean: "#f4fafc",
+      forest: "#f4f9f4",
+      night: "#0d1117",
+    };
+    if (meta) meta.setAttribute("content", colors[theme] || "#fffaf1");
+  }, [theme]);
 
   useEffect(() => onUnauthorized(() => { setAuthenticated(false); }), []);
 
@@ -276,8 +279,22 @@ function AppInner() {
         icon: Settings,
         group: "action",
         keywords: ["dark", "light", "theme"],
-        perform: () => { document.documentElement.classList.toggle("theme-dark"); },
+        perform: () => { setTheme(theme === "dark" ? "light" : "dark"); },
       },
+      ...[
+        { id: "theme-sepia", name: "复古护眼", perform: () => setTheme("sepia") },
+        { id: "theme-ocean", name: "海洋蓝", perform: () => setTheme("ocean") },
+        { id: "theme-forest", name: "森林绿", perform: () => setTheme("forest") },
+        { id: "theme-night", name: "深夜模式", perform: () => setTheme("night") },
+      ].map((t) => ({
+        id: t.id,
+        label: `主题：${t.name}`,
+        description: `切换到 ${t.name} 主题`,
+        icon: Settings,
+        group: "action" as const,
+        keywords: ["theme", t.name, t.id],
+        perform: t.perform,
+      })),
       {
         id: "action-shortcuts",
         label: "查看快捷键",
@@ -300,7 +317,7 @@ function AppInner() {
     ];
 
     return [...navItems, ...convItems, ...actionItems];
-  }, [conversations, openConversation, handleCreateConversation, shortcutsHelp]);
+  }, [conversations, openConversation, handleCreateConversation, shortcutsHelp, theme, setTheme]);
 
   if (booting) return <Splash />;
   if (!authenticated) {
@@ -344,8 +361,8 @@ function AppInner() {
       } catch (error) { toast(error instanceof Error ? error.message : "删除失败。", "error"); }
     },
     onRequestConfirm: requestConfirm,
-    dark,
-    onThemeToggle: () => setDark((p) => !p),
+    dark: theme === "dark" || theme === "night",
+    onThemeToggle: () => setTheme(theme === "dark" ? "light" : "dark"),
     onLogout: handleLogout,
   };
 
@@ -399,6 +416,8 @@ function AppInner() {
         onClose={() => setSettingsOpen(false)}
         prefs={userPrefs.prefs}
         onUpdate={userPrefs.update}
+        theme={theme}
+        onThemeChange={setTheme}
       />
 
       <main className="workspace">
