@@ -154,13 +154,37 @@
 
 ### Phase 12/18 — IMPROVE: Network resilience improvements
 
+**Status**: DONE
+**Commit**: `acceebd`
+**CI**: Passed (run `27821712078`)
+
+**Completed**:
+- Added automatic retry with exponential backoff (800ms, 1600ms)
+- Retries on network failures, 5xx, 408, 429
+- 401 and 4xx (other than 408/429) fail immediately
+- Same error messages, no breaking changes
+
+### Phase 13/18 — IMPROVE: Conversation templates and reusable prompts
+
+**Status**: DONE
+**Commit**: `a131c56`
+**CI**: Passed (run `27821967961`)
+
+**Completed**:
+- Created `useChatPromptTemplates` hook with localStorage persistence
+- Integrated template actions (save, toggle list, click-to-fill) in ChatWorkspace composer
+- 3 seed templates: 总结文本、翻译为中文、头脑风暴
+- Mirrors ImageWorkspace pattern for consistency
+
+### Phase 14/18 — UIUX: Lightbox and asset grid polish
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:40:00Z
+**Started**: 2026-06-19T11:05:00Z
 
 **Plan**:
-- Add automatic retry for failed requests
-- Improve error messages with actionable guidance
-- Add request deduplication
-- Improve offline detection
+- Improve asset grid hover states
+- Add subtle animations
+- Polish lightbox controls
+- Improve visual hierarchy
 
 **Verification**: lint, typecheck, tests, build, CI
