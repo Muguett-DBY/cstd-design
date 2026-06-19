@@ -518,7 +518,22 @@ export function Sidebar({
           <div className="keyboard-shortcuts-header">
             <span>键盘快捷键</span>
           </div>
+          <input
+            type="text"
+            className="keyboard-shortcuts-search"
+            placeholder="搜索快捷键..."
+            onChange={(e) => {
+              const query = e.target.value.toLowerCase();
+              const items = document.querySelectorAll('.keyboard-shortcut-item');
+              items.forEach((item) => {
+                const desc = item.querySelector('.keyboard-shortcut-desc')?.textContent?.toLowerCase() || '';
+                const keys = item.querySelector('.keyboard-shortcut-keys')?.textContent?.toLowerCase() || '';
+                (item as HTMLElement).style.display = (desc.includes(query) || keys.includes(query)) ? '' : 'none';
+              });
+            }}
+          />
           <div className="keyboard-shortcuts-list">
+            <div className="keyboard-shortcut-category">会话</div>
             <div className="keyboard-shortcut-item">
               <span className="keyboard-shortcut-desc">搜索会话</span>
               <span className="keyboard-shortcut-keys"><kbd>Ctrl</kbd>+<kbd>K</kbd></span>
@@ -527,6 +542,7 @@ export function Sidebar({
               <span className="keyboard-shortcut-desc">新建会话</span>
               <span className="keyboard-shortcut-keys"><kbd>Ctrl</kbd>+<kbd>N</kbd></span>
             </div>
+            <div className="keyboard-shortcut-category">消息</div>
             <div className="keyboard-shortcut-item">
               <span className="keyboard-shortcut-desc">查找消息</span>
               <span className="keyboard-shortcut-keys"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>
@@ -539,6 +555,7 @@ export function Sidebar({
               <span className="keyboard-shortcut-desc">换行</span>
               <span className="keyboard-shortcut-keys"><kbd>Shift</kbd>+<kbd>Enter</kbd></span>
             </div>
+            <div className="keyboard-shortcut-category">搜索</div>
             <div className="keyboard-shortcut-item">
               <span className="keyboard-shortcut-desc">关闭搜索</span>
               <span className="keyboard-shortcut-keys"><kbd>Esc</kbd></span>
