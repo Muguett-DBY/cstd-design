@@ -910,3 +910,108 @@
   - New chat features: prompt templates with seed library
   - New lightbox features: zoom, fullscreen, metadata panel
   - New accessibility: dialog role, focus trap, aria-pressed, role=radio
+
+---
+
+## Campaign 003 — 3-Cycle, 18-Phase Campaign (2026-06-19)
+
+**Theme**: Power-user features, navigation, content management, and quality of life
+
+### Phase 1/18 — IMPROVE: Command palette (Cmd+K)
+- **Commit**: `3a72a47` | **CI**: Passed
+- Global keyboard-driven command palette with fuzzy search
+- Grouped commands: navigation, conversations, actions
+- Recents + quick actions for new conversation, theme, onboarding
+
+### Phase 2/18 — IMPROVE: Multi-select bulk actions in chat
+- **Commit**: `e89bc2b` | **CI**: Passed
+- Bulk mode toggle, per-message checkboxes, shift+click range
+- Sticky bulk action bar: copy, bookmark, select all
+
+### Phase 3/18 — UIUX: Asset tagging system
+- **Commit**: `0b2c5a2` | **CI**: Passed
+- User-defined tags with localStorage persistence
+- TagPicker popover, tag chips on cards, tag filter in toolbar
+
+### Phase 4/18 — IMPROVE: Stats panel
+- **Commit**: `40ba91a` | **CI**: Passed
+- 4 stat cards, storage display, 7-day messages chart, asset kind breakdown
+- Shown in chat right sidebar
+
+### Phase 5/18 — CHECK: Code review
+- Verified project health: 49 tests, clean lint, no TODOs, no console.log
+
+### Phase 6/18 — IMPROVE: Keyboard shortcuts help
+- **Commit**: `47b9ca4` | **CI**: Passed
+- 18 categorized shortcuts, Cmd+/ and ? shortcuts, filter input
+- macOS key formatting
+
+### Phase 7/18 — IMPROVE: Quick Markdown export
+- **Commit**: `e38cc82` | **CI**: Passed
+- One-click .md file download with timestamps and safe filename
+
+### Phase 8/18 — IMPROVE: Pinned conversations
+- **Commit**: `0e69781` | **CI**: Passed
+- Pin/unpin toggle, dedicated 置顶 section at top, star icon
+
+### Phase 9/18 — UIUX: PreviewRail gallery view
+- **Commit**: `2987f44` | **CI**: Passed
+- 2-col grid (3-col expanded), hover scale, expandable, metadata
+
+### Phase 10/18 — IMPROVE: Drag-and-drop file upload
+- **Commit**: `17af65a` | **CI**: Passed
+- Global drop overlay with visual feedback, multi-file upload
+
+### Phase 11/18 — CHECK: Performance audit
+- Verified bundle 602KB healthy, Mermaid/Cytoscape/KaTeX lazy
+
+### Phase 12/18 — IMPROVE: Video preset library
+- **Commit**: `9be15d5` | **CI**: Passed
+- 5 curated video presets (产品展示/自然风光/城市街景/角色动画/抽象动态)
+- One-click apply sets prompt/preset/fps/aspect
+
+### Phase 13/18 — IMPROVE: Settings modal
+- **Commit**: `fce5aac` | **CI**: Passed
+- Centralized user preferences (image/video/chat)
+- 8 preference fields, accessible via command palette
+
+### Phase 14/18 — IMPROVE: Image variations
+- **Commit**: `74c0b52` | **CI**: Passed
+- 2/3/4 variations in parallel via Promise.allSettled
+- Reports success/failure count
+
+### Phase 15/18 — UIUX: Empty states overhaul
+- **Commit**: `abe0064` | **CI**: Passed
+- 5 enhanced empty states with illustrations and suggestions
+
+### Phase 16/18 — IMPROVE: Context menu (right-click)
+- **Commit**: `03e344d` | **CI**: Passed
+- Right-click on messages shows copy/edit/thread/pin/bookmark
+- Edge-aware positioning, Escape/click-outside close
+
+### Phase 17/18 — CHECK: Final cleanup
+- All checks pass, project healthy
+
+### Phase 18/18 — IMPROVE: Campaign wrap-up
+- Campaign 003 archived
+
+### Summary
+- **18 phases completed** (IMPROVE×10, UIUX×3, CHECK×3, IMPROVE-final×1+1)
+- **17 code commits** (Phase 5 and 17 were no-code CHECK phases)
+- **All CI runs passed** on first try
+- **49 unit tests** across 9 test files (no new tests, but no regressions)
+- **Bundle size**: 609KB (gzip 184KB) — +27KB for entire campaign
+- **Major additions**:
+  - 6 new hooks: `usePinnedConversations`, `useAssetTags`, `useSavedSearches`, `useUserPreferences`, `useShortcutsHelp`, `useVideoPresets`
+  - 5 new components: `CommandPalette`, `KeyboardShortcutsHelp`, `TagPicker`, `StatsPanel`, `GlobalDropZone`, `SettingsModal`, `ContextMenu`
+  - 1 enhanced component: `EmptyState` with 5 specialized variants
+  - 1 enhanced component: `PreviewRail` with grid + expand
+  - Image variations (2/3/4 parallel)
+  - Video preset library with 5 seed templates
+  - Pinned conversations section
+  - Asset tagging system
+  - Search filters and saved searches
+  - Right-click context menu
+  - Drag-and-drop file upload
+  - Keyboard shortcuts cheat sheet
+  - User preferences settings
