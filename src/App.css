@@ -5731,3 +5731,17 @@ button:disabled {
   border-radius: 3px;
   margin: 0 4px;
 }
+
+.variation-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.variation-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: 4px;
+}

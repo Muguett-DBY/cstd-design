@@ -51,6 +51,36 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
     }
   };
 
+  const generateVariations = async (count: number) => {
+    if (!prompt.trim() || loading) return;
+    setLoading(true);
+    const finalPrompt = STYLE_PRESETS.find((s) => s.id === style)?.prefix + prompt;
+    try {
+      localStorage.setItem(IMAGE_SIZE_STORAGE_KEY, size);
+      const results = await Promise.allSettled(
+        Array.from({ length: count }, () =>
+          api.generateImage({ prompt: finalPrompt, size, referenceAssetIds: referenceIds })
+        )
+      );
+      const successCount = results.filter((r) => r.status === "fulfilled").length;
+      const failedCount = results.length - successCount;
+      const firstSuccess = results.find((r) => r.status === "fulfilled") as PromiseFulfilledResult<{ asset: AssetItem }> | undefined;
+      if (firstSuccess) {
+        setLastResult({ url: firstSuccess.value.asset.url, filename: firstSuccess.value.asset.filename, prompt });
+      }
+      await onAssetsChanged();
+      if (failedCount > 0) {
+        onNotice(`已生成 ${successCount} 张变体，${failedCount} 张失败。`);
+      } else {
+        onNotice(`已生成 ${successCount} 张变体。`);
+      }
+    } catch (error) {
+      onNotice(error instanceof Error ? error.message : "变体生成失败。");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="tool-grid">
       <div className="tool-card">
@@ -128,6 +158,21 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         <button type="button" className="primary-button full" onClick={generate} disabled={loading || !prompt.trim() || !online}>
           {loading ? <><RefreshCw size={16} className="spin" /> 生成中...</> : <><ImageIcon size={16} /> 生成图片</>}
         </button>
+        <div className="variation-buttons">
+          <span className="variation-label">变体：</span>
+          {[2, 3, 4].map((n) => (
+            <button
+              key={n}
+              type="button"
+              className="ghost-button"
+              onClick={() => generateVariations(n)}
+              disabled={loading || !prompt.trim() || !online}
+              title={`同时生成 ${n} 张图片`}
+            >
+              {n} 张
+            </button>
+          ))}
+        </div>
         {lastResult && !loading && (
           <ResultCard
             type="image"
