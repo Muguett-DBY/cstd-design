@@ -366,6 +366,8 @@ function AppInner() {
             messages={activeMessages}
             leaves={leaves}
             loading={loadingConversation}
+            allConversations={conversations}
+            allAssets={assets}
             onCreate={async () => {
               try {
                 const created = await api.createConversation();

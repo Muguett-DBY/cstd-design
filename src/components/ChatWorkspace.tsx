@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react"
 import { Bot, Bookmark, Check, CheckSquare, Copy, Download, Edit3, FileText, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Save, Search, Send, Square, Trash2, X } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
-import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
+import type { AssetItem, ChatMessage, ChatStreamEvent, ConversationDetail, ConversationSummary } from "../types";
 import { initialChatDraft, messageDateLabel, timeAgo } from "../app-state";
 import { streamChat } from "../api";
 import { ConversationTitleInput } from "./ConversationTitleInput";
@@ -26,6 +26,7 @@ import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
 import { ConversationPickerModal } from "./ConversationPickerModal";
+import { StatsPanel } from "./StatsPanel";
 
 const ASSISTANT_NAME = "助手";
 
@@ -79,6 +80,8 @@ export function ChatWorkspace({
   afterSend,
   onClearAll,
   onNotice,
+  allConversations = [],
+  allAssets = [],
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -92,6 +95,8 @@ export function ChatWorkspace({
   afterSend: (conversationId: string) => Promise<void>;
   onClearAll: () => Promise<void>;
   onNotice: (message: string) => void;
+  allConversations?: ConversationSummary[];
+  allAssets?: AssetItem[];
 }) {
   const [draft, setDraft] = useState(initialChatDraft());
   const [streaming, setStreaming] = useState(false);
@@ -806,6 +811,7 @@ export function ChatWorkspace({
             </button>
           ))}
         </div>
+        <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} />
         <img src="/brand/mascot.png" alt="" className="panel-mascot" />
       </aside>
 
