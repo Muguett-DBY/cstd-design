@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Sparkles, X } from "lucide-react";
+import { Command, Globe, Keyboard, Palette, Share2, Sparkles, X } from "lucide-react";
 
 const STORAGE_KEY = "cstd-design:onboardingComplete";
 
@@ -16,24 +16,34 @@ const TOUR_STEPS: TourStep[] = [
     description: "这是一个私人 AI 创作工作台，支持对话、图片生成和视频生成。",
   },
   {
-    icon: <Sparkles size={32} />,
-    title: "开始对话",
-    description: "在左侧选择\"新会话\"或按 Ctrl+N 创建新对话，与 AI 进行交流。",
+    icon: <Command size={32} />,
+    title: "命令面板",
+    description: "按 Cmd/Ctrl+K 打开命令面板，快速搜索操作、对话、主题。",
+  },
+  {
+    icon: <Palette size={32} />,
+    title: "多种主题",
+    description: "在设置中选择 6 种主题（暖色、复古、海洋、森林、夜深），支持中英文界面。",
+  },
+  {
+    icon: <Keyboard size={32} />,
+    title: "快捷键",
+    description: "按 Cmd/Ctrl+/ 查看所有快捷键，包括搜索、保存、收藏等。",
+  },
+  {
+    icon: <Share2 size={32} />,
+    title: "分享对话",
+    description: "通过命令面板的「分享对话」创建只读链接，与他人分享你的创作。",
+  },
+  {
+    icon: <Globe size={32} />,
+    title: "数据备份",
+    description: "在设置中导出全部设置为 JSON 文件，便于在新设备上恢复。",
   },
   {
     icon: <Sparkles size={32} />,
-    title: "生成图片",
-    description: "切换到\"图片\"标签，输入描述并选择风格，可生成 AI 图片。",
-  },
-  {
-    icon: <Sparkles size={32} />,
-    title: "生成视频",
-    description: "切换到\"视频\"标签，输入描述可生成 AI 视频。",
-  },
-  {
-    icon: <Sparkles size={32} />,
-    title: "管理素材",
-    description: "所有生成的图片和视频都会保存到\"素材库\"，可随时查看和下载。",
+    title: "准备好了",
+    description: "开始你的第一次创作吧！随时可按 Cmd+K 调出命令面板。",
   },
 ];
 
