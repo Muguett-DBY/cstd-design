@@ -2852,10 +2852,91 @@ button:disabled {
 
 .lightbox-close { right: 0; }
 .lightbox-download { right: 48px; text-decoration: none; }
+.lightbox-info-toggle { right: 96px; }
+.lightbox-fullscreen { right: 144px; }
+.lightbox-zoom-out { right: 192px; }
+.lightbox-zoom-in { right: 240px; }
 .lightbox-prev { left: 0; top: 50%; transform: translateY(-50%); }
 .lightbox-prev:hover { transform: translateY(-50%) scale(1.08); }
 .lightbox-next { right: 0; top: 50%; transform: translateY(-50%); }
 .lightbox-next:hover { transform: translateY(-50%) scale(1.08); }
+
+.lightbox-zoom,
+.lightbox-info-toggle,
+.lightbox-fullscreen {
+  position: absolute;
+  top: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: background 0.15s, transform 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.lightbox-zoom:hover:not(:disabled),
+.lightbox-info-toggle:hover,
+.lightbox-fullscreen:hover {
+  background: rgba(0, 0, 0, 0.85);
+  transform: scale(1.08);
+}
+
+.lightbox-zoom:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lightbox-info-panel {
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 12px;
+  max-width: 480px;
+  width: 90%;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.2s ease;
+}
+
+.lightbox-info-panel h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.lightbox-info-panel dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.lightbox-info-panel dt {
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 500;
+}
+
+.lightbox-info-panel dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.lightbox-zoom-level {
+  font-size: 11px;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
 
 .lightbox-counter {
   font-size: 12px;
