@@ -26,6 +26,7 @@ import { useUserPreferences } from "./hooks/useUserPreferences";
 import { useTheme, type ThemeId } from "./hooks/useTheme";
 import { useLanguage } from "./hooks/useLanguage";
 import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
+import { useNotifications } from "./hooks/useNotifications";
 import { SharedConversationsModal, SharedRoute } from "./components/SharedConversationsModal";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
@@ -73,6 +74,7 @@ function AppInner() {
   }, []);
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const notifications = useNotifications();
 
   // Confirm dialog state
   const [confirmState, setConfirmState] = useState<{
@@ -226,6 +228,14 @@ function AppInner() {
       })
       .finally(() => setBooting(false));
   }, [refreshAssets, refreshConversations]);
+
+  useEffect(() => {
+    if (videoTask && videoTask.status === "completed") {
+      notifications.send("视频生成完成", `视频 ${videoTask.id.slice(0, 8)} 已完成`);
+    } else if (videoTask && videoTask.status === "failed") {
+      notifications.send("视频生成失败", `视频 ${videoTask.id.slice(0, 8)} 失败，请重试`);
+    }
+  }, [videoTask, notifications]);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -452,6 +462,7 @@ function AppInner() {
         onLanguageChange={setLanguage}
         t={t}
         onNotice={(msg: string) => toast(msg, "info")}
+        notifications={notifications}
       />
 
       <SharedConversationsModal

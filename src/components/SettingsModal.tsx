@@ -15,6 +15,7 @@ export function SettingsModal({
   onLanguageChange,
   t,
   onNotice,
+  notifications,
 }: {
   open: boolean;
   onClose: () => void;
@@ -26,6 +27,12 @@ export function SettingsModal({
   onLanguageChange: (language: Language) => void;
   t: (key: TranslationKey) => string;
   onNotice: (msg: string) => void;
+  notifications: {
+    permission: NotificationPermission;
+    enabled: boolean;
+    request: () => Promise<NotificationPermission | "unsupported">;
+    setEnabled: (enabled: boolean) => void;
+  };
 }) {
   if (!open) return null;
 
@@ -52,6 +59,29 @@ export function SettingsModal({
                 <option value="en">{t("language.en")}</option>
               </select>
             </div>
+            {notifications.permission === "granted" ? (
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={notifications.enabled}
+                  onChange={(e) => notifications.setEnabled(e.target.checked)}
+                />
+                <span>浏览器通知（视频完成时）</span>
+              </label>
+            ) : (
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={async () => {
+                  const result = await notifications.request();
+                  if (result === "granted") onNotice("通知权限已开启。");
+                  else if (result === "denied") onNotice("通知权限被拒绝。");
+                  else onNotice("通知权限请求失败。");
+                }}
+              >
+                开启浏览器通知
+              </button>
+            )}
             <div className="theme-picker-grid">
               {THEMES.map((t) => (
                 <button
