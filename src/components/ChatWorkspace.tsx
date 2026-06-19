@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { Bot, Bookmark, Check, Copy, Download, Edit3, FileText, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Save, Search, Send, Square, Trash2 } from "lucide-react";
+import { Bot, Bookmark, Check, CheckSquare, Copy, Download, Edit3, FileText, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Save, Search, Send, Square, Trash2, X } from "lucide-react";
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { ChatMessage, ChatStreamEvent, ConversationDetail } from "../types";
@@ -105,6 +105,9 @@ export function ChatWorkspace({
   const [showExportModal, setShowExportModal] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const { templates, save, remove } = useChatPromptTemplates();
+  const [bulkMode, setBulkMode] = useState(false);
+  const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
+  const lastBulkIndexRef = useRef<number | null>(null);
   const { getReactions, toggleReaction, hasReaction, quickEmojis } = useMessageReactions(conversation?.id || null);
   const { isPinned, togglePin, getPinnedMessages } = useMessagePinning(conversation?.id || null);
   const {
@@ -280,6 +283,75 @@ export function ChatWorkspace({
     }
   };
 
+  const toggleBulk = (messageId: string, index: number, shiftKey: boolean) => {
+    setBulkSelected((prev) => {
+      const next = new Set(prev);
+      if (shiftKey && lastBulkIndexRef.current !== null) {
+        const [start, end] = lastBulkIndexRef.current < index
+          ? [lastBulkIndexRef.current, index]
+          : [index, lastBulkIndexRef.current];
+        for (let i = start; i <= end; i++) {
+          const m = messages[i];
+          if (m) next.add(m.id);
+        }
+      } else if (next.has(messageId)) {
+        next.delete(messageId);
+      } else {
+        next.add(messageId);
+      }
+      return next;
+    });
+    lastBulkIndexRef.current = index;
+  };
+
+  const selectAllMessages = () => {
+    setBulkSelected(new Set(messages.filter((m) => m.status !== "streaming").map((m) => m.id)));
+  };
+
+  const clearBulkSelection = () => {
+    setBulkSelected(new Set());
+    lastBulkIndexRef.current = null;
+  };
+
+  const copySelectedMessages = async () => {
+    const selectedMessages = messages
+      .filter((m) => bulkSelected.has(m.id) && m.status !== "streaming")
+      .sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+    if (selectedMessages.length === 0) return;
+    const body = selectedMessages
+      .map((m) => {
+        const role = m.role === "user" ? "你" : ASSISTANT_NAME;
+        return `${role}：\n${m.content}`;
+      })
+      .join("\n\n");
+    try {
+      await navigator.clipboard.writeText(body);
+      onNotice(`已复制 ${selectedMessages.length} 条消息。`);
+    } catch {
+      onNotice("复制失败，请重试。");
+    }
+  };
+
+  const bookmarkSelectedMessages = async () => {
+    if (!conversation) return;
+    const selectedMessages = messages.filter((m) => bulkSelected.has(m.id));
+    let successCount = 0;
+    for (const m of selectedMessages) {
+      try {
+        await toggleBookmark(m.id);
+        successCount++;
+      } catch {
+        // skip individual failures
+      }
+    }
+    onNotice(`已收藏 ${successCount} 条消息。`);
+  };
+
+  const exitBulkMode = () => {
+    setBulkMode(false);
+    clearBulkSelection();
+  };
+
   return (
     <section className="chat-layout">
       <div className="chat-main">
@@ -299,6 +371,16 @@ export function ChatWorkspace({
             </button>
             <button type="button" className="ghost-button" onClick={search.openSearch} disabled={!conversation || messages.length === 0} title="搜索消息 (Ctrl+F)">
               <Search size={16} /> 搜索
+            </button>
+            <button
+              type="button"
+              className={`ghost-button${bulkMode ? " active" : ""}`}
+              onClick={() => bulkMode ? exitBulkMode() : setBulkMode(true)}
+              disabled={!conversation || messages.length === 0}
+              title="批量选择消息"
+              aria-pressed={bulkMode}
+            >
+              {bulkMode ? <CheckSquare size={16} /> : <Square size={16} />} {bulkMode ? "退出选择" : "多选"}
             </button>
             <button type="button" className="ghost-button" onClick={copyAllAsText} disabled={!conversation || messages.length === 0} title="复制全部对话">
               <Copy size={16} /> 复制全部
@@ -391,7 +473,21 @@ export function ChatWorkspace({
                 ref={(el) => { messageRefs.current.set(row.message.id, el); }}
                 className={search.activeResult?.messageId === row.message.id ? "search-active-message" : undefined}
               >
-              <article className={`message ${row.message.role}`}>
+              <article className={`message ${row.message.role}${bulkMode ? " bulk-mode" : ""}${bulkSelected.has(row.message.id) ? " bulk-selected" : ""}`}>
+                {bulkMode && row.message.status !== "streaming" && (
+                  <label
+                    className="message-bulk-checkbox"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={bulkSelected.has(row.message.id)}
+                      onChange={(e) => toggleBulk(row.message.id, messages.findIndex((m) => m.id === row.message.id), (e.nativeEvent as MouseEvent).shiftKey)}
+                      onClick={(e) => e.stopPropagation()}
+                      aria-label={`选择消息 ${row.message.id}`}
+                    />
+                  </label>
+                )}
                 <div className="avatar">{row.message.role === "assistant" ? <img src="/brand/mascot.png" alt="" /> : <Bot size={18} />}</div>
                 <div className="message-body">
                   <div className="message-meta">
@@ -540,6 +636,24 @@ export function ChatWorkspace({
         </div>
 
         <ScrollToBottom visible={userScrolledUp} onClick={scrollToBottom} />
+
+        {bulkMode && (
+          <div className="bulk-action-bar" role="region" aria-label="批量操作">
+            <span className="bulk-count">已选 {bulkSelected.size} 条</span>
+            <button type="button" className="ghost-button" onClick={selectAllMessages}>
+              <Check size={14} /> 全选
+            </button>
+            <button type="button" className="ghost-button" onClick={clearBulkSelection}>
+              <X size={14} /> 取消
+            </button>
+            <button type="button" className="ghost-button" onClick={copySelectedMessages} disabled={bulkSelected.size === 0}>
+              <Copy size={14} /> 复制
+            </button>
+            <button type="button" className="ghost-button" onClick={bookmarkSelectedMessages} disabled={bulkSelected.size === 0 || !conversation}>
+              <Bookmark size={14} /> 收藏
+            </button>
+          </div>
+        )}
 
         <div className="composer">
           {draft.selectedParentId !== null && <div className="draft-note">正在从旧问题处分支。发送后会保留原分支。</div>}

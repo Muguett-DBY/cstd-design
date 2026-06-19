@@ -1604,6 +1604,73 @@ button:disabled {
   border-color: var(--accent);
 }
 
+.message-bulk-checkbox {
+  position: absolute;
+  top: 12px;
+  left: -36px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.message.bulk-mode {
+  position: relative;
+  padding-left: 16px;
+}
+
+.message.bulk-mode .message-bulk-checkbox {
+  left: -28px;
+}
+
+.message.bulk-mode .message-bulk-checkbox:hover,
+.message.bulk-selected .message-bulk-checkbox {
+  opacity: 1;
+}
+
+.message.bulk-selected {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 8px;
+}
+
+.bulk-action-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--accent);
+  color: var(--accent-contrast, #fff);
+  border-radius: 8px 8px 0 0;
+  z-index: 5;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  flex-wrap: wrap;
+}
+
+.bulk-action-bar .ghost-button {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--accent-contrast, #fff);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.bulk-action-bar .ghost-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.bulk-action-bar .ghost-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bulk-count {
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
 .composer {
   position: sticky;
   bottom: 0;
