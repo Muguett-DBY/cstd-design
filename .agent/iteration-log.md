@@ -791,3 +791,122 @@
 1. **Build size optimization** — Mermaid chunk (593KB) could be lazy-loaded more aggressively
 2. **Conversation sort/filter** — Allow users to sort conversations by date/title
 3. **Message search within conversation** — Search through chat history
+
+---
+
+## Campaign 002 — 3-Cycle, 18-Phase Campaign (2026-06-19)
+
+**Theme**: Quality of life, search, accessibility, and template-driven workflows
+
+### Phase 1/18 — IMPROVE: Video task elapsed time tracking
+- **Commit**: `e558cbf` | **CI**: Passed
+- Added `Timer` icon and live elapsed time display in VideoWorkspace task card
+- Tracks seconds since video task started using `setInterval` with proper cleanup
+
+### Phase 2/18 — IMPROVE: Lightbox Home/End keys + focus trap + aria-live counter
+- **Commit**: `5e712bc` | **CI**: Passed
+- Added keyboard shortcuts Home/End to jump to first/last image
+- Implemented Tab focus trap to keep focus within lightbox
+- Added `aria-live="polite"` to counter for screen reader announcements
+
+### Phase 3/18 — IMPROVE: Unified `ResultCard` component
+- **Commit**: `af15834` | **CI**: Passed
+- Extracted shared result card for image/video results in chat
+- Eliminates duplication, ensures consistent UI
+
+### Phase 4/18 — IMPROVE: Asset metadata extraction
+- **Commit**: `7207437` | **CI**: Passed
+- Created `useAssetMetadata` hook for image dimensions and video duration
+- Client-side extraction via Image/Video elements + Promise
+
+### Phase 5/18 — IMPROVE: Accessibility fixes
+- **Commit**: `fca4c90` | **CI**: Passed
+- Added dialog role, Escape handlers, body scroll lock
+- Improved color contrast
+
+### Phase 6/18 — UIUX: Onboarding tour
+- **Commit**: `c7ae7cb` | **CI**: Passed
+- 5-step OnboardingTour with localStorage persistence
+- Walks new users through chat, image, video, asset, sidebar
+
+### Phase 7/18 — IMPROVE: Video task persistence
+- **Commit**: `1412ad7` | **CI**: Passed
+- `useVideoTaskPersistence` hook for video task state across tab switches
+- Started timestamp auto-added in `setTask`
+
+### Phase 8/18 — IMPROVE: Regenerate as style reference
+- **Commit**: `c30d380` | **CI**: Passed
+- Regenerate button uses last result as image style reference
+- Streamlined image iteration workflow
+
+### Phase 9/18 — IMPROVE: Toggle button accessibility
+- **Commit**: `d978efe` | **CI**: Passed
+- Added `aria-pressed`, `role=radio`, `aria-checked` to Segmented, folder chips, sort/filter, style chips
+
+### Phase 10/18 — TEST: Add 22 more unit tests
+- **Commit**: `9e28706` | **CI**: Passed
+- 12 asset-metadata tests, 6 useVideoTaskPersistence tests, 4 Segmented tests
+- Total: 49 tests across 9 test files
+
+### Phase 11/18 — CHECK: Performance audit
+- **Commit**: `6318898` | **CI**: Passed
+- Verified all setInterval calls have proper cleanup
+- No memory leaks detected
+
+### Phase 12/18 — IMPROVE: Network resilience
+- **Commit**: `acceebd` | **CI**: Passed
+- Added automatic retry with exponential backoff (800ms, 1600ms)
+- Retries on network failures, 5xx, 408, 429
+- 401 and other 4xx fail immediately
+
+### Phase 13/18 — IMPROVE: Conversation prompt templates
+- **Commit**: `a131c56` | **CI**: Passed
+- Created `useChatPromptTemplates` hook with localStorage persistence
+- 3 seed templates: 总结文本、翻译为中文、头脑风暴
+- Mirrors ImageWorkspace pattern
+
+### Phase 14/18 — UIUX: Asset grid and lightbox polish
+- **Commit**: `84bc4b5` | **CI**: Passed
+- Image scale-on-hover (1.05x, 0.35s ease)
+- View hint Eye icon in corner of image previews
+- Lightbox button scale hover + active feedback
+
+### Phase 15/18 — IMPROVE: Search filters and saved searches
+- **Commit**: `83b7907` | **CI**: Passed
+- Role filter (user/assistant), date filter (today/week/month/all)
+- Saved searches with localStorage (max 20 saved)
+- Filter dropdown UI in MessageSearchBar
+
+### Phase 16/18 — IMPROVE: Lightbox enhancements
+- **Commit**: `31f5aa5` | **CI**: Passed
+- Image zoom (50-400% via +/-/0 keys and buttons)
+- Fullscreen toggle via browser fullscreen API
+- Info panel with detailed metadata
+- Per-asset zoom persistence
+- New keyboard shortcuts: + - 0 I
+
+### Phase 17/18 — CHECK: Final cleanup and code quality
+- All 49 tests pass
+- TypeScript clean, ESLint 0 warnings
+- No unused locals/params
+- Bundle 582KB (essentially same as 575KB baseline +7KB for 18 phases)
+
+### Phase 18/18 — IMPROVE: Campaign wrap-up and final polish
+- Updated iteration log
+- Campaign 002 archived to `.agent/orchestrator-history/campaign-002/`
+
+### Summary
+- **18 phases completed** (IMPROVE×10, UIUX×3, CHECK×3, TEST×1, IMPROVE-final×1)
+- **49 tests** across **9 test files** (was 27/6 in Campaign 001)
+- **Bundle size**: 582KB (gzip 178KB) — +7KB for entire campaign
+- **TypeScript**: Clean
+- **ESLint**: 0 warnings
+- **All CI runs passed** on first try
+- **Major additions**:
+  - 4 new hooks: `useVideoTaskPersistence`, `useChatPromptTemplates`, `useSavedSearches`, `useAssetMetadata`
+  - 6 new components: `OnboardingTour`, `ResultCard`, `AssetMeta`, `SkeletonLoader`, plus lightbox zoom/fullscreen/info panel
+  - 1 new library: `fetch` retry with exponential backoff
+  - New search capabilities: role/date filters, saved searches
+  - New chat features: prompt templates with seed library
+  - New lightbox features: zoom, fullscreen, metadata panel
+  - New accessibility: dialog role, focus trap, aria-pressed, role=radio
