@@ -1,5 +1,5 @@
 import { createEdit, listEditsByConversation } from "../../../_shared/edits";
-import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
+import { badRequest, ensureSchema, enforceRateLimit, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
 import { z } from "zod";
 
 const UUID_PARAM = z.string().uuid();
@@ -22,6 +22,8 @@ export async function onRequestPost({ request, env, params }: PagesContext) {
   const auth = await requireSession(request, env);
   if (auth.response) return auth.response;
   await ensureSchema(env.DB);
+  const rateLimited = await enforceRateLimit(env, auth.session.sessionId, "edits:create", 60, 60_000);
+  if (rateLimited) return rateLimited;
   const paramParsed = UUID_PARAM.safeParse(params.id);
   if (!paramParsed.success) return badRequest("无效的会话 ID。");
   const parsed = EditSchema.safeParse(await readJson(request));

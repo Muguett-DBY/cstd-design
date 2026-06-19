@@ -1,5 +1,5 @@
 import { addReaction, listReactions } from "../../../_shared/reactions";
-import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
+import { badRequest, ensureSchema, enforceRateLimit, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
 import { z } from "zod";
 
 const UUID_PARAM = z.string().uuid();
@@ -18,6 +18,8 @@ export async function onRequestPost({ request, env, params }: PagesContext) {
   const auth = await requireSession(request, env);
   if (auth.response) return auth.response;
   await ensureSchema(env.DB);
+  const rateLimited = await enforceRateLimit(env, auth.session.sessionId, "reactions:create", 120, 60_000);
+  if (rateLimited) return rateLimited;
   const paramParsed = UUID_PARAM.safeParse(params.id);
   if (!paramParsed.success) return badRequest("无效的会话 ID。");
   const parsed = ReactionSchema.safeParse(await readJson(request));

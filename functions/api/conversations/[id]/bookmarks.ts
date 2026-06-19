@@ -1,5 +1,5 @@
 import { createBookmark, listBookmarks } from "../../../_shared/bookmarks";
-import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
+import { badRequest, ensureSchema, enforceRateLimit, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
 import { parseRequest, CreateBookmarkSchema } from "../../../_shared/validation";
 import { z } from "zod";
 
@@ -18,6 +18,8 @@ export async function onRequestPost({ request, env, params }: PagesContext) {
   const auth = await requireSession(request, env);
   if (auth.response) return auth.response;
   await ensureSchema(env.DB);
+  const rateLimited = await enforceRateLimit(env, auth.session.sessionId, "bookmarks:create", 60, 60_000);
+  if (rateLimited) return rateLimited;
   const paramParsed = UUID_PARAM.safeParse(params.id);
   if (!paramParsed.success) return badRequest("无效的会话 ID。");
   const parsed = parseRequest(CreateBookmarkSchema, await readJson(request));
