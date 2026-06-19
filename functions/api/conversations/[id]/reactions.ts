@@ -1,5 +1,5 @@
-import { addReaction, listReactions } from "../../../../_shared/reactions";
-import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../../_shared/http";
+import { addReaction, listReactions } from "../../../_shared/reactions";
+import { badRequest, ensureSchema, json, readJson, requireSession, type PagesContext } from "../../../_shared/http";
 import { z } from "zod";
 
 const UUID_PARAM = z.string().uuid();
