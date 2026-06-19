@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { api, onUnauthorized } from "./api";
 import { appendChatEvent, buildActiveBranch, branchLeaves } from "./app-state";
@@ -18,6 +18,8 @@ import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { useVideoTaskPersistence } from "./hooks/useVideoTaskPersistence";
 import { NetworkBanner } from "./components/NetworkBanner";
 import { OnboardingTour } from "./components/OnboardingTour";
+import { CommandPalette, type CommandItem } from "./components/CommandPalette";
+import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
 const VideoWorkspace = lazy(() => import("./components/VideoWorkspace").then((m) => ({ default: m.VideoWorkspace })));
@@ -47,6 +49,7 @@ function AppInner() {
   const [loadingConversation, setLoadingConversation] = useState(false);
   const { task: videoTask, setTask: setVideoTask } = useVideoTaskPersistence();
   const [videoSubmittedPrompt, setVideoSubmittedPrompt] = useState("");
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("cstd-design:dark");
     if (stored !== null) return stored === "true";
@@ -153,6 +156,14 @@ function AppInner() {
     }
   }, [toast]);
 
+  const handleCreateConversation = useCallback(async () => {
+    try {
+      const created = await api.createConversation();
+      await refreshConversations("");
+      await openConversation(created.conversation.id);
+    } catch (error) { toast(error instanceof Error ? error.message : "请求失败。", "error"); }
+  }, [openConversation, refreshConversations, toast]);
+
   const clearScope = useCallback(async (scope: ClearScope) => {
     const label = CLEAR_LABELS[scope];
     requestConfirm(
@@ -198,6 +209,72 @@ function AppInner() {
     return () => window.clearTimeout(timer);
   }, [authenticated, refreshConversations]);
 
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setCommandPaletteOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  const commandItems: CommandItem[] = useMemo(() => {
+    const navItems: CommandItem[] = (TABS as readonly { id: string; label: string }[]).map((tab) => ({
+      id: `nav-${tab.id}`,
+      label: `前往 ${tab.label}`,
+      description: `切换到 ${tab.label} 页面`,
+      icon: tab.id === "chat" ? MessageSquare : tab.id === "image" ? ImageIcon : tab.id === "video" ? Video : Folder,
+      group: "navigation",
+      keywords: ["tab", "switch", "page", tab.label],
+      perform: () => setActiveTab(tab.id as WorkspaceTab),
+    }));
+
+    const convItems: CommandItem[] = conversations.slice(0, 10).map((c) => ({
+      id: `conv-${c.id}`,
+      label: c.title || "新会话",
+      description: `${c.messageCount || 0} 条消息`,
+      icon: Hash,
+      group: "conversation",
+      keywords: ["session", "chat"],
+      perform: () => { void openConversation(c.id); },
+    }));
+
+    const actionItems: CommandItem[] = [
+      {
+        id: "action-new",
+        label: "新建对话",
+        description: "创建一个新的会话",
+        icon: Sparkles,
+        group: "action",
+        shortcut: "Ctrl+N",
+        keywords: ["new", "create", "session"],
+        perform: () => { void handleCreateConversation(); },
+      },
+      {
+        id: "action-onboarding",
+        label: "查看引导",
+        description: "重新查看 5 步引导",
+        icon: FileText,
+        group: "action",
+        keywords: ["tutorial", "help", "guide"],
+        perform: () => { try { localStorage.removeItem("cstd-design:onboarding-completed"); window.location.reload(); } catch { /* ignore */ } },
+      },
+      {
+        id: "action-theme",
+        label: "切换主题",
+        description: "在亮色和暗色之间切换",
+        icon: Settings,
+        group: "action",
+        keywords: ["dark", "light", "theme"],
+        perform: () => { document.documentElement.classList.toggle("theme-dark"); },
+      },
+    ];
+
+    return [...navItems, ...convItems, ...actionItems];
+  }, [conversations, openConversation, handleCreateConversation]);
+
   if (booting) return <Splash />;
   if (!authenticated) {
     return (
@@ -212,14 +289,6 @@ function AppInner() {
       />
     );
   }
-
-  const handleCreateConversation = async () => {
-    try {
-      const created = await api.createConversation();
-      await refreshConversations("");
-      await openConversation(created.conversation.id);
-    } catch (error) { toast(error instanceof Error ? error.message : "请求失败。", "error"); }
-  };
 
   const handleLogout = async () => {
     try {
@@ -281,6 +350,12 @@ function AppInner() {
       />
 
       <OnboardingTour />
+
+      <CommandPalette
+        open={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        items={commandItems}
+      />
 
       <main className="workspace">
         <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />
