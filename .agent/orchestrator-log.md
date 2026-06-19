@@ -129,13 +129,26 @@
 
 ### Phase 10/18 — IMPROVE: Conversation archive improvements
 
+**Status**: DONE
+**Commit**: `72c10db`
+**CI**: Passed (run `27815896890`)
+
+**Completed**:
+- Added archive count badge to filter chip
+- Badge shows count of archived conversations
+- Badge uses accent color when filter is active
+- Improved archive filter visual feedback
+
+### Phase 11/18 — CHECK: Security and edge case audit
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:50:00Z
+**Started**: 2026-06-19T08:55:00Z
 
 **Plan**:
-- Improve archive filter with archive count display
-- Add bulk archive operations
-- Add archive statistics
-- Improve archive restore flow
+- Audit API validation across all endpoints
+- Check for XSS risks in dangerouslySetInnerHTML usage
+- Check for CSRF vulnerabilities
+- Check input sanitization
+- Check error handling gaps
 
 **Verification**: lint, typecheck, tests, build, CI
