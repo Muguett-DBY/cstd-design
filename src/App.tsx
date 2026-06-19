@@ -25,6 +25,7 @@ import { SettingsModal } from "./components/SettingsModal";
 import { useUserPreferences } from "./hooks/useUserPreferences";
 import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
 import { useTheme, type ThemeId } from "./hooks/useTheme";
+import { useLanguage } from "./hooks/useLanguage";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -60,6 +61,7 @@ function AppInner() {
   const userPrefs = useUserPreferences();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
 
   // Confirm dialog state
   const [confirmState, setConfirmState] = useState<{
@@ -418,10 +420,13 @@ function AppInner() {
         onUpdate={userPrefs.update}
         theme={theme}
         onThemeChange={setTheme}
+        language={language}
+        onLanguageChange={setLanguage}
+        t={t}
       />
 
       <main className="workspace">
-        <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />
+        <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} t={t} />
         {activeTab === "chat" && (
           <ErrorBoundary key="chat">
           <ChatWorkspace

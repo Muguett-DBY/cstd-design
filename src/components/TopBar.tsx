@@ -1,10 +1,25 @@
 import { MessageCircle } from "lucide-react";
 import { TABS } from "../constants";
 import type { WorkspaceTab } from "../types";
+import type { TranslationKey } from "../hooks/useLanguage";
 
-export function TopBar({ activeTab, onTabChange, onOpenSidebar }: { activeTab: WorkspaceTab; onTabChange: (tab: WorkspaceTab) => void; onOpenSidebar: () => void }) {
+const TAB_LABELS: Record<WorkspaceTab, TranslationKey> = {
+  chat: "nav.chat",
+  image: "nav.image",
+  video: "nav.video",
+  assets: "nav.assets",
+};
+
+const TAB_DESCS: Record<WorkspaceTab, TranslationKey> = {
+  chat: "topbar.chatDesc",
+  image: "topbar.imageDesc",
+  video: "topbar.videoDesc",
+  assets: "topbar.assetsDesc",
+};
+
+export function TopBar({ activeTab, onTabChange, onOpenSidebar, t }: { activeTab: WorkspaceTab; onTabChange: (tab: WorkspaceTab) => void; onOpenSidebar: () => void; t: (key: TranslationKey) => string }) {
   const active = TABS.find((tab) => tab.id === activeTab);
-  const description = activeTab === "chat" ? "安静地问，清楚地答。" : activeTab === "image" ? "输入想法，生成一张图。" : activeTab === "video" ? "页面保持打开，等待视频完成。" : "管理你的上传和作品。";
+  const description = t(TAB_DESCS[activeTab]);
   return (
     <header className="top-bar">
       <button type="button" className="mobile-menu-button" aria-label="打开会话列表" onClick={onOpenSidebar}>
@@ -12,7 +27,7 @@ export function TopBar({ activeTab, onTabChange, onOpenSidebar }: { activeTab: W
         会话
       </button>
       <div className="top-bar-copy">
-        <h2>{active?.label || "咨询"}</h2>
+        <h2>{active ? t(TAB_LABELS[active.id]) : t("nav.chat")}</h2>
         <p>{description}</p>
       </div>
       <nav className="top-actions" aria-label="工作区切换">
@@ -28,7 +43,7 @@ export function TopBar({ activeTab, onTabChange, onOpenSidebar }: { activeTab: W
               onClick={() => onTabChange(tab.id)}
             >
               <Icon size={16} />
-              {tab.label}
+              {t(TAB_LABELS[tab.id])}
             </button>
           );
         })}

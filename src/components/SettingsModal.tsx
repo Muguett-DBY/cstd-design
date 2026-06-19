@@ -1,6 +1,7 @@
 import { Settings as SettingsIcon, X } from "lucide-react";
 import type { UserPreferences } from "../hooks/useUserPreferences";
 import { THEMES, type ThemeId } from "../hooks/useTheme";
+import type { Language, TranslationKey } from "../hooks/useLanguage";
 
 export function SettingsModal({
   open,
@@ -9,6 +10,9 @@ export function SettingsModal({
   onUpdate,
   theme,
   onThemeChange,
+  language,
+  onLanguageChange,
+  t,
 }: {
   open: boolean;
   onClose: () => void;
@@ -16,6 +20,9 @@ export function SettingsModal({
   onUpdate: <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => void;
   theme: ThemeId;
   onThemeChange: (theme: ThemeId) => void;
+  language: Language;
+  onLanguageChange: (language: Language) => void;
+  t: (key: TranslationKey) => string;
 }) {
   if (!open) return null;
 
@@ -23,14 +30,25 @@ export function SettingsModal({
     <div className="settings-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="设置">
       <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
         <div className="settings-header">
-          <h3><SettingsIcon size={16} /> 偏好设置</h3>
-          <button type="button" className="icon-button" onClick={onClose} aria-label="关闭">
+          <h3><SettingsIcon size={16} /> {t("settings.title")}</h3>
+          <button type="button" className="icon-button" onClick={onClose} aria-label={t("common.close")}>
             <X size={18} />
           </button>
         </div>
         <div className="settings-content">
           <section className="settings-section">
-            <h4>主题外观</h4>
+            <h4>{t("settings.theme")}</h4>
+            <div className="settings-field">
+              <label htmlFor="lang-select">{t("settings.language")}</label>
+              <select
+                id="lang-select"
+                value={language}
+                onChange={(e) => onLanguageChange(e.target.value as Language)}
+              >
+                <option value="zh">{t("language.zh")}</option>
+                <option value="en">{t("language.en")}</option>
+              </select>
+            </div>
             <div className="theme-picker-grid">
               {THEMES.map((t) => (
                 <button
@@ -48,7 +66,7 @@ export function SettingsModal({
             </div>
           </section>
           <section className="settings-section">
-            <h4>图片生成</h4>
+            <h4>{t("settings.image")}</h4>
             <div className="settings-field">
               <label htmlFor="image-size">默认尺寸</label>
               <select id="image-size" value={prefs.defaultImageSize} onChange={(e) => onUpdate("defaultImageSize", e.target.value as UserPreferences["defaultImageSize"])}>
@@ -70,7 +88,7 @@ export function SettingsModal({
             </div>
           </section>
           <section className="settings-section">
-            <h4>视频生成</h4>
+            <h4>{t("settings.video")}</h4>
             <div className="settings-field">
               <label htmlFor="video-preset">默认时长</label>
               <select id="video-preset" value={prefs.defaultVideoPreset} onChange={(e) => onUpdate("defaultVideoPreset", e.target.value as UserPreferences["defaultVideoPreset"])}>
@@ -97,7 +115,7 @@ export function SettingsModal({
             </div>
           </section>
           <section className="settings-section">
-            <h4>聊天</h4>
+            <h4>{t("settings.chat")}</h4>
             <label className="settings-toggle">
               <input type="checkbox" checked={prefs.autoSaveDraft} onChange={(e) => onUpdate("autoSaveDraft", e.target.checked)} />
               <span>自动保存草稿</span>
@@ -113,8 +131,8 @@ export function SettingsModal({
           </section>
         </div>
         <div className="settings-footer">
-          <span>设置会自动保存</span>
-          <button type="button" className="primary-button" onClick={onClose}>完成</button>
+          <span>{t("settings.saved")}</span>
+          <button type="button" className="primary-button" onClick={onClose}>{t("common.close")}</button>
         </div>
       </div>
     </div>
