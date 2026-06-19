@@ -2173,10 +2173,10 @@ button:disabled {
   font-weight: 600;
 }
 
-.task-status-queued { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
-.task-status-in_progress { background: rgba(245, 158, 11, 0.15); color: #d97706; }
-.task-status-completed { background: rgba(16, 185, 129, 0.15); color: #059669; }
-.task-status-failed { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+.task-status-queued { background: rgba(59, 130, 246, 0.25); color: #1d4ed8; }
+.task-status-in_progress { background: rgba(245, 158, 11, 0.25); color: #92400e; }
+.task-status-completed { background: rgba(16, 185, 129, 0.25); color: #047857; }
+.task-status-failed { background: rgba(239, 68, 68, 0.25); color: #b91c1c; }
 
 .task-estimate {
   font-size: 12px;

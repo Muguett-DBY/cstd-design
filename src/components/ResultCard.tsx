@@ -22,7 +22,14 @@ export function ResultCard({ type, mediaUrl, filename, prompt, onPreview, onDown
         <span>{label}</span>
         {metadata && <span className="result-card-meta">{metadata}</span>}
       </div>
-      <div className="result-card-media" onClick={onPreview} role={onPreview ? "button" : undefined} tabIndex={onPreview ? 0 : undefined}>
+      <div
+        className="result-card-media"
+        onClick={onPreview}
+        onKeyDown={(e) => { if (onPreview && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); onPreview(); } }}
+        role={onPreview ? "button" : undefined}
+        tabIndex={onPreview ? 0 : undefined}
+        aria-label={onPreview ? `预览 ${filename}` : undefined}
+      >
         {type === "image" ? (
           <img src={mediaUrl} alt={filename} className="result-card-preview" />
         ) : (
