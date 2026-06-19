@@ -41,6 +41,9 @@ export interface AssetItem {
   size: number;
   createdAt: string;
   url: string;
+  width?: number;
+  height?: number;
+  duration?: number;
 }
 
 export type AssetFilter = "all" | "image" | "video" | "upload";
