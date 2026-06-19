@@ -142,14 +142,25 @@
 
 ### Phase 11/18 — CHECK: Performance audit
 
+**Status**: DONE
+**Commit**: `6318898`
+**CI**: Passed (run `27821324805`)
+
+**Completed**:
+- Verified all setInterval calls have proper cleanup
+- No memory leaks detected
+- All tests, lint, typecheck, build pass
+- Performance baseline is solid (49 tests, clean build)
+
+### Phase 12/18 — IMPROVE: Network resilience improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:35:00Z
+**Started**: 2026-06-19T10:40:00Z
 
 **Plan**:
-- Run full lint, typecheck, test, build suite
-- Check for render performance issues
-- Check for memory leaks (timers, listeners)
-- Check for network efficiency (caching, deduplication)
-- Fix any issues found
+- Add automatic retry for failed requests
+- Improve error messages with actionable guidance
+- Add request deduplication
+- Improve offline detection
 
 **Verification**: lint, typecheck, tests, build, CI
