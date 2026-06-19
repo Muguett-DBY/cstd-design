@@ -23,9 +23,10 @@ import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
 import { GlobalDropZone } from "./components/GlobalDropZone";
 import { SettingsModal } from "./components/SettingsModal";
 import { useUserPreferences } from "./hooks/useUserPreferences";
-import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
 import { useTheme, type ThemeId } from "./hooks/useTheme";
 import { useLanguage } from "./hooks/useLanguage";
+import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
+import { SharedConversationsModal, SharedRoute } from "./components/SharedConversationsModal";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -60,6 +61,16 @@ function AppInner() {
   const shortcutsHelp = useShortcutsHelp();
   const userPrefs = useUserPreferences();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sharedOpen, setSharedOpen] = useState(false);
+  const [showShareRoute, setShowShareRoute] = useState(() => /^#share\//.test(window.location.hash));
+
+  useEffect(() => {
+    const handler = () => {
+      setShowShareRoute(/^#share\//.test(window.location.hash));
+    };
+    window.addEventListener("hashchange", handler);
+    return () => window.removeEventListener("hashchange", handler);
+  }, []);
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
 
@@ -316,6 +327,15 @@ function AppInner() {
         keywords: ["settings", "preferences", "config", "options"],
         perform: () => { setSettingsOpen(true); },
       },
+      {
+        id: "action-share",
+        label: "分享对话",
+        description: "为当前对话生成分享链接",
+        icon: Settings,
+        group: "action",
+        keywords: ["share", "link", "public"],
+        perform: () => { setSharedOpen(true); },
+      },
     ];
 
     return [...navItems, ...convItems, ...actionItems];
@@ -367,6 +387,14 @@ function AppInner() {
     onThemeToggle: () => setTheme(theme === "dark" ? "light" : "dark"),
     onLogout: handleLogout,
   };
+
+  if (showShareRoute) {
+    return (
+      <div className="app-shell">
+        <SharedRoute />
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -423,6 +451,14 @@ function AppInner() {
         language={language}
         onLanguageChange={setLanguage}
         t={t}
+      />
+
+      <SharedConversationsModal
+        open={sharedOpen}
+        onClose={() => setSharedOpen(false)}
+        title={conversation?.title}
+        messages={conversation?.messages?.filter((m) => m.status !== "streaming").map((m) => ({ role: m.role, content: m.content, createdAt: m.createdAt }))}
+        onNotice={(msg: string) => toast(msg, "info")}
       />
 
       <main className="workspace">
