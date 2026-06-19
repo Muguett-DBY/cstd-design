@@ -2,6 +2,7 @@ import { Settings as SettingsIcon, X } from "lucide-react";
 import type { UserPreferences } from "../hooks/useUserPreferences";
 import { THEMES, type ThemeId } from "../hooks/useTheme";
 import type { Language, TranslationKey } from "../hooks/useLanguage";
+import { BackupRestore } from "./BackupRestore";
 
 export function SettingsModal({
   open,
@@ -13,6 +14,7 @@ export function SettingsModal({
   language,
   onLanguageChange,
   t,
+  onNotice,
 }: {
   open: boolean;
   onClose: () => void;
@@ -23,6 +25,7 @@ export function SettingsModal({
   language: Language;
   onLanguageChange: (language: Language) => void;
   t: (key: TranslationKey) => string;
+  onNotice: (msg: string) => void;
 }) {
   if (!open) return null;
 
@@ -129,6 +132,7 @@ export function SettingsModal({
               <span>启用声音反馈</span>
             </label>
           </section>
+          <BackupRestore onNotice={onNotice} />
         </div>
         <div className="settings-footer">
           <span>{t("settings.saved")}</span>
