@@ -104,13 +104,25 @@
 
 ### Phase 8/18 — IMPROVE: Keyboard shortcut help panel improvements
 
+**Status**: DONE
+**Commit**: `a5ec7b7`
+**CI**: Passed (run `27815514542`)
+
+**Completed**:
+- Added category headers (会话, 消息, 搜索) to organize shortcuts
+- Added search/filter input for quick shortcut lookup
+- Improved visual hierarchy with accent-colored category labels
+- Added CSS for search input, category headers, and focus states
+
+### Phase 9/18 — UIUX: Mobile experience audit and improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:40:00Z
+**Started**: 2026-06-19T08:45:00Z
 
 **Plan**:
-- Improve keyboard shortcut help panel with categories
-- Add search/filter for shortcuts
-- Add shortcut descriptions and context
-- Improve visual design of help panel
+- Audit mobile touch targets across all workspaces
+- Improve modal sizes for mobile viewports
+- Fix mobile navigation rhythm and spacing
+- Improve mobile composer and message layout
 
-**Verification**: lint, typecheck, tests, build, CI
+**Verification**: lint, typecheck, tests, build, CI, rendered QA
