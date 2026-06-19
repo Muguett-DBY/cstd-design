@@ -34,19 +34,56 @@ function applyTheme(theme: ThemeId) {
 
 export function useTheme() {
   const [theme, setThemeState] = useState<ThemeId>(getInitialTheme);
+  const [autoMode, setAutoModeState] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(`${STORAGE_KEY}-auto`) === "true";
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
-    applyTheme(theme);
+    if (!autoMode) {
+      applyTheme(theme);
+      try {
+        localStorage.setItem(STORAGE_KEY, theme);
+      } catch {
+        // ignore
+      }
+    }
+  }, [theme, autoMode]);
+
+  useEffect(() => {
+    if (!autoMode) return;
+    const checkTime = () => {
+      const hour = new Date().getHours();
+      const newTheme: ThemeId = (hour >= 6 && hour < 18) ? "light" : "dark";
+      if (newTheme !== theme) {
+        applyTheme(newTheme);
+      }
+    };
+    checkTime();
+    const interval = window.setInterval(checkTime, 60 * 1000);
     try {
-      localStorage.setItem(STORAGE_KEY, theme);
+      localStorage.setItem(`${STORAGE_KEY}-auto`, "true");
     } catch {
       // ignore
     }
-  }, [theme]);
+    return () => window.clearInterval(interval);
+  }, [autoMode, theme]);
 
   const setTheme = useCallback((next: ThemeId) => {
     setThemeState(next);
   }, []);
 
-  return { theme, setTheme };
+  const setAutoMode = useCallback((enabled: boolean) => {
+    setAutoModeState(enabled);
+    try {
+      localStorage.setItem(`${STORAGE_KEY}-auto`, String(enabled));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  return { theme, setTheme, autoMode, setAutoMode };
 }
