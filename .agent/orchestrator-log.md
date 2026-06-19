@@ -41,13 +41,25 @@
 
 ### Phase 3/18 — UIUX: Image/video result card consistency
 
+**Status**: DONE
+**Commit**: `af15834`
+**CI**: Passed (run `27818905643`)
+
+**Completed**:
+- Created unified `ResultCard` component
+- Updated `ImageWorkspace` to use ResultCard
+- Added consistent CSS for result card layout
+- Supports image and video types with shared header/metadata/actions
+
+### Phase 4/18 — IMPROVE: Asset metadata extraction (dimensions, duration)
+
 **Status**: RUNNING
-**Started**: 2026-06-19T09:55:00Z
+**Started**: 2026-06-19T10:00:00Z
 
 **Plan**:
-- Create unified ResultCard component
-- Apply consistent styling to image and video result cards
-- Add consistent metadata display
-- Improve hover and focus states
+- Extract image dimensions on upload
+- Extract video duration on upload
+- Store metadata in asset records
+- Display dimensions/duration in asset cards
 
 **Verification**: lint, typecheck, tests, build, CI

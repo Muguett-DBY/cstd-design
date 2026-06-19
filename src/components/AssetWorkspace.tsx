@@ -3,6 +3,7 @@ import { Download, RefreshCw, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
+import { AssetMeta } from "./AssetMeta";
 import { ClearAllButton } from "./ClearAllButton";
 import { EmptyState } from "./EmptyState";
 import { Segmented } from "./Segmented";
@@ -123,6 +124,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                 <div className="asset-meta">
                   <strong>{asset.filename}</strong>
                   <span>{asset.kind} · {formatBytes(asset.size)}</span>
+                  <AssetMeta asset={asset} />
                 </div>
                 <div className="asset-actions">
                   <a href={`${asset.url}?download=1`}>下载</a>
