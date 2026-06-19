@@ -128,6 +128,14 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             filename={lastResult.filename}
             prompt={lastResult.prompt}
             onPreview={() => window.open(lastResult.url, "_blank")}
+            onRegenerate={() => {
+              const lastAsset = assets.find((a) => a.url === lastResult.url);
+              if (lastAsset) {
+                setReferenceIds([lastAsset.id]);
+                setPrompt(lastResult.prompt);
+              }
+              onNotice("已选择上次结果作为参考图，可调整提示词后重新生成。");
+            }}
             metadata={lastResult.filename}
           />
         )}

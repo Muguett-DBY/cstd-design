@@ -1875,11 +1875,18 @@ button:disabled {
   font-style: italic;
 }
 
+.result-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
 .result-card-download {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 8px;
   font-size: 12px;
   color: var(--accent-strong);
   text-decoration: none;
