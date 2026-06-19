@@ -29,6 +29,7 @@ import { ConversationPickerModal } from "./ConversationPickerModal";
 import { StatsPanel } from "./StatsPanel";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { PdfExportButton } from "./PdfExportButton";
+import { PromptSuggestions } from "./PromptSuggestions";
 
 const ASSISTANT_NAME = "助手";
 
@@ -751,6 +752,12 @@ export function ChatWorkspace({
 
         <div className="composer">
           {draft.selectedParentId !== null && <div className="draft-note">正在从旧问题处分支。发送后会保留原分支。</div>}
+          {!draft.content.trim() && messages.length > 0 && (
+            <PromptSuggestions onSelect={(text) => setDraft({ ...draft, content: text })} showFollowups />
+          )}
+          {!draft.content.trim() && messages.length === 0 && (
+            <PromptSuggestions onSelect={(text) => setDraft({ ...draft, content: text })} showFollowups={false} />
+          )}
           {draft.content.trim() && (
             <div className="template-actions">
               <button type="button" className="ghost-button" onClick={() => {
