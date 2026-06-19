@@ -2127,6 +2127,34 @@ button:disabled {
   margin-bottom: 8px;
 }
 
+.prompt-history-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  background: var(--soft);
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+
+.prompt-history-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.prompt-history-chip {
+  font-size: 12px;
+  padding: 4px 10px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .template-list {
   margin-bottom: 12px;
   border: 1px solid var(--line);

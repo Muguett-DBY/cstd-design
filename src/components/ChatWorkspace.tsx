@@ -21,6 +21,7 @@ import { useMessageEditing } from "../hooks/useMessageEditing";
 import { useMessageBookmarking } from "../hooks/useMessageBookmarking";
 import { useMessageForwarding } from "../hooks/useMessageForwarding";
 import { useChatPromptTemplates, expandVariables } from "../hooks/useChatPromptTemplates";
+import { usePromptHistory, usePromptSuggestions } from "../hooks/usePromptHistory";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
@@ -116,6 +117,8 @@ export function ChatWorkspace({
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const { history: promptHistory, recordPrompt } = usePromptHistory();
+  const promptSuggestions = usePromptSuggestions(draft.content, promptHistory, 3);
   const [panelOpen, setPanelOpen] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -205,6 +208,7 @@ export function ChatWorkspace({
   const sendContent = async (content: string, parentId: string | null) => {
     if (!content || streaming) return;
     onRecordUsage?.("message_sent");
+    recordPrompt(content);
     setStreaming(true);
     setDraft(initialChatDraft());
     const abort = new AbortController();
@@ -780,6 +784,23 @@ export function ChatWorkspace({
               <button type="button" className="ghost-button" onClick={() => setShowTemplates((s) => !s)}>
                 <FileText size={14} /> {showTemplates ? "收起模板" : "使用模板"}
               </button>
+            </div>
+          )}
+          {draft.content.trim() && promptSuggestions.length > 0 && (
+            <div className="prompt-history-suggestions" role="list" aria-label="历史提示词建议">
+              <span className="prompt-history-label">历史：</span>
+              {promptSuggestions.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="ghost-button prompt-history-chip"
+                  onClick={() => setDraft({ ...draft, content: s })}
+                  role="listitem"
+                  title={s}
+                >
+                  {s.length > 40 ? s.slice(0, 40) + "…" : s}
+                </button>
+              ))}
             </div>
           )}
           {showTemplates && (
