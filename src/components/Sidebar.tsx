@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GripVertical, MessageSquare, Plus, Search, Square, Tag, X } from "lucide-react";
+import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GitMerge, GripVertical, MessageSquare, Plus, Search, Square, Tag, X } from "lucide-react";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
@@ -182,7 +182,10 @@ function ConversationCard({
             value=""
             onChange={(e) => {
               if (e.target.value) {
-                onMerge(e.target.value);
+                const target = conversations.find((c) => c.id === e.target.value);
+                if (target && window.confirm(`确认将"${item.title}"合并到"${target.title}"？\n\n源会话的消息将被移动到目标会话。`)) {
+                  onMerge(e.target.value);
+                }
               }
             }}
             onClick={(e) => e.stopPropagation()}
@@ -250,7 +253,7 @@ export function Sidebar({
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
   const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
   const { isArchived, toggleArchive, bulkArchive, bulkUnarchive } = useConversationArchiving();
-  const { mergeConversations } = useConversationMerging();
+  const { mergeConversations, merged } = useConversationMerging();
 
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
@@ -574,6 +577,24 @@ export function Sidebar({
           </div>
         </div>
       </div>
+      {Object.keys(merged).length > 0 && (
+        <div className="merge-history-section">
+          <span className="merge-history-header"><GitMerge size={12} /> 合并记录</span>
+          <div className="merge-history-list">
+            {Object.entries(merged).slice(-3).map(([sourceId, record]: [string, { sourceId: string; targetId: string; mergedAt: string }]) => {
+              const source = conversations.find((c) => c.id === sourceId);
+              const target = conversations.find((c) => c.id === record.targetId);
+              return (
+                <div key={sourceId} className="merge-history-item">
+                  <span className="merge-history-source">{source?.title || "已删除"}</span>
+                  <span className="merge-history-arrow">→</span>
+                  <span className="merge-history-target">{target?.title || "已删除"}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <UserFooter dark={dark} onThemeToggle={onThemeToggle} onLogout={onLogout} />
     </>
   );
