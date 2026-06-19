@@ -7264,3 +7264,28 @@ button:disabled {
   border: 1px solid var(--border, #ddd);
   flex-shrink: 0;
 }
+
+.composer-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.composer-input-extras {
+  display: flex;
+  align-items: center;
+  padding-bottom: 8px;
+}
+
+.composer-input-extras .icon-button.active {
+  background: var(--danger, #c33);
+  color: white;
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
+.voice-input-error {
+  font-size: 11px;
+  color: var(--danger, #c33);
+  padding: 0 6px;
+}

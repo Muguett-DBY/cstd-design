@@ -30,6 +30,7 @@ import { StatsPanel } from "./StatsPanel";
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 import { PdfExportButton } from "./PdfExportButton";
 import { PromptSuggestions } from "./PromptSuggestions";
+import { VoiceInputButton } from "./VoiceInputButton";
 
 const ASSISTANT_NAME = "助手";
 
@@ -799,20 +800,27 @@ export function ChatWorkspace({
               )}
             </div>
           )}
-          <textarea
-            ref={textareaRef}
-            value={draft.content}
-            maxLength={8000}
-            onChange={(event) => setDraft({ ...draft, content: event.target.value })}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                void send();
-              }
-            }}
+          <div className="composer-input-wrapper">
+            <textarea
+              ref={textareaRef}
+              value={draft.content}
+              maxLength={8000}
+              onChange={(event) => setDraft({ ...draft, content: event.target.value })}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  void send();
+                }
+              }}
             placeholder="输入你的问题...（Shift + Enter 换行）"
             aria-label="输入消息"
           />
+            <div className="composer-input-extras">
+              <VoiceInputButton
+                onTranscript={(text) => setDraft((prev) => ({ ...prev, content: prev.content ? prev.content + " " + text : text }))}
+              />
+            </div>
+          </div>
           <div className="composer-actions">
             <span className="char-count">{draft.content.length}/8000</span>
             <button type="button" className="ghost-button" onClick={() => setDraft(initialChatDraft())}>
