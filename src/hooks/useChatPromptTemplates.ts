@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { expandVariables } from "./usePromptTemplates";
 
 const STORAGE_KEY = "cstd-design:chat-prompt-templates";
 
@@ -7,6 +8,7 @@ export interface ChatPromptTemplate {
   name: string;
   prompt: string;
   createdAt: string;
+  variables?: string[];
 }
 
 function loadTemplates(): ChatPromptTemplate[] {
@@ -25,9 +27,10 @@ function seedTemplates(): ChatPromptTemplate[] {
   return [
     {
       id: "seed-1",
-      name: "总结文本",
-      prompt: "请用简洁的要点总结以下内容，并列出 3 个关键信息：\n\n",
+      name: "总结今日内容",
+      prompt: "请用简洁的要点总结今天 ({{date}}) 讨论的内容，列出 3 个关键信息：\n\n",
       createdAt: now,
+      variables: ["date"],
     },
     {
       id: "seed-2",
@@ -38,14 +41,23 @@ function seedTemplates(): ChatPromptTemplate[] {
     {
       id: "seed-3",
       name: "头脑风暴",
-      prompt: "围绕以下主题，请给出 10 个新颖且有创意的想法，每个想法附上简短说明：\n\n主题：",
+      prompt: "现在是 {{datetime}}。围绕以下主题，请给出 10 个新颖且有创意的想法：\n\n主题：",
       createdAt: now,
+      variables: ["datetime"],
     },
   ];
 }
 
 export function useChatPromptTemplates() {
   const [templates, setTemplates] = useState<ChatPromptTemplate[]>(loadTemplates);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(templates));
+    } catch {
+      // localStorage may be full or disabled
+    }
+  }, [templates]);
 
   const save = useCallback((name: string, prompt: string) => {
     setTemplates((prev) => {
@@ -55,27 +67,15 @@ export function useChatPromptTemplates() {
         prompt,
         createdAt: new Date().toISOString(),
       };
-      const next = [newTemplate, ...prev];
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // localStorage may be full or disabled
-      }
-      return next;
+      return [newTemplate, ...prev];
     });
   }, []);
 
   const remove = useCallback((id: string) => {
-    setTemplates((prev) => {
-      const next = prev.filter((t) => t.id !== id);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        // localStorage may be full or disabled
-      }
-      return next;
-    });
+    setTemplates((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   return { templates, save, remove };
 }
+
+export { expandVariables };

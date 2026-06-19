@@ -21,7 +21,7 @@ import { useMessageThreading } from "../hooks/useMessageThreading";
 import { useMessageEditing } from "../hooks/useMessageEditing";
 import { useMessageBookmarking } from "../hooks/useMessageBookmarking";
 import { useMessageForwarding } from "../hooks/useMessageForwarding";
-import { useChatPromptTemplates } from "../hooks/useChatPromptTemplates";
+import { useChatPromptTemplates, expandVariables } from "../hooks/useChatPromptTemplates";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
@@ -780,7 +780,7 @@ export function ChatWorkspace({
                 templates.map((t) => (
                   <div key={t.id} className="template-item" role="listitem">
                     <button type="button" className="template-name" onClick={() => {
-                      setDraft({ ...draft, content: t.prompt });
+                      setDraft({ ...draft, content: expandVariables(t.prompt) });
                       setShowTemplates(false);
                       window.requestAnimationFrame(() => textareaRef.current?.focus());
                     }}>
