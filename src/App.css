@@ -3177,7 +3177,8 @@ button:disabled {
     display: inline-flex;
     flex: 0 0 auto;
     margin-top: 2px;
-    min-height: 42px;
+    min-height: 44px;
+    min-width: 44px;
     border-radius: 12px;
   }
 
@@ -3214,6 +3215,11 @@ button:disabled {
     gap: 8px;
   }
 
+  .row-actions button {
+    min-height: 36px;
+    padding: 6px 10px;
+  }
+
   .messages {
     padding: 18px 16px;
     gap: 16px;
@@ -3234,6 +3240,17 @@ button:disabled {
   .avatar {
     width: 34px;
     height: 34px;
+  }
+
+  .message-actions {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .message-actions button {
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 12px;
   }
 
   .composer {
@@ -3278,10 +3295,26 @@ button:disabled {
 
   .asset-checkbox {
     opacity: 1;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .asset-select-bar {
     display: none;
+  }
+
+  .export-modal-overlay {
+    padding: 12px;
+  }
+
+  .export-modal {
+    width: 100%;
+    max-height: calc(100svh - 24px);
+    overflow-y: auto;
+  }
+
+  .picker-modal {
+    max-height: calc(100svh - 24px);
   }
 
   .mobile-tabs {
