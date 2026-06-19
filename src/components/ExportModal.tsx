@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
-import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye } from "lucide-react";
+import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Clipboard } from "lucide-react";
 
 const ASSISTANT_NAME = "助手";
 
-type ExportFormat = "markdown" | "html" | "pdf";
+type ExportFormat = "markdown" | "html" | "pdf" | "text";
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -72,6 +72,19 @@ function generateMarkdown(title: string, messages: { role: string; content: stri
   return header + body;
 }
 
+function generateText(title: string, messages: { role: string; content: string; status: string }[]): string {
+  const date = new Date().toLocaleString("zh-CN");
+  const header = `${title}\n导出时间：${date}\n${"=".repeat(40)}\n\n`;
+  const body = messages
+    .filter((m) => m.status !== "streaming")
+    .map((m) => {
+      const role = m.role === "user" ? "你" : ASSISTANT_NAME;
+      return `[${role}]\n${m.content}\n`;
+    })
+    .join(`\n${"-".repeat(40)}\n\n`);
+  return header + body;
+}
+
 function escapeHTML(str: string): string {
   return str
     .replace(/&/g, "&amp;")
@@ -126,10 +139,14 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   }, [messages, selectedMessages]);
 
   const previewContent = useMemo(() => {
-    if (format === "markdown") {
-      return generateMarkdown(title, filteredMessages);
+    switch (format) {
+      case "markdown":
+        return generateMarkdown(title, filteredMessages);
+      case "text":
+        return generateText(title, filteredMessages);
+      default:
+        return generateHTML(title, filteredMessages);
     }
-    return generateHTML(title, filteredMessages);
   }, [title, filteredMessages, format]);
 
   const toggleAllMessages = () => {
@@ -162,6 +179,11 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
       case "markdown": {
         const content = generateMarkdown(title, filteredMessages);
         downloadFile(content, `${safeTitle}.md`, "text/markdown;charset=utf-8");
+        break;
+      }
+      case "text": {
+        const content = generateText(title, filteredMessages);
+        downloadFile(content, `${safeTitle}.txt`, "text/plain;charset=utf-8");
         break;
       }
       case "html": {
@@ -306,7 +328,16 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
             >
               <FileText size={20} />
               <span className="export-format-label">Markdown</span>
-              <span className="export-format-desc">纯文本格式，便于编辑</span>
+              <span className="export-format-desc">富文本格式，便于编辑</span>
+            </button>
+            <button
+              type="button"
+              className={`export-format-btn${format === "text" ? " active" : ""}`}
+              onClick={() => setFormat("text")}
+            >
+              <Clipboard size={20} />
+              <span className="export-format-label">纯文本</span>
+              <span className="export-format-desc">纯文本格式，便于复制</span>
             </button>
             <button
               type="button"
