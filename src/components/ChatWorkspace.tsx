@@ -12,7 +12,6 @@ import { InfoLine } from "./InfoLine";
 import { EmptyState } from "./EmptyState";
 import { ScrollToBottom } from "./ScrollToBottom";
 import { MessageSearchBar } from "./MessageSearchBar";
-const ExportModal = lazy(() => import("./ExportModal").then((m) => ({ default: m.ExportModal })));
 import { useMessageSearch } from "../hooks/useMessageSearch";
 import { useSavedSearches } from "../hooks/useSavedSearches";
 import { useMessageReactions } from "../hooks/useMessageReactions";
@@ -26,9 +25,10 @@ import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
 import { ConversationPickerModal } from "./ConversationPickerModal";
-import { StatsPanel } from "./StatsPanel";
+const StatsPanel = lazy(() => import("./StatsPanel").then((m) => ({ default: m.StatsPanel })));
+const ExportModal = lazy(() => import("./ExportModal").then((m) => ({ default: m.ExportModal })));
 import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
-import { PdfExportButton } from "./PdfExportButton";
+const PdfExportButton = lazy(() => import("./PdfExportButton").then((m) => ({ default: m.PdfExportButton })));
 import { PromptSuggestions } from "./PromptSuggestions";
 import { VoiceInputButton } from "./VoiceInputButton";
 
@@ -433,13 +433,15 @@ export function ChatWorkspace({
             <button type="button" className="ghost-button" onClick={quickExportMarkdown} disabled={!conversation || messages.length === 0} title="快速导出为 Markdown 文件">
               <Download size={16} /> 快速导出
             </button>
-            <PdfExportButton
-              title={conversation?.title || "conversation"}
-              messages={messages
-                .filter((m) => m.status !== "streaming")
-                .map((m) => ({ role: m.role, content: m.content, createdAt: m.createdAt }))}
-              onNotice={onNotice}
-            />
+            <Suspense fallback={<button type="button" className="ghost-button" disabled><Download size={16} /> PDF</button>}>
+              <PdfExportButton
+                title={conversation?.title || "conversation"}
+                messages={messages
+                  .filter((m) => m.status !== "streaming")
+                  .map((m) => ({ role: m.role, content: m.content, createdAt: m.createdAt }))}
+                onNotice={onNotice}
+              />
+            </Suspense>
             <button type="button" className="ghost-button" onClick={() => setShowExportModal(true)} disabled={!conversation || messages.length === 0}>
               <FileText size={16} /> 高级导出
             </button>
@@ -922,7 +924,9 @@ export function ChatWorkspace({
             </button>
           ))}
         </div>
-        <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} usage={usageStats || { messageSent: 0, imageGenerated: 0, videoGenerated: 0, imageEdited: 0, videoAbandoned: 0 }} events={usageEvents || []} />
+        <Suspense fallback={<div className="stats-skeleton" />}>
+          <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} usage={usageStats || { messageSent: 0, imageGenerated: 0, videoGenerated: 0, imageEdited: 0, videoAbandoned: 0 }} events={usageEvents || []} />
+        </Suspense>
         <img src="/brand/mascot.png" alt="" className="panel-mascot" />
       </aside>
 
