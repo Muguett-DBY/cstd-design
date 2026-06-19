@@ -15,6 +15,7 @@ import {
 } from "./components";
 import { useToast } from "./components/toast-context";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
+import { useVideoTaskPersistence } from "./hooks/useVideoTaskPersistence";
 import { NetworkBanner } from "./components/NetworkBanner";
 import { OnboardingTour } from "./components/OnboardingTour";
 
@@ -44,7 +45,7 @@ function AppInner() {
   const [lightboxAsset, setLightboxAsset] = useState<AssetItem | null>(null);
   const [lightboxAssets, setLightboxAssets] = useState<AssetItem[]>([]);
   const [loadingConversation, setLoadingConversation] = useState(false);
-  const [videoTask, setVideoTask] = useState<{ id: string; status: string; progress: number; assetUrl?: string } | null>(null);
+  const { task: videoTask, setTask: setVideoTask } = useVideoTaskPersistence();
   const [videoSubmittedPrompt, setVideoSubmittedPrompt] = useState("");
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem("cstd-design:dark");
@@ -168,13 +169,16 @@ function AppInner() {
           if (scope === "image" || scope === "video" || scope === "assets" || scope === "all") {
             await refreshAssets();
           }
+          if (scope === "video" || scope === "all") {
+            setVideoTask(null);
+          }
           toast(`已清空${label}：会话 ${result.deleted.conversations}，消息 ${result.deleted.messages}，素材 ${result.deleted.assets}，视频任务 ${result.deleted.videoTasks}。`, "success");
         } catch (error) {
           toast(error instanceof Error ? error.message : "操作失败。", "error");
         }
       },
     );
-  }, [refreshAssets, refreshConversations, requestConfirm, toast]);
+  }, [refreshAssets, refreshConversations, requestConfirm, toast, setVideoTask]);
 
   useEffect(() => {
     api
