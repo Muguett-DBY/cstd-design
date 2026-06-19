@@ -22,7 +22,7 @@ const STYLE_PRESETS: { id: string; label: string; prefix: string }[] = [
   { id: "sketch", label: "素描", prefix: "铅笔素描风格，" },
 ];
 
-export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean }) {
+export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void }) {
   const [prompt, setPrompt] = useState("");
   const [size, setSize] = useState<ImageSize>(() => readStoredImageSize());
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
@@ -43,6 +43,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       setPrompt("");
       setStyle("none");
       await onAssetsChanged();
+      onRecordUsage?.("image_generated");
       onNotice(`图片已保存到素材库：${result.asset.filename}`);
     } catch (error) {
       onNotice(error instanceof Error ? error.message : "图片生成失败。");

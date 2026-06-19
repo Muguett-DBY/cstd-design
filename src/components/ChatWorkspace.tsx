@@ -85,6 +85,8 @@ export function ChatWorkspace({
   onNotice,
   allConversations = [],
   allAssets = [],
+  onRecordUsage,
+  usageStats,
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -100,6 +102,8 @@ export function ChatWorkspace({
   onNotice: (message: string) => void;
   allConversations?: ConversationSummary[];
   allAssets?: AssetItem[];
+  onRecordUsage?: (type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned") => void;
+  usageStats?: { messageSent: number; imageGenerated: number; videoGenerated: number; imageEdited: number; videoAbandoned: number };
 }) {
   const [draft, setDraft] = useState(initialChatDraft());
   const [streaming, setStreaming] = useState(false);
@@ -197,6 +201,7 @@ export function ChatWorkspace({
 
   const sendContent = async (content: string, parentId: string | null) => {
     if (!content || streaming) return;
+    onRecordUsage?.("message_sent");
     setStreaming(true);
     setDraft(initialChatDraft());
     const abort = new AbortController();
@@ -907,7 +912,7 @@ export function ChatWorkspace({
             </button>
           ))}
         </div>
-        <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} />
+        <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} usage={usageStats || { messageSent: 0, imageGenerated: 0, videoGenerated: 0, imageEdited: 0, videoAbandoned: 0 }} />
         <img src="/brand/mascot.png" alt="" className="panel-mascot" />
       </aside>
 

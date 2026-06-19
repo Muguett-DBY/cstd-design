@@ -33,6 +33,7 @@ import { VideoTasksPanel } from "./components/VideoTasksPanel";
 import { useVideoTaskHistory } from "./hooks/useVideoTaskHistory";
 import { ImageEditor } from "./components/ImageEditor";
 import { GlobalSearchModal } from "./components/GlobalSearchModal";
+import { useUsageStats } from "./hooks/useUsageStats";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -81,6 +82,7 @@ function AppInner() {
   const { language, setLanguage, t } = useLanguage();
   const notifications = useNotifications();
   const videoHistory = useVideoTaskHistory();
+  const usageStats = useUsageStats();
 
   // Confirm dialog state
   const [confirmState, setConfirmState] = useState<{
@@ -585,6 +587,8 @@ function AppInner() {
             loading={loadingConversation}
             allConversations={conversations}
             allAssets={assets}
+            onRecordUsage={usageStats.record}
+            usageStats={usageStats.stats}
             onCreate={async () => {
               try {
                 const created = await api.createConversation();
