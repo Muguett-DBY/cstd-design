@@ -393,6 +393,9 @@ export function Sidebar({
           ))}
           <button type="button" className={`folder-chip${showArchived ? " active" : ""}`} onClick={() => setShowArchived(!showArchived)}>
             <Archive size={12} /> 归档
+            {conversations.filter((c) => isArchived(c.id)).length > 0 && (
+              <span className="folder-count">{conversations.filter((c) => isArchived(c.id)).length}</span>
+            )}
           </button>
           <button type="button" className="folder-add-btn" onClick={() => setShowFolderInput(!showFolderInput)} title="新建文件夹">
             <FolderPlus size={14} />

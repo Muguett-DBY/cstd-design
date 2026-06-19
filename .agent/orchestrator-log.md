@@ -116,13 +116,26 @@
 
 ### Phase 9/18 — UIUX: Mobile experience audit and improvements
 
+**Status**: DONE
+**Commit**: `7f5a4fd`
+**CI**: Passed (run `27815675311`)
+
+**Completed**:
+- Improved mobile menu button touch target (44px minimum)
+- Added min-width/min-height for asset checkboxes on mobile
+- Improved message action button sizing on mobile
+- Added mobile modal sizing for export and picker modals
+- Improved row-actions button sizing on mobile
+
+### Phase 10/18 — IMPROVE: Conversation archive improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:45:00Z
+**Started**: 2026-06-19T08:50:00Z
 
 **Plan**:
-- Audit mobile touch targets across all workspaces
-- Improve modal sizes for mobile viewports
-- Fix mobile navigation rhythm and spacing
-- Improve mobile composer and message layout
+- Improve archive filter with archive count display
+- Add bulk archive operations
+- Add archive statistics
+- Improve archive restore flow
 
-**Verification**: lint, typecheck, tests, build, CI, rendered QA
+**Verification**: lint, typecheck, tests, build, CI
