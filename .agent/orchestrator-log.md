@@ -118,13 +118,25 @@
 
 ### Phase 9/18 — UIUX: Accessibility improvements (ARIA, keyboard nav)
 
+**Status**: DONE
+**Commit**: `d978efe`
+**CI**: Passed (run `27820882565`)
+
+**Completed**:
+- Added aria-pressed to folder chips, sort options, filter options
+- Added role=radio and aria-checked to Segmented and style chips
+- Added role=radiogroup to segmented containers
+- Added aria-label to folder delete span (was a non-interactive span)
+
+### Phase 10/18 — IMPROVE: Test coverage expansion
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:25:00Z
+**Started**: 2026-06-19T10:30:00Z
 
 **Plan**:
-- Add aria-pressed to toggle buttons (sort, filter, folder, style)
-- Add aria-expanded to collapsible sections
-- Add aria-live to loading states
-- Improve focus indicators
+- Add tests for utility functions (formatBytes, formatDuration, etc.)
+- Add tests for new hooks (useVideoTaskPersistence, useAssetMetadata, asset-metadata)
+- Add tests for ResultCard and OnboardingTour components
+- Add tests for Segmented component
 
 **Verification**: lint, typecheck, tests, build, CI
