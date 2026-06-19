@@ -22,7 +22,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const collections = useCollections();
-  const { addTag, removeTag, getTags, allTags } = useAssetTags();
+  const { addTag, removeTag, getTags, allTags, ...assetTags } = useAssetTags();
   const allAssets = assets;
   const byKind = filterAssets(allAssets, filter);
   const byCollection = activeCollection ? collections.filterByCollection(byKind.map((a) => a.id), activeCollection) : byKind.map((a) => a.id);
@@ -271,11 +271,13 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                   <div className="asset-tag-picker-wrapper">
                     <TagPicker
                       assetId={asset.id}
+                      assetHint={asset.filename}
                       onClose={() => setShowTagPickerFor(null)}
                       getTags={getTags}
                       allTags={allTags}
                       addTag={addTag}
                       removeTag={removeTag}
+                      suggestTags={assetTags.suggestTags}
                     />
                   </div>
                 )}

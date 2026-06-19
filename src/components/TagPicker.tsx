@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, Sparkles, X } from "lucide-react";
 
 export function TagPicker({
   assetId,
+  assetHint,
   onClose,
   onTagAdded,
   onTagRemoved,
@@ -10,8 +11,10 @@ export function TagPicker({
   allTags,
   addTag,
   removeTag,
+  suggestTags,
 }: {
   assetId: string;
+  assetHint?: string;
   onClose: () => void;
   onTagAdded?: (tag: string) => void;
   onTagRemoved?: (tag: string) => void;
@@ -19,10 +22,14 @@ export function TagPicker({
   allTags: () => string[];
   addTag: (assetId: string, tag: string) => void;
   removeTag: (assetId: string, tag: string) => void;
+  suggestTags?: (source: string, limit?: number) => string[];
 }) {
   const [input, setInput] = useState("");
   const current = getTags(assetId);
-  const suggestions = allTags().filter((t) => !current.includes(t));
+  const all = allTags().filter((t) => !current.includes(t));
+  const smart = suggestTags && assetHint
+    ? suggestTags(assetHint, 4).filter((t) => !current.includes(t))
+    : [];
 
   const handleAdd = (tag: string) => {
     addTag(assetId, tag);
@@ -70,10 +77,27 @@ export function TagPicker({
           <Plus size={14} />
         </button>
       </form>
-      {suggestions.length > 0 && (
+      {smart.length > 0 && (
         <div className="tag-picker-suggestions">
-          <span className="tag-picker-label">建议：</span>
-          {suggestions.slice(0, 8).map((tag) => (
+          <span className="tag-picker-label">
+            <Sparkles size={11} /> 智能推荐：
+          </span>
+          {smart.map((tag) => (
+            <button
+              key={tag}
+              type="button"
+              className="tag-chip clickable"
+              onClick={() => handleAdd(tag)}
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      )}
+      {all.length > 0 && (
+        <div className="tag-picker-suggestions">
+          <span className="tag-picker-label">所有标签：</span>
+          {all.slice(0, 8).map((tag) => (
             <button
               key={tag}
               type="button"
