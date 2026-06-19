@@ -2840,6 +2840,7 @@ button:disabled {
   border-bottom: 1px solid var(--line);
   background: var(--surface);
   animation: slideDown 0.2s ease;
+  position: relative;
 }
 
 .message-search-bar .search-icon {
@@ -2859,6 +2860,43 @@ button:disabled {
 
 .message-search-input::placeholder {
   color: var(--muted);
+}
+
+.search-history-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-history-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.search-history-item:hover {
+  background: var(--soft);
+}
+
+.search-history-item svg {
+  color: var(--muted);
+  flex-shrink: 0;
 }
 
 .search-result-count {
