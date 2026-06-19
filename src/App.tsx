@@ -451,6 +451,7 @@ function AppInner() {
         language={language}
         onLanguageChange={setLanguage}
         t={t}
+        onNotice={(msg: string) => toast(msg, "info")}
       />
 
       <SharedConversationsModal
