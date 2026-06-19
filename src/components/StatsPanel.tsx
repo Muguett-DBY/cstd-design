@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { BarChart3, Folder, Image as ImageIcon, MessageSquare, Video } from "lucide-react";
 import { formatBytes } from "../app-state";
 import type { AssetItem, ChatMessage, ConversationSummary } from "../types";
+import { ActivityHeatmap } from "./ActivityHeatmap";
+import type { UsageEvent } from "../hooks/useUsageStats";
 
 interface Stats {
   conversationCount: number;
@@ -65,11 +67,13 @@ export function StatsPanel({
   messages,
   assets,
   usage,
+  events,
 }: {
   conversations: ConversationSummary[];
   messages: ChatMessage[];
   assets: AssetItem[];
   usage: { messageSent: number; imageGenerated: number; videoGenerated: number; imageEdited: number; videoAbandoned: number };
+  events: UsageEvent[];
 }) {
   const stats = useMemo(() => computeStats(conversations, messages, assets), [conversations, messages, assets]);
   const maxDay = Math.max(1, ...stats.messagesPerDay.map((d) => d.count));
@@ -139,6 +143,7 @@ export function StatsPanel({
           ))
         )}
       </div>
+      {events.length > 0 && <ActivityHeatmap events={events} />}
     </div>
   );
 }

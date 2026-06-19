@@ -88,6 +88,7 @@ export function ChatWorkspace({
   allAssets = [],
   onRecordUsage,
   usageStats,
+  usageEvents,
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -105,6 +106,7 @@ export function ChatWorkspace({
   allAssets?: AssetItem[];
   onRecordUsage?: (type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned") => void;
   usageStats?: { messageSent: number; imageGenerated: number; videoGenerated: number; imageEdited: number; videoAbandoned: number };
+  usageEvents?: { type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned"; timestamp: string }[];
 }) {
   const [draft, setDraft] = useState(initialChatDraft());
   const [streaming, setStreaming] = useState(false);
@@ -920,7 +922,7 @@ export function ChatWorkspace({
             </button>
           ))}
         </div>
-        <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} usage={usageStats || { messageSent: 0, imageGenerated: 0, videoGenerated: 0, imageEdited: 0, videoAbandoned: 0 }} />
+        <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} usage={usageStats || { messageSent: 0, imageGenerated: 0, videoGenerated: 0, imageEdited: 0, videoAbandoned: 0 }} events={usageEvents || []} />
         <img src="/brand/mascot.png" alt="" className="panel-mascot" />
       </aside>
 

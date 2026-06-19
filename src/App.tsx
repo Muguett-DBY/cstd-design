@@ -589,6 +589,7 @@ function AppInner() {
             allAssets={assets}
             onRecordUsage={usageStats.record}
             usageStats={usageStats.stats}
+            usageEvents={usageStats.stats.events}
             onCreate={async () => {
               try {
                 const created = await api.createConversation();
