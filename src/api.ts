@@ -81,6 +81,10 @@ export const api = {
   pins: (conversationId: string) => requestJson<{ pins: { id: string; messageId: string; conversationId: string; createdAt: string }[] }>(`/api/conversations/${conversationId}/pins`),
   addPin: (conversationId: string, messageId: string) => requestJson<{ pin: { id: string; messageId: string; conversationId: string; createdAt: string } }>(`/api/conversations/${conversationId}/pins`, { method: "POST", body: JSON.stringify({ messageId }) }),
   removePin: (id: string) => requestJson<{ ok: true }>(`/api/pins/${id}`, { method: "DELETE" }),
+  reactions: (conversationId: string) => requestJson<{ reactions: Record<string, string[]> }>(`/api/conversations/${conversationId}/reactions`),
+  toggleReaction: (conversationId: string, messageId: string, emoji: string) => requestJson<{ status: "added" | "removed" }>(`/api/conversations/${conversationId}/reactions`, { method: "POST", body: JSON.stringify({ messageId, emoji }) }),
+  edits: (conversationId: string) => requestJson<{ edits: Record<string, { id: string; messageId: string; originalContent: string; editedContent: string; createdAt: string }[]> }>(`/api/conversations/${conversationId}/edits`),
+  addEdit: (conversationId: string, messageId: string, originalContent: string, editedContent: string) => requestJson<{ edit: { id: string; messageId: string; originalContent: string; editedContent: string; createdAt: string } }>(`/api/conversations/${conversationId}/edits`, { method: "POST", body: JSON.stringify({ messageId, originalContent, editedContent }) }),
 };
 
 const STREAM_TIMEOUT_MS = 120_000;
