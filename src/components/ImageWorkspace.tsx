@@ -100,9 +100,16 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
 
         <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} disabled={loading} maxLength={8000} placeholder="描述你想要的画面..." />
         <div className="char-count">{prompt.length}/8000</div>
-        <div className="style-presets">
+        <div className="style-presets" role="radiogroup" aria-label="图片风格">
           {STYLE_PRESETS.map((p) => (
-            <button key={p.id} type="button" className={`style-chip${style === p.id ? " active" : ""}`} onClick={() => setStyle(p.id)}>
+            <button
+              key={p.id}
+              type="button"
+              className={`style-chip${style === p.id ? " active" : ""}`}
+              onClick={() => setStyle(p.id)}
+              role="radio"
+              aria-checked={style === p.id}
+            >
               {p.id === "none" ? null : <Sparkles size={12} />} {p.label}
             </button>
           ))}

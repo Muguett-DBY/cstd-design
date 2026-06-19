@@ -106,13 +106,25 @@
 
 ### Phase 8/18 — IMPROVE: Image regeneration with style reference
 
+**Status**: DONE
+**Commit**: `c30d380`
+**CI**: Passed (run `27820671117`)
+
+**Completed**:
+- Added onRegenerate prop to ResultCard
+- Added "以此为参考重新生成" button with RefreshCw icon
+- ImageWorkspace sets the last result as reference and pre-fills prompt for regeneration
+- Added result-card-actions CSS for consistent action layout
+
+### Phase 9/18 — UIUX: Accessibility improvements (ARIA, keyboard nav)
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:20:00Z
+**Started**: 2026-06-19T10:25:00Z
 
 **Plan**:
-- Add regenerate button to ResultCard
-- Use previous result as style reference for regeneration
-- Allow editing prompt before regenerating
-- Show regeneration progress in result card
+- Add aria-pressed to toggle buttons (sort, filter, folder, style)
+- Add aria-expanded to collapsible sections
+- Add aria-live to loading states
+- Improve focus indicators
 
 **Verification**: lint, typecheck, tests, build, CI
