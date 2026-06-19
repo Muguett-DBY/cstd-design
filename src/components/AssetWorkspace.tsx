@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, RefreshCw, Trash2 } from "lucide-react";
+import { Download, Eye, RefreshCw, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
@@ -120,6 +120,9 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                 </div>
                 <div className="asset-preview" style={{ cursor: asset.mediaType.startsWith("video") ? "default" : "pointer" }} onClick={() => { if (!asset.mediaType.startsWith("video")) onPreview?.(asset); }}>
                   {asset.mediaType.startsWith("video") ? <video src={asset.url} controls /> : <img src={asset.url} alt={asset.filename} loading="lazy" />}
+                  {!asset.mediaType.startsWith("video") && (
+                    <span className="asset-preview-hint" aria-hidden="true"><Eye size={14} /></span>
+                  )}
                 </div>
                 <div className="asset-meta">
                   <strong>{asset.filename}</strong>
