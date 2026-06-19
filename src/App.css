@@ -1556,6 +1556,19 @@ button:disabled {
   line-height: 1.3;
 }
 
+.forwarded-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 1px 6px;
+  background: var(--soft);
+  border-radius: 8px;
+  line-height: 1;
+}
+
 .message-actions button.copied {
   background: var(--accent);
   color: var(--on-accent-text);

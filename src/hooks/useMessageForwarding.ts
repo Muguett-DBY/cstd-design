@@ -8,6 +8,9 @@ export interface ForwardRecord {
   forwardedAt: string;
   targetConversation: string;
   targetConversationId: string;
+  sourceConversationId?: string;
+  sourceConversationTitle?: string;
+  threadParentId?: string;
 }
 
 type ForwardedMessages = ForwardRecord[];
@@ -28,7 +31,7 @@ function saveForwarded(forwarded: ForwardedMessages) {
 export function useMessageForwarding() {
   const [forwarded, setForwarded] = useState<ForwardedMessages>(loadForwarded);
 
-  const logForward = useCallback((messageId: string, content: string, targetConversation: string, targetConversationId: string) => {
+  const logForward = useCallback((messageId: string, content: string, targetConversation: string, targetConversationId: string, sourceConversationId?: string, sourceConversationTitle?: string, threadParentId?: string) => {
     setForwarded((prev) => {
       const updated = [
         ...prev,
@@ -38,6 +41,9 @@ export function useMessageForwarding() {
           forwardedAt: new Date().toISOString(),
           targetConversation,
           targetConversationId,
+          sourceConversationId,
+          sourceConversationTitle,
+          threadParentId,
         },
       ];
       saveForwarded(updated);
@@ -61,10 +67,15 @@ export function useMessageForwarding() {
     });
   }, []);
 
+  const getForwardedByTarget = useCallback((targetConversationId: string): ForwardRecord[] => {
+    return forwarded.filter((f) => f.targetConversationId === targetConversationId);
+  }, [forwarded]);
+
   return {
     logForward,
     getForwardedMessages,
     getForwardCount,
     removeForward,
+    getForwardedByTarget,
   };
 }

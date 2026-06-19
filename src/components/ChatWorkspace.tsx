@@ -116,7 +116,7 @@ export function ChatWorkspace({
   } = useMessageThreading(conversation?.id || null);
   const { getEditedContent, editMessage, isEdited, getEditCount } = useMessageEditing();
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking();
-  const { logForward, getForwardedMessages } = useMessageForwarding();
+  const { logForward, getForwardedMessages, getForwardCount } = useMessageForwarding();
   const search = useMessageSearch(messages, repliesByParent);
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -125,7 +125,7 @@ export function ChatWorkspace({
   const [editingMessage, setEditingMessage] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
   const [showPicker, setShowPicker] = useState(false);
-  const [pendingForward, setPendingForward] = useState<{ messageId: string; content: string } | null>(null);
+  const [pendingForward, setPendingForward] = useState<{ messageId: string; content: string; threadParentId?: string } | null>(null);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -371,6 +371,11 @@ export function ChatWorkspace({
                   <div className="message-meta">
                     <span>{row.message.role === "assistant" ? ASSISTANT_NAME : "你"}</span>
                     <span className="message-time">{row.message.createdAt ? timeAgo(row.message.createdAt) : ""}</span>
+                    {getForwardCount(row.message.id) > 0 && (
+                      <span className="forwarded-badge" title={`已转发 ${getForwardCount(row.message.id)} 次`}>
+                        <Forward size={10} /> 已转发
+                      </span>
+                    )}
                     {row.message.status === "streaming" && <em>正在生成...</em>}
                     {row.message.status === "interrupted" && <em>已中断</em>}
                   </div>
@@ -493,6 +498,10 @@ export function ChatWorkspace({
                     onUpdateReply={updateReply}
                     onRemoveReply={removeReply}
                     onClearThread={() => clearThread(row.message.id)}
+                    onForwardReply={(replyId, content) => {
+                      setPendingForward({ messageId: replyId, content, threadParentId: row.message.id });
+                      setShowPicker(true);
+                    }}
                     onNotice={onNotice}
                   />
                 </div>
@@ -637,13 +646,13 @@ export function ChatWorkspace({
         excludeId={conversation?.id}
         onSelect={async (target) => {
           if (!pendingForward) return;
-          const { messageId, content } = pendingForward;
+          const { messageId, content, threadParentId } = pendingForward;
           try {
             await streamChat(
               { conversationId: target.id, content },
               { onEvent: () => {} },
             );
-            logForward(messageId, content, target.title, target.id);
+            logForward(messageId, content, target.title, target.id, conversation?.id, conversation?.title, threadParentId);
             onNotice(`消息已转发到"${target.title}"`);
           } catch {
             onNotice("转发失败，请重试");

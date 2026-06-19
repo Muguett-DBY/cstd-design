@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Edit3, LoaderCircle, MessageSquare, Trash2, X } from "lucide-react";
+import { Check, Edit3, Forward, LoaderCircle, MessageSquare, Trash2, X } from "lucide-react";
 import type { ThreadReply } from "../types";
 import { timeAgo } from "../app-state";
 import { Markdown } from "./Markdown";
@@ -19,6 +19,7 @@ export function MessageThread({
   onUpdateReply,
   onRemoveReply,
   onClearThread,
+  onForwardReply,
   onNotice,
 }: {
   messageId: string;
@@ -35,6 +36,7 @@ export function MessageThread({
   onUpdateReply: (id: string, content: string) => Promise<unknown>;
   onRemoveReply: (id: string) => Promise<void>;
   onClearThread: () => Promise<void>;
+  onForwardReply: (replyId: string, content: string) => void;
   onNotice: (message: string) => void;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -109,6 +111,13 @@ export function MessageThread({
                           disabled={pending}
                         >
                           <Edit3 size={13} /> 编辑
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => onForwardReply(reply.id, reply.content)}
+                          disabled={pending}
+                        >
+                          <Forward size={13} /> 转发
                         </button>
                         <button
                           type="button"
