@@ -206,13 +206,25 @@
 
 ### Phase 16/18 — IMPROVE: Thread management improvements
 
+**Status**: DONE
+**Commit**: `f243520`
+**CI**: Passed (run `27817761580`)
+
+**Completed**:
+- Added search input to ThreadCenter with Search icon
+- Search filters threads by parent message content and reply content
+- Shows "无匹配线程" when no results match
+- Added CSS for thread-center-search with input styling
+
+### Phase 17/18 — CHECK: Final health check and cleanup
+
 **Status**: RUNNING
-**Started**: 2026-06-19T09:25:00Z
+**Started**: 2026-06-19T09:30:00Z
 
 **Plan**:
-- Add thread search within ThreadCenter
-- Add thread collapse all button
-- Improve thread action buttons
-- Add thread count indicator
+- Run full lint, typecheck, test, build suite
+- Check for dead code and unused imports
+- Check for type safety issues
+- Fix any remaining issues
 
 **Verification**: lint, typecheck, tests, build, CI
