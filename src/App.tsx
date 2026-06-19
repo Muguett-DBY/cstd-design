@@ -29,6 +29,8 @@ import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
 import { useNotifications } from "./hooks/useNotifications";
 import { SharedConversationsModal, SharedRoute } from "./components/SharedConversationsModal";
 import { MobileBottomNav } from "./components/MobileBottomNav";
+import { VideoTasksPanel } from "./components/VideoTasksPanel";
+import { useVideoTaskHistory } from "./hooks/useVideoTaskHistory";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -76,6 +78,7 @@ function AppInner() {
   const { theme, setTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
   const notifications = useNotifications();
+  const videoHistory = useVideoTaskHistory();
 
   // Confirm dialog state
   const [confirmState, setConfirmState] = useState<{
@@ -263,10 +266,23 @@ function AppInner() {
   useEffect(() => {
     if (videoTask && videoTask.status === "completed") {
       notifications.send("视频生成完成", `视频 ${videoTask.id.slice(0, 8)} 已完成`);
+      videoHistory.add({
+        id: videoTask.id,
+        prompt: videoSubmittedPrompt || "视频",
+        status: "completed",
+        finishedAt: new Date().toISOString(),
+        assetUrl: videoTask.assetUrl,
+      });
     } else if (videoTask && videoTask.status === "failed") {
       notifications.send("视频生成失败", `视频 ${videoTask.id.slice(0, 8)} 失败，请重试`);
+      videoHistory.add({
+        id: videoTask.id,
+        prompt: videoSubmittedPrompt || "视频",
+        status: "failed",
+        finishedAt: new Date().toISOString(),
+      });
     }
-  }, [videoTask, notifications]);
+  }, [videoTask, notifications, videoHistory, videoSubmittedPrompt]);
 
   useEffect(() => {
     if (!authenticated) return;
@@ -604,6 +620,12 @@ function AppInner() {
           <ErrorBoundary key="video">
           <Suspense fallback={<div className="messages-skeleton"><div className="message-skeleton"><div className="skeleton-avatar" /><div className="skeleton-body"><div className="skeleton-line" /></div></div></div>}>
           <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} videoTask={videoTask} onVideoTaskChange={setVideoTask} submittedPrompt={videoSubmittedPrompt} onSubmittedPromptChange={setVideoSubmittedPrompt} online={online} />
+          <VideoTasksPanel
+            history={videoHistory.history}
+            onRemove={videoHistory.remove}
+            onClear={videoHistory.clear}
+            activeTaskId={videoTask && (videoTask.status === "in_progress" || videoTask.status === "queued") ? videoTask.id : undefined}
+          />
           </Suspense>
           </ErrorBoundary>
         )}
