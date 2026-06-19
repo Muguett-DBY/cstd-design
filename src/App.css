@@ -4318,6 +4318,46 @@ button:disabled {
   margin-top: 0;
 }
 
+.global-drop-zone {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0, 0, 0, 0.65);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: fadeIn 0.15s ease;
+  backdrop-filter: blur(4px);
+}
+
+.global-drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 80px;
+  background: var(--bg);
+  border: 2px dashed var(--accent);
+  border-radius: 16px;
+  color: var(--text);
+  text-align: center;
+  animation: scaleIn 0.2s ease;
+}
+
+.global-drop-zone-content strong {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.global-drop-zone-content span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.global-drop-zone-content svg {
+  color: var(--accent);
+}
+
 .export-option-section {
   margin-bottom: 16px;
 }

@@ -20,6 +20,7 @@ import { NetworkBanner } from "./components/NetworkBanner";
 import { OnboardingTour } from "./components/OnboardingTour";
 import { CommandPalette, type CommandItem } from "./components/CommandPalette";
 import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
+import { GlobalDropZone } from "./components/GlobalDropZone";
 import { useShortcutsHelp } from "./hooks/useShortcutsHelp";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
@@ -363,6 +364,11 @@ function AppInner() {
       />
 
       <OnboardingTour />
+
+      <GlobalDropZone
+        onUploaded={refreshAssets}
+        onNotice={(msg) => toast(msg, "info")}
+      />
 
       <CommandPalette
         open={commandPaletteOpen}
