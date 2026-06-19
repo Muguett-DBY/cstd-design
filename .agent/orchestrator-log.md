@@ -155,13 +155,26 @@
 
 ### Phase 12/18 — IMPROVE: Performance and code splitting
 
+**Status**: DONE
+**Commit**: `ab6d82d`
+**CI**: Passed (run `27816649097`)
+
+**Completed**:
+- Lazy-loaded ImageWorkspace, VideoWorkspace, AssetWorkspace, Lightbox, ExportModal
+- Removed barrel exports for lazy components from index.ts
+- Main bundle reduced from 607KB to 569KB (185KB to 174KB gzipped)
+- Workspace components now load on-demand as separate chunks
+- Added Suspense fallbacks for lazy-loaded components
+
+### Phase 13/18 — IMPROVE: Conversation merge improvements
+
 **Status**: RUNNING
-**Started**: 2026-06-19T09:00:00Z
+**Started**: 2026-06-19T09:10:00Z
 
 **Plan**:
-- Analyze bundle size for code splitting opportunities
-- Add lazy loading for heavy components
-- Optimize render performance
-- Add virtualization for large lists if needed
+- Add merge preview before executing merge
+- Add selective message merge (choose which messages to merge)
+- Improve merge history tracking
+- Add merge undo capability
 
 **Verification**: lint, typecheck, tests, build, CI

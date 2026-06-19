@@ -73,5 +73,6 @@ export function useConversationMerging() {
     unmergeConversation,
     getMergedConversations,
     getUnmergedConversations,
+    merged,
   };
 }
