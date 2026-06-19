@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GitMerge, GripVertical, MessageSquare, Pin, Plus, Search, Square, Star, Tag, X } from "lucide-react";
+import { ImportConversationButton } from "./ImportConversationButton";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
 import { TABS } from "../constants";
@@ -225,6 +226,7 @@ export function Sidebar({
   onSearch,
   onSelectConversation,
   onCreateConversation,
+  onImportConversation,
   onDeleteConversation,
   onRequestConfirm,
   dark,
@@ -238,6 +240,7 @@ export function Sidebar({
   onSearch: (q: string) => void;
   onSelectConversation: (id: string) => void | Promise<void>;
   onCreateConversation: () => void | Promise<void>;
+  onImportConversation?: (data: { title: string; messages: { role: string; content: string; createdAt?: string }[] }) => Promise<void> | void;
   onDeleteConversation: (id: string) => void;
   onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void;
   dark: boolean;
@@ -312,6 +315,12 @@ export function Sidebar({
             <button type="button" className="icon-button" aria-label="新建会话" onClick={onCreateConversation}>
               <Plus size={18} />
             </button>
+            {onImportConversation && (
+              <ImportConversationButton
+                onImport={onImportConversation}
+                onNotice={() => {}}
+              />
+            )}
           </div>
         </div>
         <label className="search-box">
