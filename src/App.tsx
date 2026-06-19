@@ -569,6 +569,8 @@ function AppInner() {
         notifications={notifications}
         autoTheme={autoTheme}
         onAutoThemeChange={onAutoThemeChange}
+        customTabLabels={userPrefs.prefs.customTabLabels}
+        onCustomTabLabelsChange={(labels) => userPrefs.update("customTabLabels", labels)}
       />
 
       <SharedConversationsModal
