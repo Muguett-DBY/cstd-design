@@ -35,13 +35,29 @@
 
 ### Phase 3/18 — UIUX: Upload area and asset workspace visual polish
 
+**Status**: DONE
+**Commit**: `6c099e8`
+**CI**: Passed (run `27813849622`)
+
+**Completed**:
+- Polished upload box hover, drag-over, and uploading visual states
+- Added subtle shadow on upload hover for better affordance
+- Improved asset card metadata spacing and typography hierarchy
+- Enhanced empty state sizing and visual weight
+- Added dark mode support for upload area states
+- Improved progress bar thickness and transition smoothness
+
+### Phase 4/18 — IMPROVE: Move bookmarks and pins to D1-backed persistence
+
 **Status**: RUNNING
-**Started**: 2026-06-19T08:10:00Z
+**Started**: 2026-06-19T08:15:00Z
 
 **Plan**:
-- Polish upload area visual states (empty, dragging, uploading, success, error)
-- Improve asset card consistency and visual hierarchy
-- Enhance empty states for asset workspace
-- Improve loading states for asset grid
+- Add D1 schema for bookmarks and pins tables
+- Create server-side API endpoints for CRUD operations
+- Update `useMessageBookmarking` hook to use API instead of localStorage
+- Update `useMessagePinning` hook to use API instead of localStorage
+- Add migration script for D1 schema
+- Maintain backward compatibility with localStorage fallback
 
-**Verification**: lint, typecheck, tests, build, CI, rendered QA
+**Verification**: lint, typecheck, tests, build, CI

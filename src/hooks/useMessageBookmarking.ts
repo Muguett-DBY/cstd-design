@@ -1,40 +1,62 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { api } from "../api";
 
-const STORAGE_KEY = "cstd-design:bookmarkedMessages";
+export function useMessageBookmarking(conversationId: string | null) {
+  const [bookmarkIds, setBookmarkIds] = useState<Map<string, string>>(new Map());
+  const loadedRef = useRef(false);
 
-type BookmarkedMessages = Record<string, boolean>;
-
-function loadBookmarked(): BookmarkedMessages {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveBookmarked(bookmarked: BookmarkedMessages) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(bookmarked));
-}
-
-export function useMessageBookmarking() {
-  const [bookmarked, setBookmarked] = useState<BookmarkedMessages>(loadBookmarked);
+  useEffect(() => {
+    if (!conversationId) {
+      loadedRef.current = true;
+      return;
+    }
+    loadedRef.current = false;
+    api.bookmarks(conversationId)
+      .then((res) => {
+        const map = new Map<string, string>();
+        for (const b of res.bookmarks) map.set(b.messageId, b.id);
+        setBookmarkIds(map);
+        loadedRef.current = true;
+      })
+      .catch(() => { loadedRef.current = true; });
+  }, [conversationId]);
 
   const isBookmarked = useCallback((messageId: string): boolean => {
-    return bookmarked[messageId] || false;
-  }, [bookmarked]);
+    return bookmarkIds.has(messageId);
+  }, [bookmarkIds]);
 
-  const toggleBookmark = useCallback((messageId: string) => {
-    setBookmarked((prev) => {
-      const updated = { ...prev, [messageId]: !prev[messageId] };
-      saveBookmarked(updated);
-      return updated;
-    });
-  }, []);
+  const toggleBookmark = useCallback(async (messageId: string) => {
+    if (!conversationId) return;
+    const existingId = bookmarkIds.get(messageId);
+    if (existingId) {
+      setBookmarkIds((prev) => {
+        const next = new Map(prev);
+        next.delete(messageId);
+        return next;
+      });
+      try {
+        await api.removeBookmark(existingId);
+      } catch {
+        setBookmarkIds((prev) => new Map(prev).set(messageId, existingId));
+      }
+    } else {
+      setBookmarkIds((prev) => new Map(prev).set(messageId, "pending"));
+      try {
+        const res = await api.addBookmark(conversationId, messageId);
+        setBookmarkIds((prev) => new Map(prev).set(messageId, res.bookmark.id));
+      } catch {
+        setBookmarkIds((prev) => {
+          const next = new Map(prev);
+          next.delete(messageId);
+          return next;
+        });
+      }
+    }
+  }, [conversationId, bookmarkIds]);
 
   const getBookmarkedMessages = useCallback((messageIds: string[]): string[] => {
-    return messageIds.filter((id) => bookmarked[id]);
-  }, [bookmarked]);
+    return messageIds.filter((id) => bookmarkIds.has(id));
+  }, [bookmarkIds]);
 
   return {
     isBookmarked,
