@@ -6562,3 +6562,95 @@ button:disabled {
 .video-tasks-summary .summary-failed {
   color: var(--danger, #c33);
 }
+
+.prompt-suggestions {
+  margin-bottom: 8px;
+  display: grid;
+  gap: 6px;
+}
+
+.prompt-suggestions-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.prompt-suggestions-label.secondary {
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.prompt-suggestions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.prompt-suggestion-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--soft);
+  border: 1px solid var(--border, transparent);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.prompt-suggestion-chip:hover {
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg));
+  border-color: var(--accent);
+}
+
+.prompt-suggestion-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.prompt-suggestion-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prompt-suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.prompt-suggestion-link {
+  border: 1px dashed var(--border, #ddd);
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.prompt-suggestion-link:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.prompt-suggestion-more {
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
