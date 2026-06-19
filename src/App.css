@@ -3104,6 +3104,39 @@ button:disabled {
   object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: lightbox-fade-in 0.4s ease;
+}
+
+@keyframes lightbox-fade-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.lightbox-slideshow {
+  position: absolute;
+  top: 0;
+  right: 192px;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-radius: 999px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: background 0.15s, transform 0.15s;
+  backdrop-filter: blur(4px);
+}
+
+.lightbox-slideshow:hover {
+  background: rgba(0, 0, 0, 0.85);
+  transform: scale(1.08);
+}
+
+.lightbox-slideshow[aria-pressed="true"] {
+  background: rgba(76, 175, 239, 0.65);
 }
 
 .lightbox-video {

@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronLeft, ChevronRight, Download, Edit, Info, Maximize2, Minus, Plus, X } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Download, Edit, Info, Maximize2, Minus, Pause, Play, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatBytes } from "../app-state";
 import type { AssetItem } from "../types";
@@ -30,6 +30,7 @@ export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: Asse
   const [index, setIndex] = useState(startIndex);
   const [showInfo, setShowInfo] = useState(false);
   const [zoomByIndex, setZoomByIndex] = useState<Record<number, number>>({ [startIndex]: 1 });
+  const [slideshowActive, setSlideshowActive] = useState(false);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const prevButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -70,6 +71,10 @@ export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: Asse
       }
       if (event.key === "0") { setZoom(1); return; }
       if (event.key === "i" || event.key === "I") { setShowInfo((s) => !s); return; }
+      if (event.key === "s" || event.key === "S") {
+        if (assets.length > 1) setSlideshowActive((s) => !s);
+        return;
+      }
       if (event.key === "Tab") {
         const focusable = overlayRef.current?.querySelectorAll<HTMLElement>("button, a[href]");
         if (!focusable || focusable.length === 0) return;
@@ -91,6 +96,14 @@ export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: Asse
       document.body.style.overflow = "";
     };
   }, [onClose, index, assets.length, setZoom]);
+
+  useEffect(() => {
+    if (!slideshowActive || assets.length < 2) return;
+    const timer = window.setInterval(() => {
+      setIndex((i) => (i + 1) % assets.length);
+    }, 3500);
+    return () => window.clearInterval(timer);
+  }, [slideshowActive, assets.length]);
 
   if (!asset) return null;
 
@@ -151,6 +164,18 @@ export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: Asse
         >
           <Maximize2 size={20} />
         </button>
+        {assets.length > 1 && (
+          <button
+            type="button"
+            className="lightbox-slideshow"
+            onClick={() => setSlideshowActive((s) => !s)}
+            aria-label={slideshowActive ? "暂停幻灯片" : "开始幻灯片"}
+            aria-pressed={slideshowActive}
+            title={slideshowActive ? "暂停幻灯片" : "开始幻灯片"}
+          >
+            {slideshowActive ? <Pause size={20} /> : <Play size={20} />}
+          </button>
+        )}
         {isImage && (
           <>
             <button
