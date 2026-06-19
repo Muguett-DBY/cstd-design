@@ -2385,6 +2385,54 @@ button:disabled {
   filter: drop-shadow(0 8px 12px rgba(45, 34, 24, 0.1));
 }
 
+.empty-state-icon {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.skeleton-loader {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.skeleton-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--line);
+  animation: pulse 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  display: grid;
+  gap: 8px;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--line);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-line-short {
+  width: 60%;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
 .login-page,
 .splash {
   min-height: 100svh;

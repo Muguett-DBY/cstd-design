@@ -180,13 +180,26 @@
 
 ### Phase 14/18 — IMPROVE: Message search improvements
 
+**Status**: DONE
+**Commit**: `2530e46`
+**CI**: Passed (run `27817290344`)
+
+**Completed**:
+- Added search history dropdown with Clock icon
+- Recent searches stored in localStorage (max 5)
+- History appears when search input is focused and empty
+- Click on history item recalls the search
+- Added CSS for dropdown positioning and styling
+
+### Phase 15/18 — UIUX: Empty states and loading states polish
+
 **Status**: RUNNING
-**Started**: 2026-06-19T09:15:00Z
+**Started**: 2026-06-19T09:20:00Z
 
 **Plan**:
-- Add search within thread replies
-- Add search result count display
-- Improve search result highlighting
-- Add search keyboard shortcuts
+- Improve empty state visuals across workspaces
+- Add skeleton loading screens
+- Improve loading transitions
+- Polish empty state messaging
 
 **Verification**: lint, typecheck, tests, build, CI
