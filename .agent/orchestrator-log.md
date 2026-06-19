@@ -53,13 +53,27 @@
 
 ### Phase 4/18 — IMPROVE: Asset metadata extraction (dimensions, duration)
 
+**Status**: DONE
+**Commit**: `7207437`
+**CI**: Passed (run `27819233914`)
+
+**Completed**:
+- Added width, height, duration fields to AssetItem type
+- Created asset-metadata utility functions (extractImageDimensions, extractVideoDuration)
+- Created useAssetMetadata React hook for client-side metadata extraction
+- Created AssetMeta component to display dimensions/duration in asset cards
+- Added CSS for asset-meta-details
+
+### Phase 5/18 — CHECK: Accessibility audit (WCAG compliance)
+
 **Status**: RUNNING
-**Started**: 2026-06-19T10:00:00Z
+**Started**: 2026-06-19T10:05:00Z
 
 **Plan**:
-- Extract image dimensions on upload
-- Extract video duration on upload
-- Store metadata in asset records
-- Display dimensions/duration in asset cards
+- Audit all components for ARIA labels
+- Check keyboard navigation
+- Check focus management
+- Check color contrast
+- Fix any issues found
 
 **Verification**: lint, typecheck, tests, build, CI

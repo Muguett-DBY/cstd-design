@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Clipboard } from "lucide-react";
 
 const ASSISTANT_NAME = "助手";
@@ -111,6 +111,22 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
   const [showMessageSelection, setShowMessageSelection] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const headingId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, onClose]);
 
   const filteredMessages = useMemo(() => {
     let result = messages.filter((m) => m.status !== "streaming");
@@ -212,10 +228,10 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
 
   return (
     <div className="export-modal-overlay" onClick={onClose}>
-      <div className="export-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="export-modal" role="dialog" aria-modal="true" aria-labelledby={headingId} onClick={(e) => e.stopPropagation()}>
         <div className="export-modal-header">
-          <h3>导出对话</h3>
-          <button type="button" className="export-modal-close" onClick={onClose}>
+          <h3 id={headingId}>导出对话</h3>
+          <button type="button" className="export-modal-close" onClick={onClose} aria-label="关闭导出对话框" ref={closeButtonRef}>
             <X size={18} />
           </button>
         </div>

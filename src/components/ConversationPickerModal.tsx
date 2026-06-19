@@ -24,6 +24,19 @@ export function ConversationPickerModal({ isOpen, onClose, onSelect, excludeId }
       .catch(() => setError("加载会话列表失败"));
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, onClose]);
+
   const handleClose = () => {
     setSearch("");
     loadedRef.current = false;
@@ -41,10 +54,10 @@ export function ConversationPickerModal({ isOpen, onClose, onSelect, excludeId }
 
   return (
     <div className="export-modal-overlay" onClick={handleClose}>
-      <div className="export-modal picker-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="export-modal picker-modal" role="dialog" aria-modal="true" aria-label="选择目标会话" onClick={(e) => e.stopPropagation()}>
         <div className="export-modal-header">
           <h3>选择目标会话</h3>
-          <button type="button" className="export-modal-close" onClick={handleClose}>
+          <button type="button" className="export-modal-close" onClick={handleClose} aria-label="关闭选择对话框">
             <X size={18} />
           </button>
         </div>
