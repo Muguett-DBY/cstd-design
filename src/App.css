@@ -4258,6 +4258,22 @@ button:disabled {
   color: var(--muted);
 }
 
+.shortcut-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 10px;
+  font-family: inherit;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
 .markdown-highlighted {
   line-height: 1.7;
 }
