@@ -37,7 +37,25 @@ export function usePinnedConversations() {
 
   const isPinned = useCallback((id: string) => pinned.has(id), [pinned]);
 
-  return { pinned, toggle, isPinned };
+  const allPinned = useCallback((ids: string[]): boolean => ids.length > 0 && ids.every((id) => pinned.has(id)), [pinned]);
+
+  const bulkPin = useCallback((ids: string[]) => {
+    setPinned((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) next.add(id);
+      return next;
+    });
+  }, []);
+
+  const bulkUnpin = useCallback((ids: string[]) => {
+    setPinned((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) next.delete(id);
+      return next;
+    });
+  }, []);
+
+  return { pinned, toggle, isPinned, allPinned, bulkPin, bulkUnpin };
 }
 
 export function partitionPinned<T extends { id: string }>(items: T[], pinned: Set<string>): { pinnedItems: T[]; otherItems: T[] } {
