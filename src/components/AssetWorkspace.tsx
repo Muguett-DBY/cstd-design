@@ -14,6 +14,7 @@ import { useCollections } from "../hooks/useCollections";
 import { CollectionPicker } from "./CollectionPicker";
 import { CollectionsManager } from "./CollectionsManager";
 import { useAssetVersions } from "../hooks/useAssetVersions";
+import { analyzeAssetQuality } from "../hooks/useAssetQuality";
 
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
@@ -230,6 +231,14 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                   <strong>{asset.filename}</strong>
                   <span>{asset.kind} · {formatBytes(asset.size)}</span>
                   <AssetMeta asset={asset} />
+                  {(() => {
+                    const quality = analyzeAssetQuality(asset);
+                    return (
+                      <span className={`asset-quality-badge quality-${quality.level}`} title={quality.suggestions.join("; ")}>
+                        {quality.level === "high" ? "高质量" : quality.level === "medium" ? "中等" : "低质量"}
+                      </span>
+                    );
+                  })()}
                   {getVersions(asset.id).length > 0 && (
                     <span className="asset-version-badge">
                       <History size={10} /> {getVersions(asset.id).length} 个版本
