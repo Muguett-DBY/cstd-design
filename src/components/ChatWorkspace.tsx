@@ -3,7 +3,7 @@ import { Bot, Bookmark, Check, CheckSquare, Copy, Download, Edit, Edit3, FileTex
 import "katex/dist/katex.min.css";
 import "highlight.js/styles/github.css";
 import type { AssetItem, ChatMessage, ChatStreamEvent, ConversationDetail, ConversationSummary } from "../types";
-import { initialChatDraft, messageDateLabel, timeAgo } from "../app-state";
+import { messageDateLabel, timeAgo } from "../app-state";
 import { streamChat } from "../api";
 import { ConversationTitleInput } from "./ConversationTitleInput";
 import { Markdown } from "./Markdown";
@@ -22,6 +22,7 @@ import { useMessageBookmarking } from "../hooks/useMessageBookmarking";
 import { useMessageForwarding } from "../hooks/useMessageForwarding";
 import { useChatPromptTemplates, expandVariables } from "../hooks/useChatPromptTemplates";
 import { usePromptHistory, usePromptSuggestions } from "../hooks/usePromptHistory";
+import { useDraftPersistence } from "../hooks/useDraftPersistence";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
@@ -109,7 +110,7 @@ export function ChatWorkspace({
   usageStats?: { messageSent: number; imageGenerated: number; videoGenerated: number; imageEdited: number; videoAbandoned: number };
   usageEvents?: { type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned"; timestamp: string }[];
 }) {
-  const [draft, setDraft] = useState(initialChatDraft());
+  const { draft, setDraft, clearDraft } = useDraftPersistence(conversation?.id || null);
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const pendingAssistantRef = useRef<string | null>(null);
@@ -210,7 +211,7 @@ export function ChatWorkspace({
     onRecordUsage?.("message_sent");
     recordPrompt(content);
     setStreaming(true);
-    setDraft(initialChatDraft());
+    clearDraft();
     const abort = new AbortController();
     abortRef.current = abort;
     let conversationId = conversation?.id;
@@ -848,7 +849,7 @@ export function ChatWorkspace({
           </div>
           <div className="composer-actions">
             <span className="char-count">{draft.content.length}/8000</span>
-            <button type="button" className="ghost-button" onClick={() => setDraft(initialChatDraft())}>
+            <button type="button" className="ghost-button" onClick={clearDraft}>
               清空
             </button>
             <button type="button" className="ghost-button" onClick={() => setPanelOpen((p) => !p)} title={panelOpen ? "收起信息面板" : "展开信息面板"}>

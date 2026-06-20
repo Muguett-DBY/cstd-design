@@ -597,6 +597,7 @@ function AppInner() {
         {activeTab === "chat" && (
           <ErrorBoundary key="chat">
           <ChatWorkspace
+            key={conversation?.id || "new"}
             conversation={conversation}
             messages={activeMessages}
             leaves={leaves}
