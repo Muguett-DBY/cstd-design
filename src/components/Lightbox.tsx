@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronLeft, ChevronRight, Download, Edit, Info, Maximize2, Minus, Pause, Play, Plus, X } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Download, Edit, Info, Maximize2, Minus, Pause, Play, Plus, Pencil, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { formatBytes } from "../app-state";
 import type { AssetItem } from "../types";
@@ -31,6 +31,10 @@ export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: Asse
   const [showInfo, setShowInfo] = useState(false);
   const [zoomByIndex, setZoomByIndex] = useState<Record<number, number>>({ [startIndex]: 1 });
   const [slideshowActive, setSlideshowActive] = useState(false);
+  const [annotateMode, setAnnotateMode] = useState(false);
+  const [annotations, setAnnotations] = useState<Array<{ type: "line"; x1: number; y1: number; x2: number; y2: number; color: string }>>([]);
+  const [drawStart, setDrawStart] = useState<{ x: number; y: number } | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const prevButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -177,6 +181,18 @@ export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: Asse
           </button>
         )}
         {isImage && (
+          <button
+            type="button"
+            className="lightbox-annotate"
+            onClick={() => { setAnnotateMode((m) => !m); if (annotateMode) setAnnotations([]); }}
+            aria-label={annotateMode ? "退出标注" : "标注模式"}
+            aria-pressed={annotateMode}
+            title={annotateMode ? "退出标注" : "标注模式"}
+          >
+            <Pencil size={20} />
+          </button>
+        )}
+        {isImage && (
           <>
             <button
               type="button"
@@ -211,7 +227,38 @@ export function Lightbox({ assets, startIndex, onClose, onEdit }: { assets: Asse
         {asset.mediaType.startsWith("video") ? (
           <video src={asset.url} controls className="lightbox-video" autoPlay />
         ) : (
-          <LightboxImage key={asset.id} asset={asset} zoom={zoom} />
+          <div className="lightbox-image-wrapper">
+            <LightboxImage key={asset.id} asset={asset} zoom={zoom} />
+            {annotateMode && !asset.mediaType.startsWith("video") && (
+              <canvas
+                ref={canvasRef}
+                className="lightbox-annotate-canvas"
+                width={metadata.width || 800}
+                height={metadata.height || 600}
+                onMouseDown={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setDrawStart({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+                }}
+                onMouseUp={(e) => {
+                  if (!drawStart) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x2 = e.clientX - rect.left;
+                  const y2 = e.clientY - rect.top;
+                  if (Math.abs(x2 - drawStart.x) > 5 || Math.abs(y2 - drawStart.y) > 5) {
+                    setAnnotations((prev) => [...prev, { type: "line", x1: drawStart.x, y1: drawStart.y, x2, y2, color: "#ef4444" }]);
+                  }
+                  setDrawStart(null);
+                }}
+              />
+            )}
+            {annotateMode && annotations.length > 0 && (
+              <svg className="lightbox-annotations" viewBox={`0 0 ${metadata.width || 800} ${metadata.height || 600}`}>
+                {annotations.map((a, i) => (
+                  <line key={i} x1={a.x1} y1={a.y1} x2={a.x2} y2={a.y2} stroke={a.color} strokeWidth={3} />
+                ))}
+              </svg>
+            )}
+          </div>
         )}
         {showInfo && (
           <div className="lightbox-info-panel" role="region" aria-label="资产元数据">
