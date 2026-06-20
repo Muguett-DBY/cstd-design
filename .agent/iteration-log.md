@@ -1135,3 +1135,37 @@
   - Import
   - Backup/restore
   - Updated onboarding
+
+---
+
+## Campaign 005 — 2-Cycle, 18-Phase Campaign (2026-06-19)
+
+**Theme**: Smart automation, UI polish, and performance optimization
+
+### Cycle 1 Summary
+1. **Phase 1** (DONE): Asset collections with `useCollections` + `CollectionPicker` + `CollectionsManager`
+2. **Phase 2** (DONE): Variable expansion `{{date}}`/`{{time}}`/`{{datetime}}` in prompt templates
+3. **Phase 3** (DONE): Global search modal with Cmd+Shift+F
+4. **Phase 4** (DONE): Usage tracking with `useStatsPanel` (5 event types)
+5. **Phase 5** (DONE): Code review clean
+6. **Phase 6** (DONE): Voice input via `useSpeechToText` (Web Speech API)
+
+### Cycle 2 Summary
+7. **Phase 7** (DONE, `ba05b9e`): Activity heatmap — 12-week calendar grid in StatsPanel
+8. **Phase 8** (DONE, `b243ec7`): Auto theme — switch light/dark based on time of day
+9. **Phase 9** (DONE, `d1a4cb6`): Lightbox slideshow — auto-advance every 3.5s with play/pause
+10. **Phase 10** (DONE, `1c475a2`): Settings profile import/export (theme, language, prefs)
+11. **Phase 11** (DONE, `70b67f6`): Bundle optimization — code-split PdfExportButton, StatsPanel, ExportModal (661KB → 651KB)
+12. **Phase 12** (DONE, `f5e4f5c`): Smart prompt autocomplete from local history with token+frequency scoring
+13. **Phase 13** (DONE, `8c4ee7b`): Smart tag suggestions from filename matching
+14. **Phase 14** (DONE, `08d1f3d`): Bulk conversation operations (delete, pin/unpin)
+15. **Phase 15** (DONE, `e9bfee7`): Virtualized asset grid via `content-visibility: auto`
+16. **Phase 16** (DONE, `a594eca`): Auto-save conversation drafts to localStorage
+17. **Phase 17** (DONE, `2ed9900`): Final quality gate — all checks pass
+18. **Phase 18** (DONE): Campaign wrap-up
+
+### Final Stats
+- **Bundle**: 656KB (gzip 198KB)
+- **Tests**: 49/49 pass
+- **Phases**: 18/18 complete
+- **Commits**: 12 new commits in Cycle 2
