@@ -23,6 +23,7 @@ import { useMessageForwarding } from "../hooks/useMessageForwarding";
 import { useChatPromptTemplates, expandVariables } from "../hooks/useChatPromptTemplates";
 import { usePromptHistory, usePromptSuggestions } from "../hooks/usePromptHistory";
 import { useDraftPersistence } from "../hooks/useDraftPersistence";
+import { enhancePrompt } from "../hooks/usePromptEnhance";
 import { ReactionPicker } from "./ReactionPicker";
 import { MessageThread } from "./MessageThread";
 import { ThreadCenter } from "./ThreadCenter";
@@ -849,6 +850,25 @@ export function ChatWorkspace({
           </div>
           <div className="composer-actions">
             <span className="char-count">{draft.content.length}/8000</span>
+            {draft.content.trim().length > 0 && (
+              <div className="prompt-enhance-group">
+                <button type="button" className="ghost-button enhance-btn" onClick={() => setDraft((prev) => ({ ...prev, content: enhancePrompt(prev.content, "rewrite") }))} title="改写提示词">
+                  改写
+                </button>
+                <button type="button" className="ghost-button enhance-btn" onClick={() => setDraft((prev) => ({ ...prev, content: enhancePrompt(prev.content, "expand") }))} title="扩展提示词">
+                  扩展
+                </button>
+                <button type="button" className="ghost-button enhance-btn" onClick={() => setDraft((prev) => ({ ...prev, content: enhancePrompt(prev.content, "formal") }))} title="正式语气">
+                  正式
+                </button>
+                <button type="button" className="ghost-button enhance-btn" onClick={() => setDraft((prev) => ({ ...prev, content: enhancePrompt(prev.content, "casual") }))} title="随意语气">
+                  随意
+                </button>
+                <button type="button" className="ghost-button enhance-btn" onClick={() => setDraft((prev) => ({ ...prev, content: enhancePrompt(prev.content, "shorten") }))} title="精简提示词">
+                  精简
+                </button>
+              </div>
+            )}
             <button type="button" className="ghost-button" onClick={clearDraft}>
               清空
             </button>

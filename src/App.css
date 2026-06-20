@@ -414,6 +414,27 @@ button:disabled {
   gap: 10px;
 }
 
+.prompt-enhance-group {
+  display: flex;
+  gap: 4px;
+  padding: 2px;
+  background: var(--soft);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.enhance-btn {
+  font-size: 11px !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  white-space: nowrap;
+}
+
+.enhance-btn:hover {
+  background: var(--accent) !important;
+  color: var(--on-accent-text) !important;
+}
+
 .panel-heading {
   font-weight: 800;
   display: flex;
