@@ -467,6 +467,16 @@ function AppInner() {
         await refreshConversations("");
       } catch (error) { toast(error instanceof Error ? error.message : "删除失败。", "error"); }
     },
+    onBulkDelete: async (ids: string[]) => {
+      try {
+        for (const id of ids) {
+          await api.deleteConversation(id);
+          if (conversation?.id === id) setConversation(null);
+        }
+        await refreshConversations("");
+        toast(`已删除 ${ids.length} 个对话。`);
+      } catch (error) { toast(error instanceof Error ? error.message : "批量删除失败。", "error"); }
+    },
     onRequestConfirm: requestConfirm,
     dark: theme === "dark" || theme === "night",
     onThemeToggle: () => setTheme(theme === "dark" ? "light" : "dark"),

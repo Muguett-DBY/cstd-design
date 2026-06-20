@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GitMerge, GripVertical, MessageSquare, Pin, Plus, Search, Square, Star, Tag, X } from "lucide-react";
+import { Archive, ArchiveRestore, Calendar, CheckSquare, ChevronDown, ChevronUp, Clock, Folder, FolderPlus, Filter, GitMerge, GripVertical, MessageSquare, Pin, Plus, Search, Square, Star, Tag, Trash2, X } from "lucide-react";
 import { ImportConversationButton } from "./ImportConversationButton";
 import { Brand } from "./Brand";
 import { UserFooter } from "./UserFooter";
@@ -228,6 +228,7 @@ export function Sidebar({
   onCreateConversation,
   onImportConversation,
   onDeleteConversation,
+  onBulkDelete,
   onRequestConfirm,
   dark,
   onThemeToggle,
@@ -242,6 +243,7 @@ export function Sidebar({
   onCreateConversation: () => void | Promise<void>;
   onImportConversation?: (data: { title: string; messages: { role: string; content: string; createdAt?: string }[] }) => Promise<void> | void;
   onDeleteConversation: (id: string) => void;
+  onBulkDelete?: (ids: string[]) => void;
   onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void;
   dark: boolean;
   onThemeToggle: () => void;
@@ -265,7 +267,7 @@ export function Sidebar({
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
   const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
   const { isArchived, toggleArchive, bulkArchive, bulkUnarchive } = useConversationArchiving();
-  const { toggle: togglePinned, isPinned } = usePinnedConversations();
+  const { toggle: togglePinned, isPinned, allPinned, bulkPin, bulkUnpin } = usePinnedConversations();
   const { mergeConversations, merged } = useConversationMerging();
 
   useEffect(() => {
@@ -488,6 +490,27 @@ export function Sidebar({
                     {showArchived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
                     {showArchived ? "取消归档" : "归档选中"}
                   </button>
+                  <button type="button" className="bulk-pin-btn" disabled={selectedConversations.size === 0} onClick={() => {
+                    const ids = Array.from(selectedConversations);
+                    if (allPinned(ids)) {
+                      bulkUnpin(ids);
+                    } else {
+                      bulkPin(ids);
+                    }
+                  }}>
+                    <Star size={14} />
+                    {allPinned(Array.from(selectedConversations)) ? "取消置顶" : "置顶选中"}
+                  </button>
+                  {onBulkDelete && (
+                    <button type="button" className="bulk-delete-btn danger" disabled={selectedConversations.size === 0} onClick={() => {
+                      onBulkDelete(Array.from(selectedConversations));
+                      setSelectedConversations(new Set());
+                      setBulkMode(false);
+                    }}>
+                      <Trash2 size={14} />
+                      删除选中
+                    </button>
+                  )}
                 </div>
               )}
               {(() => {
