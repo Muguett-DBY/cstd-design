@@ -1,9 +1,10 @@
-import { Settings as SettingsIcon, X, Download, Upload } from "lucide-react";
+import { Settings as SettingsIcon, X, Download, Upload, Keyboard } from "lucide-react";
 import { useRef } from "react";
 import type { UserPreferences } from "../hooks/useUserPreferences";
 import { THEMES, type ThemeId } from "../hooks/useTheme";
 import type { Language, TranslationKey } from "../hooks/useLanguage";
 import { BackupRestore } from "./BackupRestore";
+import { useCustomShortcuts, type ShortcutAction } from "../hooks/useCustomShortcuts";
 
 function exportSettingsProfile(args: {
   theme: ThemeId;
@@ -310,6 +311,10 @@ export function SettingsModal({
               onNotice={onNotice}
             />
           </section>
+          <section className="settings-section">
+            <h4><Keyboard size={14} /> 快捷键</h4>
+            <ShortcutsEditor />
+          </section>
           <BackupRestore onNotice={onNotice} />
         </div>
         <div className="settings-footer">
@@ -393,6 +398,34 @@ function SettingsProfileButtons({
         style={{ display: "none" }}
         onChange={handleImport}
       />
+    </div>
+  );
+}
+
+function ShortcutsEditor() {
+  const { shortcuts, updateShortcut, resetShortcuts, format, labels } = useCustomShortcuts();
+  const actions = Object.keys(labels) as ShortcutAction[];
+
+  return (
+    <div className="shortcuts-editor">
+      <div className="shortcuts-list">
+        {actions.map((action) => (
+          <div key={action} className="shortcut-row">
+            <span className="shortcut-label">{labels[action as keyof typeof labels]}</span>
+            <input
+              type="text"
+              className="shortcut-input"
+              value={shortcuts[action]}
+              onChange={(e) => updateShortcut(action, e.target.value)}
+              placeholder={shortcuts[action]}
+            />
+            <span className="shortcut-formatted">{format(action)}</span>
+          </div>
+        ))}
+      </div>
+      <button type="button" className="ghost-button" onClick={resetShortcuts}>
+        恢复默认快捷键
+      </button>
     </div>
   );
 }
