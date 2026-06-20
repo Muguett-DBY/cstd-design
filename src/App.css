@@ -4843,6 +4843,9 @@ button:disabled {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .settings-field {
@@ -4855,6 +4858,47 @@ button:disabled {
 .settings-field label {
   font-size: 13px;
   color: var(--text);
+}
+
+.shortcuts-editor {
+  display: grid;
+  gap: 8px;
+}
+
+.shortcuts-list {
+  display: grid;
+  gap: 6px;
+}
+
+.shortcut-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.shortcut-label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.shortcut-input {
+  border: 1px solid var(--border, #ddd);
+  background: var(--soft);
+  color: var(--text);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+}
+
+.shortcut-formatted {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: monospace;
+  text-align: right;
 }
 
 .settings-field select {
