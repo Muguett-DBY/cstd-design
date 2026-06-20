@@ -199,6 +199,24 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             <button type="button" className="ghost-button" onClick={downloadSelected}>
               <Download size={14} /> 下载选中
             </button>
+            {selected.size >= 2 && (
+              <button type="button" className="ghost-button" onClick={() => {
+                const selectedAssets = visible.filter((a) => selected.has(a.id) && a.kind === "image");
+                if (selectedAssets.length < 2) {
+                  onNotice("请选择至少2张图片进行批量操作。");
+                  return;
+                }
+                onNotice(`已选择 ${selectedAssets.length} 张图片。使用浏览器下载功能保存。`);
+                for (const asset of selectedAssets) {
+                  const a = document.createElement("a");
+                  a.href = `${asset.url}?download=1`;
+                  a.download = asset.filename;
+                  a.click();
+                }
+              }}>
+                <Download size={14} /> 批量下载图片
+              </button>
+            )}
             <button type="button" className="ghost-button danger" onClick={deleteSelected}>
               <Trash2 size={14} /> 删除选中
             </button>
