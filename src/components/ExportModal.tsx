@@ -4,6 +4,7 @@ import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Cli
 const ASSISTANT_NAME = "助手";
 
 type ExportFormat = "markdown" | "html" | "pdf" | "text";
+type ExportTemplate = "default" | "minimal" | "professional" | "academic";
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -106,6 +107,7 @@ function downloadFile(content: string, filename: string, mimeType: string) {
 
 export function ExportModal({ isOpen, onClose, title, messages }: ExportModalProps) {
   const [format, setFormat] = useState<ExportFormat>("markdown");
+  const [template, setTemplate] = useState<ExportTemplate>("default");
   const [useDateRange, setUseDateRange] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({ start: "", end: "" });
   const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
@@ -373,6 +375,23 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               <span className="export-format-label">PDF</span>
               <span className="export-format-desc">打印为 PDF 文件</span>
             </button>
+          </div>
+
+          {/* Template Selection */}
+          <div className="export-template-options">
+            <span className="export-template-label">导出模板：</span>
+            <div className="export-template-buttons">
+              {(["default", "minimal", "professional", "academic"] as ExportTemplate[]).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={`export-template-btn${template === t ? " active" : ""}`}
+                  onClick={() => setTemplate(t)}
+                >
+                  {t === "default" ? "默认" : t === "minimal" ? "简洁" : t === "professional" ? "专业" : "学术"}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
         <div className="export-modal-footer">

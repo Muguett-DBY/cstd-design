@@ -1034,6 +1034,47 @@ button:disabled {
   gap: 10px;
 }
 
+.export-template-options {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.export-template-label {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.export-template-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.export-template-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.export-template-btn:hover {
+  border-color: var(--accent);
+}
+
+.export-template-btn.active {
+  background: var(--accent);
+  color: var(--on-accent-text);
+  border-color: var(--accent);
+}
+
 .export-format-btn {
   display: flex;
   align-items: center;
