@@ -230,6 +230,7 @@ export function Sidebar({
   onDeleteConversation,
   onBulkDelete,
   onRequestConfirm,
+  onNotice,
   dark,
   onThemeToggle,
   onLogout,
@@ -245,6 +246,7 @@ export function Sidebar({
   onDeleteConversation: (id: string) => void;
   onBulkDelete?: (ids: string[]) => void;
   onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void;
+  onNotice?: (msg: string) => void;
   dark: boolean;
   onThemeToggle: () => void;
   onLogout: () => void | Promise<void>;
@@ -265,7 +267,7 @@ export function Sidebar({
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
-  const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder } = useConversationFolders();
+  const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder, autoCategorize } = useConversationFolders();
   const { isArchived, toggleArchive, bulkArchive, bulkUnarchive } = useConversationArchiving();
   const { toggle: togglePinned, isPinned, allPinned, bulkPin, bulkUnpin } = usePinnedConversations();
   const { mergeConversations, merged } = useConversationMerging();
@@ -433,6 +435,13 @@ export function Sidebar({
           </button>
           <button type="button" className="folder-add-btn" onClick={() => setShowFolderInput(!showFolderInput)} title="新建文件夹">
             <FolderPlus size={14} />
+          </button>
+          <button type="button" className="folder-add-btn" onClick={() => {
+            const count = autoCategorize(conversations.map((c) => ({ id: c.id, title: c.title })));
+            if (count > 0) onNotice?.(`已自动分类 ${count} 个对话。`);
+            else onNotice?.("没有需要分类的对话。");
+          }} title="自动分类" style={{ marginLeft: 4 }}>
+            <Tag size={14} />
           </button>
         </div>
         {showFolderInput && (

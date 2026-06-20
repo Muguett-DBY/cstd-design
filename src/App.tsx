@@ -478,6 +478,7 @@ function AppInner() {
       } catch (error) { toast(error instanceof Error ? error.message : "批量删除失败。", "error"); }
     },
     onRequestConfirm: requestConfirm,
+    onNotice: (msg: string) => toast(msg, "info"),
     dark: theme === "dark" || theme === "night",
     onThemeToggle: () => setTheme(theme === "dark" ? "light" : "dark"),
     onLogout: handleLogout,

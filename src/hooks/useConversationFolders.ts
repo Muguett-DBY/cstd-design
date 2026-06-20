@@ -105,6 +105,34 @@ export function useConversationFolders() {
       .map(([convId]) => convId);
   }, [assignments]);
 
+  const autoCategorize = useCallback((conversations: { id: string; title: string }[]): number => {
+    const keywordMap: Record<string, string[]> = {
+      "图片": ["画", "图", "设计", "image", "图片", "海报", "logo", "图标"],
+      "视频": ["视频", "动画", "video", "片头", "特效"],
+      "代码": ["代码", "编程", "函数", "API", "bug", "code", "开发"],
+      "文档": ["文档", "报告", "总结", "方案", "doc"],
+    };
+    let categorized = 0;
+    for (const conv of conversations) {
+      if (assignments[conv.id]) continue;
+      const title = conv.title.toLowerCase();
+      for (const [folderName, keywords] of Object.entries(keywordMap)) {
+        if (keywords.some((kw) => title.includes(kw.toLowerCase()))) {
+          let folder = folders.find((f) => f.name === folderName);
+          if (!folder) {
+            folder = createFolder(folderName);
+          }
+          if (folder) {
+            assignToFolder(conv.id, folder.id);
+            categorized++;
+          }
+          break;
+        }
+      }
+    }
+    return categorized;
+  }, [folders, assignments, createFolder, assignToFolder]);
+
   return {
     folders,
     createFolder,
@@ -113,6 +141,7 @@ export function useConversationFolders() {
     assignToFolder,
     getConversationFolder,
     getFolderConversations,
+    autoCategorize,
     folderColors: FOLDER_COLORS,
   };
 }
