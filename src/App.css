@@ -2908,11 +2908,26 @@ button:disabled {
 }
 
 .asset-meta-details {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: 10px;
   color: var(--muted);
   margin-top: 2px;
   opacity: 0.8;
+}
+
+.asset-dominant-color {
+  display: inline-flex;
+  align-items: center;
+}
+
+.color-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
 }
 
 .asset-actions {
