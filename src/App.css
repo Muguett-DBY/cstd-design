@@ -5573,6 +5573,18 @@ button:disabled {
   padding: 1px 6px;
 }
 
+.asset-version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--muted);
+  padding: 2px 6px;
+  background: var(--soft);
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+
 .tag-chip.clickable {
   cursor: pointer;
   transition: background 0.15s, color 0.15s;

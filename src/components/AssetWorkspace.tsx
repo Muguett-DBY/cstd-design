@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, RefreshCw, Tag, Trash2 } from "lucide-react";
+import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, History, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
@@ -13,6 +13,7 @@ import { ImageCompare } from "./ImageCompare";
 import { useCollections } from "../hooks/useCollections";
 import { CollectionPicker } from "./CollectionPicker";
 import { CollectionsManager } from "./CollectionsManager";
+import { useAssetVersions } from "../hooks/useAssetVersions";
 
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
@@ -23,6 +24,17 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const collections = useCollections();
   const { addTag, removeTag, getTags, allTags, ...assetTags } = useAssetTags();
+  const { recordVersion, getVersions } = useAssetVersions();
+
+  const addTagWithVersion = (assetId: string, tag: string) => {
+    addTag(assetId, tag);
+    recordVersion(assetId, { tag }, `添加标签: ${tag}`);
+  };
+
+  const removeTagWithVersion = (assetId: string, tag: string) => {
+    removeTag(assetId, tag);
+    recordVersion(assetId, { tag }, `移除标签: ${tag}`);
+  };
   const allAssets = assets;
   const byKind = filterAssets(allAssets, filter);
   const byCollection = activeCollection ? collections.filterByCollection(byKind.map((a) => a.id), activeCollection) : byKind.map((a) => a.id);
@@ -218,6 +230,11 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                   <strong>{asset.filename}</strong>
                   <span>{asset.kind} · {formatBytes(asset.size)}</span>
                   <AssetMeta asset={asset} />
+                  {getVersions(asset.id).length > 0 && (
+                    <span className="asset-version-badge">
+                      <History size={10} /> {getVersions(asset.id).length} 个版本
+                    </span>
+                  )}
                   {getTags(asset.id).length > 0 && (
                     <div className="asset-tag-chips">
                       {getTags(asset.id).map((tag) => (
@@ -275,8 +292,8 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                       onClose={() => setShowTagPickerFor(null)}
                       getTags={getTags}
                       allTags={allTags}
-                      addTag={addTag}
-                      removeTag={removeTag}
+                      addTag={addTagWithVersion}
+                      removeTag={removeTagWithVersion}
                       suggestTags={assetTags.suggestTags}
                     />
                   </div>
