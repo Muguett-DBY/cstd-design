@@ -411,6 +411,12 @@ export function Sidebar({
               className={selectedFolder === f.id ? "folder-chip active" : "folder-chip"}
               style={{ borderColor: f.color }}
               onClick={() => setSelectedFolder(selectedFolder === f.id ? null : f.id)}
+              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const convId = e.dataTransfer.getData("text/plain");
+                if (convId) assignToFolder(convId, f.id);
+              }}
               aria-pressed={selectedFolder === f.id}
             >
               <Folder size={12} style={{ color: f.color }} /> {f.name}
