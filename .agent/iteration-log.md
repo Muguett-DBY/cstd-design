@@ -1169,3 +1169,35 @@
 - **Tests**: 49/49 pass
 - **Phases**: 18/18 complete
 - **Commits**: 12 new commits in Cycle 2
+
+---
+
+## Campaign 006 — 1-Cycle, 18-Phase Campaign (2026-06-19)
+
+**Theme**: Smart automation, UI polish, and performance optimization
+
+### Cycle 1 Summary
+1. **Phase 1** (DONE, `c929900`): Prompt enhancement tools (rewrite, expand, formal, casual, shorten)
+2. **Phase 2** (DONE, `ebc4134`): Asset version history tracking for tag changes
+3. **Phase 3** (DONE, `0d9ee68`): Drag-to-folder for conversation organization
+4. **Phase 4** (DONE, `3b71eba`): Smart folder auto-categorization by keywords
+5. **Phase 5** (DONE): Code review and quality gate
+6. **Phase 6** (DONE, `ff6f367`): Asset quality analysis with color-coded badges
+7. **Phase 7** (DONE, `de6fa5b`): Batch image download for selected assets
+8. **Phase 8** (DONE, `10d63db`): Lightbox annotation mode with line drawing
+9. **Phase 9** (DONE, `8c29570`): Keyboard shortcut customization in settings
+10. **Phase 10** (DONE, `d9dd938`): Export templates (default, minimal, professional, academic)
+11. **Phase 11** (DONE): Performance audit — bundle 661KB, all checks pass
+12. **Phase 12** (DONE, `96fa10b`): Workspace defaults memory for image size and style
+13. **Phase 13** (DONE, `c086d03`): Asset deduplication scan
+14. **Phase 14** (DONE, `d4bc430`): Trend indicators in usage stats
+15. **Phase 15** (DONE, `c94a56c`): ShortcutHint component for discoverability
+16. **Phase 16** (DONE, `b38f651`): Dominant color extraction for assets
+17. **Phase 17** (DONE): Final quality gate — all checks pass
+18. **Phase 18** (DONE): Campaign wrap-up
+
+### Final Stats
+- **Bundle**: 661KB (gzip 200KB)
+- **Tests**: 49/49 pass
+- **Phases**: 18/18 complete
+- **Commits**: 16 new commits
