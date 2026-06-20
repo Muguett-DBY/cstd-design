@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { BarChart3, Folder, Image as ImageIcon, MessageSquare, Video } from "lucide-react";
+import { BarChart3, Folder, Image as ImageIcon, MessageSquare, TrendingDown, TrendingUp, Video } from "lucide-react";
 import { formatBytes } from "../app-state";
 import type { AssetItem, ChatMessage, ConversationSummary } from "../types";
 import { ActivityHeatmap } from "./ActivityHeatmap";
@@ -17,6 +17,18 @@ interface Stats {
   totalSize: number;
   messagesPerDay: { date: string; count: number }[];
   assetsByKind: { kind: string; count: number; size: number }[];
+}
+
+function TrendIndicator({ current, previous }: { current: number; previous: number }) {
+  if (previous === 0) return null;
+  const change = ((current - previous) / previous) * 100;
+  if (Math.abs(change) < 1) return null;
+  return (
+    <span className={`stat-trend ${change > 0 ? "up" : "down"}`}>
+      {change > 0 ? <TrendingUp size={10} /> : <TrendingDown size={10} />}
+      {Math.abs(change).toFixed(0)}%
+    </span>
+  );
 }
 
 function computeStats(
@@ -77,6 +89,8 @@ export function StatsPanel({
 }) {
   const stats = useMemo(() => computeStats(conversations, messages, assets), [conversations, messages, assets]);
   const maxDay = Math.max(1, ...stats.messagesPerDay.map((d) => d.count));
+  const last7 = stats.messagesPerDay.slice(-7).reduce((s, d) => s + d.count, 0);
+  const prev7 = stats.messagesPerDay.slice(0, 7).reduce((s, d) => s + d.count, 0);
 
   return (
     <div className="stats-panel" role="region" aria-label="使用统计">
@@ -87,6 +101,7 @@ export function StatsPanel({
           <div className="stat-content">
             <span className="stat-value">{usage.messageSent + stats.messageCount}</span>
             <span className="stat-label">消息</span>
+            <TrendIndicator current={last7} previous={prev7} />
           </div>
         </div>
         <div className="stat-card">
