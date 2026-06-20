@@ -10,6 +10,7 @@ import { UploadBox } from "./UploadBox";
 import { PreviewRail } from "./PreviewRail";
 import { ResultCard } from "./ResultCard";
 import { Segmented } from "./Segmented";
+import { useWorkspaceDefaults } from "../hooks/useWorkspaceDefaults";
 
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
 
@@ -23,15 +24,27 @@ const STYLE_PRESETS: { id: string; label: string; prefix: string }[] = [
 ];
 
 export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void }) {
+  const { getDefaults, setDefault } = useWorkspaceDefaults();
+  const defaults = getDefaults("image");
   const [prompt, setPrompt] = useState("");
-  const [size, setSize] = useState<ImageSize>(() => readStoredImageSize());
+  const [size, setSize] = useState<ImageSize>(() => (defaults.size as ImageSize) || readStoredImageSize());
   const [referenceIds, setReferenceIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [style, setStyle] = useState("none");
+  const [style, setStyle] = useState(() => (defaults.style as string) || "none");
   const [lastResult, setLastResult] = useState<{ url: string; filename: string; prompt: string } | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const { templates, save, remove } = usePromptTemplates();
   const referenceAssets = imageAssetsForReference(assets);
+
+  const handleSizeChange = (newSize: ImageSize) => {
+    setSize(newSize);
+    setDefault("image", "size", newSize);
+  };
+
+  const handleStyleChange = (newStyle: string) => {
+    setStyle(newStyle);
+    setDefault("image", "style", newStyle);
+  };
 
   const generate = async () => {
     setLoading(true);
@@ -41,7 +54,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       const result = await api.generateImage({ prompt: finalPrompt, size, referenceAssetIds: referenceIds });
       setLastResult({ url: result.asset.url, filename: result.asset.filename, prompt });
       setPrompt("");
-      setStyle("none");
+      handleStyleChange("none");
       await onAssetsChanged();
       onRecordUsage?.("image_generated");
       onNotice(`图片已保存到素材库：${result.asset.filename}`);
@@ -137,7 +150,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
               key={p.id}
               type="button"
               className={`style-chip${style === p.id ? " active" : ""}`}
-              onClick={() => setStyle(p.id)}
+              onClick={() => handleStyleChange(p.id)}
               role="radio"
               aria-checked={style === p.id}
             >
@@ -152,7 +165,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             ["1024x768", "横版"],
             ["768x1024", "竖版"],
           ]}
-          onChange={setSize}
+          onChange={handleSizeChange}
         />
         <ReferencePicker assets={referenceAssets} selected={referenceIds} onChange={setReferenceIds} />
         <UploadBox onUploaded={onAssetsChanged} onNotice={onNotice} />
