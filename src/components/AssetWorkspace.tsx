@@ -15,6 +15,7 @@ import { CollectionPicker } from "./CollectionPicker";
 import { CollectionsManager } from "./CollectionsManager";
 import { useAssetVersions } from "../hooks/useAssetVersions";
 import { analyzeAssetQuality } from "../hooks/useAssetQuality";
+import { useAssetDeduplication } from "../hooks/useAssetDeduplication";
 
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
@@ -26,6 +27,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const collections = useCollections();
   const { addTag, removeTag, getTags, allTags, ...assetTags } = useAssetTags();
   const { recordVersion, getVersions } = useAssetVersions();
+  const { scanForDuplicates } = useAssetDeduplication();
 
   const addTagWithVersion = (assetId: string, tag: string) => {
     addTag(assetId, tag);
@@ -179,6 +181,21 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             title="管理集合"
           >
             <Folder size={14} /> 集合 ({collections.collections.length})
+          </button>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => {
+              const found = scanForDuplicates(allAssets);
+              if (found.length > 0) {
+                onNotice(`发现 ${found.length} 组重复素材。`);
+              } else {
+                onNotice("没有发现重复素材。");
+              }
+            }}
+            title="扫描重复素材"
+          >
+            扫描重复
           </button>
           <ClearAllButton label="清空素材库" onClear={async () => {
             await onClearAll();
