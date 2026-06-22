@@ -17,6 +17,7 @@ import { useToast } from "./components/toast-context";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
 import { useVideoTaskPersistence } from "./hooks/useVideoTaskPersistence";
 import { NetworkBanner } from "./components/NetworkBanner";
+import { OfflineIndicator } from "./components/OfflineIndicator";
 import { OnboardingTour } from "./components/OnboardingTour";
 import { CommandPalette, type CommandItem } from "./components/CommandPalette";
 import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
@@ -495,6 +496,7 @@ function AppInner() {
   return (
     <div className="app-shell">
       <NetworkBanner online={online} onRetry={checkOnline} />
+      <OfflineIndicator />
       <aside className="sidebar">
         <Sidebar {...sidebarProps} />
       </aside>
