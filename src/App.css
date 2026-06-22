@@ -2998,6 +2998,33 @@ button:disabled {
   font-size: 12px;
 }
 
+.error-boundary {
+  min-height: 300px;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+}
+
+.error-boundary-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  max-width: 400px;
+}
+
+.error-boundary-icon {
+  color: var(--danger);
+  opacity: 0.8;
+}
+
+.error-boundary-message {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .empty-state {
   min-height: 240px;
   border: 1.5px dashed var(--line-strong);
