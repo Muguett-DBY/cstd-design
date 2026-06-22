@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Upload } from "lucide-react";
 import { api } from "../api";
+import { compressImage, shouldCompress } from "../utils/imageCompression";
 
 export function GlobalDropZone({ onUploaded, onNotice, enabled = true }: { onUploaded: () => Promise<void>; onNotice: (message: string) => void; enabled?: boolean }) {
   const [active, setActive] = useState(false);
@@ -32,7 +33,16 @@ export function GlobalDropZone({ onUploaded, onNotice, enabled = true }: { onUpl
       if (files.length === 0) return;
       setUploading(true);
       try {
-        const result = await api.upload(files);
+        const processedFiles = await Promise.all(
+          files.map(async (file) => {
+            if (shouldCompress(file)) {
+              onNotice(`压缩 ${file.name}...`);
+              return compressImage(file);
+            }
+            return file;
+          })
+        );
+        const result = await api.upload(processedFiles);
         onNotice(`已上传 ${result.assets.length} 个文件。`);
         await onUploaded();
       } catch (error) {
@@ -61,7 +71,7 @@ export function GlobalDropZone({ onUploaded, onNotice, enabled = true }: { onUpl
       <div className="global-drop-zone-content">
         <Upload size={48} />
         <strong>{uploading ? "上传中..." : "松开以上传文件"}</strong>
-        <span>支持图片、视频、文档</span>
+        <span>支持图片、视频、文档（大于1MB的图片会自动压缩）</span>
       </div>
     </div>
   );
