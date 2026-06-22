@@ -494,9 +494,12 @@ function AppInner() {
   }
 
   return (
-    <div className="app-shell">
-      <NetworkBanner online={online} onRetry={checkOnline} />
-      <OfflineIndicator />
+    <ErrorBoundary onError={(error, info) => {
+      console.error("App error:", error, info);
+    }}>
+      <div className="app-shell">
+        <NetworkBanner online={online} onRetry={checkOnline} />
+        <OfflineIndicator />
       <aside className="sidebar">
         <Sidebar {...sidebarProps} />
       </aside>
@@ -725,6 +728,7 @@ function AppInner() {
         ))}
       </nav>
     </div>
+    </ErrorBoundary>
   );
 }
 
