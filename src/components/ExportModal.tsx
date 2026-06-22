@@ -1,9 +1,9 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Clipboard } from "lucide-react";
+import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Clipboard, BookOpen, Database } from "lucide-react";
 
 const ASSISTANT_NAME = "助手";
 
-type ExportFormat = "markdown" | "html" | "pdf" | "text";
+type ExportFormat = "markdown" | "html" | "pdf" | "text" | "notion" | "obsidian";
 type ExportTemplate = "default" | "minimal" | "professional" | "academic";
 
 interface ExportModalProps {
@@ -83,6 +83,48 @@ function generateText(title: string, messages: { role: string; content: string; 
       return `[${role}]\n${m.content}\n`;
     })
     .join(`\n${"-".repeat(40)}\n\n`);
+  return header + body;
+}
+
+function generateNotion(title: string, messages: { role: string; content: string; status: string }[]): string {
+  const date = new Date().toLocaleString("zh-CN");
+  const header = `# ${title}\n\n> 导出时间：${date}\n\n---\n\n`;
+  const body = messages
+    .filter((m) => m.status !== "streaming")
+    .map((m) => {
+      const role = m.role === "user" ? "**👤 你**" : `**🤖 ${ASSISTANT_NAME}**`;
+      const content = m.content
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+        .map((line) => {
+          if (line.startsWith("```")) return `\`\`\`\n`;
+          if (line.startsWith("- ")) return line;
+          if (line.startsWith("* ")) return line;
+          if (/^\d+\.\s/.test(line)) return line;
+          return `> ${line}`;
+        })
+        .join("\n");
+      return `### ${role}\n\n${content}\n`;
+    })
+    .join("\n---\n\n");
+  return header + body;
+}
+
+function generateObsidian(title: string, messages: { role: string; content: string; status: string }[]): string {
+  const date = new Date().toLocaleString("zh-CN");
+  const tags = ["chat-export", "conversation"];
+  const header = `---\ntitle: "${title}"\ndate: ${date}\ntags: [${tags.join(", ")}]\n---\n\n# ${title}\n\n`;
+  const body = messages
+    .filter((m) => m.status !== "streaming")
+    .map((m) => {
+      const role = m.role === "user" ? "**你**" : `**${ASSISTANT_NAME}**`;
+      const content = m.content
+        .replace(/\[\[([^\]]+)\]\]/g, "$1")
+        .replace(/^# /gm, "## ");
+      return `### ${role}\n\n${content}\n`;
+    })
+    .join("\n---\n\n");
   return header + body;
 }
 
@@ -222,6 +264,16 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
           // Fallback: download as HTML if popup is blocked
           downloadFile(html, `${safeTitle}.html`, "text/html;charset=utf-8");
         }
+        break;
+      }
+      case "notion": {
+        const content = generateNotion(title, filteredMessages);
+        downloadFile(content, `${safeTitle}.md`, "text/markdown;charset=utf-8");
+        break;
+      }
+      case "obsidian": {
+        const content = generateObsidian(title, filteredMessages);
+        downloadFile(content, `${safeTitle}.md`, "text/markdown;charset=utf-8");
         break;
       }
     }
@@ -374,6 +426,24 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               <Printer size={20} />
               <span className="export-format-label">PDF</span>
               <span className="export-format-desc">打印为 PDF 文件</span>
+            </button>
+            <button
+              type="button"
+              className={`export-format-btn${format === "notion" ? " active" : ""}`}
+              onClick={() => setFormat("notion")}
+            >
+              <Database size={20} />
+              <span className="export-format-label">Notion</span>
+              <span className="export-format-desc">Notion 兼容格式</span>
+            </button>
+            <button
+              type="button"
+              className={`export-format-btn${format === "obsidian" ? " active" : ""}`}
+              onClick={() => setFormat("obsidian")}
+            >
+              <BookOpen size={20} />
+              <span className="export-format-label">Obsidian</span>
+              <span className="export-format-desc">Obsidian 兼容格式</span>
             </button>
           </div>
 
