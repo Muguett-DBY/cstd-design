@@ -4179,6 +4179,12 @@ button:disabled {
   animation: highlightPulse 1.5s ease;
 }
 
+.search-highlight {
+  background: rgba(255, 193, 7, 0.3);
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
 @keyframes highlightPulse {
   0% { background: rgba(255, 193, 7, 0.2); }
   100% { background: transparent; }
