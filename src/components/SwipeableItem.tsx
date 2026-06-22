@@ -48,10 +48,11 @@ export function SwipeableItem({
   }
 
   return (
-    <div className="swipeable-item-wrapper">
+    <div className="swipeable-item-wrapper" role="listitem" aria-label={deleteLabel}>
       <div
         className="swipeable-delete-bg"
         style={{ opacity: Math.abs(offset) / swipeThreshold }}
+        aria-hidden="true"
       >
         <Trash2 size={16} />
         <span>{deleteLabel}</span>
