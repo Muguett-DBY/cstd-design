@@ -1308,6 +1308,61 @@ button:disabled {
   outline-offset: -2px;
 }
 
+.swipeable-item-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.swipeable-delete-bg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: var(--danger);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.swipeable-item {
+  position: relative;
+  z-index: 1;
+  background: var(--surface);
+  transition: transform 0.2s ease;
+}
+
+.swipeable-item.dragging {
+  transition: none;
+}
+
+.pull-to-refresh-container {
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pull-to-refresh-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: height 0.2s ease;
+}
+
+.pull-to-refresh-indicator .spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .drag-handle {
   cursor: grab;
   color: var(--muted);
