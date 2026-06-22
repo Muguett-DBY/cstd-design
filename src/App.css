@@ -3087,6 +3087,44 @@ button:disabled {
   padding: 24px;
 }
 
+.skeleton-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-group .skeleton-loader {
+  padding: 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.skeleton-card-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-message {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 16px;
+}
+
+.skeleton-message-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .skeleton-row {
   display: flex;
   gap: 12px;
