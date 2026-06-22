@@ -4210,7 +4210,20 @@ button:disabled {
 }
 
 .theme-dark .search-highlight {
-  background: rgba(232, 160, 32, 0.35);
+  background: rgba(255, 193, 7, 0.4);
+}
+
+.theme-dark .offline-indicator {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+.theme-dark .online-indicator {
+  background: rgba(16, 185, 129, 0.9);
+}
+
+.theme-dark .skip-to-content:focus {
+  background: var(--accent);
+  color: var(--on-accent-text);
 }
 
 .search-active-message {
