@@ -498,6 +498,7 @@ function AppInner() {
       console.error("App error:", error, info);
     }}>
       <div className="app-shell">
+        <a href="#main-content" className="skip-to-content">跳转到主要内容</a>
         <NetworkBanner online={online} onRetry={checkOnline} />
         <OfflineIndicator />
       <aside className="sidebar">

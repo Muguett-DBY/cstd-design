@@ -3025,6 +3025,25 @@ button:disabled {
   line-height: 1.5;
 }
 
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 1000;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--on-accent-text);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-to-content:focus {
+  top: 16px;
+}
+
 .empty-state {
   min-height: 240px;
   border: 1.5px dashed var(--line-strong);

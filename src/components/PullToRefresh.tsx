@@ -51,17 +51,22 @@ export function PullToRefresh({
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      role="region"
+      aria-label="下拉刷新"
     >
       {(pullDistance > 0 || isRefreshing) && (
         <div
           className="pull-to-refresh-indicator"
           style={{ height: pullDistance, opacity: Math.min(pullDistance / threshold, 1) }}
+          aria-live="polite"
         >
           <RefreshCw
             size={20}
             className={isRefreshing ? "spinning" : ""}
             style={{ transform: `rotate(${pullDistance * 3}deg)` }}
+            aria-hidden="true"
           />
+          {isRefreshing && <span>刷新中...</span>}
         </div>
       )}
       {children}
