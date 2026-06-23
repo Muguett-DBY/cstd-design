@@ -19,6 +19,7 @@ import { useVideoTaskPersistence } from "./hooks/useVideoTaskPersistence";
 import { NetworkBanner } from "./components/NetworkBanner";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { OnboardingTour } from "./components/OnboardingTour";
+import { ONBOARDING_STORAGE_KEY } from "./storage-keys";
 import { CommandPalette, type CommandItem } from "./components/CommandPalette";
 import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
 import { GlobalDropZone } from "./components/GlobalDropZone";
@@ -357,7 +358,7 @@ function AppInner() {
         icon: FileText,
         group: "action",
         keywords: ["tutorial", "help", "guide"],
-        perform: () => { try { localStorage.removeItem("cstd-design:onboarding-completed"); window.location.reload(); } catch { /* ignore */ } },
+        perform: () => { try { localStorage.removeItem(ONBOARDING_STORAGE_KEY); window.location.reload(); } catch { /* ignore */ } },
       },
       {
         id: "action-theme",

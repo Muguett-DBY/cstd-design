@@ -33,8 +33,21 @@ export function unauthorized() {
   return json({ error: "请先登录。" }, 401);
 }
 
+export function requireConfiguredSecrets(env: Env, keys: (keyof Env)[]) {
+  const missing = keys.some((key) => {
+    const value = env[key];
+    return typeof value !== "string" || value.trim().length === 0;
+  });
+  return missing ? json({ error: "服务配置缺失，请检查后台环境变量。" }, 500) : null;
+}
+
 export function upstreamApiKey(env: Env) {
   return env.UPSTREAM_API_KEY || env.AGNES_API_KEY || "";
+}
+
+export function requireUpstreamApiKey(env: Env) {
+  const apiKey = upstreamApiKey(env).trim();
+  return apiKey ? { apiKey, response: null } : { apiKey: "", response: json({ error: "服务配置缺失，请检查后台环境变量。" }, 500) };
 }
 
 export async function ensureSchema(db: D1Database) {
@@ -148,6 +161,8 @@ export async function ensureSchema(db: D1Database) {
 }
 
 export async function login(request: Request, env: Env, password: string) {
+  const configError = requireConfiguredSecrets(env, ["APP_PASSWORD_HASH", "SESSION_SECRET", "LOGIN_HASH_SECRET"]);
+  if (configError) return configError;
   await ensureSchema(env.DB);
   const now = Date.now();
   const ip = request.headers.get("CF-Connecting-IP") || "local";
@@ -211,6 +226,8 @@ export async function requireSession(request: Request, env: Env) {
 }
 
 export async function enforceRateLimit(env: Env, identity: string, scope: string, limit: number, windowMs: number) {
+  const configError = requireConfiguredSecrets(env, ["SESSION_SECRET", "LOGIN_HASH_SECRET"]);
+  if (configError) return configError;
   await ensureSchema(env.DB);
   const now = Date.now();
   const fingerprint = await hmacSha256Base64Url(env.LOGIN_HASH_SECRET || env.SESSION_SECRET, `api:${scope}:${identity}`);

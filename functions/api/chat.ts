@@ -2,7 +2,7 @@ import { buildActiveBranch } from "../_shared/chat-tree";
 import { createConversation, insertMessage, readConversation, titleFromPrompt, updateMessageContent } from "../_shared/db";
 import { AgnesClient } from "../_shared/agnes";
 import { selectMessagesForContext } from "../_shared/context";
-import { badRequest, enforceRateLimit, json, readJson, requireSession, upstreamApiKey, type PagesContext } from "../_shared/http";
+import { badRequest, enforceRateLimit, json, readJson, requireSession, requireUpstreamApiKey, type PagesContext } from "../_shared/http";
 import { sanitizeAssistantContent, toClientError } from "../_shared/provider";
 import { ChatRequestSchema, parseRequest } from "../_shared/validation";
 
@@ -15,6 +15,8 @@ export async function onRequestPost({ request, env }: PagesContext) {
   if (!parsed.ok) return badRequest(parsed.error);
   const body = parsed.data;
   const content = body.content;
+  const upstream = requireUpstreamApiKey(env);
+  if (upstream.response) return upstream.response;
 
   let conversationId: string;
   let current;
@@ -33,7 +35,7 @@ export async function onRequestPost({ request, env }: PagesContext) {
   const refreshed = await readConversation(env, conversationId);
   const branch = buildActiveBranch(refreshed?.messages || [], userMessage.id).map((message) => ({ role: message.role, content: message.content }));
   const selected = selectMessagesForContext(branch, 240_000);
-  const client = new AgnesClient({ apiKey: upstreamApiKey(env) });
+  const client = new AgnesClient({ apiKey: upstream.apiKey });
 
   const { readable, writable } = new TransformStream();
   const writer = writable.getWriter();

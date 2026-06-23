@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import { requireConfiguredSecrets, requireUpstreamApiKey, type Env } from "./http";
 import {
   createPasswordHash,
   createSessionCookie,
@@ -35,9 +36,29 @@ import {
   UpdateThreadReplySchema,
   VideoRequestSchema,
 } from "./validation";
-import { assetKindsForClearScope, normalizeClearScope } from "./clear";
+import { assetKindsForClearScope, chatTablesForClearScope, normalizeClearScope } from "./clear";
 
 describe("security", () => {
+  test("returns a controlled configuration error for missing auth secrets", async () => {
+    const response = requireConfiguredSecrets({
+      APP_PASSWORD_HASH: "hash",
+      SESSION_SECRET: "",
+      LOGIN_HASH_SECRET: "",
+      ASSET_CAPABILITY_SECRET: "asset-secret",
+    } as Env, ["APP_PASSWORD_HASH", "SESSION_SECRET", "LOGIN_HASH_SECRET"]);
+
+    expect(response?.status).toBe(500);
+    await expect(response?.json()).resolves.toEqual({ error: "服务配置缺失，请检查后台环境变量。" });
+  });
+
+  test("returns a controlled configuration error when upstream API key is missing", async () => {
+    const result = requireUpstreamApiKey({ UPSTREAM_API_KEY: "", AGNES_API_KEY: "" } as Env);
+
+    expect(result.apiKey).toBe("");
+    expect(result.response?.status).toBe(500);
+    await expect(result.response?.json()).resolves.toEqual({ error: "服务配置缺失，请检查后台环境变量。" });
+  });
+
   test("hashes passwords with salt and verifies only the original value", async () => {
     const hash = await createPasswordHash("correct horse", "fixed-salt", 100_000);
 
@@ -228,5 +249,19 @@ describe("clear-all scope contracts", () => {
     expect(assetKindsForClearScope("video")).toEqual(["video"]);
     expect(assetKindsForClearScope("assets")).toEqual(["upload", "image", "video"]);
     expect(assetKindsForClearScope("all")).toEqual(["upload", "image", "video"]);
+  });
+
+  test("removes chat side tables before messages and conversations", () => {
+    expect(chatTablesForClearScope("image")).toEqual([]);
+    expect(chatTablesForClearScope("chat")).toEqual([
+      "message_edits",
+      "reactions",
+      "pins",
+      "bookmarks",
+      "message_threads",
+      "messages",
+      "conversations",
+    ]);
+    expect(chatTablesForClearScope("all")).toEqual(chatTablesForClearScope("chat"));
   });
 });
