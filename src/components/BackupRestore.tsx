@@ -1,28 +1,13 @@
 import { useCallback, useState } from "react";
 import { Download, Upload, Database } from "lucide-react";
 import { THEMES } from "../hooks/useTheme";
+import { BACKUP_KEYS } from "../storage-keys";
 
 interface BackupData {
   version: 1;
   exportedAt: string;
   data: Record<string, unknown>;
 }
-
-const BACKUP_KEYS = [
-  "cstd-design:chat-prompt-templates",
-  "cstd-design:video-presets",
-  "cstd-design:pinned-conversations",
-  "cstd-design:asset-tags",
-  "cstd-design:preferences",
-  "cstd-design:theme",
-  "cstd-design:language",
-  "cstd-design:saved-searches",
-  "cstd-design:shared-conversations",
-  "cstd-design:searchHistory",
-  "cstd-design:imageSize",
-  "cstd-design:onboarding-completed",
-  "cstd-design:dark",
-];
 
 export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void }) {
   const [importing, setImporting] = useState(false);

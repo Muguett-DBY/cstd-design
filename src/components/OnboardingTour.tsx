@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Command, Globe, Keyboard, Palette, Share2, Sparkles, X } from "lucide-react";
-
-const STORAGE_KEY = "cstd-design:onboardingComplete";
+import { ONBOARDING_STORAGE_KEY } from "../storage-keys";
 
 interface TourStep {
   icon: React.ReactNode;
@@ -50,7 +49,7 @@ const TOUR_STEPS: TourStep[] = [
 export function OnboardingTour() {
   const [visible, setVisible] = useState<boolean>(() => {
     try {
-      return !localStorage.getItem(STORAGE_KEY);
+      return !localStorage.getItem(ONBOARDING_STORAGE_KEY);
     } catch {
       return true;
     }
@@ -75,7 +74,7 @@ export function OnboardingTour() {
   const isFirst = step === 0;
 
   function complete() {
-    try { localStorage.setItem(STORAGE_KEY, "true"); } catch { /* ignore storage errors */ }
+    try { localStorage.setItem(ONBOARDING_STORAGE_KEY, "true"); } catch { /* ignore storage errors */ }
     setVisible(false);
   }
 

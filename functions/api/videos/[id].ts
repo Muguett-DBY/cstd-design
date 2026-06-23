@@ -1,6 +1,6 @@
 import { AgnesClient } from "../../_shared/agnes";
 import { createObjectKey } from "../../_shared/media";
-import { json, requireSession, upstreamApiKey, type PagesContext } from "../../_shared/http";
+import { json, requireSession, requireUpstreamApiKey, type PagesContext } from "../../_shared/http";
 import { toClientError } from "../../_shared/provider";
 
 export async function onRequestGet({ request, env, params }: PagesContext) {
@@ -12,7 +12,9 @@ export async function onRequestGet({ request, env, params }: PagesContext) {
   if (!row) return json({ error: "任务不存在。" }, 404);
   if (row.asset_id) return json({ task: { id: row.id, status: "completed", progress: 100, assetId: row.asset_id, assetUrl: `/api/assets/${row.asset_id}` } });
 
-  const client = new AgnesClient({ apiKey: upstreamApiKey(env) });
+  const upstream = requireUpstreamApiKey(env);
+  if (upstream.response) return upstream.response;
+  const client = new AgnesClient({ apiKey: upstream.apiKey });
   try {
     const task = await client.readVideo(row.provider_task_id);
     if (task.status === "completed" && task.videoUrl) {

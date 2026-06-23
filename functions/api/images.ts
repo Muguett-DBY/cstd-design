@@ -1,5 +1,5 @@
 import { AgnesClient } from "../_shared/agnes";
-import { enforceRateLimit, getExtension, json, readJson, requireSession, upstreamApiKey, type PagesContext } from "../_shared/http";
+import { enforceRateLimit, getExtension, json, readJson, requireSession, requireUpstreamApiKey, type PagesContext } from "../_shared/http";
 import { assetCapabilityUrls, createObjectKey, safeMediaType } from "../_shared/media";
 import { toClientError, type ImageSize } from "../_shared/provider";
 import { ImageRequestSchema, parseRequest } from "../_shared/validation";
@@ -14,8 +14,10 @@ export async function onRequestPost({ request, env }: PagesContext) {
   const body = parsed.data;
   const prompt = body.prompt;
   const size: ImageSize = body.size;
+  const upstream = requireUpstreamApiKey(env);
+  if (upstream.response) return upstream.response;
   const referenceUrls = await assetCapabilityUrls(request, env, body.referenceAssetIds);
-  const client = new AgnesClient({ apiKey: upstreamApiKey(env) });
+  const client = new AgnesClient({ apiKey: upstream.apiKey });
   try {
     const remoteUrl = await client.image({ prompt, size, referenceUrls });
     const remote = await client.fetchRemote(remoteUrl);

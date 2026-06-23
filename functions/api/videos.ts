@@ -1,5 +1,5 @@
 import { AgnesClient } from "../_shared/agnes";
-import { enforceRateLimit, json, readJson, requireSession, upstreamApiKey, type PagesContext } from "../_shared/http";
+import { enforceRateLimit, json, readJson, requireSession, requireUpstreamApiKey, type PagesContext } from "../_shared/http";
 import { assetCapabilityUrls } from "../_shared/media";
 import { toClientError, type VideoPreset } from "../_shared/provider";
 import { parseRequest, VideoRequestSchema } from "../_shared/validation";
@@ -20,8 +20,10 @@ export async function onRequestPost({ request, env }: PagesContext) {
   if (!parsed.ok) return json({ error: parsed.error }, 400);
   const body = parsed.data;
   const prompt = body.prompt;
+  const upstream = requireUpstreamApiKey(env);
+  if (upstream.response) return upstream.response;
   const referenceUrls = await assetCapabilityUrls(request, env, body.referenceAssetIds);
-  const client = new AgnesClient({ apiKey: upstreamApiKey(env) });
+  const client = new AgnesClient({ apiKey: upstream.apiKey });
   try {
     const created = await client.createVideo({
       prompt,

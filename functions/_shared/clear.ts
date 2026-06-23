@@ -16,6 +16,11 @@ export function assetKindsForClearScope(scope: ClearScope): AssetKind[] {
   return [];
 }
 
+export function chatTablesForClearScope(scope: ClearScope): string[] {
+  if (scope !== "chat" && scope !== "all") return [];
+  return ["message_edits", "reactions", "pins", "bookmarks", "message_threads", "messages", "conversations"];
+}
+
 export async function clearWorkspaceScope(env: Env, scope: ClearScope) {
   const result = {
     conversations: 0,
@@ -28,11 +33,7 @@ export async function clearWorkspaceScope(env: Env, scope: ClearScope) {
   if (scope === "chat" || scope === "all") {
     result.messages = await countRows(env, "messages");
     result.conversations = await countRows(env, "conversations");
-    await env.DB.batch([
-      env.DB.prepare(`DELETE FROM message_threads`),
-      env.DB.prepare(`DELETE FROM messages`),
-      env.DB.prepare(`DELETE FROM conversations`),
-    ]);
+    await env.DB.batch(chatTablesForClearScope(scope).map((table) => env.DB.prepare(`DELETE FROM ${table}`)));
     if (scope === "chat") return result;
   }
 
