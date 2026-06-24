@@ -308,6 +308,22 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  transition: width 0.2s ease;
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    min-width: 200px;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    min-width: 180px;
+    max-width: 180px;
+    padding: 12px;
+  }
 }
 
 .mobile-drawer,
@@ -2877,6 +2893,20 @@ button:disabled {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .asset-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .asset-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
 }
 
 .asset-card {
