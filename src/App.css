@@ -8349,6 +8349,89 @@ button:disabled {
   padding-bottom: 8px;
 }
 
+.attachment-btn-label {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--muted);
+  border-radius: 6px;
+  transition: color 0.15s;
+}
+
+.attachment-btn-label:hover {
+  color: var(--text);
+}
+
+.attachment-preview-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.attachment-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.attachment-preview-image {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.attachment-preview-file {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.attachment-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.attachment-preview-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+.attachment-preview-size {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.attachment-preview-remove {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.attachment-preview-remove:hover {
+  color: var(--danger);
+}
+
 .composer-input-extras .icon-button.active {
   background: var(--danger, #c33);
   color: white;

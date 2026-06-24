@@ -34,6 +34,8 @@ import { ContextMenu, type ContextMenuItem } from "./ContextMenu";
 const PdfExportButton = lazy(() => import("./PdfExportButton").then((m) => ({ default: m.PdfExportButton })));
 import { PromptSuggestions } from "./PromptSuggestions";
 import { VoiceInputButton } from "./VoiceInputButton";
+import { useMessageAttachments } from "../hooks/useMessageAttachments";
+import { AttachmentPreview } from "./AttachmentPreview";
 
 const ASSISTANT_NAME = "助手";
 
@@ -112,6 +114,7 @@ export function ChatWorkspace({
   usageEvents?: { type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned"; timestamp: string }[];
 }) {
   const { draft, setDraft, clearDraft } = useDraftPersistence(conversation?.id || null);
+  const { attachments, addAttachment, removeAttachment } = useMessageAttachments();
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const pendingAssistantRef = useRef<string | null>(null);
@@ -829,6 +832,7 @@ export function ChatWorkspace({
               )}
             </div>
           )}
+          <AttachmentPreview attachments={attachments} onRemove={removeAttachment} />
           <div className="composer-input-wrapper">
             <textarea
               ref={textareaRef}
@@ -845,6 +849,21 @@ export function ChatWorkspace({
             aria-label="输入消息"
           />
             <div className="composer-input-extras">
+              <label className="attachment-btn-label" title="添加附件">
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    if (files) Array.from(files).forEach(addAttachment);
+                    e.target.value = "";
+                  }}
+                  style={{ display: "none" }}
+                />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+              </label>
               <VoiceInputButton
                 onTranscript={(text) => setDraft((prev) => ({ ...prev, content: prev.content ? prev.content + " " + text : text }))}
               />
