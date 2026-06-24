@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, ChevronDown, ChevronUp, Clock, Filter, MessageSquare, Search, Star, Trash2, X } from "lucide-react";
+import { Bookmark, ChevronDown, ChevronUp, Clock, Filter, MessageSquare, Search, Star, Trash2, Wand2, X } from "lucide-react";
 import type { DateFilter, RoleFilter } from "../hooks/useMessageSearch";
 import type { SavedSearch } from "../hooks/useSavedSearches";
 
@@ -40,6 +40,8 @@ export function MessageSearchBar({
   savedSearches = [],
   onApplySavedSearch,
   onDeleteSavedSearch,
+  useSemantic,
+  onUseSemanticChange,
 }: {
   query: string;
   onQueryChange: (q: string) => void;
@@ -57,6 +59,8 @@ export function MessageSearchBar({
   savedSearches?: SavedSearch[];
   onApplySavedSearch?: (s: SavedSearch) => void;
   onDeleteSavedSearch?: (id: string) => void;
+  useSemantic?: boolean;
+  onUseSemanticChange?: (v: boolean) => void;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [history, setHistory] = useState<string[]>(loadSearchHistory);
@@ -206,6 +210,17 @@ export function MessageSearchBar({
                 ))}
               </div>
             </div>
+            {onUseSemanticChange && (
+              <label className="search-filter-semantic">
+                <input
+                  type="checkbox"
+                  checked={useSemantic || false}
+                  onChange={(e) => onUseSemanticChange(e.target.checked)}
+                />
+                <Wand2 size={12} />
+                语义搜索（同义词扩展）
+              </label>
+            )}
             {onSaveSearch && (
               <button
                 type="button"
