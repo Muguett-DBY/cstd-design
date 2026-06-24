@@ -471,6 +471,8 @@ export function ChatWorkspace({
             dateFilter={search.dateFilter}
             onRoleFilterChange={search.setRoleFilter}
             onDateFilterChange={search.setDateFilter}
+            useSemantic={search.useSemantic}
+            onUseSemanticChange={search.setUseSemantic}
             onSaveSearch={() => {
               const name = search.query.trim().slice(0, 20);
               savedSearches.add({
