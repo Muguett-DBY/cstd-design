@@ -10,11 +10,15 @@ type TranslationKey =
   | "nav.chat" | "nav.image" | "nav.video" | "nav.assets"
   | "topbar.chatDesc" | "topbar.imageDesc" | "topbar.videoDesc" | "topbar.assetsDesc"
   | "settings.title" | "settings.theme" | "settings.image" | "settings.video" | "settings.chat" | "settings.appearance"
-  | "settings.language" | "settings.saved"
+  | "settings.language" | "settings.saved" | "settings.autoTheme" | "settings.shortcuts" | "settings.notifications" | "settings.importExport"
   | "command.placeholder" | "command.empty" | "command.searchActions"
-  | "search.placeholder" | "search.noResults"
+  | "search.placeholder" | "search.noResults" | "search.semantic"
   | "empty.chatTitle" | "empty.chatDesc" | "empty.noSearch" | "empty.noConversations" | "empty.noAssets"
-  | "language.zh" | "language.en";
+  | "language.zh" | "language.en"
+  | "offline.title" | "offline.hint" | "online.title"
+  | "prompt.library" | "prompt.addCustom" | "prompt.favorites" | "prompt.search"
+  | "template.export" | "template.import" | "backup.export" | "backup.import" | "backup.preview"
+  | "onboarding.welcome" | "onboarding.chat" | "onboarding.image" | "onboarding.assets" | "onboarding.search";
 
 const translations: Record<Language, Record<TranslationKey, string>> = {
   zh: {
@@ -58,6 +62,28 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "empty.noAssets": "还没有素材",
     "language.zh": "中文",
     "language.en": "English",
+    "settings.autoTheme": "自动主题",
+    "settings.shortcuts": "快捷键",
+    "settings.notifications": "通知",
+    "settings.importExport": "导入/导出",
+    "search.semantic": "语义搜索",
+    "offline.title": "离线模式",
+    "offline.hint": "（已缓存，可继续使用）",
+    "online.title": "已恢复在线",
+    "prompt.library": "提示词库",
+    "prompt.addCustom": "添加自定义",
+    "prompt.favorites": "收藏",
+    "prompt.search": "搜索提示词...",
+    "template.export": "导出",
+    "template.import": "导入",
+    "backup.export": "导出备份",
+    "backup.import": "导入备份",
+    "backup.preview": "预览",
+    "onboarding.welcome": "欢迎使用 cstd-design",
+    "onboarding.chat": "开始对话",
+    "onboarding.image": "生成图片",
+    "onboarding.assets": "管理素材",
+    "onboarding.search": "使用搜索",
   },
   en: {
     "common.save": "Save",
@@ -88,6 +114,28 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "settings.appearance": "Appearance",
     "settings.language": "Interface Language",
     "settings.saved": "Settings are saved automatically",
+    "settings.autoTheme": "Auto Theme",
+    "settings.shortcuts": "Keyboard Shortcuts",
+    "settings.notifications": "Notifications",
+    "settings.importExport": "Import/Export",
+    "search.semantic": "Semantic Search",
+    "offline.title": "Offline Mode",
+    "offline.hint": "(cached, can continue)",
+    "online.title": "Back Online",
+    "prompt.library": "Prompt Library",
+    "prompt.addCustom": "Add Custom",
+    "prompt.favorites": "Favorites",
+    "prompt.search": "Search prompts...",
+    "template.export": "Export",
+    "template.import": "Import",
+    "backup.export": "Export Backup",
+    "backup.import": "Import Backup",
+    "backup.preview": "Preview",
+    "onboarding.welcome": "Welcome to cstd-design",
+    "onboarding.chat": "Start a conversation",
+    "onboarding.image": "Generate images",
+    "onboarding.assets": "Manage assets",
+    "onboarding.search": "Use search",
     "command.placeholder": "Search actions, conversations, pages...",
     "command.empty": "No matching commands",
     "command.searchActions": "Search actions, conversations, pages",
@@ -98,7 +146,7 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "empty.noSearch": "No matching conversations",
     "empty.noConversations": "No conversations yet",
     "empty.noAssets": "No assets yet",
-    "language.zh": "中文",
+    "language.zh": "Chinese",
     "language.en": "English",
   },
 };
