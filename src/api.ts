@@ -45,7 +45,10 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
       let body: { error?: string } = {};
       try { body = await response.json(); } catch { /* ignore parse errors */ }
       if (response.status === 429) throw new Error(body.error || "请求过于频繁，请稍后重试。");
-      throw new Error(body.error || "请求失败。");
+      if (response.status === 403) throw new Error(body.error || "没有权限执行此操作。");
+      if (response.status === 404) throw new Error(body.error || "请求的资源不存在。");
+      if (response.status >= 500) throw new Error(body.error || "服务器内部错误，请稍后重试。");
+      throw new Error(body.error || "请求失败，请稍后重试。");
     }
     return await response.json() as T;
   }
