@@ -169,7 +169,12 @@ function ConversationCard({
           <strong>{item.title}</strong>
         </div>
         {snippet && <span className="conversation-snippet">{snippet}</span>}
-        <span>{timeAgo(item.updatedAt)}{item.messageCount ? ` · ${item.messageCount} 条消息` : ""}</span>
+        <div className="conversation-card-meta">
+          <span>{timeAgo(item.updatedAt)}</span>
+          {item.messageCount && item.messageCount > 0 && (
+            <span className="conversation-message-count">{item.messageCount} 条</span>
+          )}
+        </div>
       </button>
       {!bulkMode && (
         <div className="conversation-card-actions">
