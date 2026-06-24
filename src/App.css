@@ -2966,6 +2966,46 @@ button:disabled {
   gap: 16px;
 }
 
+.asset-grid.view-list {
+  grid-template-columns: 1fr;
+}
+
+.asset-grid.view-detail {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.view-mode-toggle {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--soft);
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
+.view-mode-btn {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-mode-btn:hover {
+  color: var(--text);
+}
+
+.view-mode-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
   .asset-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, History, RefreshCw, Tag, Trash2 } from "lucide-react";
+import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, Grid, History, LayoutList, List, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, formatBytes } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
@@ -49,6 +49,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [showCompare, setShowCompare] = useState(false);
   const [showCollectionPickerFor, setShowCollectionPickerFor] = useState<string | null>(null);
   const [showCollectionsManager, setShowCollectionsManager] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "detail">("grid");
 
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {
@@ -122,6 +123,35 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             ]}
             onChange={(v) => { setFilter(v); setSelected(new Set()); }}
           />
+          <div className="view-mode-toggle" role="radiogroup" aria-label="视图模式">
+            <button
+              type="button"
+              className={`view-mode-btn${viewMode === "grid" ? " active" : ""}`}
+              onClick={() => setViewMode("grid")}
+              aria-pressed={viewMode === "grid"}
+              title="网格视图"
+            >
+              <Grid size={14} />
+            </button>
+            <button
+              type="button"
+              className={`view-mode-btn${viewMode === "list" ? " active" : ""}`}
+              onClick={() => setViewMode("list")}
+              aria-pressed={viewMode === "list"}
+              title="列表视图"
+            >
+              <List size={14} />
+            </button>
+            <button
+              type="button"
+              className={`view-mode-btn${viewMode === "detail" ? " active" : ""}`}
+              onClick={() => setViewMode("detail")}
+              aria-pressed={viewMode === "detail"}
+              title="详情视图"
+            >
+              <LayoutList size={14} />
+            </button>
+          </div>
           {collections.collections.length > 0 && (
             <div className="tag-filter">
               <span className="tag-filter-label">集合：</span>
