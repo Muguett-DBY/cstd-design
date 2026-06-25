@@ -855,6 +855,7 @@ button:disabled {
 .folder-chip:hover {
   border-color: var(--accent);
   color: var(--text);
+  transform: scale(1.03);
 }
 
 .folder-chip.active {
@@ -1288,6 +1289,13 @@ button:disabled {
   background: var(--surface-alpha-38);
   display: grid;
   gap: 6px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  border-radius: var(--radius-md);
+}
+
+.conversation-card:hover {
+  background: var(--surface-strong);
+  transform: translateX(2px);
 }
 
 .conversation-card.active {
