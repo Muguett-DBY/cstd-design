@@ -38,12 +38,13 @@ export function RecoveryCenter({
   const activeCount = hasActiveVideoTask ? 1 : 0;
   const totalCount = activeCount + records.length;
   const hasPanelContent = hasActiveVideoTask || records.length > 0 || recentVideoTasks.length > 0;
+  const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
 
   return (
     <div className="recovery-center">
       <button
         type="button"
-        className="recovery-trigger"
+        className={triggerClassName}
         aria-label={`创作中心，${activeCount} 个进行中，${records.length} 个可恢复`}
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
@@ -67,6 +68,20 @@ export function RecoveryCenter({
             <p className="recovery-empty">暂无需要恢复的创作任务。</p>
           ) : (
             <>
+              <div className="recovery-overview" aria-label="创作中心状态概览">
+                <div className="recovery-overview-card">
+                  <span>进行中</span>
+                  <strong>{activeCount}</strong>
+                </div>
+                <div className="recovery-overview-card">
+                  <span>可恢复</span>
+                  <strong>{records.length}</strong>
+                </div>
+                <div className="recovery-overview-card">
+                  <span>最近完成</span>
+                  <strong>{recentVideoTasks.length}</strong>
+                </div>
+              </div>
               {hasActiveVideoTask && activeVideoTask && (
                 <article className="recovery-item recovery-item-active">
                   <div>

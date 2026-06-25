@@ -81,4 +81,30 @@ describe("RecoveryCenter", () => {
     fireEvent.click(screen.getByRole("button", { name: "查看当前视频任务" }));
     expect(onOpenVideoTask).toHaveBeenCalledOnce();
   });
+
+  test("shows a quick status overview for the creation center", () => {
+    render(
+      <RecoveryCenter
+        records={records}
+        activeVideoTask={{ id: "task-active", status: "queued", progress: 0 }}
+        recentVideoTasks={[
+          { id: "task-done-1", prompt: "studio walk cycle", status: "completed", finishedAt: "2026-06-26T04:30:00.000Z" },
+          { id: "task-done-2", prompt: "warm material preview", status: "completed", finishedAt: "2026-06-26T04:40:00.000Z" },
+        ]}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心，1 个进行中，2 个可恢复/ }));
+
+    const overview = screen.getByLabelText("创作中心状态概览");
+    expect(overview.textContent).toContain("进行中");
+    expect(overview.textContent).toContain("1");
+    expect(overview.textContent).toContain("可恢复");
+    expect(overview.textContent).toContain("2");
+    expect(overview.textContent).toContain("最近完成");
+    expect(overview.textContent).toContain("2");
+  });
 });

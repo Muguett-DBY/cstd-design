@@ -8740,6 +8740,22 @@ button:disabled {
   box-shadow: var(--shadow-soft);
   cursor: pointer;
   padding: 8px 12px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.recovery-trigger:hover,
+.recovery-trigger:focus-visible {
+  border-color: var(--active-border);
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--accent) 16%, transparent);
+  transform: translateY(-1px);
+}
+
+.recovery-trigger.has-recovery-work {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--line));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--surface-alpha-94)), var(--surface-alpha-94));
 }
 
 .recovery-badge {
@@ -8788,6 +8804,34 @@ button:disabled {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
+}
+
+.recovery-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.recovery-overview-card {
+  display: grid;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 88%, var(--accent) 12%);
+  padding: 10px;
+}
+
+.recovery-overview-card span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.recovery-overview-card strong {
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
 }
 
 .recovery-list {
@@ -8887,5 +8931,13 @@ button:disabled {
     top: auto;
     right: 0;
     bottom: calc(100% + 10px);
+  }
+
+  .recovery-overview {
+    gap: 6px;
+  }
+
+  .recovery-overview-card {
+    padding: 9px 8px;
   }
 }

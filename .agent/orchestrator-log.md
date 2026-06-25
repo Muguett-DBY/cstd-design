@@ -335,4 +335,31 @@
 - `git diff --check` — passed; line-ending normalization warnings only.
 
 **Commit target**: `feat: improve creation continuity center`
-**Next stage after CI passes**: UIUX via `AGENT_UIUX_MAIN.txt`.
+**Commit/CI**:
+- Commit `cc6458b` (`feat: improve creation continuity center`) pushed to `origin/main`.
+- GitHub Actions run `28194841060` passed: secret scan, install, tests, functions typecheck, lint, build, remote D1 migrations, and Pages deploy.
+
+### Stage 2 — UIUX
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_UIUX_MAIN.txt`
+**Goal**: Improve the creation center’s at-a-glance readability and interaction polish without changing the persistence model.
+
+**Completed**:
+- Added a compact status overview for active work, recoverable records, and recent completed video tasks.
+- Added status-aware trigger styling so actionable work is visually distinct.
+- Improved hover/focus affordance and mobile spacing for the floating creation-center panel.
+
+**Verification so far**:
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before implementation because `创作中心状态概览` did not exist.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 4 tests passed after implementation.
+- `npm test` — 55 files and 389 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; existing Vite large chunk warning remains.
+- `git diff --check` — passed; line-ending normalization warnings only.
+- Local Pages preview `wrangler pages dev dist --port 8790` returned HTTP 200.
+- In-app Browser desktop QA: app loaded, no framework overlay, console errors/warnings empty, creation center trigger opened the empty state after dismissing onboarding.
+- In-app Browser mobile QA at 390×844: app loaded, creation center trigger opened the empty state, no framework overlay, console errors/warnings empty.
+- Screenshot note: Browser `Page.captureScreenshot` timed out twice; external Playwright screenshot fallback was blocked by the local password gate in a fresh unauthenticated browser context, so visual evidence remains DOM/interaction based plus component tests.
+
+**Commit target**: `style: polish creation center overview`

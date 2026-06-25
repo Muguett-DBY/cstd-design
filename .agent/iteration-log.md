@@ -1349,3 +1349,9 @@
 
 ### Next
 - Run the UI/UX stage as a separate commit focused on the creation center and app-shell experience.
+
+### UI/UX pass
+- Added a three-card “创作中心状态概览” so users can quickly distinguish active tasks, recoverable failures, and recent completed videos before scanning the detailed list.
+- Added visual emphasis to the floating trigger when there is actionable creation work.
+- Tightened hover/focus styling and mobile panel spacing while preserving the existing open/select/dismiss/clear actions.
+- Validation: component TDD is green; full local gate passed (`npm test`, functions typecheck, lint, build, diff check); local Pages preview returned 200; in-app Browser desktop and 390×844 mobile interaction checks passed with no console errors or framework overlay.
