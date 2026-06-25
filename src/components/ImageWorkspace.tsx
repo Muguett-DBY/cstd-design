@@ -12,6 +12,7 @@ import { ResultCard } from "./ResultCard";
 import { Segmented } from "./Segmented";
 import { useWorkspaceDefaults } from "../hooks/useWorkspaceDefaults";
 import { useImageGenerationBatch, type ImageBatchSlot, type ImageGenerationRecipe } from "../hooks/useImageGenerationBatch";
+import { CreationStatus } from "./CreationStatus";
 
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
 
@@ -204,22 +205,13 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           ))}
         </div>
         {batch.summary && batch.summary.failedCount > 0 && !loading && (
-          <div className="creation-recovery" role="alert" aria-live="assertive">
-            <div>
-              <strong>批量生成部分完成</strong>
-              <span>成功 {batch.summary.successCount} 张，失败 {batch.summary.failedCount} 张。成功结果已保留。</span>
-            </div>
-            <div className="creation-recovery-actions">
-              <button type="button" className="ghost-button" onClick={batch.clear}>忽略</button>
-              <button
-                type="button"
-                className="primary-button"
-                onClick={() => void runBatch(batch.summary!.recipe, batch.retryableIndexes)}
-              >
-                <RefreshCw size={14} /> 重试失败项
-              </button>
-            </div>
-          </div>
+          <CreationStatus
+            status="error"
+            title="批量生成部分完成"
+            detail={`成功 ${batch.summary.successCount} 张，失败 ${batch.summary.failedCount} 张。成功结果已保留。`}
+            secondaryAction={{ label: "忽略", onClick: batch.clear }}
+            primaryAction={{ label: "重试失败项", icon: <RefreshCw size={14} />, onClick: () => void runBatch(batch.summary!.recipe, batch.retryableIndexes) }}
+          />
         )}
         {lastResult && !loading && (
           <ResultCard
