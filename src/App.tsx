@@ -12,6 +12,7 @@ import {
   ChatWorkspace,
   Sidebar,
   ConfirmDialog,
+  RecoveryCenter,
 } from "./components";
 import { useToast } from "./components/toast-context";
 import { useNetworkStatus } from "./hooks/useNetworkStatus";
@@ -36,6 +37,7 @@ import { useVideoTaskHistory } from "./hooks/useVideoTaskHistory";
 import { ImageEditor } from "./components/ImageEditor";
 import { GlobalSearchModal } from "./components/GlobalSearchModal";
 import { useUsageStats } from "./hooks/useUsageStats";
+import { useCreationRecovery, type CreationRecoveryRecord } from "./hooks/useCreationRecovery";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -85,6 +87,8 @@ function AppInner() {
   const notifications = useNotifications();
   const videoHistory = useVideoTaskHistory();
   const usageStats = useUsageStats();
+  const { records: recoveryRecords, upsert: upsertRecovery, dismiss: dismissRecovery, clear: clearRecovery } = useCreationRecovery();
+  const [selectedRecovery, setSelectedRecovery] = useState<CreationRecoveryRecord | null>(null);
   const autoTheme = autoMode;
   const onAutoThemeChange = setAutoMode;
 
@@ -416,6 +420,13 @@ function AppInner() {
     return [...navItems, ...convItems, ...actionItems];
   }, [conversations, openConversation, handleCreateConversation, shortcutsHelp, theme, setTheme]);
 
+  const selectRecoveryRecord = useCallback((record: CreationRecoveryRecord) => {
+    setSelectedRecovery(record);
+    setActiveTab(record.workspace);
+    dismissRecovery(record.id);
+    toast(`已打开${record.workspace === "chat" ? "咨询" : record.workspace === "image" ? "图片" : "视频"}工作区，可继续恢复。`, "info");
+  }, [dismissRecovery, toast]);
+
   if (booting) return <Splash />;
   if (!authenticated) {
     return (
@@ -502,6 +513,12 @@ function AppInner() {
         <a href="#main-content" className="skip-to-content">跳转到主要内容</a>
         <NetworkBanner online={online} onRetry={checkOnline} />
         <OfflineIndicator />
+        <RecoveryCenter
+          records={recoveryRecords}
+          onSelect={selectRecoveryRecord}
+          onDismiss={dismissRecovery}
+          onClear={clearRecovery}
+        />
       <aside className="sidebar">
         <Sidebar {...sidebarProps} />
       </aside>
@@ -605,7 +622,7 @@ function AppInner() {
         {activeTab === "chat" && (
           <ErrorBoundary key="chat">
           <ChatWorkspace
-            key={conversation?.id || "new"}
+            key={`${conversation?.id || "new"}-${selectedRecovery?.type === "chat" ? selectedRecovery.id : ""}`}
             conversation={conversation}
             messages={activeMessages}
             leaves={leaves}
@@ -689,20 +706,46 @@ function AppInner() {
             }}
             onClearAll={() => clearScope("all")}
             onNotice={(msg: string) => toast(msg, "info")}
+            onRecordRecovery={upsertRecovery}
+            initialRecoveryPayload={selectedRecovery?.type === "chat" ? selectedRecovery.payload : null}
           />
           </ErrorBoundary>
         )}
         {activeTab === "image" && (
           <ErrorBoundary key="image">
           <Suspense fallback={<div className="messages-skeleton"><div className="message-skeleton"><div className="skeleton-avatar" /><div className="skeleton-body"><div className="skeleton-line" /></div></div></div>}>
-          <ImageWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("image")} onPreview={openLightbox} online={online} />
+          <ImageWorkspace
+            key={selectedRecovery?.type === "image" ? selectedRecovery.id : "image"}
+            assets={assets}
+            onAssetsChanged={refreshAssets}
+            onNotice={(msg: string) => toast(msg, "info")}
+            onClearAll={() => clearScope("image")}
+            onPreview={openLightbox}
+            online={online}
+            onRecordRecovery={upsertRecovery}
+            initialRecoveryPayload={selectedRecovery?.type === "image" ? selectedRecovery.payload : null}
+          />
           </Suspense>
           </ErrorBoundary>
         )}
         {activeTab === "video" && (
           <ErrorBoundary key="video">
           <Suspense fallback={<div className="messages-skeleton"><div className="message-skeleton"><div className="skeleton-avatar" /><div className="skeleton-body"><div className="skeleton-line" /></div></div></div>}>
-          <VideoWorkspace assets={assets} onAssetsChanged={refreshAssets} onNotice={(msg: string) => toast(msg, "info")} onClearAll={() => clearScope("video")} onPreview={openLightbox} videoTask={videoTask} onVideoTaskChange={setVideoTask} submittedPrompt={videoSubmittedPrompt} onSubmittedPromptChange={setVideoSubmittedPrompt} online={online} />
+          <VideoWorkspace
+            key={selectedRecovery?.type === "video" ? selectedRecovery.id : "video"}
+            assets={assets}
+            onAssetsChanged={refreshAssets}
+            onNotice={(msg: string) => toast(msg, "info")}
+            onClearAll={() => clearScope("video")}
+            onPreview={openLightbox}
+            videoTask={videoTask}
+            onVideoTaskChange={setVideoTask}
+            submittedPrompt={videoSubmittedPrompt}
+            onSubmittedPromptChange={setVideoSubmittedPrompt}
+            online={online}
+            onRecordRecovery={upsertRecovery}
+            initialRecoveryPayload={selectedRecovery?.type === "video" ? selectedRecovery.payload : null}
+          />
           <VideoTasksPanel
             history={videoHistory.history}
             onRemove={videoHistory.remove}

@@ -260,12 +260,13 @@
 - `f475d21` — Recoverable chat sending committed, pushed, and GitHub Actions run `28187619080` passed.
 - `ba2fa0c` — Recoverable image batch retries committed, pushed, and GitHub Actions run `28187846107` passed.
 - `f0fe0e9` — Shared creation status UX committed, pushed, and GitHub Actions run `28188153586` passed.
+- `d312685` — Durable video recipes committed, pushed, and GitHub Actions run `28188674650` passed.
 
-**Current increment**: Durable video recipes. Active and failed video tasks now keep the exact generation recipe, polling preserves `startedAt`, and the task card exposes “恢复生成参数” so the form can be repopulated before recreating a failed task.
+**Current increment**: Cross-workspace recovery center. The app now stores bounded recovery records for chat, image, and video failures, exposes a floating recovery center, and injects selected payloads back into the matching workspace by remounting with initial recovery state.
 
 **Verification before commit**:
-- `npx vitest run src/hooks/useVideoTaskPersistence.test.ts` — 7 tests passed.
-- `npm test` — 53 files and 382 tests passed.
+- `npx vitest run src/hooks/useCreationRecovery.test.ts src/components/RecoveryCenter.test.tsx` — 5 tests passed.
+- `npm test` — 55 files and 387 tests passed.
 - `npm run typecheck:functions` — passed.
 - `npm run lint` — passed with `--max-warnings=0`.
 - `npm run build` — passed.

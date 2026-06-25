@@ -10,6 +10,7 @@ import { Segmented } from "./Segmented";
 import { useVideoPresets } from "../hooks/useVideoPresets";
 import { CreationStatus } from "./CreationStatus";
 import type { PersistedVideoTask, VideoGenerationRecipe } from "../hooks/useVideoTaskPersistence";
+import type { CreationRecoveryInput } from "../hooks/useCreationRecovery";
 
 const STATUS_ICONS: Record<string, typeof Clock> = {
   queued: Hourglass,
@@ -31,7 +32,7 @@ function formatElapsed(ms: number): string {
   return `${minutes}分${remainingSeconds}秒`;
 }
 
-export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online }: {
+export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online, onRecordRecovery, initialRecoveryPayload }: {
   assets: AssetItem[];
   onAssetsChanged: () => Promise<void>;
   onNotice: (message: string) => void;
@@ -42,15 +43,17 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   submittedPrompt: string;
   onSubmittedPromptChange: (prompt: string) => void;
   online: boolean;
+  onRecordRecovery?: (record: CreationRecoveryInput) => void;
+  initialRecoveryPayload?: VideoGenerationRecipe | null;
 }) {
-  const [prompt, setPrompt] = useState("");
-  const [preset, setPreset] = useState<VideoPreset>("standard");
-  const [fps, setFps] = useState(24);
-  const [ratio, setRatio] = useState("1152x768");
-  const [negativePrompt, setNegativePrompt] = useState("");
-  const [seed, setSeed] = useState("");
-  const [keyframes, setKeyframes] = useState(false);
-  const [referenceIds, setReferenceIds] = useState<string[]>([]);
+  const [prompt, setPrompt] = useState(() => initialRecoveryPayload?.prompt || "");
+  const [preset, setPreset] = useState<VideoPreset>(() => initialRecoveryPayload?.preset || "standard");
+  const [fps, setFps] = useState(() => initialRecoveryPayload?.fps || 24);
+  const [ratio, setRatio] = useState(() => initialRecoveryPayload ? `${initialRecoveryPayload.width}x${initialRecoveryPayload.height}` : "1152x768");
+  const [negativePrompt, setNegativePrompt] = useState(() => initialRecoveryPayload?.negativePrompt || "");
+  const [seed, setSeed] = useState(() => initialRecoveryPayload?.seed === undefined ? "" : String(initialRecoveryPayload.seed));
+  const [keyframes, setKeyframes] = useState(() => initialRecoveryPayload?.keyframes || false);
+  const [referenceIds, setReferenceIds] = useState<string[]>(() => initialRecoveryPayload?.referenceAssetIds || []);
   const [creating, setCreating] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [showPresets, setShowPresets] = useState(false);
@@ -91,6 +94,16 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           await onAssetsChanged();
           onNotice("视频已完成并保存到素材库。");
         } else if (result.task.status === "failed") {
+          if (videoTask.recipe) {
+            onRecordRecovery?.({
+              id: `video-${videoTask.id}`,
+              type: "video",
+              workspace: "video",
+              label: "视频生成失败",
+              summary: `${videoTask.recipe.preset} · ${videoTask.recipe.fps}fps · ${videoTask.recipe.width}×${videoTask.recipe.height}`,
+              payload: videoTask.recipe,
+            });
+          }
           onNotice("视频生成失败。");
         }
       } catch {
@@ -111,7 +124,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       window.clearInterval(timer);
       window.removeEventListener("beforeunload", handler);
     };
-  }, [videoTask, onAssetsChanged, onNotice, onVideoTaskChange]);
+  }, [videoTask, onAssetsChanged, onNotice, onVideoTaskChange, onRecordRecovery]);
 
   const [width, height] = ratio.split("x").map(Number);
 
@@ -272,22 +285,31 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             onClick={async () => {
               setCreating(true);
               onSubmittedPromptChange(prompt);
+              const recipe: VideoGenerationRecipe = {
+                prompt,
+                preset,
+                fps,
+                width,
+                height,
+                referenceAssetIds: referenceIds,
+                keyframes,
+                negativePrompt: negativePrompt || undefined,
+                seed: seed ? Number(seed) : undefined,
+              };
               try {
-                const recipe: VideoGenerationRecipe = {
-                  prompt,
-                  preset,
-                  fps,
-                  width,
-                  height,
-                  referenceAssetIds: referenceIds,
-                  keyframes,
-                  negativePrompt: negativePrompt || undefined,
-                  seed: seed ? Number(seed) : undefined,
-                };
                 const result = await api.createVideo(recipe);
                 onVideoTaskChange({ ...result.task, recipe });
               } catch (error) {
-                onNotice(error instanceof Error ? error.message : "视频任务创建失败。");
+                const message = error instanceof Error ? error.message : "视频任务创建失败。";
+                onRecordRecovery?.({
+                  id: `video-create-${prompt}-${preset}-${fps}`,
+                  type: "video",
+                  workspace: "video",
+                  label: "视频任务创建失败",
+                  summary: message,
+                  payload: recipe,
+                });
+                onNotice(message);
               } finally {
                 setCreating(false);
               }

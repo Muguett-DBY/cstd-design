@@ -13,6 +13,7 @@ import { Segmented } from "./Segmented";
 import { useWorkspaceDefaults } from "../hooks/useWorkspaceDefaults";
 import { useImageGenerationBatch, type ImageBatchSlot, type ImageGenerationRecipe } from "../hooks/useImageGenerationBatch";
 import { CreationStatus } from "./CreationStatus";
+import type { CreationRecoveryInput } from "../hooks/useCreationRecovery";
 
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
 
@@ -25,14 +26,14 @@ const STYLE_PRESETS: { id: string; label: string; prefix: string }[] = [
   { id: "sketch", label: "素描", prefix: "铅笔素描风格，" },
 ];
 
-export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void }) {
+export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage, onRecordRecovery, initialRecoveryPayload }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void; onRecordRecovery?: (record: CreationRecoveryInput) => void; initialRecoveryPayload?: ImageGenerationRecipe | null }) {
   const { getDefaults, setDefault } = useWorkspaceDefaults();
   const defaults = getDefaults("image");
-  const [prompt, setPrompt] = useState("");
-  const [size, setSize] = useState<ImageSize>(() => (defaults.size as ImageSize) || readStoredImageSize());
-  const [referenceIds, setReferenceIds] = useState<string[]>([]);
+  const [prompt, setPrompt] = useState(() => initialRecoveryPayload?.prompt || "");
+  const [size, setSize] = useState<ImageSize>(() => initialRecoveryPayload?.size || (defaults.size as ImageSize) || readStoredImageSize());
+  const [referenceIds, setReferenceIds] = useState<string[]>(() => initialRecoveryPayload?.referenceIds || []);
   const [loading, setLoading] = useState(false);
-  const [style, setStyle] = useState(() => (defaults.style as string) || "none");
+  const [style, setStyle] = useState(() => initialRecoveryPayload?.style || (defaults.style as string) || "none");
   const [lastResult, setLastResult] = useState<{ url: string; filename: string; prompt: string } | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const { templates, save, remove } = usePromptTemplates();
@@ -62,7 +63,16 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       onRecordUsage?.("image_generated");
       onNotice(`图片已保存到素材库：${result.asset.filename}`);
     } catch (error) {
-      onNotice(error instanceof Error ? error.message : "图片生成失败。");
+      const message = error instanceof Error ? error.message : "图片生成失败。";
+      onRecordRecovery?.({
+        id: `image-single-${prompt}-${size}`,
+        type: "image",
+        workspace: "image",
+        label: "图片生成失败",
+        summary: message,
+        payload: { prompt, style, size, referenceIds: [...referenceIds], count: 1 },
+      });
+      onNotice(message);
     } finally {
       setLoading(false);
     }
@@ -95,12 +105,29 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       }
       await onAssetsChanged();
       if (failedCount > 0) {
+        onRecordRecovery?.({
+          id: `image-batch-${recipe.prompt}-${recipe.size}-${recipe.count}`,
+          type: "image",
+          workspace: "image",
+          label: "图片批量生成失败",
+          summary: `成功 ${successCount} 张，失败 ${failedCount} 张`,
+          payload: recipe,
+        });
         onNotice(`已生成 ${successCount} 张变体，${failedCount} 张失败。`);
       } else {
         onNotice(`已生成 ${successCount} 张变体。`);
       }
     } catch (error) {
-      onNotice(error instanceof Error ? error.message : "变体生成失败。");
+      const message = error instanceof Error ? error.message : "变体生成失败。";
+      onRecordRecovery?.({
+        id: `image-batch-${recipe.prompt}-${recipe.size}-${recipe.count}`,
+        type: "image",
+        workspace: "image",
+        label: "图片批量生成失败",
+        summary: message,
+        payload: recipe,
+      });
+      onNotice(message);
     } finally {
       setLoading(false);
     }

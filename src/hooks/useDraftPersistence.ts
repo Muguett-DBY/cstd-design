@@ -35,8 +35,9 @@ function saveDraft(conversationId: string, draft: Draft) {
   }
 }
 
-export function useDraftPersistence(conversationId: string | null) {
+export function useDraftPersistence(conversationId: string | null, initialDraft?: Draft) {
   const [draft, setDraftState] = useState<Draft>(() =>
+    initialDraft && initialDraft.content.trim() ? initialDraft :
     conversationId ? loadDraft(conversationId) : { content: "", selectedParentId: null }
   );
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
