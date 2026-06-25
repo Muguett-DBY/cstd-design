@@ -8360,6 +8360,11 @@ button:disabled {
   gap: 4px;
 }
 
+.composer-input-wrapper.has-attachments {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
 .composer-input-extras {
   display: flex;
   align-items: center;

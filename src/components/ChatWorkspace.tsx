@@ -833,7 +833,15 @@ export function ChatWorkspace({
             </div>
           )}
           <AttachmentPreview attachments={attachments} onRemove={removeAttachment} />
-          <div className="composer-input-wrapper">
+          <div
+            className={`composer-input-wrapper${attachments.length === 0 ? "" : " has-attachments"}`}
+            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "copy"; }}
+            onDrop={(e) => {
+              e.preventDefault();
+              const files = e.dataTransfer.files;
+              if (files) Array.from(files).forEach(addAttachment);
+            }}
+          >
             <textarea
               ref={textareaRef}
               value={draft.content}
