@@ -401,8 +401,7 @@ button:disabled {
 
 .nav-item.active,
 .chip.active,
-.segmented button.active,
-.mobile-tabs button.active {
+.segmented button.active {
   background: linear-gradient(135deg, #f6d184, #d99125);
   border-color: var(--active-border);
   color: var(--on-accent-text);
@@ -3652,10 +3651,6 @@ button:disabled {
   50% { opacity: 1; }
 }
 
-.mobile-tabs {
-  display: none;
-}
-
 .lightbox-overlay {
   position: fixed;
   inset: 0;
@@ -5007,40 +5002,6 @@ button:disabled {
     max-height: calc(100svh - 24px);
   }
 
-  .mobile-tabs {
-    position: fixed;
-    inset: auto 12px 12px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    border: 1px solid var(--line);
-    background: var(--surface-alpha-94);
-    backdrop-filter: blur(16px);
-    border-radius: 20px;
-    padding: 7px;
-    z-index: 20;
-    box-shadow: var(--shadow);
-  }
-
-  .mobile-tabs button {
-    border: none;
-    background: transparent;
-    border-radius: 14px;
-    min-height: 56px;
-    display: grid;
-    place-items: center;
-    gap: 3px;
-    color: var(--muted);
-    transition: color 0.15s;
-  }
-
-  .mobile-tabs button.active {
-    color: var(--accent-strong);
-  }
-
-  .mobile-tabs span {
-    font-size: 11px;
-    font-weight: 700;
-  }
 }
 
 .thread-indicator {
@@ -7510,43 +7471,81 @@ button:disabled {
 
 .mobile-bottom-nav {
   display: none;
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: fixed;
+  right: 12px;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  left: 12px;
+  z-index: 90;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: min(520px, calc(100vw - 24px));
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 20px;
   background: var(--surface-alpha-94, var(--surface));
-  border-top: 1px solid var(--border, #ddd);
-  padding: 6px 4px;
-  z-index: 5;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  justify-content: space-around;
+  box-shadow: 0 18px 46px color-mix(in srgb, var(--text) 14%, transparent);
+  padding: 7px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .mobile-bottom-nav-item {
+  min-width: 0;
+  min-height: 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 4px 6px;
+  justify-content: center;
+  gap: 3px;
+  padding: 4px;
   border: none;
   background: transparent;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 700;
   cursor: pointer;
-  border-radius: 8px;
-  min-width: 56px;
-  transition: color 0.15s, background 0.15s;
+  border-radius: 14px;
+  transition: color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.mobile-bottom-nav-icon {
+  width: 30px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  transition: background 160ms ease, transform 160ms ease;
 }
 
 .mobile-bottom-nav-item.active {
-  color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent-strong);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.mobile-bottom-nav-item.active .mobile-bottom-nav-icon {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  transform: translateY(-1px);
+}
+
+.mobile-bottom-nav-item:hover {
+  color: var(--text);
+}
+
+.mobile-bottom-nav-item:active {
+  transform: scale(0.96);
+}
+
+.mobile-bottom-nav-item:focus-visible {
+  outline: 3px solid var(--accent-focus);
+  outline-offset: -1px;
 }
 
 @media (max-width: 768px) {
   .mobile-bottom-nav {
-    display: flex;
+    display: grid;
+  }
+
+  .workspace {
+    padding-bottom: calc(82px + env(safe-area-inset-bottom));
   }
 }
 
@@ -8983,7 +8982,7 @@ button:disabled {
   .recovery-center {
     top: auto;
     right: 12px;
-    bottom: 72px;
+    bottom: calc(84px + env(safe-area-inset-bottom));
   }
 
   .recovery-trigger {
@@ -8994,6 +8993,8 @@ button:disabled {
     top: auto;
     right: 0;
     bottom: calc(100% + 10px);
+    width: min(360px, calc(100vw - 32px));
+    max-height: min(620px, calc(100svh - 116px - env(safe-area-inset-bottom)));
   }
 
   .recovery-overview {
@@ -9002,5 +9003,9 @@ button:disabled {
 
   .recovery-overview-card {
     padding: 9px 8px;
+  }
+
+  .recovery-continuation-card {
+    min-height: 52px;
   }
 }
