@@ -1297,3 +1297,29 @@
 4. Performance monitoring and optimization
 
 **Recommended next flagship**: Integration tests for critical user flows (chat, image generation, video generation).
+
+---
+
+## Campaign 016 — Reliable Creation Loop (2026-06-26)
+
+**Theme**: Make chat, image, and video creation recoverable after failures or refreshes, with shared status UX and production-style validation.
+
+### Completed increments
+1. `fc23870` — Defined reliable creation design and execution plan.
+2. `f475d21` — Added recoverable chat sending with failed-draft restore and retry.
+3. `ba2fa0c` — Added recoverable image generation batches with failed-slot retry.
+4. `f0fe0e9` — Unified creation status and recovery UX across workspaces.
+5. In progress — Preserved video generation recipes on active and failed tasks so users can restore parameters before recreating a video task.
+
+### Current verification snapshot
+- `npx vitest run src/hooks/useVideoTaskPersistence.test.ts`: 7/7 pass.
+- `npm test`: 53 files, 382 tests pass.
+- `npm run typecheck:functions`: pass.
+- `npm run lint`: pass with 0 warnings.
+- `npm run build`: pass; existing Vite large chunk warning remains.
+- `git diff --check`: pass; Git reports existing LF-to-CRLF normalization warnings only.
+
+### Remaining work
+1. Add a cross-workspace recovery center backed by a bounded localStorage registry.
+2. Run the complete project health gate and source/runtime risk audit.
+3. Push each validated increment to `main`, watch GitHub Actions, and smoke-test the live Pages deployment.

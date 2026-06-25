@@ -247,3 +247,31 @@
 - Final commit
 
 **Verification**: lint, typecheck, tests, build, CI
+
+---
+
+## Campaign 016 — Reliable Creation Loop (2026-06-26)
+
+**Status**: RUNNING
+**Branch**: `main`
+
+**Completed so far**:
+- `fc23870` — Design and implementation plan committed, pushed, and GitHub Actions run `28187406899` passed.
+- `f475d21` — Recoverable chat sending committed, pushed, and GitHub Actions run `28187619080` passed.
+- `ba2fa0c` — Recoverable image batch retries committed, pushed, and GitHub Actions run `28187846107` passed.
+- `f0fe0e9` — Shared creation status UX committed, pushed, and GitHub Actions run `28188153586` passed.
+
+**Current increment**: Durable video recipes. Active and failed video tasks now keep the exact generation recipe, polling preserves `startedAt`, and the task card exposes “恢复生成参数” so the form can be repopulated before recreating a failed task.
+
+**Verification before commit**:
+- `npx vitest run src/hooks/useVideoTaskPersistence.test.ts` — 7 tests passed.
+- `npm test` — 53 files and 382 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with `--max-warnings=0`.
+- `npm run build` — passed.
+- `git diff --check` — passed; line-ending normalization warnings only.
+
+**Guardrails**:
+- Keep working on `main`.
+- Do not touch the existing untracked `.agent/orchestrator-history/campaign-014/state.json`.
+- Commit, push, and watch Actions after each validated increment.

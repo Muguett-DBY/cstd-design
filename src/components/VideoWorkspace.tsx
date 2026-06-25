@@ -9,6 +9,7 @@ import { PreviewRail } from "./PreviewRail";
 import { Segmented } from "./Segmented";
 import { useVideoPresets } from "../hooks/useVideoPresets";
 import { CreationStatus } from "./CreationStatus";
+import type { PersistedVideoTask, VideoGenerationRecipe } from "../hooks/useVideoTaskPersistence";
 
 const STATUS_ICONS: Record<string, typeof Clock> = {
   queued: Hourglass,
@@ -30,16 +31,14 @@ function formatElapsed(ms: number): string {
   return `${minutes}分${remainingSeconds}秒`;
 }
 
-type VideoTask = { id: string; status: string; progress: number; assetUrl?: string };
-
 export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online }: {
   assets: AssetItem[];
   onAssetsChanged: () => Promise<void>;
   onNotice: (message: string) => void;
   onClearAll: () => Promise<void>;
   onPreview?: (asset: AssetItem) => void;
-  videoTask: VideoTask | null;
-  onVideoTaskChange: (task: VideoTask | null) => void;
+  videoTask: PersistedVideoTask | null;
+  onVideoTaskChange: (task: PersistedVideoTask | null) => void;
   submittedPrompt: string;
   onSubmittedPromptChange: (prompt: string) => void;
   online: boolean;
@@ -87,7 +86,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         const result = await api.videoTask(videoTask.id);
         if (cancelled) return;
         errorCountRef.current = 0;
-        onVideoTaskChange(result.task);
+        onVideoTaskChange({ ...result.task, recipe: videoTask.recipe, startedAt: videoTask.startedAt });
         if (result.task.status === "completed") {
           await onAssetsChanged();
           onNotice("视频已完成并保存到素材库。");
@@ -212,6 +211,30 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
               title={videoTask.status === "failed" ? "视频生成失败" : videoTask.status === "completed" ? "视频已完成" : "视频正在生成"}
               detail={videoTask.status === "failed" ? "参数仍然保留，可放弃任务后重新创建。" : `${progressPercent}% · 已用时 ${formatElapsed(elapsed)}`}
             />
+            {videoTask.recipe && (
+              <div className="video-recipe">
+                <span>{videoTask.recipe.preset} · {videoTask.recipe.fps}fps · {videoTask.recipe.width}×{videoTask.recipe.height}</span>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={() => {
+                    const recipe = videoTask.recipe!;
+                    setPrompt(recipe.prompt);
+                    setPreset(recipe.preset);
+                    setFps(recipe.fps);
+                    setRatio(`${recipe.width}x${recipe.height}`);
+                    setReferenceIds(recipe.referenceAssetIds);
+                    setKeyframes(recipe.keyframes);
+                    setNegativePrompt(recipe.negativePrompt || "");
+                    setSeed(recipe.seed === undefined ? "" : String(recipe.seed));
+                    onSubmittedPromptChange(recipe.prompt);
+                    if (videoTask.status === "failed") onVideoTaskChange(null);
+                  }}
+                >
+                  恢复生成参数
+                </button>
+              </div>
+            )}
             <div className="task-card-header">
               <TaskStatusBadge status={videoTask.status} />
               {videoTask.status === "in_progress" && <span className="task-estimate">约 {presetInfo.approxSeconds} 秒</span>}
@@ -250,7 +273,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
               setCreating(true);
               onSubmittedPromptChange(prompt);
               try {
-                const result = await api.createVideo({
+                const recipe: VideoGenerationRecipe = {
                   prompt,
                   preset,
                   fps,
@@ -260,8 +283,9 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
                   keyframes,
                   negativePrompt: negativePrompt || undefined,
                   seed: seed ? Number(seed) : undefined,
-                });
-                onVideoTaskChange(result.task);
+                };
+                const result = await api.createVideo(recipe);
+                onVideoTaskChange({ ...result.task, recipe });
               } catch (error) {
                 onNotice(error instanceof Error ? error.message : "视频任务创建失败。");
               } finally {
