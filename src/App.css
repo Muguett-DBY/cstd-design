@@ -8978,6 +8978,74 @@ button:disabled {
   font-weight: 700;
 }
 
+.recovery-activity {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.recovery-activity-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.recovery-activity-heading h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.recovery-activity-list {
+  display: grid;
+  gap: 6px;
+}
+
+.recovery-activity-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 8px 10px;
+}
+
+.recovery-activity-item > svg {
+  color: var(--muted);
+}
+
+.recovery-activity-item.activity-completed > svg {
+  color: var(--success);
+}
+
+.recovery-activity-item.activity-restored > svg {
+  color: var(--accent-strong);
+}
+
+.recovery-activity-item div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.recovery-activity-item strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recovery-activity-item span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
 @media (max-width: 560px) {
   .recovery-center {
     top: auto;

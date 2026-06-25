@@ -39,6 +39,7 @@ import { GlobalSearchModal } from "./components/GlobalSearchModal";
 import { useUsageStats } from "./hooks/useUsageStats";
 import { useCreationRecovery, type CreationRecoveryRecord } from "./hooks/useCreationRecovery";
 import { deriveCreationCenterHighlights } from "./creation-center-model";
+import { useCreationActivity } from "./hooks/useCreationActivity";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -90,6 +91,7 @@ function AppInner() {
   const usageStats = useUsageStats();
   const { records: recoveryRecords, upsert: upsertRecovery, dismiss: dismissRecovery, clear: clearRecovery } = useCreationRecovery();
   const [selectedRecovery, setSelectedRecovery] = useState<CreationRecoveryRecord | null>(null);
+  const { activities: creationActivities, record: recordCreationActivity, clear: clearCreationActivity } = useCreationActivity();
   const creationHighlights = useMemo(
     () => deriveCreationCenterHighlights({ conversations, assets, videoHistory: videoHistory.history }),
     [assets, conversations, videoHistory.history],
@@ -428,15 +430,41 @@ function AppInner() {
   const selectRecoveryRecord = useCallback((record: CreationRecoveryRecord) => {
     setSelectedRecovery(record);
     setActiveTab(record.workspace);
+    recordCreationActivity({
+      id: `restored-${record.id}-${Date.now()}`,
+      type: "restored",
+      workspace: record.workspace,
+      label: `已打开${record.label}`,
+    });
     toast(`已恢复到${record.workspace === "chat" ? "咨询" : record.workspace === "image" ? "图片" : "视频"}工作区。确认创作成功后，可在创作中心忽略该备份。`, "info");
-  }, [toast]);
+  }, [recordCreationActivity, toast]);
 
   const resolveSelectedRecovery = useCallback(() => {
     if (!selectedRecovery) return;
     dismissRecovery(selectedRecovery.id);
+    recordCreationActivity({
+      id: `completed-${selectedRecovery.id}-${Date.now()}`,
+      type: "completed",
+      workspace: selectedRecovery.workspace,
+      label: `${selectedRecovery.label}已完成`,
+    });
     setSelectedRecovery(null);
     toast("恢复创作已完成，备份已自动清理。", "success");
-  }, [dismissRecovery, selectedRecovery, toast]);
+  }, [dismissRecovery, recordCreationActivity, selectedRecovery, toast]);
+
+  const dismissRecoveryRecord = useCallback((id: string) => {
+    const record = recoveryRecords.find((item) => item.id === id);
+    if (record) {
+      recordCreationActivity({
+        id: `ignored-${record.id}-${Date.now()}`,
+        type: "ignored",
+        workspace: record.workspace,
+        label: `已忽略${record.label}`,
+      });
+    }
+    dismissRecovery(id);
+    if (selectedRecovery?.id === id) setSelectedRecovery(null);
+  }, [dismissRecovery, recordCreationActivity, recoveryRecords, selectedRecovery?.id]);
 
   if (booting) return <Splash />;
   if (!authenticated) {
@@ -530,9 +558,11 @@ function AppInner() {
           recentVideoTasks={creationHighlights.completedVideoTasks}
           recentConversation={creationHighlights.latestConversation}
           recentImage={creationHighlights.latestImage}
+          activities={creationActivities}
           onSelect={selectRecoveryRecord}
-          onDismiss={dismissRecovery}
+          onDismiss={dismissRecoveryRecord}
           onClear={clearRecovery}
+          onClearActivity={clearCreationActivity}
           onOpenVideoTask={() => setActiveTab("video")}
           onContinueConversation={(id) => { void openConversation(id); }}
           onOpenRecentImage={openLightbox}

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { CheckCircle2, Clock, Film, Image as ImageIcon, MessageSquare, RotateCcw, Trash2, X } from "lucide-react";
+import { CheckCircle2, CircleX, Clock, Film, History, Image as ImageIcon, MessageSquare, RotateCcw, Trash2, X } from "lucide-react";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
+import type { CreationActivity } from "../hooks/useCreationActivity";
 import type { PersistedVideoTask } from "../hooks/useVideoTaskPersistence";
 import type { VideoTaskHistoryEntry } from "../hooks/useVideoTaskHistory";
 import type { AssetItem, ConversationSummary, WorkspaceTab } from "../types";
@@ -17,12 +18,19 @@ function formatRecoveryTime(value: string) {
   return date.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
+function activityTypeMeta(type: CreationActivity["type"]) {
+  if (type === "completed") return { label: "已完成", icon: CheckCircle2 };
+  if (type === "ignored") return { label: "已忽略", icon: CircleX };
+  return { label: "已恢复", icon: RotateCcw };
+}
+
 export function RecoveryCenter({
   records,
   activeVideoTask,
   recentVideoTasks = [],
   recentConversation,
   recentImage,
+  activities = [],
   onSelect,
   onDismiss,
   onClear,
@@ -30,12 +38,14 @@ export function RecoveryCenter({
   onContinueConversation,
   onOpenRecentImage,
   onStartWorkspace,
+  onClearActivity,
 }: {
   records: CreationRecoveryRecord[];
   activeVideoTask?: PersistedVideoTask | null;
   recentVideoTasks?: VideoTaskHistoryEntry[];
   recentConversation?: ConversationSummary;
   recentImage?: AssetItem;
+  activities?: CreationActivity[];
   onSelect: (record: CreationRecoveryRecord) => void;
   onDismiss: (id: string) => void;
   onClear: () => void;
@@ -43,6 +53,7 @@ export function RecoveryCenter({
   onContinueConversation?: (id: string) => void;
   onOpenRecentImage?: (asset: AssetItem) => void;
   onStartWorkspace?: (workspace: WorkspaceTab) => void;
+  onClearActivity?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasActiveVideoTask = Boolean(activeVideoTask && (activeVideoTask.status === "queued" || activeVideoTask.status === "in_progress"));
@@ -235,6 +246,31 @@ export function RecoveryCenter({
                 </div>
               )}
               </>
+            )}
+            {activities.length > 0 && (
+              <section className="recovery-activity" aria-label="近期创作活动">
+                <div className="recovery-activity-heading">
+                  <h4><History size={14} /> 近期活动</h4>
+                  <button type="button" className="ghost-button" aria-label="清空创作活动" onClick={onClearActivity}>
+                    清空
+                  </button>
+                </div>
+                <div className="recovery-activity-list">
+                  {activities.slice(0, 5).map((activity) => {
+                    const meta = activityTypeMeta(activity.type);
+                    const Icon = meta.icon;
+                    return (
+                      <div key={activity.id} className={`recovery-activity-item activity-${activity.type}`}>
+                        <Icon size={14} />
+                        <div>
+                          <strong>{activity.label}</strong>
+                          <span>{meta.label} · {formatRecoveryTime(activity.createdAt)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
             )}
           </>
         </section>

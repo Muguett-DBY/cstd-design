@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { RecoveryCenter } from "./RecoveryCenter";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
 import type { AssetItem, ConversationSummary } from "../types";
+import type { CreationActivity } from "../hooks/useCreationActivity";
 
 const records: CreationRecoveryRecord[] = [
   {
@@ -42,6 +43,11 @@ const latestImage: AssetItem = {
   createdAt: "2026-06-26T04:30:00.000Z",
   url: "https://example.com/brand-key-visual.png",
 };
+
+const activities: CreationActivity[] = [
+  { id: "activity-completed", type: "completed", workspace: "image", label: "图片恢复完成", createdAt: "2026-06-26T05:30:00.000Z" },
+  { id: "activity-restored", type: "restored", workspace: "chat", label: "已打开未发送消息", createdAt: "2026-06-26T05:00:00.000Z" },
+];
 
 describe("RecoveryCenter", () => {
   afterEach(() => cleanup());
@@ -160,5 +166,27 @@ describe("RecoveryCenter", () => {
     fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
     fireEvent.click(screen.getByRole("button", { name: "开始视频创作" }));
     expect(onStartWorkspace).toHaveBeenCalledWith("video");
+  });
+
+  test("shows and clears recent creation activity", () => {
+    const onClearActivity = vi.fn();
+    render(
+      <RecoveryCenter
+        records={[]}
+        activities={activities}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+        onClearActivity={onClearActivity}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+    const activityRegion = screen.getByRole("region", { name: "近期创作活动" });
+    expect(activityRegion.textContent).toContain("图片恢复完成");
+    expect(activityRegion.textContent).toContain("已打开未发送消息");
+    fireEvent.click(screen.getByRole("button", { name: "清空创作活动" }));
+    expect(onClearActivity).toHaveBeenCalledOnce();
   });
 });
