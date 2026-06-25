@@ -19,3 +19,4 @@ export { Sidebar } from "./Sidebar";
 export { NetworkBanner } from "./NetworkBanner";
 export { MessageThread } from "./MessageThread";
 export { ThreadCenter } from "./ThreadCenter";
+export { RecoveryCenter } from "./RecoveryCenter";

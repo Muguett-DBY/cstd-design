@@ -39,6 +39,7 @@ import { AttachmentPreview } from "./AttachmentPreview";
 import { BranchVisualization } from "./BranchVisualization";
 import { useRecoverableChatSend } from "../hooks/useRecoverableChatSend";
 import { CreationStatus } from "./CreationStatus";
+import type { ChatRecoveryPayload, CreationRecoveryInput } from "../hooks/useCreationRecovery";
 
 const ASSISTANT_NAME = "助手";
 
@@ -97,6 +98,8 @@ export function ChatWorkspace({
   onRecordUsage,
   usageStats,
   usageEvents,
+  onRecordRecovery,
+  initialRecoveryPayload,
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -115,8 +118,15 @@ export function ChatWorkspace({
   onRecordUsage?: (type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned") => void;
   usageStats?: { messageSent: number; imageGenerated: number; videoGenerated: number; imageEdited: number; videoAbandoned: number };
   usageEvents?: { type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned"; timestamp: string }[];
+  onRecordRecovery?: (record: CreationRecoveryInput) => void;
+  initialRecoveryPayload?: ChatRecoveryPayload | null;
 }) {
-  const { draft, setDraft, clearDraft } = useDraftPersistence(conversation?.id || null);
+  const { draft, setDraft, clearDraft } = useDraftPersistence(
+    conversation?.id || null,
+    initialRecoveryPayload
+      ? { content: initialRecoveryPayload.content, selectedParentId: initialRecoveryPayload.parentId }
+      : undefined,
+  );
   const { attachments, addAttachment, removeAttachment } = useMessageAttachments();
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -278,6 +288,14 @@ export function ChatWorkspace({
       if (!cancelled) {
         const message = error instanceof Error ? error.message : "咨询失败，请稍后重试。";
         chatRecovery.fail(message);
+        onRecordRecovery?.({
+          id: `chat-${conversation?.id || "new"}-${parentId || "root"}`,
+          type: "chat",
+          workspace: "chat",
+          label: "未发送消息",
+          summary: message,
+          payload: { content, parentId, conversationId: conversation?.id || null },
+        });
         setDraft((current) => current.content.trim()
           ? current
           : { content, selectedParentId: parentId });
