@@ -572,3 +572,34 @@
 - Local Pages desktop Browser: `http://127.0.0.1:8792/` loaded with title `工作台 - 私人中文创作工作台`; empty chat workspace rendered without Markdown fallback; console warnings/errors were empty.
 
 **Commit target**: `perf: lazy load markdown renderer`
+
+**Commit/CI**:
+- Commit `7badeaa` (`perf: lazy load markdown renderer`) pushed to `origin/main`.
+- GitHub Actions run `28205271234` passed the complete deploy workflow.
+
+### Stage 5/6 — CHECK
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_CHECK_MAIN.txt`
+**Start state**:
+- Latest `main` is deployed by run `28205271234`.
+- The previous production build warning is gone after Markdown code splitting.
+
+**Goal**: Run a broad local and CI health check, identify any concrete issues, and feed actionable findings into the final improvement stage.
+
+**Checks completed**:
+- `git status --short` — only the pre-existing untracked `.agent/orchestrator-history/campaign-014/` remained outside this stage.
+- `npm test -- --run` — 60 files, 402 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.11 kB and no 600 kB warning was emitted.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `gh run view 28205271234` — completed successfully for commit `7badeaa`.
+- Local Pages `http://127.0.0.1:8792/` — returned 200.
+- Local Pages `/api/session` — returned 200 with unauthenticated session JSON.
+- Browser smoke on local Pages — title `工作台 - 私人中文创作工作台`, main chat UI visible, creation center opened, and console warnings/errors were empty.
+
+**Findings**:
+- `rg` found two `dangerouslySetInnerHTML` call sites in `src/components/ExportModal.tsx` and `src/components/MermaidBlock.tsx`.
+- They are intentional HTML/SVG rendering surfaces, but the current sanitization boundary is weak enough to justify a targeted hardening pass in the final IMPROVE stage.
+
+**Commit target**: `chore: record production check`
