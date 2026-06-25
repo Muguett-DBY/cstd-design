@@ -38,10 +38,19 @@ describe("useVideoTaskPersistence", () => {
     expect(result.current.task).toMatchObject(storedTask);
   });
 
-  it("ignores completed or failed tasks from storage", () => {
+  it("ignores completed tasks but retains failed tasks for recovery", () => {
     storage.set(STORAGE_KEY, JSON.stringify({ id: "task-1", status: "completed", progress: 100 }));
     const { result } = renderHook(() => useVideoTaskPersistence());
     expect(result.current.task).toBeNull();
+
+    storage.set(STORAGE_KEY, JSON.stringify({
+      id: "task-2",
+      status: "failed",
+      progress: 40,
+      recipe: { prompt: "cinematic rain", preset: "short", fps: 24, width: 1152, height: 768, referenceAssetIds: [], keyframes: false },
+    }));
+    const failed = renderHook(() => useVideoTaskPersistence());
+    expect(failed.result.current.task?.recipe?.prompt).toBe("cinematic rain");
   });
 
   it("saves task to localStorage when updated", () => {
@@ -70,5 +79,32 @@ describe("useVideoTaskPersistence", () => {
     });
     expect(result.current.task).toBeNull();
     expect(storage.get(STORAGE_KEY)).toBeUndefined();
+  });
+
+  it("persists the full generation recipe", () => {
+    const { result } = renderHook(() => useVideoTaskPersistence());
+    act(() => {
+      result.current.setTask({
+        id: "task-recipe",
+        status: "queued",
+        progress: 0,
+        recipe: {
+          prompt: "ocean sunrise",
+          preset: "standard",
+          fps: 30,
+          width: 1152,
+          height: 768,
+          referenceAssetIds: ["asset-1"],
+          keyframes: true,
+          negativePrompt: "blur",
+          seed: 42,
+        },
+      });
+    });
+    expect(JSON.parse(storage.get(STORAGE_KEY) || "null").recipe).toMatchObject({
+      prompt: "ocean sunrise",
+      fps: 30,
+      seed: 42,
+    });
   });
 });

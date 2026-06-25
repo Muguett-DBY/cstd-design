@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { VideoPreset } from "../types";
 
 const STORAGE_KEY = "cstd-design:activeVideoTask";
 
@@ -8,6 +9,19 @@ export interface PersistedVideoTask {
   progress: number;
   assetUrl?: string;
   startedAt?: string;
+  recipe?: VideoGenerationRecipe;
+}
+
+export interface VideoGenerationRecipe {
+  prompt: string;
+  preset: VideoPreset;
+  fps: number;
+  width: number;
+  height: number;
+  referenceAssetIds: string[];
+  keyframes: boolean;
+  negativePrompt?: string;
+  seed?: number;
 }
 
 function loadActiveTask(): PersistedVideoTask | null {
@@ -15,7 +29,7 @@ function loadActiveTask(): PersistedVideoTask | null {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return null;
     const parsed = JSON.parse(stored);
-    if (parsed.status === "completed" || parsed.status === "failed") return null;
+    if (parsed.status === "completed") return null;
     return parsed;
   } catch {
     return null;

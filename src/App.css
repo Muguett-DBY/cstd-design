@@ -7559,6 +7559,26 @@ button:disabled {
   gap: 8px;
 }
 
+.video-recipe {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 560px) {
+  .video-recipe {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .video-recipe .ghost-button {
+    min-height: 44px;
+  }
+}
+
 .video-tasks-header {
   display: flex;
   align-items: center;
