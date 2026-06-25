@@ -363,3 +363,45 @@
 - Screenshot note: Browser `Page.captureScreenshot` timed out twice; external Playwright screenshot fallback was blocked by the local password gate in a fresh unauthenticated browser context, so visual evidence remains DOM/interaction based plus component tests.
 
 **Commit target**: `style: polish creation center overview`
+
+---
+
+## Short Sprint 018 — IMPROVE → UIUX (2026-06-26)
+
+**Status**: RUNNING
+**Branch**: `main`
+**Prompt order**: `AGENT_IMPROVE_MAIN.txt` → `AGENT_UIUX_MAIN.txt`
+**Protected existing change**: `.agent/orchestrator-history/campaign-014/` remains untracked and excluded.
+
+### Stage 1 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- `main` is aligned with `origin/main`; fast-forward pull reports no updates.
+- Previous direction: critical creation-flow integration coverage and continued reliable-creation work.
+- Previous flagship completed: creation center status/recovery overview.
+- Known risk: the existing creation center opens recovery payloads but `App` immediately dismisses the fallback record.
+
+**Goal**: Turn the creation center into a cross-workspace continuation hub with recent-work shortcuts, completed-history accuracy, and non-destructive recovery opening.
+
+**Plan**:
+- Add a tested pure selector for recent conversations, generated images, and completed videos.
+- Add direct continue/open/start actions to the creation center.
+- Preserve recovery records until the user explicitly dismisses them.
+- Run focused TDD, then the complete local quality gate before commit and push.
+
+**Completed**:
+- Added recent conversation, generated image, and video-workspace continuation actions.
+- Added non-mutating recent-work selection with invalid-date fallback and completed-video filtering.
+- Kept recovery records until explicit dismissal instead of deleting them on open.
+- Added a sprint design and implementation plan for traceable scope.
+
+**Verification before commit**:
+- RED: focused tests failed because the model module and “继续创作” region did not exist.
+- GREEN: `npx vitest run src/creation-center-model.test.ts src/components/RecoveryCenter.test.tsx` — 2 files, 7 tests passed.
+- `npm test` — 56 files, 392 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; existing large-chunk warning remains.
+
+**Commit target**: `feat: add creation continuation shortcuts`

@@ -1355,3 +1355,17 @@
 - Added visual emphasis to the floating trigger when there is actionable creation work.
 - Tightened hover/focus styling and mobile panel spacing while preserving the existing open/select/dismiss/clear actions.
 - Validation: component TDD is green; full local gate passed (`npm test`, functions typecheck, lint, build, diff check); local Pages preview returned 200; in-app Browser desktop and 390×844 mobile interaction checks passed with no console errors or framework overlay.
+
+---
+
+## Short Sprint 018 — Creation Continuity + Mobile Navigation (2026-06-26)
+
+### Product improvement
+- Continued the reliable-creation direction by adding recent conversation, recent generated image, and video-workspace shortcuts to the creation center.
+- Added a pure tested selector so recent-work ordering is stable, non-mutating, and resilient to invalid timestamps.
+- Fixed completed-video summaries so failed or abandoned history is not presented as completed work.
+- Fixed premature recovery loss: opening a backup no longer dismisses it before the restored creation succeeds.
+- Validation: focused TDD passed; full local gate passed with 56 test files and 392 tests, functions typecheck, lint, and build.
+
+### Next
+- Complete the separate UI/UX stage by consolidating duplicate mobile navigation and polishing the small-screen creation flow.
