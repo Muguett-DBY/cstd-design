@@ -100,6 +100,7 @@ export function ChatWorkspace({
   usageEvents,
   onRecordRecovery,
   initialRecoveryPayload,
+  onRecoveryResolved,
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -120,6 +121,7 @@ export function ChatWorkspace({
   usageEvents?: { type: "message_sent" | "image_generated" | "video_generated" | "image_edited" | "video_abandoned"; timestamp: string }[];
   onRecordRecovery?: (record: CreationRecoveryInput) => void;
   initialRecoveryPayload?: ChatRecoveryPayload | null;
+  onRecoveryResolved?: () => void;
 }) {
   const { draft, setDraft, clearDraft } = useDraftPersistence(
     conversation?.id || null,
@@ -280,6 +282,7 @@ export function ChatWorkspace({
       flushQueuedDeltaNow();
       if (conversationId) await afterSend(conversationId);
       chatRecovery.succeed();
+      if (initialRecoveryPayload) onRecoveryResolved?.();
       textareaRef.current?.focus();
     } catch (error) {
       flushQueuedDeltaNow();

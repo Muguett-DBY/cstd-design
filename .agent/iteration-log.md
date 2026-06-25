@@ -1385,3 +1385,17 @@
 3. Continue responsive QA at compact landscape and tablet widths.
 
 **Recommended next flagship**: Close the recovery lifecycle automatically only after a restored chat, image, or video creation succeeds.
+
+---
+
+## Long Campaign 019 — Full Reinforcement Loop (2026-06-26)
+
+### Stage 1 — Recovery success lifecycle
+- Completed the previous flagship: restored chat, image, and video backups now clear automatically only after real success.
+- Chat resolves after the streamed send completes; image resolves after a successful single generation or fully successful batch; partial image failures preserve the backup; video resolves only after the task reaches completed.
+- Added a success confirmation and reset of the active recovery context so stale payloads cannot resolve twice.
+- Added integration coverage across all three creation workspaces.
+- Validation: 58 test files and 397 tests passed; functions typecheck, lint, and build passed.
+
+### Next
+- Extend recovery visibility into a user-auditable activity timeline with explicit restored/completed outcomes.

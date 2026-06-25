@@ -448,3 +448,37 @@
 - Only `.agent/orchestrator-history/campaign-014/` remains untracked and intentionally untouched.
 - Known non-blocking risk: the main application bundle remains above Vite's 600 kB warning threshold.
 - Next flagship: dismiss a recovery backup automatically only after the restored creation succeeds.
+
+---
+
+## Long Campaign 019 — IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE (2026-06-26)
+
+**Status**: RUNNING
+**Branch**: `main`
+**Protected existing change**: `.agent/orchestrator-history/campaign-014/` remains untracked and excluded.
+
+### Stage 1/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- `main` is aligned with `origin/main`.
+- Previous flagship: close a recovery backup automatically only after restored creation succeeds.
+- Current risk: recovery backups remain indefinitely after successful chat/image/video recovery, while clearing them on open would risk data loss.
+
+**Goal**: Complete the recovery lifecycle with success-only automatic cleanup across chat, image, and video, plus integration coverage for success and partial-failure boundaries.
+
+**Completed**:
+- Added success-only recovery resolution callbacks to chat, image, and video workspaces.
+- Automatically dismisses the selected backup and clears its active payload after success.
+- Preserves image recovery for partial batch failures and preserves video recovery until final task completion.
+- Added cross-workspace integration tests for all success/partial-failure boundaries.
+
+**Verification before commit**:
+- RED: chat, single-image, and video completion tests failed because no recovery-resolution callback fired; partial image failure already remained unresolved.
+- GREEN: `npx vitest run src/components/CreationRecoveryLifecycle.test.tsx` — 4 tests passed.
+- `npm test` — 58 files, 397 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; existing main-bundle warning remains.
+
+**Commit target**: `feat: complete creation recovery lifecycle`
