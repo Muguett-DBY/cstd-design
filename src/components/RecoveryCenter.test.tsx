@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { RecoveryCenter } from "./RecoveryCenter";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
+import type { AssetItem, ConversationSummary } from "../types";
 
 const records: CreationRecoveryRecord[] = [
   {
@@ -23,6 +24,24 @@ const records: CreationRecoveryRecord[] = [
     payload: { prompt: "rain", preset: "standard", fps: 24, width: 1152, height: 768, referenceAssetIds: [], keyframes: false },
   },
 ];
+
+const latestConversation: ConversationSummary = {
+  id: "conversation-latest",
+  title: "品牌发布计划",
+  activeLeafId: null,
+  createdAt: "2026-06-26T01:00:00.000Z",
+  updatedAt: "2026-06-26T05:00:00.000Z",
+};
+
+const latestImage: AssetItem = {
+  id: "image-latest",
+  kind: "image",
+  mediaType: "image/png",
+  filename: "brand-key-visual.png",
+  size: 1024,
+  createdAt: "2026-06-26T04:30:00.000Z",
+  url: "https://example.com/brand-key-visual.png",
+};
 
 describe("RecoveryCenter", () => {
   afterEach(() => cleanup());
@@ -106,5 +125,40 @@ describe("RecoveryCenter", () => {
     expect(overview.textContent).toContain("2");
     expect(overview.textContent).toContain("最近完成");
     expect(overview.textContent).toContain("2");
+  });
+
+  test("continues recent work across chat, image, and video workspaces", () => {
+    const onContinueConversation = vi.fn();
+    const onOpenRecentImage = vi.fn();
+    const onStartWorkspace = vi.fn();
+    render(
+      <RecoveryCenter
+        records={[]}
+        recentConversation={latestConversation}
+        recentImage={latestImage}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+        onContinueConversation={onContinueConversation}
+        onOpenRecentImage={onOpenRecentImage}
+        onStartWorkspace={onStartWorkspace}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+    expect(screen.getByRole("region", { name: "继续创作" }).textContent).toContain("品牌发布计划");
+    expect(screen.getByRole("region", { name: "继续创作" }).textContent).toContain("brand-key-visual.png");
+
+    fireEvent.click(screen.getByRole("button", { name: "继续最近对话" }));
+    expect(onContinueConversation).toHaveBeenCalledWith("conversation-latest");
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("button", { name: "查看最近图片" }));
+    expect(onOpenRecentImage).toHaveBeenCalledWith(latestImage);
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("button", { name: "开始视频创作" }));
+    expect(onStartWorkspace).toHaveBeenCalledWith("video");
   });
 });

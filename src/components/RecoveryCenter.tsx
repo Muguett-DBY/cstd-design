@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { CheckCircle2, Clock, Film, RotateCcw, Trash2, X } from "lucide-react";
+import { CheckCircle2, Clock, Film, Image as ImageIcon, MessageSquare, RotateCcw, Trash2, X } from "lucide-react";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
 import type { PersistedVideoTask } from "../hooks/useVideoTaskPersistence";
 import type { VideoTaskHistoryEntry } from "../hooks/useVideoTaskHistory";
+import type { AssetItem, ConversationSummary, WorkspaceTab } from "../types";
 
 function recoveryTypeLabel(type: CreationRecoveryRecord["type"]) {
   if (type === "chat") return "咨询";
@@ -20,18 +21,28 @@ export function RecoveryCenter({
   records,
   activeVideoTask,
   recentVideoTasks = [],
+  recentConversation,
+  recentImage,
   onSelect,
   onDismiss,
   onClear,
   onOpenVideoTask,
+  onContinueConversation,
+  onOpenRecentImage,
+  onStartWorkspace,
 }: {
   records: CreationRecoveryRecord[];
   activeVideoTask?: PersistedVideoTask | null;
   recentVideoTasks?: VideoTaskHistoryEntry[];
+  recentConversation?: ConversationSummary;
+  recentImage?: AssetItem;
   onSelect: (record: CreationRecoveryRecord) => void;
   onDismiss: (id: string) => void;
   onClear: () => void;
   onOpenVideoTask?: () => void;
+  onContinueConversation?: (id: string) => void;
+  onOpenRecentImage?: (asset: AssetItem) => void;
+  onStartWorkspace?: (workspace: WorkspaceTab) => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasActiveVideoTask = Boolean(activeVideoTask && (activeVideoTask.status === "queued" || activeVideoTask.status === "in_progress"));
@@ -39,6 +50,10 @@ export function RecoveryCenter({
   const totalCount = activeCount + records.length;
   const hasPanelContent = hasActiveVideoTask || records.length > 0 || recentVideoTasks.length > 0;
   const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
+  const runAndClose = (action: () => void) => {
+    action();
+    setOpen(false);
+  };
 
   return (
     <div className="recovery-center">
@@ -64,24 +79,83 @@ export function RecoveryCenter({
               <X size={16} />
             </button>
           </div>
-          {!hasPanelContent ? (
-            <p className="recovery-empty">暂无需要恢复的创作任务。</p>
-          ) : (
-            <>
-              <div className="recovery-overview" aria-label="创作中心状态概览">
-                <div className="recovery-overview-card">
-                  <span>进行中</span>
-                  <strong>{activeCount}</strong>
-                </div>
-                <div className="recovery-overview-card">
-                  <span>可恢复</span>
-                  <strong>{records.length}</strong>
-                </div>
-                <div className="recovery-overview-card">
-                  <span>最近完成</span>
-                  <strong>{recentVideoTasks.length}</strong>
-                </div>
+          <>
+            <div className="recovery-overview" aria-label="创作中心状态概览">
+              <div className="recovery-overview-card">
+                <span>进行中</span>
+                <strong>{activeCount}</strong>
               </div>
+              <div className="recovery-overview-card">
+                <span>可恢复</span>
+                <strong>{records.length}</strong>
+              </div>
+              <div className="recovery-overview-card">
+                <span>最近完成</span>
+                <strong>{recentVideoTasks.length}</strong>
+              </div>
+            </div>
+            <section className="recovery-continuation" aria-label="继续创作">
+              <div className="recovery-section-heading">
+                <h4>继续创作</h4>
+                <span>从最近进度快速接上</span>
+              </div>
+              <div className="recovery-continuation-grid">
+                <article className="recovery-continuation-card">
+                  <MessageSquare size={16} />
+                  <div>
+                    <span>最近对话</span>
+                    <strong>{recentConversation?.title || "开始新的咨询"}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    aria-label={recentConversation ? "继续最近对话" : "开始咨询创作"}
+                    onClick={() => runAndClose(() => {
+                      if (recentConversation) onContinueConversation?.(recentConversation.id);
+                      else onStartWorkspace?.("chat");
+                    })}
+                  >
+                    {recentConversation ? "继续" : "开始"}
+                  </button>
+                </article>
+                <article className="recovery-continuation-card">
+                  <ImageIcon size={16} />
+                  <div>
+                    <span>最近图片</span>
+                    <strong>{recentImage?.filename || "创建第一张图片"}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    aria-label={recentImage ? "查看最近图片" : "开始图片创作"}
+                    onClick={() => runAndClose(() => {
+                      if (recentImage) onOpenRecentImage?.(recentImage);
+                      else onStartWorkspace?.("image");
+                    })}
+                  >
+                    {recentImage ? "查看" : "开始"}
+                  </button>
+                </article>
+                <article className="recovery-continuation-card">
+                  <Film size={16} />
+                  <div>
+                    <span>视频工作区</span>
+                    <strong>{hasActiveVideoTask ? "任务正在处理中" : "创建或查看视频"}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    aria-label="开始视频创作"
+                    onClick={() => runAndClose(() => onStartWorkspace?.("video"))}
+                  >
+                    进入
+                  </button>
+                </article>
+              </div>
+            </section>
+            {!hasPanelContent && <p className="recovery-empty">暂无需要恢复的创作任务。</p>}
+            {hasPanelContent && (
+              <>
               {hasActiveVideoTask && activeVideoTask && (
                 <article className="recovery-item recovery-item-active">
                   <div>
@@ -160,8 +234,9 @@ export function RecoveryCenter({
                   ))}
                 </div>
               )}
-            </>
-          )}
+              </>
+            )}
+          </>
         </section>
       )}
     </div>
