@@ -32,7 +32,7 @@ function formatElapsed(ms: number): string {
   return `${minutes}分${remainingSeconds}秒`;
 }
 
-export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online, onRecordRecovery, initialRecoveryPayload }: {
+export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved }: {
   assets: AssetItem[];
   onAssetsChanged: () => Promise<void>;
   onNotice: (message: string) => void;
@@ -45,6 +45,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   online: boolean;
   onRecordRecovery?: (record: CreationRecoveryInput) => void;
   initialRecoveryPayload?: VideoGenerationRecipe | null;
+  onRecoveryResolved?: () => void;
 }) {
   const [prompt, setPrompt] = useState(() => initialRecoveryPayload?.prompt || "");
   const [preset, setPreset] = useState<VideoPreset>(() => initialRecoveryPayload?.preset || "standard");
@@ -92,6 +93,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         onVideoTaskChange({ ...result.task, recipe: videoTask.recipe, startedAt: videoTask.startedAt });
         if (result.task.status === "completed") {
           await onAssetsChanged();
+          if (initialRecoveryPayload) onRecoveryResolved?.();
           onNotice("视频已完成并保存到素材库。");
         } else if (result.task.status === "failed") {
           if (videoTask.recipe) {
@@ -124,7 +126,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       window.clearInterval(timer);
       window.removeEventListener("beforeunload", handler);
     };
-  }, [videoTask, onAssetsChanged, onNotice, onVideoTaskChange, onRecordRecovery]);
+  }, [videoTask, onAssetsChanged, onNotice, onVideoTaskChange, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved]);
 
   const [width, height] = ratio.split("x").map(Number);
 

@@ -431,6 +431,13 @@ function AppInner() {
     toast(`已恢复到${record.workspace === "chat" ? "咨询" : record.workspace === "image" ? "图片" : "视频"}工作区。确认创作成功后，可在创作中心忽略该备份。`, "info");
   }, [toast]);
 
+  const resolveSelectedRecovery = useCallback(() => {
+    if (!selectedRecovery) return;
+    dismissRecovery(selectedRecovery.id);
+    setSelectedRecovery(null);
+    toast("恢复创作已完成，备份已自动清理。", "success");
+  }, [dismissRecovery, selectedRecovery, toast]);
+
   if (booting) return <Splash />;
   if (!authenticated) {
     return (
@@ -719,6 +726,7 @@ function AppInner() {
             onNotice={(msg: string) => toast(msg, "info")}
             onRecordRecovery={upsertRecovery}
             initialRecoveryPayload={selectedRecovery?.type === "chat" ? selectedRecovery.payload : null}
+            onRecoveryResolved={selectedRecovery?.type === "chat" ? resolveSelectedRecovery : undefined}
           />
           </ErrorBoundary>
         )}
@@ -735,6 +743,7 @@ function AppInner() {
             online={online}
             onRecordRecovery={upsertRecovery}
             initialRecoveryPayload={selectedRecovery?.type === "image" ? selectedRecovery.payload : null}
+            onRecoveryResolved={selectedRecovery?.type === "image" ? resolveSelectedRecovery : undefined}
           />
           </Suspense>
           </ErrorBoundary>
@@ -756,6 +765,7 @@ function AppInner() {
             online={online}
             onRecordRecovery={upsertRecovery}
             initialRecoveryPayload={selectedRecovery?.type === "video" ? selectedRecovery.payload : null}
+            onRecoveryResolved={selectedRecovery?.type === "video" ? resolveSelectedRecovery : undefined}
           />
           <VideoTasksPanel
             history={videoHistory.history}

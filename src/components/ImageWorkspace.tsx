@@ -26,7 +26,7 @@ const STYLE_PRESETS: { id: string; label: string; prefix: string }[] = [
   { id: "sketch", label: "素描", prefix: "铅笔素描风格，" },
 ];
 
-export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage, onRecordRecovery, initialRecoveryPayload }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void; onRecordRecovery?: (record: CreationRecoveryInput) => void; initialRecoveryPayload?: ImageGenerationRecipe | null }) {
+export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void; onRecordRecovery?: (record: CreationRecoveryInput) => void; initialRecoveryPayload?: ImageGenerationRecipe | null; onRecoveryResolved?: () => void }) {
   const { getDefaults, setDefault } = useWorkspaceDefaults();
   const defaults = getDefaults("image");
   const [prompt, setPrompt] = useState(() => initialRecoveryPayload?.prompt || "");
@@ -61,6 +61,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       handleStyleChange("none");
       await onAssetsChanged();
       onRecordUsage?.("image_generated");
+      if (initialRecoveryPayload) onRecoveryResolved?.();
       onNotice(`图片已保存到素材库：${result.asset.filename}`);
     } catch (error) {
       const message = error instanceof Error ? error.message : "图片生成失败。";
@@ -115,6 +116,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         });
         onNotice(`已生成 ${successCount} 张变体，${failedCount} 张失败。`);
       } else {
+        if (initialRecoveryPayload) onRecoveryResolved?.();
         onNotice(`已生成 ${successCount} 张变体。`);
       }
     } catch (error) {
