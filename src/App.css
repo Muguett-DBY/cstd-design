@@ -1755,6 +1755,12 @@ button:disabled {
   border-radius: 18px;
   padding: 17px 18px;
   box-shadow: 0 8px 20px rgba(45, 34, 24, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.message-body:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 8px 24px rgba(45, 34, 24, 0.08);
 }
 
 .message-meta {
@@ -1846,6 +1852,12 @@ button:disabled {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.message:hover .message-actions {
+  opacity: 1;
 }
 
 .message-actions button {
@@ -2040,6 +2052,12 @@ button:disabled {
   padding: 14px;
   box-shadow: 0 18px 42px rgba(45, 34, 24, 0.13);
   backdrop-filter: blur(14px);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.composer:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 18px 42px rgba(45, 34, 24, 0.13), 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .composer textarea,
@@ -2054,6 +2072,11 @@ button:disabled {
   max-height: 40vh;
   overflow-y: auto;
   line-height: 1.6;
+  transition: min-height 0.2s ease;
+}
+
+.composer textarea:focus {
+  min-height: 100px;
 }
 
 .composer textarea::placeholder,
@@ -4537,6 +4560,7 @@ button:disabled {
 .reaction-badge:hover {
   border-color: var(--accent);
   background: var(--soft);
+  transform: scale(1.08);
 }
 
 .reaction-badge.active {
@@ -4902,11 +4926,12 @@ button:disabled {
   .message-actions {
     flex-wrap: wrap;
     gap: 4px;
+    opacity: 1;
   }
 
   .message-actions button {
-    min-height: 32px;
-    padding: 4px 8px;
+    min-height: 36px;
+    padding: 4px 10px;
     font-size: 12px;
   }
 
