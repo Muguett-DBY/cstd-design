@@ -11,6 +11,7 @@ import { PreviewRail } from "./PreviewRail";
 import { ResultCard } from "./ResultCard";
 import { Segmented } from "./Segmented";
 import { useWorkspaceDefaults } from "../hooks/useWorkspaceDefaults";
+import { useImageGenerationBatch, type ImageBatchSlot, type ImageGenerationRecipe } from "../hooks/useImageGenerationBatch";
 
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
 
@@ -35,6 +36,7 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   const [showTemplates, setShowTemplates] = useState(false);
   const { templates, save, remove } = usePromptTemplates();
   const referenceAssets = imageAssetsForReference(assets);
+  const batch = useImageGenerationBatch();
 
   const handleSizeChange = (newSize: ImageSize) => {
     setSize(newSize);
@@ -65,22 +67,30 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
     }
   };
 
-  const generateVariations = async (count: number) => {
-    if (!prompt.trim() || loading) return;
+  const runBatch = async (recipe: ImageGenerationRecipe, indexes: number[]) => {
     setLoading(true);
-    const finalPrompt = STYLE_PRESETS.find((s) => s.id === style)?.prefix + prompt;
+    batch.start(recipe);
+    const finalPrompt = STYLE_PRESETS.find((s) => s.id === recipe.style)?.prefix + recipe.prompt;
     try {
-      localStorage.setItem(IMAGE_SIZE_STORAGE_KEY, size);
+      localStorage.setItem(IMAGE_SIZE_STORAGE_KEY, recipe.size);
       const results = await Promise.allSettled(
-        Array.from({ length: count }, () =>
-          api.generateImage({ prompt: finalPrompt, size, referenceAssetIds: referenceIds })
+        indexes.map(() =>
+          api.generateImage({ prompt: finalPrompt, size: recipe.size, referenceAssetIds: recipe.referenceIds })
         )
       );
+      const slots: ImageBatchSlot[] = Array.from({ length: recipe.count }, () => ({ status: "fulfilled", filename: "已在上次生成中完成" }));
+      results.forEach((result, resultIndex) => {
+        const slotIndex = indexes[resultIndex];
+        slots[slotIndex] = result.status === "fulfilled"
+          ? { status: "fulfilled", filename: result.value.asset.filename }
+          : { status: "rejected", error: result.reason instanceof Error ? result.reason.message : "生成失败" };
+      });
+      batch.settle(slots);
       const successCount = results.filter((r) => r.status === "fulfilled").length;
       const failedCount = results.length - successCount;
       const firstSuccess = results.find((r) => r.status === "fulfilled") as PromiseFulfilledResult<{ asset: AssetItem }> | undefined;
       if (firstSuccess) {
-        setLastResult({ url: firstSuccess.value.asset.url, filename: firstSuccess.value.asset.filename, prompt });
+        setLastResult({ url: firstSuccess.value.asset.url, filename: firstSuccess.value.asset.filename, prompt: recipe.prompt });
       }
       await onAssetsChanged();
       if (failedCount > 0) {
@@ -93,6 +103,12 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateVariations = async (count: number) => {
+    if (!prompt.trim() || loading) return;
+    const recipe = { prompt, style, size, referenceIds: [...referenceIds], count };
+    await runBatch(recipe, Array.from({ length: count }, (_, index) => index));
   };
 
   return (
@@ -187,6 +203,24 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
             </button>
           ))}
         </div>
+        {batch.summary && batch.summary.failedCount > 0 && !loading && (
+          <div className="creation-recovery" role="alert" aria-live="assertive">
+            <div>
+              <strong>批量生成部分完成</strong>
+              <span>成功 {batch.summary.successCount} 张，失败 {batch.summary.failedCount} 张。成功结果已保留。</span>
+            </div>
+            <div className="creation-recovery-actions">
+              <button type="button" className="ghost-button" onClick={batch.clear}>忽略</button>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => void runBatch(batch.summary!.recipe, batch.retryableIndexes)}
+              >
+                <RefreshCw size={14} /> 重试失败项
+              </button>
+            </div>
+          </div>
+        )}
         {lastResult && !loading && (
           <ResultCard
             type="image"

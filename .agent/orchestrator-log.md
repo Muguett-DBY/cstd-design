@@ -5,9 +5,9 @@
 - Sequence: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE
 - Protected existing untracked file: `.agent/orchestrator-history/campaign-014/state.json`
 - Previous flagship carried forward: integration coverage for chat, image, and video critical flows
-- Current progress: chat failures preserve the composer content and expose an explicit retry action
-- Verification: 377 tests, functions typecheck, zero-warning lint, production build
-- Next: image batch partial-failure recovery
+- Current progress: chat failures preserve input; image batches retain successful results and retry only failed slots
+- Verification: 379 tests, functions typecheck, zero-warning lint, production build
+- Next: unify creation status and responsive recovery UX
 
 ## Campaign 002 — Started 2026-06-19T09:45:00Z
 

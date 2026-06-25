@@ -3,7 +3,8 @@
 ## Campaign 016 — Reliable creation loop (in progress, 2026-06-26)
 
 - Added recoverable chat sending: failed content is restored instead of lost, and users can explicitly retry.
-- Added focused state tests; current baseline is 377 passing tests.
+- Added recoverable image batches: partial failures retain successful results and retry only failed slots.
+- Added focused state tests; current baseline is 379 passing tests.
 - Validation: functions typecheck, zero-warning lint, and production build pass.
 - Next: recoverable image batches, unified status UX, durable video recipes, health audit, recovery center.
 
