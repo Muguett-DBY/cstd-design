@@ -8774,8 +8774,8 @@ button:disabled {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: min(360px, calc(100vw - 28px));
-  max-height: min(560px, calc(100vh - 88px));
+  width: min(430px, calc(100vw - 28px));
+  max-height: min(640px, calc(100vh - 88px));
   overflow: auto;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -8833,10 +8833,88 @@ button:disabled {
   line-height: 1;
 }
 
+.recovery-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  padding: 4px;
+}
+
+.recovery-tabs button {
+  min-width: 0;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: calc(var(--radius-md) - 4px);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease;
+}
+
+.recovery-tabs button:hover,
+.recovery-tabs button:focus-visible {
+  color: var(--text);
+}
+
+.recovery-tabs button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.recovery-tabs button[aria-selected="true"] {
+  background: var(--surface-strong);
+  color: var(--accent-strong);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--shadow-color) 12%, transparent);
+}
+
+.recovery-tabs button strong {
+  min-width: 18px;
+  height: 18px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: currentColor;
+  font-size: 10px;
+  padding: 0 5px;
+}
+
+.recovery-tab-panel {
+  display: grid;
+  gap: 10px;
+  min-height: 84px;
+  animation: recovery-panel-enter 160ms ease both;
+}
+
+@keyframes recovery-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .recovery-continuation {
   display: grid;
   gap: 8px;
-  margin-bottom: 12px;
 }
 
 .recovery-section-heading {
@@ -8981,9 +9059,6 @@ button:disabled {
 .recovery-activity {
   display: grid;
   gap: 8px;
-  margin-top: 14px;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
 }
 
 .recovery-activity-heading {
@@ -9058,11 +9133,15 @@ button:disabled {
   }
 
   .recovery-panel {
+    position: fixed;
     top: auto;
-    right: 0;
-    bottom: calc(100% + 10px);
-    width: min(360px, calc(100vw - 32px));
-    max-height: min(620px, calc(100svh - 116px - env(safe-area-inset-bottom)));
+    right: 8px;
+    bottom: calc(86px + env(safe-area-inset-bottom));
+    left: 8px;
+    width: auto;
+    max-height: calc(100svh - 104px - env(safe-area-inset-bottom));
+    border-radius: 24px;
+    padding: 16px;
   }
 
   .recovery-overview {
@@ -9075,5 +9154,13 @@ button:disabled {
 
   .recovery-continuation-card {
     min-height: 52px;
+  }
+
+  .recovery-tabs {
+    position: sticky;
+    top: -16px;
+    z-index: 1;
+    background: var(--surface-strong);
+    padding-top: 8px;
   }
 }

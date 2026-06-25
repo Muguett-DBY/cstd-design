@@ -6,6 +6,8 @@ import type { PersistedVideoTask } from "../hooks/useVideoTaskPersistence";
 import type { VideoTaskHistoryEntry } from "../hooks/useVideoTaskHistory";
 import type { AssetItem, ConversationSummary, WorkspaceTab } from "../types";
 
+type RecoveryCenterSection = "continue" | "tasks" | "activity";
+
 function recoveryTypeLabel(type: CreationRecoveryRecord["type"]) {
   if (type === "chat") return "咨询";
   if (type === "image") return "图片";
@@ -56,11 +58,16 @@ export function RecoveryCenter({
   onClearActivity?: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [section, setSection] = useState<RecoveryCenterSection>("continue");
   const hasActiveVideoTask = Boolean(activeVideoTask && (activeVideoTask.status === "queued" || activeVideoTask.status === "in_progress"));
   const activeCount = hasActiveVideoTask ? 1 : 0;
   const totalCount = activeCount + records.length;
   const hasPanelContent = hasActiveVideoTask || records.length > 0 || recentVideoTasks.length > 0;
   const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
+  const toggleOpen = () => {
+    if (!open) setSection(hasPanelContent ? "tasks" : "continue");
+    setOpen((current) => !current);
+  };
   const runAndClose = (action: () => void) => {
     action();
     setOpen(false);
@@ -73,7 +80,7 @@ export function RecoveryCenter({
         className={triggerClassName}
         aria-label={`创作中心，${activeCount} 个进行中，${records.length} 个可恢复`}
         aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
+        onClick={toggleOpen}
       >
         <RotateCcw size={16} />
         <span>创作中心</span>
@@ -84,7 +91,7 @@ export function RecoveryCenter({
           <div className="recovery-panel-header">
             <div>
               <h3>创作中心</h3>
-              <p>查看进行中的任务、可恢复的失败创作和最近的视频结果。</p>
+              <p>继续最近工作、处理失败任务并查看恢复结果。</p>
             </div>
             <button type="button" className="icon-button" aria-label="关闭创作中心" onClick={() => setOpen(false)}>
               <X size={16} />
@@ -105,68 +112,123 @@ export function RecoveryCenter({
                 <strong>{recentVideoTasks.length}</strong>
               </div>
             </div>
-            <section className="recovery-continuation" aria-label="继续创作">
-              <div className="recovery-section-heading">
-                <h4>继续创作</h4>
-                <span>从最近进度快速接上</span>
+            <div className="recovery-tabs" role="tablist" aria-label="创作中心分区">
+              <button
+                type="button"
+                role="tab"
+                id="recovery-continue-tab"
+                aria-controls="recovery-continue-panel"
+                aria-selected={section === "continue"}
+                aria-label="继续创作"
+                onClick={() => setSection("continue")}
+              >
+                <RotateCcw size={14} />
+                <span>继续</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="recovery-tasks-tab"
+                aria-controls="recovery-tasks-panel"
+                aria-selected={section === "tasks"}
+                aria-label={`待处理 ${totalCount}`}
+                onClick={() => setSection("tasks")}
+              >
+                <Clock size={14} />
+                <span>待处理</span>
+                <strong>{totalCount}</strong>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="recovery-activity-tab"
+                aria-controls="recovery-activity-panel"
+                aria-selected={section === "activity"}
+                aria-label={`近期活动 ${activities.length}`}
+                onClick={() => setSection("activity")}
+              >
+                <History size={14} />
+                <span>活动</span>
+                <strong>{activities.length}</strong>
+              </button>
+            </div>
+            {section === "continue" && (
+              <div
+                className="recovery-tab-panel"
+                role="tabpanel"
+                id="recovery-continue-panel"
+                aria-label="继续创作"
+              >
+                <section className="recovery-continuation" aria-label="继续创作">
+                  <div className="recovery-section-heading">
+                    <h4>继续创作</h4>
+                    <span>从最近进度快速接上</span>
+                  </div>
+                  <div className="recovery-continuation-grid">
+                    <article className="recovery-continuation-card">
+                      <MessageSquare size={16} />
+                      <div>
+                        <span>最近对话</span>
+                        <strong>{recentConversation?.title || "开始新的咨询"}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        aria-label={recentConversation ? "继续最近对话" : "开始咨询创作"}
+                        onClick={() => runAndClose(() => {
+                          if (recentConversation) onContinueConversation?.(recentConversation.id);
+                          else onStartWorkspace?.("chat");
+                        })}
+                      >
+                        {recentConversation ? "继续" : "开始"}
+                      </button>
+                    </article>
+                    <article className="recovery-continuation-card">
+                      <ImageIcon size={16} />
+                      <div>
+                        <span>最近图片</span>
+                        <strong>{recentImage?.filename || "创建第一张图片"}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        aria-label={recentImage ? "查看最近图片" : "开始图片创作"}
+                        onClick={() => runAndClose(() => {
+                          if (recentImage) onOpenRecentImage?.(recentImage);
+                          else onStartWorkspace?.("image");
+                        })}
+                      >
+                        {recentImage ? "查看" : "开始"}
+                      </button>
+                    </article>
+                    <article className="recovery-continuation-card">
+                      <Film size={16} />
+                      <div>
+                        <span>视频工作区</span>
+                        <strong>{hasActiveVideoTask ? "任务正在处理中" : "创建或查看视频"}</strong>
+                      </div>
+                      <button
+                        type="button"
+                        className="ghost-button"
+                        aria-label="开始视频创作"
+                        onClick={() => runAndClose(() => onStartWorkspace?.("video"))}
+                      >
+                        进入
+                      </button>
+                    </article>
+                  </div>
+                </section>
+                {!hasPanelContent && <p className="recovery-empty">暂无需要恢复的创作任务。</p>}
               </div>
-              <div className="recovery-continuation-grid">
-                <article className="recovery-continuation-card">
-                  <MessageSquare size={16} />
-                  <div>
-                    <span>最近对话</span>
-                    <strong>{recentConversation?.title || "开始新的咨询"}</strong>
-                  </div>
-                  <button
-                    type="button"
-                    className="ghost-button"
-                    aria-label={recentConversation ? "继续最近对话" : "开始咨询创作"}
-                    onClick={() => runAndClose(() => {
-                      if (recentConversation) onContinueConversation?.(recentConversation.id);
-                      else onStartWorkspace?.("chat");
-                    })}
-                  >
-                    {recentConversation ? "继续" : "开始"}
-                  </button>
-                </article>
-                <article className="recovery-continuation-card">
-                  <ImageIcon size={16} />
-                  <div>
-                    <span>最近图片</span>
-                    <strong>{recentImage?.filename || "创建第一张图片"}</strong>
-                  </div>
-                  <button
-                    type="button"
-                    className="ghost-button"
-                    aria-label={recentImage ? "查看最近图片" : "开始图片创作"}
-                    onClick={() => runAndClose(() => {
-                      if (recentImage) onOpenRecentImage?.(recentImage);
-                      else onStartWorkspace?.("image");
-                    })}
-                  >
-                    {recentImage ? "查看" : "开始"}
-                  </button>
-                </article>
-                <article className="recovery-continuation-card">
-                  <Film size={16} />
-                  <div>
-                    <span>视频工作区</span>
-                    <strong>{hasActiveVideoTask ? "任务正在处理中" : "创建或查看视频"}</strong>
-                  </div>
-                  <button
-                    type="button"
-                    className="ghost-button"
-                    aria-label="开始视频创作"
-                    onClick={() => runAndClose(() => onStartWorkspace?.("video"))}
-                  >
-                    进入
-                  </button>
-                </article>
-              </div>
-            </section>
-            {!hasPanelContent && <p className="recovery-empty">暂无需要恢复的创作任务。</p>}
-            {hasPanelContent && (
-              <>
+            )}
+            {section === "tasks" && (
+              <div
+                className="recovery-tab-panel"
+                role="tabpanel"
+                id="recovery-tasks-panel"
+                aria-label="待处理"
+              >
+                {!hasPanelContent && <p className="recovery-empty">当前没有待处理任务。</p>}
               {hasActiveVideoTask && activeVideoTask && (
                 <article className="recovery-item recovery-item-active">
                   <div>
@@ -245,32 +307,43 @@ export function RecoveryCenter({
                   ))}
                 </div>
               )}
-              </>
+              </div>
             )}
-            {activities.length > 0 && (
-              <section className="recovery-activity" aria-label="近期创作活动">
-                <div className="recovery-activity-heading">
-                  <h4><History size={14} /> 近期活动</h4>
-                  <button type="button" className="ghost-button" aria-label="清空创作活动" onClick={onClearActivity}>
-                    清空
-                  </button>
-                </div>
-                <div className="recovery-activity-list">
-                  {activities.slice(0, 5).map((activity) => {
-                    const meta = activityTypeMeta(activity.type);
-                    const Icon = meta.icon;
-                    return (
-                      <div key={activity.id} className={`recovery-activity-item activity-${activity.type}`}>
-                        <Icon size={14} />
-                        <div>
-                          <strong>{activity.label}</strong>
-                          <span>{meta.label} · {formatRecoveryTime(activity.createdAt)}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
+            {section === "activity" && (
+              <div
+                className="recovery-tab-panel"
+                role="tabpanel"
+                id="recovery-activity-panel"
+                aria-label="近期活动"
+              >
+                {activities.length > 0 ? (
+                  <section className="recovery-activity" aria-label="近期创作活动">
+                    <div className="recovery-activity-heading">
+                      <h4><History size={14} /> 近期活动</h4>
+                      <button type="button" className="ghost-button" aria-label="清空创作活动" onClick={onClearActivity}>
+                        清空
+                      </button>
+                    </div>
+                    <div className="recovery-activity-list">
+                      {activities.slice(0, 5).map((activity) => {
+                        const meta = activityTypeMeta(activity.type);
+                        const Icon = meta.icon;
+                        return (
+                          <div key={activity.id} className={`recovery-activity-item activity-${activity.type}`}>
+                            <Icon size={14} />
+                            <div>
+                              <strong>{activity.label}</strong>
+                              <span>{meta.label} · {formatRecoveryTime(activity.createdAt)}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </section>
+                ) : (
+                  <p className="recovery-empty">完成、恢复或忽略任务后，活动会显示在这里。</p>
+                )}
+              </div>
             )}
           </>
         </section>

@@ -182,11 +182,38 @@ describe("RecoveryCenter", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("tab", { name: "近期活动 2" }));
 
     const activityRegion = screen.getByRole("region", { name: "近期创作活动" });
     expect(activityRegion.textContent).toContain("图片恢复完成");
     expect(activityRegion.textContent).toContain("已打开未发送消息");
     fireEvent.click(screen.getByRole("button", { name: "清空创作活动" }));
     expect(onClearActivity).toHaveBeenCalledOnce();
+  });
+
+  test("organizes continuation, tasks, and activity into accessible sections", () => {
+    render(
+      <RecoveryCenter
+        records={records}
+        activities={activities}
+        recentConversation={latestConversation}
+        recentImage={latestImage}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+    expect(screen.getByRole("tablist", { name: "创作中心分区" })).toBeTruthy();
+    expect(screen.getByRole("tab", { name: "待处理 2" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tabpanel", { name: "待处理" }).textContent).toContain("视频生成失败");
+
+    fireEvent.click(screen.getByRole("tab", { name: "继续创作" }));
+    expect(screen.getByRole("tabpanel", { name: "继续创作" }).textContent).toContain("品牌发布计划");
+
+    fireEvent.click(screen.getByRole("tab", { name: "近期活动 2" }));
+    expect(screen.getByRole("tabpanel", { name: "近期活动" }).textContent).toContain("图片恢复完成");
   });
 });

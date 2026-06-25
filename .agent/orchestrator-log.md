@@ -510,3 +510,35 @@
 - `npm run build` — passed; existing main-bundle warning remains.
 
 **Commit target**: `feat: add creation recovery activity timeline`
+
+**Commit/CI**:
+- Commit `6192857` (`feat: add creation recovery activity timeline`) pushed to `origin/main`.
+- GitHub Actions run `28204063790` passed the complete deploy workflow.
+
+### Stage 3/6 — UIUX
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_UIUX_MAIN.txt`
+**Start state**:
+- Creation center now contains continuation shortcuts, recovery tasks, recent results, and activity in one growing scroll surface.
+- The information hierarchy becomes harder to scan as records and activity accumulate.
+
+**Goal**: Reorganize the creation center into accessible continuation, pending-work, and activity sections with task-aware defaults and a stable mobile bottom-sheet layout.
+
+**Completed**:
+- Split the creation center into accessible `继续创作`, `待处理`, and `近期活动` tab panels with count badges.
+- Opens directly to pending work when active/recoverable/recent video tasks exist; otherwise defaults to continuation shortcuts.
+- Added explicit empty states for pending work and activity, stronger selected/focus states, and a wider desktop panel.
+- Converted the small-screen panel into a fixed safe-area-aware bottom sheet above the mobile workspace navigation.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` — 2 tests failed because the original surface had no tablist or tab panels.
+- GREEN: focused creation-center suite — 7 tests passed.
+- `npm test -- --run` — 59 files, 401 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; existing 689.43 kB main-bundle warning remains.
+- Re-run before commit on 2026-06-26: `npx vitest run src/components/RecoveryCenter.test.tsx` — 7 tests passed; `npm test -- --run` — 59 files, 401 tests passed; `npm run typecheck:functions`, `npm run lint`, and `npm run build` passed. The same 689.43 kB main-bundle warning remains.
+- Local Pages desktop Browser: app identity/load passed, all three tab selections and empty states rendered correctly, and console warnings/errors were empty.
+- Mobile Browser viewport override did not persist beyond the plugin surface; responsive structure was observed once at 390×844, but screenshot capture timed out. Existing component tests and the small-screen CSS boundary remain the deterministic mobile checks for this commit.
+
+**Commit target**: `style: restructure creation center navigation`
