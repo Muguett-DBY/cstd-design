@@ -515,9 +515,12 @@ function AppInner() {
         <OfflineIndicator />
         <RecoveryCenter
           records={recoveryRecords}
+          activeVideoTask={videoTask}
+          recentVideoTasks={videoHistory.history}
           onSelect={selectRecoveryRecord}
           onDismiss={dismissRecovery}
           onClear={clearRecovery}
+          onOpenVideoTask={() => setActiveTab("video")}
         />
       <aside className="sidebar">
         <Sidebar {...sidebarProps} />
