@@ -603,3 +603,37 @@
 - They are intentional HTML/SVG rendering surfaces, but the current sanitization boundary is weak enough to justify a targeted hardening pass in the final IMPROVE stage.
 
 **Commit target**: `chore: record production check`
+
+**Commit/CI**:
+- Commit `5dfc2cf` (`chore: record production check`) pushed to `origin/main`.
+- GitHub Actions run `28205432949` passed the complete deploy workflow.
+
+### Stage 6/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- CHECK found two intentional HTML/SVG insertion surfaces using `dangerouslySetInnerHTML`.
+- Existing export preview sanitization relied on narrow regex replacement and Mermaid SVG output was inserted directly.
+
+**Goal**: Harden trusted HTML/SVG rendering through one tested sanitizer and route both insertion surfaces through it.
+
+**Completed**:
+- Added `sanitizeTrustedHtml` with DOM-based sanitization and a non-DOM fallback.
+- Removes executable elements, event-handler attributes, `srcdoc`, and dangerous URL protocols.
+- Preserves safe export preview HTML and Mermaid SVG structure.
+- Routed export HTML preview and Mermaid render output through the sanitizer before insertion.
+
+**Verification before commit**:
+- RED: `npx vitest run src/utils/sanitizeHtml.test.ts` failed because `./sanitizeHtml` did not exist.
+- GREEN: `npx vitest run src/utils/sanitizeHtml.test.ts` — 1 file, 2 tests passed.
+- Focused affected suites: `npx vitest run src/components/LazyMarkdown.test.tsx src/components/CreationRecoveryLifecycle.test.tsx` — 2 files, 5 tests passed.
+- `npm test -- --run` — 61 files, 404 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk remained under the previous warning threshold at 385.15 kB.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `rg -n "dangerouslySetInnerHTML|sanitizeTrustedHtml" src/components src/utils --glob "!**/*.test.*"` — both HTML insertion surfaces are now paired with `sanitizeTrustedHtml`.
+- Local Pages `http://127.0.0.1:8792/` — returned 200.
+- Browser smoke on local Pages — title `工作台 - 私人中文创作工作台`, main UI visible, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `fix: sanitize rendered html surfaces`

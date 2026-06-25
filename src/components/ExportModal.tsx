@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Clipboard, BookOpen, Database } from "lucide-react";
+import { sanitizeTrustedHtml } from "../utils/sanitizeHtml";
 
 const ASSISTANT_NAME = "助手";
 
@@ -381,7 +382,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
                   ) : (
                     <div
                       className="export-preview-html"
-                      dangerouslySetInnerHTML={{ __html: previewContent.replace(/<script[^>]*>.*?<\/script>/gi, "").replace(/on\w+="[^"]*"/gi, "") }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeTrustedHtml(previewContent) }}
                     />
                   )}
                 </div>
