@@ -4,6 +4,10 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import "katex/dist/katex.min.css";
+import "highlight.js/styles/github.css";
+
+export type MarkdownProps = { content: string; highlightQuery?: string };
 
 function CodeSnippet({ className, code }: { className?: string; code: string }) {
   const [copied, setCopied] = useState(false);
@@ -53,7 +57,7 @@ function highlightText(text: string, query: string): React.ReactNode[] {
   return parts;
 }
 
-function Markdown({ content, highlightQuery }: { content: string; highlightQuery?: string }) {
+function Markdown({ content, highlightQuery }: MarkdownProps) {
   const highlighted = highlightQuery ? highlightText(content, highlightQuery) : content;
   return (
     <div className="markdown">

@@ -1,12 +1,10 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Bot, Bookmark, Check, CheckSquare, Copy, Download, Edit, Edit3, FileText, Forward, MessageSquare, PanelRight, Pin, Plus, RefreshCw, RotateCcw, Save, Search, Send, Square, Trash2, X } from "lucide-react";
-import "katex/dist/katex.min.css";
-import "highlight.js/styles/github.css";
 import type { AssetItem, ChatMessage, ChatStreamEvent, ConversationDetail, ConversationSummary } from "../types";
 import { messageDateLabel, timeAgo } from "../app-state";
 import { streamChat } from "../api";
 import { ConversationTitleInput } from "./ConversationTitleInput";
-import { Markdown } from "./Markdown";
+import { LazyMarkdown } from "./LazyMarkdown";
 import { ClearAllButton } from "./ClearAllButton";
 import { InfoLine } from "./InfoLine";
 import { EmptyState } from "./EmptyState";
@@ -654,7 +652,7 @@ export function ChatWorkspace({
                     {row.message.status === "streaming" && <em>正在生成...</em>}
                     {row.message.status === "interrupted" && <em>已中断</em>}
                   </div>
-                  <Markdown content={getEditedContent(row.message.id) || row.message.content || "正在思考..."} highlightQuery={search.query} />
+                  <LazyMarkdown content={getEditedContent(row.message.id) || row.message.content || "正在思考..."} highlightQuery={search.query} />
                   <div className="message-reactions">
                     {getReactions(row.message.id).map((emoji) => (
                       <button

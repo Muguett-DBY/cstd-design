@@ -542,3 +542,33 @@
 - Mobile Browser viewport override did not persist beyond the plugin surface; responsive structure was observed once at 390×844, but screenshot capture timed out. Existing component tests and the small-screen CSS boundary remain the deterministic mobile checks for this commit.
 
 **Commit target**: `style: restructure creation center navigation`
+
+**Commit/CI**:
+- Commit `4872f64` (`style: restructure creation center navigation`) pushed to `origin/main`.
+- GitHub Actions run `28204909553` passed the complete deploy workflow.
+
+### Stage 4/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Production build emitted a persistent Vite/Rolldown warning because the main `index` chunk was 689.43 kB after minification.
+- Chat message rendering pulled Markdown, KaTeX, syntax highlighting, and Mermaid-adjacent dependencies into the initial app shell.
+
+**Goal**: Reduce the initial app shell bundle by loading heavy Markdown rendering only when message content is actually rendered.
+
+**Completed**:
+- Added `LazyMarkdown` with a Suspense fallback for message rendering.
+- Replaced static Markdown usage in chat messages and thread replies with the lazy boundary.
+- Moved KaTeX and highlight CSS imports into the Markdown renderer so they load with that feature chunk.
+- Removed the static Markdown barrel export that made the dynamic import ineffective.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/LazyMarkdown.test.tsx` failed because `./LazyMarkdown` did not exist.
+- GREEN: `npx vitest run src/components/LazyMarkdown.test.tsx src/components/CreationRecoveryLifecycle.test.tsx` — 2 files, 5 tests passed.
+- `npm test -- --run` — 60 files, 402 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk reduced from 689.43 kB to 385.11 kB, Markdown split into a 304.84 kB async chunk, and the previous 600 kB chunk warning disappeared.
+- Local Pages desktop Browser: `http://127.0.0.1:8792/` loaded with title `工作台 - 私人中文创作工作台`; empty chat workspace rendered without Markdown fallback; console warnings/errors were empty.
+
+**Commit target**: `perf: lazy load markdown renderer`

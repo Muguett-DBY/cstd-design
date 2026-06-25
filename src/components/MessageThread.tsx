@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Check, Edit3, Forward, LoaderCircle, MessageSquare, Trash2, X } from "lucide-react";
 import type { ThreadReply } from "../types";
 import { timeAgo } from "../app-state";
-import { Markdown } from "./Markdown";
+import { LazyMarkdown } from "./LazyMarkdown";
 
 export function MessageThread({
   messageId,
@@ -98,7 +98,7 @@ export function MessageThread({
                         </div>
                       </div>
                     ) : (
-                      <Markdown content={reply.content} />
+                      <LazyMarkdown content={reply.content} />
                     )}
                     {!editing && (
                       <div className="thread-reply-actions">

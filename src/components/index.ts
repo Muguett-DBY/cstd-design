@@ -8,7 +8,7 @@ export { Segmented } from "./Segmented";
 export { ClearAllButton } from "./ClearAllButton";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { InfoLine } from "./InfoLine";
-export { Markdown } from "./Markdown";
+export { LazyMarkdown } from "./LazyMarkdown";
 export { ConversationTitleInput } from "./ConversationTitleInput";
 export { ReferencePicker } from "./ReferencePicker";
 export { UploadBox } from "./UploadBox";
