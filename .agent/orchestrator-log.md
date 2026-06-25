@@ -1,5 +1,14 @@
 # Orchestrator Log
 
+## Campaign 016 — Reliable creation loop (2026-06-26)
+
+- Sequence: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE
+- Protected existing untracked file: `.agent/orchestrator-history/campaign-014/state.json`
+- Previous flagship carried forward: integration coverage for chat, image, and video critical flows
+- Current progress: chat failures preserve the composer content and expose an explicit retry action
+- Verification: 377 tests, functions typecheck, zero-warning lint, production build
+- Next: image batch partial-failure recovery
+
 ## Campaign 002 — Started 2026-06-19T09:45:00Z
 
 **Theme**: Video workspace maturity, accessibility, and test coverage

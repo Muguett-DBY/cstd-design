@@ -1,5 +1,12 @@
 # Iteration Log
 
+## Campaign 016 — Reliable creation loop (in progress, 2026-06-26)
+
+- Added recoverable chat sending: failed content is restored instead of lost, and users can explicitly retry.
+- Added focused state tests; current baseline is 377 passing tests.
+- Validation: functions typecheck, zero-warning lint, and production build pass.
+- Next: recoverable image batches, unified status UX, durable video recipes, health audit, recovery center.
+
 ## Campaign 001 — 3-Cycle, 18-Phase Campaign (2026-06-19)
 
 **Theme**: Cross-device data consistency, upload flow maturity, and thread forwarding

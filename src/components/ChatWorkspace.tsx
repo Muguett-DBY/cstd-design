@@ -37,6 +37,7 @@ import { VoiceInputButton } from "./VoiceInputButton";
 import { useMessageAttachments } from "../hooks/useMessageAttachments";
 import { AttachmentPreview } from "./AttachmentPreview";
 import { BranchVisualization } from "./BranchVisualization";
+import { useRecoverableChatSend } from "../hooks/useRecoverableChatSend";
 
 const ASSISTANT_NAME = "助手";
 
@@ -159,6 +160,7 @@ export function ChatWorkspace({
   const [editContent, setEditContent] = useState("");
   const [showPicker, setShowPicker] = useState(false);
   const [pendingForward, setPendingForward] = useState<{ messageId: string; content: string; threadParentId?: string } | null>(null);
+  const chatRecovery = useRecoverableChatSend();
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -213,6 +215,7 @@ export function ChatWorkspace({
 
   const sendContent = async (content: string, parentId: string | null) => {
     if (!content || streaming) return;
+    chatRecovery.begin(content, parentId);
     onRecordUsage?.("message_sent");
     recordPrompt(content);
     setStreaming(true);
@@ -265,14 +268,25 @@ export function ChatWorkspace({
       );
       flushQueuedDeltaNow();
       if (conversationId) await afterSend(conversationId);
+      chatRecovery.succeed();
       textareaRef.current?.focus();
     } catch (error) {
       flushQueuedDeltaNow();
       textareaRef.current?.focus();
-      if (pendingAssistantRef.current) {
-        onStreamEvent({ type: "error", assistantMessageId: pendingAssistantRef.current, error: abort.signal.aborted ? "已停止" : "网络异常，请稍后重试。" }, content);
+      const cancelled = abort.signal.aborted;
+      if (!cancelled) {
+        const message = error instanceof Error ? error.message : "咨询失败，请稍后重试。";
+        chatRecovery.fail(message);
+        setDraft((current) => current.content.trim()
+          ? current
+          : { content, selectedParentId: parentId });
       } else {
-        onNotice(error instanceof Error ? error.message : "咨询失败，请稍后重试。");
+        chatRecovery.succeed();
+      }
+      if (pendingAssistantRef.current) {
+        onStreamEvent({ type: "error", assistantMessageId: pendingAssistantRef.current, error: cancelled ? "已停止" : "网络异常，请稍后重试。" }, content);
+      } else {
+        onNotice(cancelled ? "已停止回答。" : error instanceof Error ? error.message : "咨询失败，请稍后重试。");
       }
     } finally {
       setStreaming(false);
@@ -773,6 +787,29 @@ export function ChatWorkspace({
         )}
 
         <div className="composer">
+          {chatRecovery.failed && (
+            <div className="creation-recovery" role="alert" aria-live="assertive">
+              <div>
+                <strong>消息发送失败，内容已保留</strong>
+                <span>{chatRecovery.failed.error}</span>
+              </div>
+              <div className="creation-recovery-actions">
+                <button type="button" className="ghost-button" onClick={chatRecovery.dismiss}>忽略</button>
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => {
+                    const failed = chatRecovery.failed;
+                    if (!failed) return;
+                    setDraft({ content: failed.content, selectedParentId: failed.parentId });
+                    void sendContent(failed.content, failed.parentId);
+                  }}
+                >
+                  <RefreshCw size={14} /> 重新发送
+                </button>
+              </div>
+            </div>
+          )}
           {draft.selectedParentId !== null && <div className="draft-note">正在从旧问题处分支。发送后会保留原分支。</div>}
           {!draft.content.trim() && messages.length > 0 && (
             <PromptSuggestions onSelect={(text) => setDraft({ ...draft, content: text })} showFollowups />
