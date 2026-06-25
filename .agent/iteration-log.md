@@ -1334,3 +1334,18 @@
 - Source scan: no new plaintext secret findings; sensitive-name hits are environment variable names, workflow secret references, or test placeholders.
 - Dangerous HTML scan: two pre-existing explicit render points (`ExportModal`, `MermaidBlock`); no new recovery-loop usage.
 - Local Pages smoke: `wrangler pages dev dist --port 8788` served `/` and `/api/session` with HTTP 200, then listener was stopped.
+
+---
+
+## Short Sprint 017 — Product + UI/UX Sprint (2026-06-26)
+
+**Goal**: Run a short two-step sprint: one product-level improvement followed by one UI/UX pass.
+
+### Product improvement
+- Continued the reliable-creation direction by upgrading the recovery-only entry into a “创作中心”.
+- Added active video task progress and direct navigation back to the video workspace.
+- Added recent video outcome visibility while preserving recoverable failure records.
+- Validation: `npx vitest run src/components/RecoveryCenter.test.tsx`, `npm test`, `npm run typecheck:functions`, `npm run lint`, `npm run build`, and `git diff --check` passed locally.
+
+### Next
+- Run the UI/UX stage as a separate commit focused on the creation center and app-shell experience.

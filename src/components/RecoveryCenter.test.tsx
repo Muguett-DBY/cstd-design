@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { RecoveryCenter } from "./RecoveryCenter";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
 
@@ -25,6 +25,8 @@ const records: CreationRecoveryRecord[] = [
 ];
 
 describe("RecoveryCenter", () => {
+  afterEach(() => cleanup());
+
   test("shows count, records, select, dismiss, and clear actions", () => {
     const onSelect = vi.fn();
     const onDismiss = vi.fn();
@@ -32,10 +34,10 @@ describe("RecoveryCenter", () => {
 
     render(<RecoveryCenter records={records} onSelect={onSelect} onDismiss={onDismiss} onClear={onClear} />);
 
-    expect(screen.getByRole("button", { name: /恢复中心，2 个待处理项/ }).textContent).toContain("2");
-    fireEvent.click(screen.getByRole("button", { name: /恢复中心/ }));
+    expect(screen.getByRole("button", { name: /创作中心，0 个进行中，2 个可恢复/ }).textContent).toContain("2");
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
 
-    expect(screen.getByRole("dialog", { name: "恢复中心" }).textContent).toContain("视频生成失败");
+    expect(screen.getByRole("dialog", { name: "创作中心" }).textContent).toContain("视频生成失败");
     fireEvent.click(screen.getByRole("button", { name: "忽略 未发送消息" }));
     expect(onDismiss).toHaveBeenCalledWith("chat-1");
 
@@ -49,7 +51,34 @@ describe("RecoveryCenter", () => {
   test("renders an accessible empty state", () => {
     render(<RecoveryCenter records={[]} onSelect={vi.fn()} onDismiss={vi.fn()} onClear={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /恢复中心，0 个待处理项/ }));
-    expect(screen.getByRole("dialog", { name: "恢复中心" }).textContent).toContain("暂无需要恢复的创作任务");
+    fireEvent.click(screen.getByRole("button", { name: /创作中心，0 个进行中，0 个可恢复/ }));
+    expect(screen.getByRole("dialog", { name: "创作中心" }).textContent).toContain("暂无需要恢复的创作任务");
+  });
+
+  test("summarizes active and recent video work in the creation center", () => {
+    const onOpenVideoTask = vi.fn();
+    render(
+      <RecoveryCenter
+        records={[]}
+        activeVideoTask={{ id: "task-active", status: "in_progress", progress: 42 }}
+        recentVideoTasks={[
+          { id: "task-done", prompt: "ocean reveal", status: "completed", finishedAt: "2026-06-26T04:30:00.000Z", assetUrl: "https://example.com/video.mp4" },
+        ]}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+        onOpenVideoTask={onOpenVideoTask}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: /创作中心，1 个进行中，0 个可恢复/ }).textContent).toContain("1");
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+    expect(screen.getByRole("dialog", { name: "创作中心" }).textContent).toContain("视频正在生成");
+    expect(screen.getByRole("dialog", { name: "创作中心" }).textContent).toContain("42%");
+    expect(screen.getByRole("dialog", { name: "创作中心" }).textContent).toContain("ocean reveal");
+
+    fireEvent.click(screen.getByRole("button", { name: "查看当前视频任务" }));
+    expect(onOpenVideoTask).toHaveBeenCalledOnce();
   });
 });

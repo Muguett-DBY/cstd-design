@@ -8805,7 +8805,9 @@ button:disabled {
 }
 
 .recovery-kind {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-bottom: 6px;
   color: var(--accent-strong);
   font-size: 12px;
@@ -8833,6 +8835,41 @@ button:disabled {
   width: 100%;
   justify-content: center;
   margin-top: 12px;
+}
+
+.recovery-item-active {
+  border-color: var(--active-border);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, transparent), var(--surface));
+}
+
+.recovery-recent {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.recovery-recent h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.recovery-recent-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.recovery-recent-item a {
+  color: var(--accent-strong);
+  font-weight: 700;
 }
 
 @media (max-width: 560px) {

@@ -300,3 +300,39 @@
 - `wrangler pages dev dist --port 8788` compiled and served the current build.
 - Smoke requests returned `GET / 200` and `GET /api/session 200`.
 - Port 8788 listener was stopped after verification.
+
+---
+
+## Short Sprint 017 — IMPROVE → UIUX (2026-06-26)
+
+**Status**: RUNNING
+**Branch**: `main`
+**Prompt order**: `AGENT_IMPROVE_MAIN.txt` → `AGENT_UIUX_MAIN.txt`
+
+### Stage 1 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Branch: `main`, up to date with `origin/main`.
+- Existing untracked file: `.agent/orchestrator-history/campaign-014/state.json`, intentionally excluded from this sprint.
+- Latest commits: `ad93f33`, `a4121b8`, `d312685`, `f0fe0e9`, `ba2fa0c`.
+- CI workflow: `.github/workflows/pages.yml` runs secret scan, `npm ci`, `npm test`, `npm run typecheck:functions`, `npm run lint`, `npm run build`, remote D1 migrations, and Pages deploy.
+
+**Goal**: Continue the reliable-creation direction by upgrading the recovery entry point into a user-visible creation continuity center that shows active work, recoverable failures, and recent video outcomes from one place.
+
+**Completed**:
+- Renamed the floating entry point from recovery-only to “创作中心”.
+- Added active video task visibility with progress and a direct “查看任务” action.
+- Added recent video outcome visibility so completed video work is accessible from the same continuity surface.
+- Preserved recoverable chat/image/video failure records and existing dismiss/clear behavior.
+
+**Verification**:
+- `npx vitest run src/components/RecoveryCenter.test.tsx` — 3 tests passed.
+- `npm test` — 55 files and 388 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; existing Vite large chunk warning remains.
+- `git diff --check` — passed; line-ending normalization warnings only.
+
+**Commit target**: `feat: improve creation continuity center`
+**Next stage after CI passes**: UIUX via `AGENT_UIUX_MAIN.txt`.
