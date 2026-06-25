@@ -1399,3 +1399,12 @@
 
 ### Next
 - Extend recovery visibility into a user-auditable activity timeline with explicit restored/completed outcomes.
+
+### Stage 2 — Creation activity timeline
+- Added a persistent, bounded timeline for restored, completed, and ignored recovery actions.
+- The creation center now shows the latest five outcomes with state icons, timestamps, and an explicit clear action.
+- Activity storage validates versioned records, ignores corrupt entries, caps history at 30, and avoids unbounded localStorage growth.
+- Validation: 59 test files and 400 tests passed; functions typecheck, lint, and build passed.
+
+### Next
+- Upgrade the creation center into a clearer two-level mobile/desktop information architecture so continuation, recovery, and history remain scannable as data grows.

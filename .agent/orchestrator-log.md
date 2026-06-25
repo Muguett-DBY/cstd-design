@@ -482,3 +482,31 @@
 - `npm run build` — passed; existing main-bundle warning remains.
 
 **Commit target**: `feat: complete creation recovery lifecycle`
+
+**Commit/CI**:
+- Commit `3eaa00b` (`feat: complete creation recovery lifecycle`) pushed to `origin/main`.
+- GitHub Actions run `28203820898` passed the complete deploy workflow.
+
+### Stage 2/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Recovery backups now close only on verified success.
+- Once a backup is completed or ignored, the creation center has no audit trail explaining what happened.
+
+**Goal**: Add a bounded, persistent recent-activity timeline for restored, completed, and ignored creation recovery actions.
+
+**Completed**:
+- Added versioned local activity persistence with validation, 30-entry bounding, upsert, and clear behavior.
+- Records restored, completed, and ignored recovery actions from the app-level lifecycle.
+- Added a recent activity region to the creation center with status icons, timestamps, and clear action.
+
+**Verification before commit**:
+- RED: activity hook import failed because the module did not exist; component test failed because no activity region was rendered.
+- GREEN: `npx vitest run src/hooks/useCreationActivity.test.ts src/components/RecoveryCenter.test.tsx` — 2 files, 8 tests passed.
+- `npm test` — 59 files, 400 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; existing main-bundle warning remains.
+
+**Commit target**: `feat: add creation recovery activity timeline`
