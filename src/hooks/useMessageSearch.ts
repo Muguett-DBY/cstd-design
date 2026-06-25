@@ -12,6 +12,9 @@ export interface SearchResult {
   matchStart: number;
   matchEnd: number;
   snippet: string;
+  contextBefore: string;
+  contextAfter: string;
+  matchText: string;
   isThreadReply?: boolean;
   parentMessageId?: string;
   replyIndex?: number;
@@ -36,6 +39,8 @@ function exactMatchSearch(content: string, query: string, messageId: string, rol
     if (matchIndex === -1) break;
 
     const matchEnd = matchIndex + query.length;
+    const contextBeforeStart = Math.max(0, matchIndex - 40);
+    const contextAfterEnd = Math.min(content.length, matchEnd + 40);
     const snippetStart = Math.max(0, matchIndex - 20);
     const snippetEnd = Math.min(content.length, matchEnd + 20);
     const prefix = snippetStart > 0 ? "..." : "";
@@ -49,6 +54,9 @@ function exactMatchSearch(content: string, query: string, messageId: string, rol
       matchStart: matchIndex,
       matchEnd,
       snippet,
+      contextBefore: content.slice(contextBeforeStart, matchIndex),
+      contextAfter: content.slice(matchEnd, contextAfterEnd),
+      matchText: content.slice(matchIndex, matchEnd),
       isThreadReply,
       parentMessageId: isThreadReply ? parentId : undefined,
       replyIndex: isThreadReply ? replyIdx : undefined,
@@ -85,13 +93,17 @@ export function useMessageSearch(messages: ChatMessage[], threads: Record<string
         if (semanticMatch(message.content, q)) {
           const idx = message.content.toLowerCase().indexOf(q);
           const matchIdx = idx >= 0 ? idx : 0;
+          const matchEnd = matchIdx + q.length;
           found.push({
             messageId: message.id,
             role: message.role,
             content: message.content,
             matchStart: matchIdx,
-            matchEnd: matchIdx + q.length,
+            matchEnd,
             snippet: message.content.slice(0, 80) + (message.content.length > 80 ? "..." : ""),
+            contextBefore: message.content.slice(Math.max(0, matchIdx - 40), matchIdx),
+            contextAfter: message.content.slice(matchEnd, matchEnd + 40),
+            matchText: message.content.slice(matchIdx, matchEnd),
           });
         }
       } else {
