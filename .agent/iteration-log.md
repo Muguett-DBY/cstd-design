@@ -1376,6 +1376,8 @@
 - Repositioned and narrowed the mobile creation-center panel so it remains fully visible and does not overlap the bottom navigation.
 - Browser QA at 390×844 caught and drove the app-shell placement fix; final geometry confirmed one navigation, zero legacy navigation, and no overlap.
 - Validation: 57 test files and 393 tests, functions typecheck, lint, build, desktop/mobile browser interactions, screenshots, and console checks passed.
+- Release: product commit `83d47c1` and UI/UX commit `11d517b` were pushed to `main`; GitHub Actions runs `28200574794` and `28201147320` passed.
+- Production smoke: the primary Pages domain and deployment `678d9b0d` returned HTTP 200 for `/` and `/api/session`.
 
 ### Next directions
 1. Add app-level integration coverage for recovery selection through successful retry completion.

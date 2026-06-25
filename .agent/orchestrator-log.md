@@ -435,3 +435,16 @@
 - Browser screenshots saved outside the repository for desktop creation-center and mobile video-workspace states.
 
 **Commit target**: `style: consolidate mobile creation navigation`
+
+**Commit/CI**:
+- Commit `11d517b` (`style: consolidate mobile creation navigation`) pushed to `origin/main`.
+- GitHub Actions run `28201147320` passed the complete deploy workflow.
+- Latest production deployment: `678d9b0d-7ba1-47d4-9198-b8164732ce8d` from source `11d517b`.
+- Live smoke passed on `https://cstd-design.pages.dev` and `https://678d9b0d.cstd-design.pages.dev` for `/` and `/api/session`.
+
+**Final status**:
+- Two requested stages completed as independent product and UI/UX commits.
+- Local Pages server was stopped after QA.
+- Only `.agent/orchestrator-history/campaign-014/` remains untracked and intentionally untouched.
+- Known non-blocking risk: the main application bundle remains above Vite's 600 kB warning threshold.
+- Next flagship: dismiss a recovery backup automatically only after the restored creation succeeds.
