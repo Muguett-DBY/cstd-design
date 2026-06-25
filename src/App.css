@@ -2215,6 +2215,22 @@ button:disabled {
   color: var(--accent);
 }
 
+.branch-panel {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--soft);
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
+.branch-panel h4 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
 .panel-mascot {
   width: 150px;
   display: block;

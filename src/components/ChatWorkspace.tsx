@@ -36,6 +36,7 @@ import { PromptSuggestions } from "./PromptSuggestions";
 import { VoiceInputButton } from "./VoiceInputButton";
 import { useMessageAttachments } from "../hooks/useMessageAttachments";
 import { AttachmentPreview } from "./AttachmentPreview";
+import { BranchVisualization } from "./BranchVisualization";
 
 const ASSISTANT_NAME = "助手";
 
@@ -998,6 +999,19 @@ export function ChatWorkspace({
         <Suspense fallback={<div className="stats-skeleton" />}>
           <StatsPanel conversations={allConversations} messages={messages} assets={allAssets} usage={usageStats || { messageSent: 0, imageGenerated: 0, videoGenerated: 0, imageEdited: 0, videoAbandoned: 0 }} events={usageEvents || []} />
         </Suspense>
+        {conversation && messages.length > 0 && (
+          <div className="branch-panel">
+            <h4>分支结构</h4>
+            <BranchVisualization
+              messages={messages}
+              activeLeafId={conversation.activeLeafId}
+              onSelectMessage={(id) => {
+                const el = document.getElementById(id);
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+            />
+          </div>
+        )}
         <img src="/brand/mascot.png" alt="" className="panel-mascot" />
       </aside>
 
