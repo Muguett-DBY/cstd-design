@@ -1369,3 +1369,17 @@
 
 ### Next
 - Complete the separate UI/UX stage by consolidating duplicate mobile navigation and polishing the small-screen creation flow.
+
+### UI/UX pass
+- Removed the legacy mobile tab bar so small screens render one navigation instead of two competing controls.
+- Moved the remaining bottom navigation to the app shell so fixed positioning stays inside the viewport, with safe-area spacing, clearer active/focus feedback, and custom workspace labels.
+- Repositioned and narrowed the mobile creation-center panel so it remains fully visible and does not overlap the bottom navigation.
+- Browser QA at 390×844 caught and drove the app-shell placement fix; final geometry confirmed one navigation, zero legacy navigation, and no overlap.
+- Validation: 57 test files and 393 tests, functions typecheck, lint, build, desktop/mobile browser interactions, screenshots, and console checks passed.
+
+### Next directions
+1. Add app-level integration coverage for recovery selection through successful retry completion.
+2. Split the large main application bundle around markdown/diagram features.
+3. Continue responsive QA at compact landscape and tablet widths.
+
+**Recommended next flagship**: Close the recovery lifecycle automatically only after a restored chat, image, or video creation succeeds.

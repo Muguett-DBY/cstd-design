@@ -630,7 +630,6 @@ function AppInner() {
 
       <main className="workspace">
         <TopBar activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} t={t} customLabels={userPrefs.prefs.customTabLabels} />
-        <MobileBottomNav activeTab={activeTab} onTabChange={setActiveTab} onOpenSidebar={() => setMobileSidebarOpen(true)} />
         {activeTab === "chat" && (
           <ErrorBoundary key="chat">
           <ChatWorkspace
@@ -776,14 +775,13 @@ function AppInner() {
         )}
         </main>
 
-      <nav className="mobile-tabs" aria-label="移动端导航">
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button key={id} className={activeTab === id ? "active" : ""} type="button" onClick={() => setActiveTab(id as WorkspaceTab)}>
-            <Icon size={20} />
-            <span>{label}</span>
-          </button>
-        ))}
-      </nav>
+      <MobileBottomNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onOpenSidebar={() => setMobileSidebarOpen(true)}
+        customLabels={userPrefs.prefs.customTabLabels}
+      />
+
     </div>
     </ErrorBoundary>
   );

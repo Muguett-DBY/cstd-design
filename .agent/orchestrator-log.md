@@ -405,3 +405,33 @@
 - `npm run build` — passed; existing large-chunk warning remains.
 
 **Commit target**: `feat: add creation continuation shortcuts`
+
+**Commit/CI**:
+- Commit `83d47c1` (`feat: add creation continuation shortcuts`) pushed to `origin/main`.
+- GitHub Actions run `28200574794` passed the complete deploy workflow.
+
+### Stage 2 — UIUX
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_UIUX_MAIN.txt`
+**Start state**:
+- Product stage is deployed and CI is green.
+- Mobile widths currently render both `MobileBottomNav` and the legacy `mobile-tabs` navigation.
+- The newer mobile navigation ignores user-defined workspace labels and has limited active/focus feedback.
+
+**Goal**: Consolidate the app shell around one polished, accessible, safe-area-aware mobile navigation and ensure the creation center clears it on small screens.
+
+**Completed**:
+- Removed the legacy `mobile-tabs` control and retained one bottom workspace navigation.
+- Added custom workspace labels, explicit current/destination accessible names, 52px touch targets, focus-visible feedback, active icon treatment, and safe-area spacing.
+- Moved the fixed navigation outside the scrollable workspace after browser QA showed the first placement could render below the viewport.
+- Narrowed and repositioned the mobile creation-center panel so it remains on screen and clears the navigation.
+
+**Verification so far**:
+- RED: `npx vitest run src/components/MobileBottomNav.test.tsx` failed because custom labels and explicit destination semantics were absent.
+- GREEN: focused mobile-navigation and creation-center tests passed.
+- Full local gate before browser QA: 57 files and 393 tests passed; functions typecheck, lint, and build passed.
+- Desktop Browser: creation center opened, “继续创作” actions rendered, no framework overlay, and console warnings/errors were empty.
+- Mobile Browser at 390×844: exactly one `底部工作区导航`, zero legacy `移动端导航`, panel/nav overlap false, panel remained within the viewport, and switching to video updated the current-workspace state.
+- Browser screenshots saved outside the repository for desktop creation-center and mobile video-workspace states.
+
+**Commit target**: `style: consolidate mobile creation navigation`
