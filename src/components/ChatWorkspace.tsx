@@ -38,6 +38,7 @@ import { useMessageAttachments } from "../hooks/useMessageAttachments";
 import { AttachmentPreview } from "./AttachmentPreview";
 import { BranchVisualization } from "./BranchVisualization";
 import { useRecoverableChatSend } from "../hooks/useRecoverableChatSend";
+import { CreationStatus } from "./CreationStatus";
 
 const ASSISTANT_NAME = "助手";
 
@@ -788,27 +789,22 @@ export function ChatWorkspace({
 
         <div className="composer">
           {chatRecovery.failed && (
-            <div className="creation-recovery" role="alert" aria-live="assertive">
-              <div>
-                <strong>消息发送失败，内容已保留</strong>
-                <span>{chatRecovery.failed.error}</span>
-              </div>
-              <div className="creation-recovery-actions">
-                <button type="button" className="ghost-button" onClick={chatRecovery.dismiss}>忽略</button>
-                <button
-                  type="button"
-                  className="primary-button"
-                  onClick={() => {
+            <CreationStatus
+              status="error"
+              title="消息发送失败，内容已保留"
+              detail={chatRecovery.failed.error}
+              secondaryAction={{ label: "忽略", onClick: chatRecovery.dismiss }}
+              primaryAction={{
+                label: "重新发送",
+                icon: <RefreshCw size={14} />,
+                onClick: () => {
                     const failed = chatRecovery.failed;
                     if (!failed) return;
                     setDraft({ content: failed.content, selectedParentId: failed.parentId });
                     void sendContent(failed.content, failed.parentId);
-                  }}
-                >
-                  <RefreshCw size={14} /> 重新发送
-                </button>
-              </div>
-            </div>
+                },
+              }}
+            />
           )}
           {draft.selectedParentId !== null && <div className="draft-note">正在从旧问题处分支。发送后会保留原分支。</div>}
           {!draft.content.trim() && messages.length > 0 && (

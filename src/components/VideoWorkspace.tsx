@@ -8,6 +8,7 @@ import { ReferencePicker } from "./ReferencePicker";
 import { PreviewRail } from "./PreviewRail";
 import { Segmented } from "./Segmented";
 import { useVideoPresets } from "../hooks/useVideoPresets";
+import { CreationStatus } from "./CreationStatus";
 
 const STATUS_ICONS: Record<string, typeof Clock> = {
   queued: Hourglass,
@@ -206,6 +207,11 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
         <ReferencePicker assets={referenceAssets} selected={referenceIds} onChange={setReferenceIds} />
         {videoTask ? (
           <div className="task-card">
+            <CreationStatus
+              status={videoTask.status === "failed" ? "error" : videoTask.status === "completed" ? "success" : "pending"}
+              title={videoTask.status === "failed" ? "视频生成失败" : videoTask.status === "completed" ? "视频已完成" : "视频正在生成"}
+              detail={videoTask.status === "failed" ? "参数仍然保留，可放弃任务后重新创建。" : `${progressPercent}% · 已用时 ${formatElapsed(elapsed)}`}
+            />
             <div className="task-card-header">
               <TaskStatusBadge status={videoTask.status} />
               {videoTask.status === "in_progress" && <span className="task-estimate">约 {presetInfo.approxSeconds} 秒</span>}
