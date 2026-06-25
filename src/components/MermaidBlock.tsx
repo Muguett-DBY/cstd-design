@@ -1,4 +1,5 @@
 import { useId, useEffect, useState } from "react";
+import { sanitizeTrustedHtml } from "../utils/sanitizeHtml";
 
 export function MermaidBlock({ source }: { source: string }) {
   const [svg, setSvg] = useState("");
@@ -11,7 +12,7 @@ export function MermaidBlock({ source }: { source: string }) {
         return mermaid.render(id, source);
       })
       .then((result) => {
-        if (!cancelled) setSvg(result.svg);
+        if (!cancelled) setSvg(sanitizeTrustedHtml(result.svg));
       })
       .catch(() => {
         if (!cancelled) setSvg("");

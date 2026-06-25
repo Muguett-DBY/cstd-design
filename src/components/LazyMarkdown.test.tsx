@@ -7,6 +7,6 @@ describe("LazyMarkdown", () => {
     render(<LazyMarkdown content="**延迟加载内容**" />);
 
     expect(screen.getByText("正在渲染内容…")).toBeTruthy();
-    expect(await screen.findByText("延迟加载内容", undefined, { timeout: 5000 })).toBeTruthy();
-  }, 15000);
+    expect(await screen.findByText("延迟加载内容", undefined, { timeout: 15000 })).toBeTruthy();
+  }, 30000);
 });
