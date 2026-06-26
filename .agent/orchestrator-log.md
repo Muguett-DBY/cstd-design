@@ -1016,3 +1016,46 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `feat: show export activity filenames`
+
+**Commit/CI**:
+- Commit `bf3e71c` (`feat: show export activity filenames`) pushed to `origin/main`.
+- GitHub Actions run `28219189866` passed the complete deploy workflow.
+
+### Stage 5/6 — CHECK
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_CHECK_MAIN.txt`
+**Start state**:
+- Stage 4 added optional `filename` fields to recent export history.
+- GitHub Actions was passing after each prior stage.
+
+**Audit findings**:
+- Dependency/security: `npm audit --audit-level=high` found 0 vulnerabilities.
+- Workflow runtime: official latest releases still match the current workflow (`actions/checkout@v7.0.0`, `actions/setup-node@v6.4.0`, `gitleaks/gitleaks-action@v3.0.0`).
+- Secret/debug scan: matches were expected code/test/doc references to secret variable names, auth headers, and API-key plumbing; no committed plaintext secret was found.
+- Data quality issue fixed: persisted export activity `filename` accepted arbitrary string length from localStorage, which could inflate storage/UI payloads.
+
+**Goal**: Normalize export activity filenames loaded from storage and recorded at runtime.
+
+**Plan / TDD**:
+- RED: add a hook test with a long, padded persisted filename and expect a trimmed 128-character value.
+- GREEN: add shared filename normalization for both loaded and newly recorded export activities.
+- Verify focused and full local gates, audit, Pages Functions smoke, desktop/mobile browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added `MAX_EXPORT_FILENAME_LENGTH = 128`.
+- Added `normalizeFilename` and `normalizeActivity`.
+- Applied normalization inside `orderAndTrim` and `record`.
+- Empty/whitespace-only filenames are omitted; valid filenames are trimmed and capped.
+
+**Verification before commit**:
+- RED: `npx vitest run src/hooks/useExportActivity.test.ts` failed because persisted filenames were not trimmed/capped.
+- GREEN: `npx vitest run src/hooks/useExportActivity.test.ts src/components/ExportModal.test.tsx` — 2 files, 10 tests passed.
+- `npm test -- --run` — 64 files, 416 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 17.45 kB gzip 5.72 kB.
+- Local Pages `/` and `/api/session` returned 200; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `fix: normalize export activity filenames`

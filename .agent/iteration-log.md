@@ -1661,7 +1661,32 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `bf3e71c` passed GitHub Actions run `28219189866` for the full Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 021 Stage 5 CHECK with broad health/security/deploy audit before final improvement.
+
+---
+
+## Long Campaign 021 — Stage 5 Export Activity Filename Check (2026-06-26)
+
+### Goal
+- Audit the current export-history work and fix a persisted-data quality gap before the final improvement.
+
+### Completed
+- Ran high-severity npm audit: 0 vulnerabilities.
+- Rechecked workflow action latest tags: checkout `v7.0.0`, setup-node `v6.4.0`, gitleaks-action `v3.0.0`.
+- Ran a secret/debug marker scan; matches were expected code/test/doc variable names and API-key plumbing, not committed plaintext secrets.
+- Added export filename normalization for persisted and newly recorded activity entries: trim, omit empty values, cap at 128 characters.
+
+### Verified
+- RED/GREEN: `npx vitest run src/hooks/useExportActivity.test.ts` failed before filename normalization, then passed after implementation; `src/components/ExportModal.test.tsx` also passed.
+- Full local gate passed: `npm test -- --run` — 64 files, 416 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 021 Stage 6 final IMPROVE. Best candidate: add a compact export history test/UX around filename preservation during actual record calls or improve PDF fallback filename clarity.
