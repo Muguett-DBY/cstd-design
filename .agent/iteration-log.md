@@ -1945,7 +1945,31 @@
 - Authenticated local Pages browser smoke passed via `npm run smoke:auth-export` against `http://127.0.0.1:8793`.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `f55a394` passed GitHub Actions run `28235283266` for the complete Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 023 Stage 4 with a restore reliability improvement around unsupported backup keys.
+
+---
+
+## Long Campaign 023 — Stage 4 Unsupported Backup Key Warning (2026-06-26)
+
+### Goal
+- Make backup imports transparent when a file contains unsupported data that will be ignored.
+
+### Completed
+- Added preview coverage for unsupported backup keys.
+- Counted unsupported keys in the backup payload.
+- Added `将忽略 N 项不支持数据。` to the import impact summary only when needed.
+- Kept unsupported raw keys hidden from preview rows.
+
+### Verified
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed before the unsupported-key warning existed.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 4 tests passed.
+- Full local gate passed: `npm test -- --run` — 66 files, 428 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 023 Stage 5 CHECK with a systemic audit of backup restore edge cases and coverage gaps.

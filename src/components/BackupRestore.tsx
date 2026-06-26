@@ -133,6 +133,9 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
     },
     { overwrite: 0, create: 0 },
   );
+  const unsupportedPreviewCount = preview
+    ? Object.keys(preview.data).filter((key) => !BACKUP_KEYS.includes(key)).length
+    : 0;
 
   return (
     <>
@@ -179,6 +182,7 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
               <div className="preview-impact" aria-label="导入影响摘要">
                 <strong>导入影响：{previewImpact.overwrite} 项将覆盖，{previewImpact.create} 项新增。</strong>
                 <span>合并导入会跳过已有设置；覆盖导入会替换已有设置。</span>
+                {unsupportedPreviewCount > 0 && <span>将忽略 {unsupportedPreviewCount} 项不支持数据。</span>}
               </div>
               <div className="preview-items">
                 {previewItems.map((item) => (

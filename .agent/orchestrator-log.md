@@ -1443,3 +1443,38 @@
 - Initial `npm run smoke:auth-export` attempts exposed missing local env/server setup; rerun against local Pages `127.0.0.1:8793` with `E2E_SESSION_SECRET=codex-e2e-secret` passed in System Chrome.
 
 **Commit target**: `feat: summarize backup import impact`
+
+**Commit/CI**:
+- Commit `f55a394` (`feat: summarize backup import impact`) pushed to `origin/main`.
+- GitHub Actions run `28235283266` passed the complete deploy workflow.
+
+### Stage 4/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Preview impact summarized supported backup keys.
+- Unsupported backup keys were still filtered out silently, so users could not tell that some backup data would not be imported.
+
+**Goal**: Make unsupported backup data explicit before import.
+
+**Plan / TDD**:
+- RED: add a component test with one supported backup key and one unsupported key, expecting an ignored-data warning and no raw unsupported key rendering.
+- GREEN: count unsupported keys from the backup payload and show an ignore warning in the impact summary.
+- Verify focused test plus full local gate.
+
+**Completed**:
+- Added unsupported-key preview coverage.
+- Added `unsupportedPreviewCount` to `BackupRestore`.
+- Rendered `将忽略 N 项不支持数据。` only when unsupported keys exist.
+- Kept unsupported raw keys hidden from the preview item list.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed because no unsupported-key warning existed.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 4 tests passed.
+- `npm test -- --run` — 66 files, 428 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk 386.56 kB gzip 115.31 kB.
+
+**Commit target**: `feat: warn on unsupported backup keys`
