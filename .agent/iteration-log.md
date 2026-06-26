@@ -1588,7 +1588,31 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `8334cc3` passed GitHub Actions run `28218588951` for the full Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 021 Stage 2 with another export reliability increment. Best candidate: make the chosen export format visibly tied to filename/extension changes and guard copy/download status when switching formats.
+
+---
+
+## Long Campaign 021 — Stage 2 Export Copy Status Freshness (2026-06-26)
+
+### Goal
+- Ensure copy success/error feedback only applies to the currently visible export payload, not a previous format or range.
+
+### Completed
+- Added a regression test for copying Markdown, switching to `纯文本`, clearing stale success feedback, and showing the `.txt` filename.
+- Stored the preview payload associated with the last copy result.
+- Hid copy status automatically whenever the current preview content no longer matches the copied payload.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed on the stale success status after format change, then passed after implementation.
+- Full local gate passed: `npm test -- --run` — 64 files, 415 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 021 Stage 3 UI/UX. Best candidate: improve export workbench feedback clarity around copy/download status and filename/format relationship without increasing modal complexity.

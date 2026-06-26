@@ -910,3 +910,38 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. Authenticated export filename behavior is covered by component-level TDD because local browser entry is gated by private access.
 
 **Commit target**: `feat: preview safe export filenames`
+
+**Commit/CI**:
+- Commit `8334cc3` (`feat: preview safe export filenames`) pushed to `origin/main`.
+- GitHub Actions run `28218588951` passed the complete deploy workflow.
+
+### Stage 2/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 1 added a visible safe filename preview and format-specific extension handling.
+- Follow-up inspection found a stale-feedback edge case: after a successful copy, changing export format updated the preview/filename but left the old `已复制当前导出内容。` status visible.
+
+**Goal**: Prevent stale copy-success/error status from surviving export content changes, so users are not told a newly selected format or range has already been copied.
+
+**Plan / TDD**:
+- RED: add a test that copies Markdown content, switches to `纯文本`, expects the success status to disappear, and verifies the filename preview changes to `.txt`.
+- GREEN: bind visible copy status to the exact preview content that was copied, avoiding effect-driven state resets while covering format/range/selection/title content changes.
+- Verify full local gates, Pages Functions smoke, desktop/mobile browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added `copiedPreviewContent` state to remember the preview payload associated with the last copy result.
+- Added `visibleCopyStatus` so success/error feedback is shown only while the current preview content still matches the copied payload.
+- Preserved existing copy success/error behavior and the new filename extension preview.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` first exposed a narrow accessible-name selector, then failed on the intended stale `已复制当前导出内容。` status after switching format.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 7 tests passed.
+- `npm test -- --run` — 64 files, 415 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 17.04 kB gzip 5.59 kB.
+- Local Pages `/` and `/api/session` returned 200; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `fix: clear stale export copy status`
