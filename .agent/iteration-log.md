@@ -1455,7 +1455,33 @@
 - System Chrome smoke confirmed a non-empty app shell, correct title, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `819f9d5` passed GitHub Actions run `28210390993` for the full Cloudflare Pages deploy workflow. GitHub reported a non-blocking Node.js 20 deprecation annotation for upstream actions forced onto Node 24.
 
 ### Next
 - Continue Campaign 020 Stage 3 with the required UI/UX pass, focused on making export options and controls easier to scan and operate.
+
+---
+
+## Long Campaign 020 — Stage 3 Export Modal UI/UX Workbench (2026-06-26)
+
+### Goal
+- Upgrade the export modal from a growing settings list into a clearer, more trustworthy export workbench.
+
+### Completed
+- Added a status overview for range, format, and preview state.
+- Made manual-selection empty state explicit: zero selected messages now disables export and shows a clear prompt instead of silently exporting everything.
+- Added date field labels, `aria-expanded`, and `aria-pressed` states for better keyboard/screen-reader affordance.
+- Added an empty preview state and improved modal body scrolling.
+- Added mobile stacking for status cards, date fields, format cards, and template controls.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed on missing `aria-expanded`, then passed after the UI/UX changes.
+- Full local gate passed: `npm test -- --run` — 64 files, 411 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages served `/` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors. Authenticated export-modal flow is covered by component TDD because browser entry is gated by private access.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 020 Stage 4 with a product improvement. Best candidate: add a lightweight copy-to-clipboard export action or stronger export filename/format feedback using the new workbench structure.

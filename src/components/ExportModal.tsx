@@ -178,6 +178,8 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const [showMessageSelection, setShowMessageSelection] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const headingId = useId();
+  const summaryId = useId();
+  const exportGuardId = useId();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const exportActivity = useExportActivity();
 
@@ -217,7 +219,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
       });
     }
 
-    if (showMessageSelection && selectedMessages.size > 0) {
+    if (showMessageSelection) {
       result = result.filter((message) => selectedMessages.has(message.exportKey));
     }
 
@@ -231,6 +233,18 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const exportSummary = showMessageSelection
     ? `已选择 ${selectedMessages.size} / ${exportableMessages.length} 条${dateFilterActive ? " · 日期筛选中" : ""}`
     : `准备导出 ${filteredMessages.length} / ${exportableMessages.length} 条${dateFilterActive ? " · 日期筛选中" : ""}`;
+  const dateStatus = dateFilterActive
+    ? `${dateRange.start} 至 ${dateRange.end}`
+    : useDateRange ? "等待选择日期" : "全部日期";
+  const previewStatus = showPreview ? "预览已展开" : "预览未展开";
+  const exportGuardMessage = exportableMessages.length === 0
+    ? "当前没有可导出的消息。"
+    : showMessageSelection && selectedMessages.size === 0
+      ? "请选择至少一条消息后再导出。"
+      : dateFilterActive && filteredMessages.length === 0
+        ? "当前日期范围内没有可导出的消息。"
+        : "";
+  const canExport = filteredMessages.length > 0;
 
   const previewContent = useMemo(() => {
     switch (format) {
@@ -266,6 +280,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   if (!isOpen) return null;
 
   const handleExport = () => {
+    if (!canExport) return;
     const safeTitle = title.replace(/[/\\?%*:|"<>]/g, "_");
 
     switch (format) {
@@ -329,9 +344,31 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
           </button>
         </div>
         <div className="export-modal-body">
-          <p className="export-modal-title">{title}</p>
-          <p className="export-modal-count">{filteredMessages.length} 条消息</p>
-          <p className="export-filter-summary" aria-live="polite">{exportSummary}</p>
+          <section className="export-modal-hero" aria-describedby={summaryId}>
+            <div className="export-modal-hero-copy">
+              <span className="export-modal-eyebrow">导出工作台</span>
+              <p className="export-modal-title">{title}</p>
+              <p className="export-modal-count">{filteredMessages.length} 条消息将被导出</p>
+            </div>
+            <div className="export-status-grid" aria-label="导出状态概览">
+              <span className="export-status-card">
+                <span className="export-status-label">范围</span>
+                <strong>{dateStatus}</strong>
+              </span>
+              <span className="export-status-card">
+                <span className="export-status-label">格式</span>
+                <strong>{formatLabel(format)}</strong>
+              </span>
+              <span className="export-status-card">
+                <span className="export-status-label">预览</span>
+                <strong>{previewStatus}</strong>
+              </span>
+            </div>
+          </section>
+          <p id={summaryId} className="export-filter-summary" aria-live="polite">{exportSummary}</p>
+          {exportGuardMessage && (
+            <p id={exportGuardId} className="export-empty-warning" role="status">{exportGuardMessage}</p>
+          )}
           {exportActivity.activities.length > 0 && (
             <section className="export-recent-activity" aria-label="最近导出">
               <div className="export-recent-header">
@@ -355,25 +392,35 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-option-toggle${useDateRange ? " active" : ""}`}
               onClick={() => setUseDateRange(!useDateRange)}
+              aria-expanded={useDateRange}
+              aria-pressed={useDateRange}
             >
               <Calendar size={14} />
               {useDateRange ? "关闭日期筛选" : "按日期筛选"}
             </button>
             {useDateRange && (
               <div className="export-date-range">
-                <input
-                  type="date"
-                  value={dateRange.start}
-                  onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                  className="export-date-input"
-                />
+                <label className="export-date-field">
+                  <span>开始日期</span>
+                  <input
+                    type="date"
+                    aria-label="开始日期"
+                    value={dateRange.start}
+                    onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                    className="export-date-input"
+                  />
+                </label>
                 <span className="export-date-separator">至</span>
-                <input
-                  type="date"
-                  value={dateRange.end}
-                  onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                  className="export-date-input"
-                />
+                <label className="export-date-field">
+                  <span>结束日期</span>
+                  <input
+                    type="date"
+                    aria-label="结束日期"
+                    value={dateRange.end}
+                    onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                    className="export-date-input"
+                  />
+                </label>
               </div>
             )}
           </div>
@@ -384,6 +431,8 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-option-toggle${showMessageSelection ? " active" : ""}`}
               onClick={() => setShowMessageSelection(!showMessageSelection)}
+              aria-expanded={showMessageSelection}
+              aria-pressed={showMessageSelection}
             >
               <CheckSquare size={14} />
               {showMessageSelection ? "关闭消息选择" : "选择消息"}
@@ -421,6 +470,8 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-option-toggle${showPreview ? " active" : ""}`}
               onClick={() => setShowPreview(!showPreview)}
+              aria-expanded={showPreview}
+              aria-pressed={showPreview}
             >
               <Eye size={14} />
               {showPreview ? "关闭预览" : "预览导出内容"}
@@ -432,7 +483,9 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
                   <span className="export-preview-count">{filteredMessages.length} 条消息</span>
                 </div>
                 <div className="export-preview-content">
-                  {format === "markdown" ? (
+                  {filteredMessages.length === 0 ? (
+                    <div className="export-empty-state" role="status">没有符合当前范围的导出内容。</div>
+                  ) : format === "markdown" ? (
                     <pre className="export-preview-markdown">{previewContent}</pre>
                   ) : (
                     <div
@@ -451,6 +504,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-format-btn${format === "markdown" ? " active" : ""}`}
               onClick={() => setFormat("markdown")}
+              aria-pressed={format === "markdown"}
             >
               <FileText size={20} />
               <span className="export-format-label">Markdown</span>
@@ -460,6 +514,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-format-btn${format === "text" ? " active" : ""}`}
               onClick={() => setFormat("text")}
+              aria-pressed={format === "text"}
             >
               <Clipboard size={20} />
               <span className="export-format-label">纯文本</span>
@@ -469,6 +524,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-format-btn${format === "html" ? " active" : ""}`}
               onClick={() => setFormat("html")}
+              aria-pressed={format === "html"}
             >
               <FileCode size={20} />
               <span className="export-format-label">HTML</span>
@@ -478,6 +534,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-format-btn${format === "pdf" ? " active" : ""}`}
               onClick={() => setFormat("pdf")}
+              aria-pressed={format === "pdf"}
             >
               <Printer size={20} />
               <span className="export-format-label">PDF</span>
@@ -487,6 +544,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-format-btn${format === "notion" ? " active" : ""}`}
               onClick={() => setFormat("notion")}
+              aria-pressed={format === "notion"}
             >
               <Database size={20} />
               <span className="export-format-label">Notion</span>
@@ -496,6 +554,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
               type="button"
               className={`export-format-btn${format === "obsidian" ? " active" : ""}`}
               onClick={() => setFormat("obsidian")}
+              aria-pressed={format === "obsidian"}
             >
               <BookOpen size={20} />
               <span className="export-format-label">Obsidian</span>
@@ -513,6 +572,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
                   type="button"
                   className={`export-template-btn${template === t ? " active" : ""}`}
                   onClick={() => setTemplate(t)}
+                  aria-pressed={template === t}
                 >
                   {t === "default" ? "默认" : t === "minimal" ? "简洁" : t === "professional" ? "专业" : "学术"}
                 </button>
@@ -522,7 +582,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         </div>
         <div className="export-modal-footer">
           <button type="button" className="ghost-button" onClick={onClose}>取消</button>
-          <button type="button" className="primary-button" onClick={handleExport}>导出</button>
+          <button type="button" className="primary-button" onClick={handleExport} disabled={!canExport} aria-describedby={!canExport ? exportGuardId : undefined}>导出</button>
         </div>
       </div>
     </div>

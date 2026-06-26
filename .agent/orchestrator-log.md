@@ -716,3 +716,41 @@
 - System Chrome smoke on local Pages — title `工作台 - 私人中文创作工作台`, non-empty app shell, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `feat: add export activity history`
+
+**Commit/CI**:
+- Commit `819f9d5` (`feat: add export activity history`) pushed to `origin/main`.
+- GitHub Actions run `28210390993` passed the complete deploy workflow. GitHub reported a non-blocking Node.js 20 deprecation annotation for upstream actions forced onto Node 24.
+
+### Stage 3/6 — UIUX
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_UIUX_MAIN.txt`
+**Start state**:
+- Stage 2 added persistent export activity history.
+- The export modal now contains scope, date filtering, manual selection, preview, format choice, templates, and recent history, but its visual hierarchy and empty-selection feedback were still weak.
+
+**UI/UX issue list**:
+- P1: Opening manual selection with zero selected messages still allowed export and implicitly fell back to all messages, contradicting the visible “已选择 0 / N 条” state.
+- P1: Date inputs had no accessible labels and option toggles did not expose expanded/pressed state.
+- P2: Export modal width and structure made the growing workflow feel like a long settings list instead of a clear export cockpit.
+- P2: Mobile layout kept multi-column date/status patterns that could become cramped.
+
+**Flagship UI/UX change**: Rework the export modal into a clearer export workbench with a high-level status overview, explicit blocked-state feedback, accessible controls, and mobile-first stacking.
+
+**Completed**:
+- Added a hero/status overview with export range, active format, and preview state so users understand the current export setup before touching the controls.
+- Changed manual-selection behavior so zero selected messages disables export and shows `请选择至少一条消息后再导出。` instead of silently exporting everything.
+- Added accessible labels to date fields and `aria-expanded`/`aria-pressed` to option, format, and template controls.
+- Added an empty preview state for filters/selections that produce no exportable content.
+- Expanded the modal width, made body scrolling internal, and added mobile stacking for status cards, date fields, format cards, and template buttons.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because option toggles had no `aria-expanded` and empty manual selection did not disable export.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 3 tests passed.
+- `npm test -- --run` — 64 files, 411 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 15.83 kB gzip 5.15 kB.
+- Local Pages `http://127.0.0.1:8793/` returned 200.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. The authenticated export UI is covered by component-level TDD because the local browser entry is gated by the private access screen.
+
+**Commit target**: `style: refine export modal workflow`
