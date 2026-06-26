@@ -27,6 +27,7 @@ describe("ExportModal", () => {
         id: "export-1",
         title: "历史导出",
         format: "pdf",
+        filename: "历史导出.html",
         count: 4,
         createdAt: "2026-01-04T10:00:00.000Z",
       }],
@@ -36,6 +37,7 @@ describe("ExportModal", () => {
 
     expect(screen.getByLabelText("最近导出")).toBeTruthy();
     expect(screen.getByText("历史导出")).toBeTruthy();
+    expect(screen.getByText("历史导出.html")).toBeTruthy();
     expect(screen.getByText(/PDF · 4 条/)).toBeTruthy();
   });
 

@@ -9,6 +9,7 @@ export type ExportActivityFormat = "markdown" | "html" | "pdf" | "text" | "notio
 export type ExportActivity = {
   id: string;
   title: string;
+  filename?: string;
   format: ExportActivityFormat;
   count: number;
   createdAt: string;
@@ -40,6 +41,7 @@ function isExportActivity(value: unknown): value is ExportActivity {
   const activity = value as Partial<ExportActivity>;
   return typeof activity.id === "string"
     && typeof activity.title === "string"
+    && (activity.filename === undefined || typeof activity.filename === "string")
     && isExportFormat(activity.format)
     && typeof activity.count === "number"
     && Number.isFinite(activity.count)
