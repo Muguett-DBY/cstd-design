@@ -1,4 +1,5 @@
 export const ONBOARDING_STORAGE_KEY = "cstd-design:onboardingComplete";
+export const EXPORT_PREFERENCES_STORAGE_KEY = "cstd-design:export-preferences";
 
 export const BACKUP_KEYS: readonly string[] = [
   "cstd-design:chat-prompt-templates",
@@ -13,5 +14,6 @@ export const BACKUP_KEYS: readonly string[] = [
   "cstd-design:searchHistory",
   "cstd-design:imageSize",
   ONBOARDING_STORAGE_KEY,
+  EXPORT_PREFERENCES_STORAGE_KEY,
   "cstd-design:dark",
 ] as const;

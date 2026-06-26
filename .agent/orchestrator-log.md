@@ -1255,3 +1255,39 @@
 - `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome, including persisted PDF format verification.
 
 **Commit target**: `feat: remember export preferences`
+
+**Commit/CI**:
+- Commit `6bcd54f` (`feat: remember export preferences`) pushed to `origin/main`.
+- GitHub Actions run `28233145482` passed the complete deploy workflow.
+
+### Stage 5/6 — CHECK
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_CHECK_MAIN.txt`
+**Start state**:
+- New export preferences were persisted in localStorage.
+- Backup/restore coverage had not yet been audited for the new storage key.
+
+**Goal**: Run systemic checks and fix any real gap found.
+
+**Audit / findings**:
+- `npm audit --audit-level=high` found 0 vulnerabilities.
+- Secret marker scan found only expected environment variable names, docs, tests, and sample values.
+- localStorage audit found `cstd-design:export-preferences` was not in `BACKUP_KEYS`, so exported settings would omit the new preference.
+
+**Completed**:
+- Added `EXPORT_PREFERENCES_STORAGE_KEY` to `storage-keys.ts`.
+- Added the export preference key to `BACKUP_KEYS`.
+- Updated `ExportModal` to import the centralized key instead of defining a local literal.
+- Added `src/storage-keys.test.ts` to guard backup coverage.
+
+**Verification before commit**:
+- RED: `npx vitest run src/storage-keys.test.ts` failed because `BACKUP_KEYS` did not include the export preference key.
+- GREEN: `npx vitest run src/storage-keys.test.ts src/components/ExportModal.test.tsx src/components/OnboardingTour.test.tsx` — 3 files, 12 tests passed.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm test -- --run` — 65 files, 423 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed.
+- `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome.
+
+**Commit target**: `fix: include export preferences in backups`

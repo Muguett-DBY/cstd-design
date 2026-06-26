@@ -1823,3 +1823,30 @@
 
 ### Next
 - Continue Campaign 022 Stage 5 CHECK with systemic audit, targeted fixes, and full verification.
+
+---
+
+## Long Campaign 022 — Stage 5 Export Preference Backup Check (2026-06-26)
+
+### Goal
+- Systemically audit the recent export-preference work and fix persistence/backup consistency gaps.
+
+### Completed
+- Ran high-severity npm audit: 0 vulnerabilities.
+- Scanned for secret-like markers; matches were expected env names, docs, tests, and sample variables.
+- Audited localStorage usage after adding export preferences.
+- Found and fixed a backup/restore gap: `cstd-design:export-preferences` was not included in `BACKUP_KEYS`.
+- Centralized `EXPORT_PREFERENCES_STORAGE_KEY` in `storage-keys.ts` and reused it from `ExportModal`.
+- Added storage key backup coverage.
+
+### Verified
+- RED: `npx vitest run src/storage-keys.test.ts` failed because `BACKUP_KEYS` did not include the export preference key.
+- GREEN: `npx vitest run src/storage-keys.test.ts src/components/ExportModal.test.tsx src/components/OnboardingTour.test.tsx` — 3 files, 12 tests passed.
+- Full local gate passed: `npm test -- --run` — 65 files, 423 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Authenticated local Pages browser smoke passed via `npm run smoke:auth-export`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 022 Stage 6 final IMPROVE and final full verification.
