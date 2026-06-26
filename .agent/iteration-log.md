@@ -1636,7 +1636,32 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `1fd4121` passed GitHub Actions run `28218987031` for the full Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 021 Stage 4 IMPROVE. Best candidate: add a more precise PDF filename/status behavior or strengthen export activity metadata with filename visibility.
+
+---
+
+## Long Campaign 021 — Stage 4 Export Activity Filenames (2026-06-26)
+
+### Goal
+- Make recent export history traceable to the actual safe filename used at export time.
+
+### Completed
+- Added optional `filename` support to `ExportActivity`.
+- Preserved valid filename fields when loading persisted history.
+- Recorded the computed safe filename when users export.
+- Displayed the filename in the recent export list with truncation styling.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed before recent exports showed `filename`, then passed after implementation; `src/hooks/useExportActivity.test.ts` also passed.
+- Full local gate passed: `npm test -- --run` — 64 files, 415 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 021 Stage 5 CHECK with broad health/security/deploy audit before final improvement.

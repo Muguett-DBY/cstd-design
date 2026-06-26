@@ -980,3 +980,39 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `style: clarify export copy action state`
+
+**Commit/CI**:
+- Commit `1fd4121` (`style: clarify export copy action state`) pushed to `origin/main`.
+- GitHub Actions run `28218987031` passed the complete deploy workflow.
+
+### Stage 4/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 1 made the active export filename visible.
+- The recent export activity list still showed title/format/count/time only, so users could not confirm which actual filename was produced later.
+
+**Goal**: Store and display the actual export filename in recent export activity.
+
+**Plan / TDD**:
+- RED: persist an export activity with `filename` and expect the recent export section to show it.
+- GREEN: add optional filename support to export activity validation/storage, record `exportFilename`, and render a truncated filename line.
+- Verify focused and full local gates, Pages Functions smoke, desktop/mobile browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added optional `filename` to `ExportActivity`.
+- Updated activity validation to preserve valid stored filenames while remaining compatible with older records.
+- Recorded the computed safe filename during export.
+- Rendered filename in recent export activity with truncation styling.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because `历史导出.html` was not shown.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx src/hooks/useExportActivity.test.ts` — 2 files, 9 tests passed.
+- `npm test -- --run` — 64 files, 415 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 17.23 kB gzip 5.65 kB.
+- Local Pages `/` and `/api/session` returned 200; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `feat: show export activity filenames`

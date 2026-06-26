@@ -369,6 +369,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     exportActivity.record({
       id: `export-${Date.now()}-${format}`,
       title,
+      filename: exportFilename,
       format,
       count: filteredMessages.length,
     });
@@ -441,6 +442,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
                 {exportActivity.activities.slice(0, 3).map((activity) => (
                   <div key={activity.id} className="export-recent-item">
                     <span className="export-recent-title">{activity.title}</span>
+                    {activity.filename && <span className="export-recent-filename">{activity.filename}</span>}
                     <span className="export-recent-meta">{formatLabel(activity.format)} · {activity.count} 条 · {new Date(activity.createdAt).toLocaleString("zh-CN")}</span>
                   </div>
                 ))}

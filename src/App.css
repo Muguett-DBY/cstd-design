@@ -1226,6 +1226,14 @@ button:disabled {
   white-space: nowrap;
 }
 
+.export-recent-filename {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .export-recent-meta {
   color: var(--muted);
   font-size: 12px;
