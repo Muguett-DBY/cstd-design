@@ -297,6 +297,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   }, [title, filteredMessages, format]);
   const exportFilename = useMemo(() => buildExportFilename(title, format), [title, format]);
   const visibleCopyStatus = copiedPreviewContent === previewContent ? copyStatus : "idle";
+  const copyButtonLabel = visibleCopyStatus === "success" ? "重新复制内容" : "复制内容";
 
   const toggleAllMessages = () => {
     if (allSelected) {
@@ -643,7 +644,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         </div>
         <div className="export-modal-footer">
           <button type="button" className="ghost-button" onClick={onClose}>取消</button>
-          <button type="button" className="ghost-button" onClick={handleCopyExport} disabled={!canExport} aria-describedby={!canExport ? exportGuardId : undefined}>复制内容</button>
+          <button type="button" className="ghost-button" onClick={handleCopyExport} disabled={!canExport} aria-describedby={!canExport ? exportGuardId : undefined}>{copyButtonLabel}</button>
           <button type="button" className="primary-button" onClick={handleExport} disabled={!canExport} aria-describedby={!canExport ? exportGuardId : undefined}>导出</button>
         </div>
       </div>
