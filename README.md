@@ -148,6 +148,15 @@ curl -i -X POST http://127.0.0.1:8788/api/session/test \
 
 默认不配置 `E2E_SESSION_SECRET` 时该端点返回 404，不会绕过生产登录。只应在本地或受控 CI 中启用。
 
+需要验证认证后的高级导出真实浏览器流程时，可先启动 Pages 本地服务并绑定测试密钥：
+
+```bash
+npx wrangler pages dev dist --binding E2E_SESSION_SECRET=local-e2e-secret
+CSTD_BASE_URL=http://127.0.0.1:8788 E2E_SESSION_SECRET=local-e2e-secret npm run smoke:auth-export
+```
+
+该脚本会创建一条固定测试会话、打开高级导出弹窗、校验预览/PDF 文件名/Markdown 下载文件名，并检查页面无横向溢出与控制台错误。
+
 ## Cloudflare 绑定
 
 | 绑定 | 名称 | 说明 |

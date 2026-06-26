@@ -1815,6 +1815,7 @@ button:disabled {
 
 .chat-main {
   min-height: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -1835,7 +1836,10 @@ button:disabled {
 }
 
 .chat-title-row .row-actions {
-  flex: 0 1 auto;
+  flex: 1 1 100%;
+  min-width: 0;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .messages {

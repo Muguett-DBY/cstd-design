@@ -37,6 +37,7 @@ import {
   VideoRequestSchema,
 } from "./validation";
 import { assetKindsForClearScope, chatTablesForClearScope, normalizeClearScope } from "./clear";
+import { buildE2EExportFixture } from "./e2e-fixtures";
 
 describe("security", () => {
   test("returns a controlled configuration error for missing auth secrets", async () => {
@@ -115,6 +116,21 @@ describe("security", () => {
 });
 
 describe("chat tree and context", () => {
+  test("builds a deterministic e2e export fixture conversation", () => {
+    const fixture = buildE2EExportFixture();
+
+    expect(fixture.title).toMatch(/^E2E 导出验证/);
+    expect(fixture.messages).toHaveLength(2);
+    expect(fixture.messages[0]).toMatchObject({
+      role: "user",
+      content: expect.stringContaining("高级导出"),
+    });
+    expect(fixture.messages[1]).toMatchObject({
+      role: "assistant",
+      content: expect.stringContaining("浏览器冒烟"),
+    });
+  });
+
   test("builds the selected message branch without destroying sibling branches", () => {
     const messages: ChatMessageNode[] = [
       { id: "u1", role: "user", content: "原问题", createdAt: "1" },

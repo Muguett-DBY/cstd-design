@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:ui": "vitest --ui",
+    "smoke:auth-export": "node scripts/authenticated-export-smoke.mjs",
     "typecheck:functions": "tsc -p tsconfig.functions.json --noEmit",
     "pages:dev": "wrangler pages dev dist",
     "pages:deploy": "wrangler pages deploy dist --project-name=cstd-design --branch=main"
