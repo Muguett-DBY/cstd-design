@@ -1850,3 +1850,27 @@
 
 ### Next
 - Continue Campaign 022 Stage 6 final IMPROVE and final full verification.
+
+---
+
+## Long Campaign 022 — Stage 6 Backup Preview Labels Final Improve (2026-06-26)
+
+### Goal
+- Finish the loop with a small backup/restore UX improvement tied to the Stage 5 backup coverage fix.
+
+### Completed
+- Added reader-facing Chinese labels for backup keys.
+- Updated backup import preview to use friendly labels instead of raw internal storage key fragments.
+- Added coverage that export preferences render as `导出偏好`.
+
+### Verified
+- RED: `npx vitest run src/storage-keys.test.ts` failed because `BACKUP_KEY_LABELS` did not exist.
+- GREEN: `npx vitest run src/storage-keys.test.ts src/components/OnboardingTour.test.tsx` — 2 files, 3 tests passed.
+- Final full local gate passed: `npm test -- --run` — 65 files, 424 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+- Final authenticated local Pages browser smoke passed via `npm run smoke:auth-export`.
+
+### CI status
+- Pending commit/push for this final stage.
+
+### Campaign status
+- Pending final commit, push, GitHub Actions verification, and final deployment status check.

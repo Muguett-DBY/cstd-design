@@ -17,3 +17,20 @@ export const BACKUP_KEYS: readonly string[] = [
   EXPORT_PREFERENCES_STORAGE_KEY,
   "cstd-design:dark",
 ] as const;
+
+export const BACKUP_KEY_LABELS: Record<string, string> = {
+  "cstd-design:chat-prompt-templates": "咨询提示词模板",
+  "cstd-design:video-presets": "视频预设",
+  "cstd-design:pinned-conversations": "置顶会话",
+  "cstd-design:asset-tags": "素材标签",
+  "cstd-design:preferences": "工作台偏好",
+  "cstd-design:theme": "主题",
+  "cstd-design:language": "语言",
+  "cstd-design:saved-searches": "已保存搜索",
+  "cstd-design:shared-conversations": "已分享对话",
+  "cstd-design:searchHistory": "搜索历史",
+  "cstd-design:imageSize": "图片尺寸",
+  [ONBOARDING_STORAGE_KEY]: "新手引导状态",
+  [EXPORT_PREFERENCES_STORAGE_KEY]: "导出偏好",
+  "cstd-design:dark": "深色模式",
+};

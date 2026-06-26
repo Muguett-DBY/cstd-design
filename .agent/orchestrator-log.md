@@ -1291,3 +1291,38 @@
 - `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome.
 
 **Commit target**: `fix: include export preferences in backups`
+
+**Commit/CI**:
+- Commit `d686bf3` (`fix: include export preferences in backups`) pushed to `origin/main`.
+- GitHub Actions run `28233435644` passed the complete deploy workflow.
+
+### Stage 6/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 5 ensured export preferences are included in backup/restore data.
+- Backup import previews still derived labels from raw storage keys, which made the new export preference appear as an internal English-ish key fragment.
+
+**Goal**: Improve backup preview readability with centralized reader-facing labels.
+
+**Plan / TDD**:
+- RED: add a storage-key test expecting export preferences to have a Chinese backup preview label.
+- GREEN: add centralized backup key labels and use them in `BackupRestore`.
+- Run final full local gate and authenticated browser smoke.
+
+**Completed**:
+- Added `BACKUP_KEY_LABELS` in `storage-keys.ts`.
+- Added a label for each existing backup key, including `导出偏好` for export preferences.
+- Updated `BackupRestore` preview formatting to prefer friendly labels.
+
+**Verification before commit**:
+- RED: `npx vitest run src/storage-keys.test.ts` failed because `BACKUP_KEY_LABELS` did not exist.
+- GREEN: `npx vitest run src/storage-keys.test.ts src/components/OnboardingTour.test.tsx` — 2 files, 3 tests passed.
+- `npm test -- --run` — 65 files, 424 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk 385.77 kB gzip 115.00 kB.
+- `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome.
+
+**Commit target**: `feat: label backup preview keys`
