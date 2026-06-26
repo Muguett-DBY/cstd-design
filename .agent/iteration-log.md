@@ -1710,9 +1710,12 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `b75e430` passed GitHub Actions run `28219608496` for the full Cloudflare Pages deploy workflow.
 
 ### Remaining risks / next directions
 - Browser-level authenticated export interaction remains gated locally by private access, so export modal behavior is covered by component tests rather than authenticated browser E2E.
 - npm still emits the Node experimental localStorage warning during Vitest, but it is non-blocking and does not fail tests.
 - Next high-value direction: add a dedicated authenticated test fixture or test-mode session route so export modal flows can be verified in real browser automation without production credentials.
+
+### Campaign status
+- Long Campaign 021 completed all six required stages with local validation, commits, pushes, GitHub Actions verification, and final deployment smoke pending this log-closing commit.

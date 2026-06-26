@@ -1095,3 +1095,11 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `fix: preview pdf export filenames`
+
+**Commit/CI**:
+- Commit `b75e430` (`fix: preview pdf export filenames`) pushed to `origin/main`.
+- GitHub Actions run `28219608496` passed the complete deploy workflow.
+
+**Campaign 021 final status**:
+- All six required stages completed with actual code/log changes, local validation, commits, pushes, and GitHub Actions verification.
+- Final live deployment smoke is performed after this log-closing commit deploys.
