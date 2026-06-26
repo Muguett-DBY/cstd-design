@@ -1719,3 +1719,30 @@
 
 ### Campaign status
 - Long Campaign 021 completed all six required stages with local validation, commits, pushes, GitHub Actions verification, and final deployment smoke pending this log-closing commit.
+
+---
+
+## Long Campaign 022 — Stage 1 Guarded E2E Session Fixture (2026-06-26)
+
+### Goal
+- Start the next long loop by removing the blocker that kept real browser checks at the private access gate.
+
+### Completed
+- Added a default-disabled `POST /api/session/test` endpoint for local/CI browser automation.
+- Guarded the endpoint with `E2E_SESSION_SECRET` plus a matching `x-cstd-e2e-secret` header.
+- Reused normal session creation for test sessions instead of adding a frontend-only bypass.
+- Kept production/HTTPS cookies secure while allowing local `127.0.0.1` and `localhost` HTTP automation to persist HttpOnly cookies.
+- Documented the fixture in `.dev.vars.example` and `README.md`.
+
+### Verified
+- RED/GREEN: `npx vitest run functions/_shared/core.test.ts` failed before the E2E session guard existed, then passed.
+- RED/GREEN: local HTTP cookie strategy failed before `sessionCookieShouldBeSecure`, then passed after implementation.
+- Full local gate passed: `npm test -- --run` — 64 files, 419 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages endpoint checks confirmed wrong/missing secret denial and matching-secret session creation.
+- Authenticated System Chrome desktop and 390×844 mobile smoke entered the app shell, bypassing the prior private-access testing blocker without using production credentials.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 022 Stage 2 with an authenticated browser-verifiable export flow improvement now that the test fixture exists.

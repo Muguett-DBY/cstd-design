@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { requireConfiguredSecrets, requireUpstreamApiKey, type Env } from "./http";
+import { authorizeE2ESessionRequest, requireConfiguredSecrets, requireUpstreamApiKey, sessionCookieShouldBeSecure, type Env } from "./http";
 import {
   createPasswordHash,
   createSessionCookie,
@@ -77,6 +77,13 @@ describe("security", () => {
     expect(cookie).toContain("Max-Age=31536000");
   });
 
+  test("keeps session cookies secure except for local http browser automation", () => {
+    expect(sessionCookieShouldBeSecure(new Request("https://cstd-design.pages.dev/api/session"))).toBe(true);
+    expect(sessionCookieShouldBeSecure(new Request("http://127.0.0.1:8793/api/session"))).toBe(false);
+    expect(sessionCookieShouldBeSecure(new Request("http://localhost:8793/api/session"))).toBe(false);
+    expect(sessionCookieShouldBeSecure(new Request("http://example.com/api/session"))).toBe(true);
+  });
+
   test("silently throttles repeated failed logins by hashed fingerprint", async () => {
     const fingerprint = await hashClientFingerprint("203.0.113.10", "secret");
     const first = nextThrottleState(null, 1_000, fingerprint);
@@ -87,6 +94,23 @@ describe("security", () => {
     expect(first.allowedAt).toBe(1_000);
     expect(second.allowedAt).toBeGreaterThan(2_000);
     expect(third.allowedAt).toBeGreaterThan(second.allowedAt);
+  });
+
+  test("keeps the e2e session endpoint disabled unless its dedicated secret matches", async () => {
+    const request = new Request("https://example.test/api/session/test", {
+      method: "POST",
+      headers: { "x-cstd-e2e-secret": "correct-secret" },
+    });
+
+    const disabled = authorizeE2ESessionRequest(request, {} as Env);
+    expect(disabled?.status).toBe(404);
+    await expect(disabled?.json()).resolves.toEqual({ error: "测试会话未启用。" });
+
+    const denied = authorizeE2ESessionRequest(request, { E2E_SESSION_SECRET: "different-secret" } as Env);
+    expect(denied?.status).toBe(403);
+    await expect(denied?.json()).resolves.toEqual({ error: "测试会话未授权。" });
+
+    expect(authorizeE2ESessionRequest(request, { E2E_SESSION_SECRET: "correct-secret" } as Env)).toBeNull();
   });
 });
 

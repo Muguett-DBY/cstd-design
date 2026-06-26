@@ -16,3 +16,8 @@ UPSTREAM_API_KEY=
 
 # Optional: Legacy alias for UPSTREAM_API_KEY
 # AGNES_API_KEY=
+
+# Optional: enables POST /api/session/test for local/e2e browser automation.
+# Leave empty in normal development and production. Requests must send
+# x-cstd-e2e-secret with the same value before the endpoint creates a session.
+# E2E_SESSION_SECRET=

@@ -1103,3 +1103,47 @@
 **Campaign 021 final status**:
 - All six required stages completed with actual code/log changes, local validation, commits, pushes, and GitHub Actions verification.
 - Final live deployment smoke is performed after this log-closing commit deploys.
+
+---
+
+## Long Campaign 022 — 3-Level Orchestrator V2 Full Loop (2026-06-26)
+
+### Stage 1/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- `main` was up to date with `origin/main`.
+- Only the pre-existing untracked `.agent/orchestrator-history/campaign-014/` directory was present.
+- Campaign 021 left the highest-value next direction as adding an authenticated browser E2E fixture or test-mode session route, because export-modal behavior was still covered by component tests while real browser smoke stopped at the private access gate.
+
+**Goal**: Add a safe authenticated browser-test session fixture without creating a default production bypass.
+
+**Plan / TDD**:
+- RED: add a function-level security test proving an E2E session request is disabled without `E2E_SESSION_SECRET`, denied with the wrong `x-cstd-e2e-secret`, and allowed only with the matching dedicated secret.
+- GREEN: add a guarded `/api/session/test` endpoint and reusable session creation path.
+- RED/GREEN follow-up: prove local HTTP automation does not use `Secure` cookies, while production/HTTPS still does.
+- Verify full local gates, local Pages endpoint behavior, authenticated desktop/mobile browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added optional `E2E_SESSION_SECRET` to the Pages Functions environment type and `.dev.vars.example`.
+- Added `authorizeE2ESessionRequest` using constant-time secret comparison.
+- Added `POST /api/session/test`, guarded by the dedicated secret and header.
+- Extracted `createAuthenticatedSession` so password login and the test session endpoint share the same session creation behavior.
+- Added `sessionCookieShouldBeSecure` so HTTPS production cookies remain `Secure`, while local `http://127.0.0.1` and `http://localhost` browser automation can persist the HttpOnly cookie.
+- Documented the browser automation endpoint and its default-disabled behavior in `README.md`.
+
+**Verification before commit**:
+- RED: `npx vitest run functions/_shared/core.test.ts` failed because `authorizeE2ESessionRequest` did not exist.
+- GREEN: `npx vitest run functions/_shared/core.test.ts` passed after adding the E2E session guard.
+- Debug/fix: `npm run typecheck:functions` exposed a missing `timingSafeEqual` import; root cause was a missing import in `http.ts`, fixed and reverified.
+- RED: `npx vitest run functions/_shared/core.test.ts` failed because `sessionCookieShouldBeSecure` did not exist.
+- GREEN: `npx vitest run functions/_shared/core.test.ts` — 1 file, 20 tests passed.
+- `npm test -- --run` — 64 files, 419 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB.
+- Local Pages `POST /api/session/test` with no/wrong secret returned 403 when the endpoint was enabled by local binding.
+- Local Pages `POST /api/session/test` with matching secret returned 200, Set-Cookie was HttpOnly and non-Secure on `127.0.0.1`, and a follow-up `/api/session` returned authenticated true.
+- System Chrome authenticated desktop and 390×844 mobile smoke entered the app shell instead of the private access gate, with no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+**Commit target**: `feat: add guarded e2e session fixture`
