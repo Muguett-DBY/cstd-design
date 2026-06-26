@@ -1686,7 +1686,33 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `0152c1c` passed GitHub Actions run `28219421675` for the full Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 021 Stage 6 final IMPROVE. Best candidate: add a compact export history test/UX around filename preservation during actual record calls or improve PDF fallback filename clarity.
+
+---
+
+## Long Campaign 021 — Stage 6 PDF Filename Preview (2026-06-26)
+
+### Goal
+- Correct the PDF export filename preview so it matches the selected PDF format.
+
+### Completed
+- Added a regression test that selects PDF and expects a `.pdf` filename preview.
+- Updated export extension mapping so PDF previews and activity records use `.pdf`.
+- Kept Notion/Obsidian outputs as markdown-compatible `.md`.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed when PDF showed `.md`, then passed after the extension mapping fix.
+- Full local gate passed: `npm test -- --run` — 64 files, 417 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Remaining risks / next directions
+- Browser-level authenticated export interaction remains gated locally by private access, so export modal behavior is covered by component tests rather than authenticated browser E2E.
+- npm still emits the Node experimental localStorage warning during Vitest, but it is non-blocking and does not fail tests.
+- Next high-value direction: add a dedicated authenticated test fixture or test-mode session route so export modal flows can be verified in real browser automation without production credentials.

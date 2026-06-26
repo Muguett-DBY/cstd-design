@@ -1059,3 +1059,39 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `fix: normalize export activity filenames`
+
+**Commit/CI**:
+- Commit `0152c1c` (`fix: normalize export activity filenames`) pushed to `origin/main`.
+- GitHub Actions run `28219421675` passed the complete deploy workflow.
+
+### Stage 6/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Export filename preview existed for all formats.
+- Audit revealed the remaining user-facing mismatch: selecting PDF still previewed a `.md` filename because the default extension mapping grouped PDF with markdown-compatible exports.
+
+**Goal**: Show a `.pdf` filename preview for PDF exports while keeping Notion/Obsidian markdown-compatible outputs as `.md`.
+
+**Plan / TDD**:
+- RED: add a test selecting PDF export and expecting `PDF 导出测试.pdf` in the filename preview.
+- GREEN: map the `pdf` export format to the `pdf` extension.
+- Verify focused and full local gates, audit, Pages Functions smoke, desktop/mobile browser smoke, commit, push, GitHub Actions, and live deployment smoke.
+
+**Completed**:
+- Added regression coverage for PDF filename preview.
+- Updated `exportExtension("pdf")` to return `pdf`.
+- Left popup-blocked PDF fallback behavior unchanged: if browser printing cannot open, it still downloads an HTML fallback through the existing explicit fallback filename path.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because PDF preview showed `PDF 导出测试.md`.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 8 tests passed.
+- `npm test -- --run` — 64 files, 417 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 17.47 kB gzip 5.72 kB.
+- Local Pages `/` and `/api/session` returned 200; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `fix: preview pdf export filenames`

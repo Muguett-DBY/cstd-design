@@ -138,6 +138,18 @@ describe("ExportModal", () => {
     expect(screen.getByLabelText("导出文件名").textContent).toContain("未命名导出.md");
   });
 
+  test("shows a pdf filename preview when PDF export is selected", () => {
+    const messages = [
+      { id: "m1", role: "assistant", content: "PDF 文件名要准确", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+    ];
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="PDF 导出测试" messages={messages} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /PDF/ }));
+
+    expect(screen.getByLabelText("导出文件名").textContent).toContain("PDF 导出测试.pdf");
+  });
+
   test("clears copy status when the export format changes", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
