@@ -1612,7 +1612,31 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `19e98d2` passed GitHub Actions run `28218803959` for the full Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 021 Stage 3 UI/UX. Best candidate: improve export workbench feedback clarity around copy/download status and filename/format relationship without increasing modal complexity.
+
+---
+
+## Long Campaign 021 — Stage 3 Export Copy Action UX (2026-06-26)
+
+### Goal
+- Make the footer copy action reflect when the currently visible export payload has already been copied.
+
+### Completed
+- Added a regression assertion that copy success changes the footer action to `重新复制内容`.
+- Added a derived `copyButtonLabel` from the content-aware visible copy status.
+- Kept the button label at `复制内容` for idle, error, disabled, and stale-payload states.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed before the button label changed, then passed after implementation.
+- Full local gate passed: `npm test -- --run` — 64 files, 415 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 021 Stage 4 IMPROVE. Best candidate: add a more precise PDF filename/status behavior or strengthen export activity metadata with filename visibility.

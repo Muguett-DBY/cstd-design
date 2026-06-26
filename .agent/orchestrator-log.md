@@ -945,3 +945,38 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `fix: clear stale export copy status`
+
+**Commit/CI**:
+- Commit `19e98d2` (`fix: clear stale export copy status`) pushed to `origin/main`.
+- GitHub Actions run `28218803959` passed the complete deploy workflow.
+
+### Stage 3/6 — UIUX
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_UIUX_MAIN.txt`
+**Start state**:
+- Stage 2 made copy status content-aware, hiding stale feedback when the export payload changes.
+- The footer action still looked unchanged after a successful copy, giving users no action-level cue that the current payload had already been copied.
+
+**Goal**: Improve export action feedback by changing the copy button label to `重新复制内容` after the current payload has been copied successfully.
+
+**Plan / TDD**:
+- RED: extend the copy success test to expect a `重新复制内容` action after visible success feedback.
+- GREEN: derive the copy button label from `visibleCopyStatus`, keeping `复制内容` for idle/error/stale states.
+- Verify full local gates, Pages Functions smoke, desktop/mobile browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added `copyButtonLabel`.
+- Footer now shows `重新复制内容` only when the current preview payload has an active success state.
+- Existing stale-state behavior restores the label to `复制内容` when the payload changes.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because the button still read `复制内容` after copy success.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 7 tests passed.
+- `npm test -- --run` — 64 files, 415 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 17.08 kB gzip 5.61 kB.
+- Local Pages `/` and `/api/session` returned 200; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `style: clarify export copy action state`

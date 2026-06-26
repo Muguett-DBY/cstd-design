@@ -101,6 +101,7 @@ describe("ExportModal", () => {
 
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining("需要复制的导出内容"));
     expect(await screen.findByText("已复制当前导出内容。")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "重新复制内容" })).toBeTruthy();
   });
 
   test("falls back to selecting preview text when Clipboard API is unavailable", async () => {
