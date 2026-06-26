@@ -1,8 +1,44 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, test, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { EXPORT_ACTIVITY_STORAGE_KEY } from "../hooks/useExportActivity";
 import { ExportModal } from "./ExportModal";
 
+const storage = new Map<string, string>();
+Object.defineProperty(globalThis, "localStorage", {
+  value: {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => { storage.set(key, value); },
+    removeItem: (key: string) => storage.delete(key),
+    clear: () => storage.clear(),
+    length: 0,
+    key: () => null,
+  },
+  configurable: true,
+});
+
 describe("ExportModal", () => {
+  beforeEach(() => storage.clear());
+  afterEach(() => cleanup());
+
+  test("shows recent export activity from persisted history", () => {
+    localStorage.setItem(EXPORT_ACTIVITY_STORAGE_KEY, JSON.stringify({
+      version: 1,
+      activities: [{
+        id: "export-1",
+        title: "历史导出",
+        format: "pdf",
+        count: 4,
+        createdAt: "2026-01-04T10:00:00.000Z",
+      }],
+    }));
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="导出测试" messages={[]} />);
+
+    expect(screen.getByLabelText("最近导出")).toBeTruthy();
+    expect(screen.getByText("历史导出")).toBeTruthy();
+    expect(screen.getByText(/PDF · 4 条/)).toBeTruthy();
+  });
+
   test("keeps selected messages stable when date filters are applied", () => {
     const messages = [
       { id: "m1", role: "user", content: "第一条不应导出", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
