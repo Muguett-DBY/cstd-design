@@ -1478,3 +1478,44 @@
 - `npm run build` — passed; main `index` chunk 386.56 kB gzip 115.31 kB.
 
 **Commit target**: `feat: warn on unsupported backup keys`
+
+**Commit/CI**:
+- Commit `788f3ad` (`feat: warn on unsupported backup keys`) pushed to `origin/main`.
+- GitHub Actions run `28235526186` passed the complete deploy workflow.
+
+### Stage 5/6 — CHECK
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_CHECK_MAIN.txt`
+**Start state**:
+- Backup preview covered overwrite/new status and unsupported-key warnings.
+- The actual `BACKUP_KEYS` set had not been re-audited against newer recovery-center localStorage keys.
+
+**Audit / findings**:
+- `npm audit --audit-level=high` found 0 vulnerabilities.
+- Secret marker scan found only expected environment variable names, docs, tests, workflow secret references, and CSS class text.
+- localStorage audit found a real backup coverage gap: `cstd-design:creationRecovery:v1` and `cstd-design:creationActivity:v1` were persisted by recovery-center hooks but omitted from `BACKUP_KEYS`.
+
+**Goal**: Fix recovery-center backup coverage and centralize the newly audited storage keys.
+
+**Plan / TDD**:
+- RED: add storage-key tests requiring recovery backup/activity keys in `BACKUP_KEYS` and requiring reader-facing labels.
+- GREEN: define the two keys in `storage-keys.ts`, add them to backup coverage/labels, and keep existing hook exports compatible by re-exporting the centralized constants.
+- Verify targeted tests plus full local gate.
+
+**Completed**:
+- Added `CREATION_RECOVERY_STORAGE_KEY` and `CREATION_ACTIVITY_STORAGE_KEY` to `storage-keys.ts`.
+- Added recovery backup and recovery activity data to settings backups.
+- Added backup preview labels `恢复备份` and `恢复记录`.
+- Updated `useCreationRecovery` and `useCreationActivity` to consume centralized constants while preserving existing named exports.
+
+**Verification before commit**:
+- RED: `npx vitest run src/storage-keys.test.ts` failed because recovery center keys were not centralized or backed up.
+- Compatibility fix: initial targeted run exposed broken hook constant re-exports; re-exported centralized constants from both hooks and reran.
+- GREEN: `npx vitest run src/storage-keys.test.ts src/components/BackupRestore.test.tsx src/hooks/useCreationActivity.test.ts src/hooks/useCreationRecovery.test.ts src/components/RecoveryCenter.test.tsx` — 5 files, 20 tests passed.
+- `npm test -- --run` — 66 files, 430 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk 386.61 kB gzip 115.32 kB.
+
+**Commit target**: `fix: include recovery center data in backups`

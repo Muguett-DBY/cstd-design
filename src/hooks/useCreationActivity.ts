@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
+import { CREATION_ACTIVITY_STORAGE_KEY } from "../storage-keys";
 import type { WorkspaceTab } from "../types";
 
-export const CREATION_ACTIVITY_STORAGE_KEY = "cstd-design:creationActivity:v1";
+export { CREATION_ACTIVITY_STORAGE_KEY };
+
 const ACTIVITY_VERSION = 1;
 const MAX_ACTIVITIES = 30;
 

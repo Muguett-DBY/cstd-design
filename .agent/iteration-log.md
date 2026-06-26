@@ -1969,7 +1969,34 @@
 - Full local gate passed: `npm test -- --run` — 66 files, 428 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `788f3ad` passed GitHub Actions run `28235526186` for the complete Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 023 Stage 5 CHECK with a systemic audit of backup restore edge cases and coverage gaps.
+
+---
+
+## Long Campaign 023 — Stage 5 Recovery Center Backup Coverage Check (2026-06-26)
+
+### Goal
+- Audit backup/restore coverage after the preview improvements and fix any real persisted-data gap.
+
+### Completed
+- Ran high-severity npm audit: 0 vulnerabilities.
+- Scanned secret-like markers; hits were expected env names/docs/tests/workflow references and CSS class text.
+- Audited localStorage usage and found recovery-center data was persisted but not backed up.
+- Centralized recovery storage keys in `storage-keys.ts`.
+- Added recovery backup and recovery activity keys to `BACKUP_KEYS`.
+- Added reader-facing labels `恢复备份` and `恢复记录`.
+- Updated recovery hooks to reuse centralized constants while preserving existing exports.
+
+### Verified
+- RED: `npx vitest run src/storage-keys.test.ts` failed before recovery center keys were included.
+- GREEN: targeted recovery/backup test set passed — 5 files, 20 tests.
+- Full local gate passed: `npm test -- --run` — 66 files, 430 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 023 Stage 6 final IMPROVE with a final backup-restore usability/reliability increment and full final verification.

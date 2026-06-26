@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
+import { CREATION_RECOVERY_STORAGE_KEY } from "../storage-keys";
 import type { WorkspaceTab } from "../types";
 import type { ImageGenerationRecipe } from "./useImageGenerationBatch";
 import type { VideoGenerationRecipe } from "./useVideoTaskPersistence";
 
-export const CREATION_RECOVERY_STORAGE_KEY = "cstd-design:creationRecovery:v1";
+export { CREATION_RECOVERY_STORAGE_KEY };
+
 const RECOVERY_VERSION = 1;
 const MAX_RECOVERY_RECORDS = 20;
 

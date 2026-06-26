@@ -1,5 +1,7 @@
 export const ONBOARDING_STORAGE_KEY = "cstd-design:onboardingComplete";
 export const EXPORT_PREFERENCES_STORAGE_KEY = "cstd-design:export-preferences";
+export const CREATION_RECOVERY_STORAGE_KEY = "cstd-design:creationRecovery:v1";
+export const CREATION_ACTIVITY_STORAGE_KEY = "cstd-design:creationActivity:v1";
 
 export const BACKUP_KEYS: readonly string[] = [
   "cstd-design:chat-prompt-templates",
@@ -15,6 +17,8 @@ export const BACKUP_KEYS: readonly string[] = [
   "cstd-design:imageSize",
   ONBOARDING_STORAGE_KEY,
   EXPORT_PREFERENCES_STORAGE_KEY,
+  CREATION_RECOVERY_STORAGE_KEY,
+  CREATION_ACTIVITY_STORAGE_KEY,
   "cstd-design:dark",
 ] as const;
 
@@ -32,5 +36,7 @@ export const BACKUP_KEY_LABELS: Record<string, string> = {
   "cstd-design:imageSize": "图片尺寸",
   [ONBOARDING_STORAGE_KEY]: "新手引导状态",
   [EXPORT_PREFERENCES_STORAGE_KEY]: "导出偏好",
+  [CREATION_RECOVERY_STORAGE_KEY]: "恢复备份",
+  [CREATION_ACTIVITY_STORAGE_KEY]: "恢复记录",
   "cstd-design:dark": "深色模式",
 };
