@@ -98,4 +98,22 @@ describe("BackupRestore", () => {
     expect(await screen.findByText("导入影响：1 项将覆盖，1 项新增。")).toBeTruthy();
     expect(screen.getByText("合并导入会跳过已有设置；覆盖导入会替换已有设置。")).toBeTruthy();
   });
+
+  test("warns when a backup contains unsupported keys that will be ignored", async () => {
+    const { container } = render(<BackupRestore onNotice={vi.fn()} />);
+    const fileInput = container.querySelector('input[type="file"]');
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: {
+        files: [
+          backupFile({
+            "cstd-design:theme": "neon",
+            "other-app:token": "not-imported",
+          }),
+        ],
+      },
+    });
+
+    expect(await screen.findByText("将忽略 1 项不支持数据。")).toBeTruthy();
+    expect(screen.queryByText("other-app:token")).toBeNull();
+  });
 });
