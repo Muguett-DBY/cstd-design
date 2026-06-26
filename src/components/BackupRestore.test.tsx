@@ -1,0 +1,56 @@
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { BackupRestore } from "./BackupRestore";
+import { EXPORT_PREFERENCES_STORAGE_KEY } from "../storage-keys";
+
+const storage = new Map<string, string>();
+Object.defineProperty(globalThis, "localStorage", {
+  value: {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => { storage.set(key, value); },
+    removeItem: (key: string) => storage.delete(key),
+    clear: () => storage.clear(),
+    length: 0,
+    key: () => null,
+  },
+  configurable: true,
+});
+
+function backupFile(data: Record<string, unknown>) {
+  return new File([
+    JSON.stringify({
+      version: 1,
+      exportedAt: "2026-06-26T00:00:00.000Z",
+      data,
+    }),
+  ], "backup.json", { type: "application/json" });
+}
+
+describe("BackupRestore", () => {
+  beforeEach(() => storage.clear());
+  afterEach(() => cleanup());
+
+  test("labels backup preview items as new or overwriting existing settings", async () => {
+    localStorage.setItem(EXPORT_PREFERENCES_STORAGE_KEY, JSON.stringify({ format: "pdf", template: "default" }));
+
+    const { container } = render(<BackupRestore onNotice={vi.fn()} />);
+    const fileInput = container.querySelector('input[type="file"]');
+    expect(fileInput).toBeInstanceOf(HTMLInputElement);
+
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: {
+        files: [
+          backupFile({
+            [EXPORT_PREFERENCES_STORAGE_KEY]: { format: "markdown", template: "professional" },
+            "cstd-design:theme": "neon",
+          }),
+        ],
+      },
+    });
+
+    await waitFor(() => expect(screen.getByText("导出偏好")).toBeTruthy());
+    expect(screen.getByText("主题")).toBeTruthy();
+    expect(screen.getByText("将覆盖")).toBeTruthy();
+    expect(screen.getByText("新增")).toBeTruthy();
+  });
+});

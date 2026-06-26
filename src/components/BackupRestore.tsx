@@ -16,12 +16,13 @@ function formatKey(key: string): string {
     .replace(/-/g, " ");
 }
 
-function getPreviewInfo(backup: BackupData): { key: string; hasValue: boolean }[] {
+function getPreviewInfo(backup: BackupData): { key: string; hasValue: boolean; overwritesExisting: boolean }[] {
   return Object.entries(backup.data)
     .filter(([key]) => BACKUP_KEYS.includes(key))
     .map(([key, value]) => ({
       key: formatKey(key),
       hasValue: value !== null && value !== undefined,
+      overwritesExisting: localStorage.getItem(key) !== null,
     }));
 }
 
@@ -167,6 +168,9 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
                   <div key={item.key} className="preview-item">
                     <Check size={14} className="preview-item-icon" />
                     <span className="preview-item-key">{item.key}</span>
+                    <span className={`preview-item-status ${item.overwritesExisting ? "is-overwrite" : "is-new"}`}>
+                      {item.overwritesExisting ? "将覆盖" : "新增"}
+                    </span>
                   </div>
                 ))}
               </div>

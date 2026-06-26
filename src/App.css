@@ -7704,6 +7704,27 @@ button:disabled {
 .preview-item-key {
   color: var(--text);
   text-transform: capitalize;
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-item-status {
+  flex-shrink: 0;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.preview-item-status.is-overwrite {
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.preview-item-status.is-new {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.14);
 }
 
 .preview-actions {
