@@ -1481,7 +1481,32 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors. Authenticated export-modal flow is covered by component TDD because browser entry is gated by private access.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `c17a6f8` passed GitHub Actions run `28210699681` for the full Cloudflare Pages deploy workflow. GitHub reported the same non-blocking Node.js 20 deprecation annotation for upstream actions forced onto Node 24.
 
 ### Next
 - Continue Campaign 020 Stage 4 with a product improvement. Best candidate: add a lightweight copy-to-clipboard export action or stronger export filename/format feedback using the new workbench structure.
+
+---
+
+## Long Campaign 020 — Stage 4 Export Copy Action (2026-06-26)
+
+### Goal
+- Let users reuse the current export payload without downloading a file by adding a copy-to-clipboard export action.
+
+### Completed
+- Added a `复制内容` footer action using the same export payload as preview/download.
+- Added success and failure status feedback for clipboard writes.
+- Kept copy disabled when there is no exportable content, matching the safer export guard from Stage 3.
+- Removed a synchronous setState-in-effect pattern caught by lint and kept copy status event-driven.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed before the copy button existed, then passed after implementation.
+- Full local gate passed: `npm test -- --run` — 64 files, 412 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages served `/` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors. Authenticated export-copy flow is covered by component TDD because browser entry is gated by private access.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 020 Stage 5 CHECK with a broad local/CI health audit and use its findings to drive the final improvement.

@@ -754,3 +754,40 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. The authenticated export UI is covered by component-level TDD because the local browser entry is gated by the private access screen.
 
 **Commit target**: `style: refine export modal workflow`
+
+**Commit/CI**:
+- Commit `c17a6f8` (`style: refine export modal workflow`) pushed to `origin/main`.
+- GitHub Actions run `28210699681` passed the complete deploy workflow. GitHub reported the same non-blocking Node.js 20 deprecation annotation for upstream actions forced onto Node 24.
+
+### Stage 4/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 3 made the export modal clearer and safer, but users still had to download/print to use the generated export content.
+- The new workbench has enough state visibility to support a faster copy path without adding a new dependency.
+
+**Goal**: Add a copy-to-clipboard export action with explicit success/failure feedback, so users can reuse the current export content without creating a file.
+
+**Plan / TDD**:
+- RED: add a test that clicks `复制内容`, expects `navigator.clipboard.writeText` to receive current export content, and expects visible success feedback.
+- GREEN: implement the copy action from the same generated export payload used by preview/download, disable it when export content is empty, and show role=status feedback.
+- Verify full local gates, browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added a footer `复制内容` action that writes the current export payload to the clipboard.
+- Added visible status feedback: `已复制当前导出内容。` or a clear failure fallback.
+- Reused the same `previewContent` generation path as export/preview so copy respects active format, date range, and manual selection.
+- Kept copy disabled together with export when there is no exportable content.
+- Fixed a React lint finding by keeping copy-status updates event-driven instead of synchronously setting state inside an effect.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because there was no accessible `复制内容` button.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 4 tests passed.
+- `npm test -- --run` — 64 files, 412 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — initially failed on `react-hooks/set-state-in-effect`; after the event-driven fix it passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 16.26 kB gzip 5.31 kB.
+- Local Pages `http://127.0.0.1:8793/` returned 200.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. Authenticated copy flow is covered by component-level TDD because the local browser entry is gated by the private access screen.
+
+**Commit target**: `feat: add export copy action`

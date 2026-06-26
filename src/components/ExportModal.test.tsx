@@ -84,4 +84,22 @@ describe("ExportModal", () => {
     expect((screen.getByRole("button", { name: "导出" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByText("请选择至少一条消息后再导出。")).toBeTruthy();
   });
+
+  test("copies the current export content with visible success feedback", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+    const messages = [
+      { id: "m1", role: "user", content: "需要复制的导出内容", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+    ];
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="导出测试" messages={messages} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "复制内容" }));
+
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("需要复制的导出内容"));
+    expect(await screen.findByText("已复制当前导出内容。")).toBeTruthy();
+  });
 });

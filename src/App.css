@@ -1134,6 +1134,26 @@ button:disabled {
   font-weight: 700;
 }
 
+.export-copy-status {
+  margin: -8px 0 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.export-copy-status.success {
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--text);
+}
+
+.export-copy-status.error {
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.1);
+  color: var(--text);
+}
+
 .export-recent-activity {
   margin: -6px 0 18px;
   padding: 12px;
