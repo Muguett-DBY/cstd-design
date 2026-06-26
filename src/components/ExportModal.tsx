@@ -7,6 +7,7 @@ const ASSISTANT_NAME = "助手";
 
 type ExportFormat = "markdown" | "html" | "pdf" | "text" | "notion" | "obsidian";
 type ExportTemplate = "default" | "minimal" | "professional" | "academic";
+type CopyStatus = "idle" | "success" | "error";
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -177,6 +178,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
   const [showMessageSelection, setShowMessageSelection] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
   const headingId = useId();
   const summaryId = useId();
   const exportGuardId = useId();
@@ -334,6 +336,16 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     onClose();
   };
 
+  const handleCopyExport = async () => {
+    if (!canExport) return;
+    try {
+      await navigator.clipboard.writeText(previewContent);
+      setCopyStatus("success");
+    } catch {
+      setCopyStatus("error");
+    }
+  };
+
   return (
     <div className="export-modal-overlay" onClick={onClose}>
       <div className="export-modal" role="dialog" aria-modal="true" aria-labelledby={headingId} onClick={(e) => e.stopPropagation()}>
@@ -368,6 +380,11 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
           <p id={summaryId} className="export-filter-summary" aria-live="polite">{exportSummary}</p>
           {exportGuardMessage && (
             <p id={exportGuardId} className="export-empty-warning" role="status">{exportGuardMessage}</p>
+          )}
+          {copyStatus !== "idle" && (
+            <p className={`export-copy-status ${copyStatus}`} role="status">
+              {copyStatus === "success" ? "已复制当前导出内容。" : "复制失败，请使用下载导出。"}
+            </p>
           )}
           {exportActivity.activities.length > 0 && (
             <section className="export-recent-activity" aria-label="最近导出">
@@ -582,6 +599,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         </div>
         <div className="export-modal-footer">
           <button type="button" className="ghost-button" onClick={onClose}>取消</button>
+          <button type="button" className="ghost-button" onClick={handleCopyExport} disabled={!canExport} aria-describedby={!canExport ? exportGuardId : undefined}>复制内容</button>
           <button type="button" className="primary-button" onClick={handleExport} disabled={!canExport} aria-describedby={!canExport ? exportGuardId : undefined}>导出</button>
         </div>
       </div>
