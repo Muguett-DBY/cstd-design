@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { Download, Upload, Database, Eye, X, Check } from "lucide-react";
 import { THEMES } from "../hooks/useTheme";
-import { BACKUP_KEYS } from "../storage-keys";
+import { BACKUP_KEY_LABELS, BACKUP_KEYS } from "../storage-keys";
 
 interface BackupData {
   version: 1;
@@ -10,6 +10,7 @@ interface BackupData {
 }
 
 function formatKey(key: string): string {
+  if (BACKUP_KEY_LABELS[key]) return BACKUP_KEY_LABELS[key];
   return key
     .replace("cstd-design:", "")
     .replace(/-/g, " ");
