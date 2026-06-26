@@ -154,6 +154,24 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
+function exportExtension(format: ExportFormat) {
+  if (format === "html") return "html";
+  if (format === "text") return "txt";
+  return "md";
+}
+
+function buildExportFilename(title: string, format: ExportFormat) {
+  const cleaned = title
+    .replace(/[/\\?%*:|"<>]/g, "_")
+    .replace(/\s+/g, " ")
+    .replace(/_+/g, "_")
+    .trim()
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 64);
+  const safeBase = cleaned || "未命名导出";
+  return `${safeBase}.${exportExtension(format)}`;
+}
+
 async function copyTextToClipboard(content: string) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(content);
@@ -276,6 +294,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         return generateHTML(title, filteredMessages);
     }
   }, [title, filteredMessages, format]);
+  const exportFilename = useMemo(() => buildExportFilename(title, format), [title, format]);
 
   const toggleAllMessages = () => {
     if (allSelected) {
@@ -301,22 +320,21 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
 
   const handleExport = () => {
     if (!canExport) return;
-    const safeTitle = title.replace(/[/\\?%*:|"<>]/g, "_");
 
     switch (format) {
       case "markdown": {
         const content = generateMarkdown(title, filteredMessages);
-        downloadFile(content, `${safeTitle}.md`, "text/markdown;charset=utf-8");
+        downloadFile(content, exportFilename, "text/markdown;charset=utf-8");
         break;
       }
       case "text": {
         const content = generateText(title, filteredMessages);
-        downloadFile(content, `${safeTitle}.txt`, "text/plain;charset=utf-8");
+        downloadFile(content, exportFilename, "text/plain;charset=utf-8");
         break;
       }
       case "html": {
         const html = generateHTML(title, filteredMessages);
-        downloadFile(html, `${safeTitle}.html`, "text/html;charset=utf-8");
+        downloadFile(html, exportFilename, "text/html;charset=utf-8");
         break;
       }
       case "pdf": {
@@ -330,18 +348,18 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
           };
         } else {
           // Fallback: download as HTML if popup is blocked
-          downloadFile(html, `${safeTitle}.html`, "text/html;charset=utf-8");
+          downloadFile(html, buildExportFilename(title, "html"), "text/html;charset=utf-8");
         }
         break;
       }
       case "notion": {
         const content = generateNotion(title, filteredMessages);
-        downloadFile(content, `${safeTitle}.md`, "text/markdown;charset=utf-8");
+        downloadFile(content, exportFilename, "text/markdown;charset=utf-8");
         break;
       }
       case "obsidian": {
         const content = generateObsidian(title, filteredMessages);
-        downloadFile(content, `${safeTitle}.md`, "text/markdown;charset=utf-8");
+        downloadFile(content, exportFilename, "text/markdown;charset=utf-8");
         break;
       }
     }
@@ -396,6 +414,10 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
             </div>
           </section>
           <p id={summaryId} className="export-filter-summary" aria-live="polite">{exportSummary}</p>
+          <p className="export-filename-preview" aria-label="导出文件名">
+            <span>文件名</span>
+            <strong>{exportFilename}</strong>
+          </p>
           {exportGuardMessage && (
             <p id={exportGuardId} className="export-empty-warning" role="status">{exportGuardMessage}</p>
           )}

@@ -124,4 +124,14 @@ describe("ExportModal", () => {
     expect(execCommand).toHaveBeenCalledWith("copy");
     expect(await screen.findByText("已复制当前导出内容。")).toBeTruthy();
   });
+
+  test("shows a safe export filename preview even when the title has only invalid filename characters", () => {
+    const messages = [
+      { id: "m1", role: "assistant", content: "可导出的内容", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+    ];
+
+    render(<ExportModal isOpen onClose={vi.fn()} title={"<>:\"/\\|?*"} messages={messages} />);
+
+    expect(screen.getByLabelText("导出文件名").textContent).toContain("未命名导出.md");
+  });
 });
