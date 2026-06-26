@@ -1920,7 +1920,32 @@
 - Full local gate passed: `npm test -- --run` — 66 files, 426 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `8bda7f1` passed GitHub Actions run `28234936061` for the complete Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 023 Stage 3 UI/UX with a visual refinement that makes backup import choices and consequences easier to scan.
+
+---
+
+## Long Campaign 023 — Stage 3 Backup Import Impact Summary UI (2026-06-26)
+
+### Goal
+- Make backup import preview consequences scannable before choosing merge or overwrite import.
+
+### Completed
+- Added a compact `导入影响摘要` block above preview rows.
+- Shows overwrite/new counts at a glance.
+- Explains that merge import skips existing settings while overwrite import replaces them.
+- Added visual styling for the summary card.
+
+### Verified
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed before the summary existed.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 3 tests passed.
+- Full local gate passed: `npm test -- --run` — 66 files, 427 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+- Authenticated local Pages browser smoke passed via `npm run smoke:auth-export` against `http://127.0.0.1:8793`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 023 Stage 4 with a restore reliability improvement around unsupported backup keys.

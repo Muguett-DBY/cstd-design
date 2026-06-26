@@ -7686,6 +7686,27 @@ button:disabled {
   margin-top: 12px;
 }
 
+.preview-impact {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(245, 158, 11, 0.26);
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.08);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.preview-impact strong {
+  font-size: 13px;
+}
+
+.preview-impact span {
+  color: var(--muted);
+}
+
 .preview-item {
   display: flex;
   align-items: center;

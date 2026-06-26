@@ -1407,3 +1407,39 @@
 - `npm run build` — passed; main `index` chunk 386.03 kB gzip 115.10 kB.
 
 **Commit target**: `feat: report skipped backup merge imports`
+
+**Commit/CI**:
+- Commit `8bda7f1` (`feat: report skipped backup merge imports`) pushed to `origin/main`.
+- GitHub Actions run `28234936061` passed the complete deploy workflow.
+
+### Stage 3/6 — UIUX
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_UIUX_MAIN.txt`
+**Start state**:
+- Preview rows showed per-item `将覆盖` / `新增` badges.
+- Users still had to scan the whole list to understand the overall import impact and button consequences.
+
+**Goal**: Improve backup import preview scanability with a concise impact summary.
+
+**Plan / TDD**:
+- RED: add a component test expecting `导入影响：1 项将覆盖，1 项新增。` and explicit merge/overwrite consequences.
+- GREEN: derive preview impact counts and render a compact summary card above preview rows.
+- Verify focused test, full local gate, and authenticated browser smoke.
+
+**Completed**:
+- Added an accessible `导入影响摘要` block to the preview modal.
+- Summarized overwrite/new counts before the item list.
+- Explained that merge import skips existing settings and overwrite import replaces them.
+- Added CSS for a compact warning-toned summary card.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed because no import impact summary existed.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 3 tests passed.
+- `npm test -- --run` — 66 files, 427 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk 386.42 kB gzip 115.28 kB.
+- Initial `npm run smoke:auth-export` attempts exposed missing local env/server setup; rerun against local Pages `127.0.0.1:8793` with `E2E_SESSION_SECRET=codex-e2e-secret` passed in System Chrome.
+
+**Commit target**: `feat: summarize backup import impact`

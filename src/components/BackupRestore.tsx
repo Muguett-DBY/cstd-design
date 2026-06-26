@@ -125,6 +125,14 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
   }, [preview, onNotice]);
 
   const previewItems = preview ? getPreviewInfo(preview) : [];
+  const previewImpact = previewItems.reduce(
+    (summary, item) => {
+      if (item.overwritesExisting) summary.overwrite++;
+      else summary.create++;
+      return summary;
+    },
+    { overwrite: 0, create: 0 },
+  );
 
   return (
     <>
@@ -168,6 +176,10 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
               <p className="preview-info">
                 共 {previewItems.length} 项设置
               </p>
+              <div className="preview-impact" aria-label="导入影响摘要">
+                <strong>导入影响：{previewImpact.overwrite} 项将覆盖，{previewImpact.create} 项新增。</strong>
+                <span>合并导入会跳过已有设置；覆盖导入会替换已有设置。</span>
+              </div>
               <div className="preview-items">
                 {previewItems.map((item) => (
                   <div key={item.key} className="preview-item">

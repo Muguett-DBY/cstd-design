@@ -78,4 +78,24 @@ describe("BackupRestore", () => {
     expect(localStorage.getItem(EXPORT_PREFERENCES_STORAGE_KEY)).toBe(JSON.stringify({ format: "pdf", template: "default" }));
     expect(localStorage.getItem("cstd-design:theme")).toBe("neon");
   });
+
+  test("summarizes backup import impact before confirmation", async () => {
+    localStorage.setItem(EXPORT_PREFERENCES_STORAGE_KEY, JSON.stringify({ format: "pdf", template: "default" }));
+
+    const { container } = render(<BackupRestore onNotice={vi.fn()} />);
+    const fileInput = container.querySelector('input[type="file"]');
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: {
+        files: [
+          backupFile({
+            [EXPORT_PREFERENCES_STORAGE_KEY]: { format: "markdown", template: "professional" },
+            "cstd-design:theme": "neon",
+          }),
+        ],
+      },
+    });
+
+    expect(await screen.findByText("导入影响：1 项将覆盖，1 项新增。")).toBeTruthy();
+    expect(screen.getByText("合并导入会跳过已有设置；覆盖导入会替换已有设置。")).toBeTruthy();
+  });
 });
