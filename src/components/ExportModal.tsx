@@ -215,6 +215,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const [showMessageSelection, setShowMessageSelection] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
+  const [copiedPreviewContent, setCopiedPreviewContent] = useState("");
   const headingId = useId();
   const summaryId = useId();
   const exportGuardId = useId();
@@ -295,6 +296,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     }
   }, [title, filteredMessages, format]);
   const exportFilename = useMemo(() => buildExportFilename(title, format), [title, format]);
+  const visibleCopyStatus = copiedPreviewContent === previewContent ? copyStatus : "idle";
 
   const toggleAllMessages = () => {
     if (allSelected) {
@@ -376,8 +378,10 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     if (!canExport) return;
     try {
       await copyTextToClipboard(previewContent);
+      setCopiedPreviewContent(previewContent);
       setCopyStatus("success");
     } catch {
+      setCopiedPreviewContent(previewContent);
       setCopyStatus("error");
     }
   };
@@ -421,9 +425,9 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
           {exportGuardMessage && (
             <p id={exportGuardId} className="export-empty-warning" role="status">{exportGuardMessage}</p>
           )}
-          {copyStatus !== "idle" && (
-            <p className={`export-copy-status ${copyStatus}`} role="status">
-              {copyStatus === "success" ? "已复制当前导出内容。" : "复制失败，请使用下载导出。"}
+          {visibleCopyStatus !== "idle" && (
+            <p className={`export-copy-status ${visibleCopyStatus}`} role="status">
+              {visibleCopyStatus === "success" ? "已复制当前导出内容。" : "复制失败，请使用下载导出。"}
             </p>
           )}
           {exportActivity.activities.length > 0 && (

@@ -134,4 +134,25 @@ describe("ExportModal", () => {
 
     expect(screen.getByLabelText("导出文件名").textContent).toContain("未命名导出.md");
   });
+
+  test("clears copy status when the export format changes", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+    const messages = [
+      { id: "m1", role: "user", content: "切换格式后需要重新复制", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+    ];
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="格式状态测试" messages={messages} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "复制内容" }));
+    expect(await screen.findByText("已复制当前导出内容。")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /纯文本/ }));
+
+    expect(screen.queryByText("已复制当前导出内容。")).toBeNull();
+    expect(screen.getByLabelText("导出文件名").textContent).toContain("格式状态测试.txt");
+  });
 });
