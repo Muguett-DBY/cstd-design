@@ -103,14 +103,19 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
     setImporting(true);
     try {
       let count = 0;
+      let skipped = 0;
       for (const [key, value] of Object.entries(preview.data)) {
         if (BACKUP_KEYS.includes(key)) {
-          if (merge && localStorage.getItem(key) !== null) continue;
+          if (merge && localStorage.getItem(key) !== null) {
+            skipped++;
+            continue;
+          }
           localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value));
           count++;
         }
       }
-      onNotice(`已导入 ${count} 项设置（${merge ? "合并" : "覆盖"}模式），请刷新页面。`);
+      const skippedText = merge && skipped > 0 ? `，跳过 ${skipped} 项已有设置` : "";
+      onNotice(`已导入 ${count} 项设置${skippedText}（${merge ? "合并" : "覆盖"}模式），请刷新页面。`);
     } catch {
       onNotice("导入失败。");
     } finally {

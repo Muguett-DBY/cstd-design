@@ -53,4 +53,29 @@ describe("BackupRestore", () => {
     expect(screen.getByText("将覆盖")).toBeTruthy();
     expect(screen.getByText("新增")).toBeTruthy();
   });
+
+  test("reports imported and skipped counts for merge imports", async () => {
+    localStorage.setItem(EXPORT_PREFERENCES_STORAGE_KEY, JSON.stringify({ format: "pdf", template: "default" }));
+    const onNotice = vi.fn();
+
+    const { container } = render(<BackupRestore onNotice={onNotice} />);
+    const fileInput = container.querySelector('input[type="file"]');
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: {
+        files: [
+          backupFile({
+            [EXPORT_PREFERENCES_STORAGE_KEY]: { format: "markdown", template: "professional" },
+            "cstd-design:theme": "neon",
+          }),
+        ],
+      },
+    });
+
+    await waitFor(() => expect(screen.getByText("导出偏好")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "合并导入（保留现有）" }));
+
+    expect(onNotice).toHaveBeenCalledWith("已导入 1 项设置，跳过 1 项已有设置（合并模式），请刷新页面。");
+    expect(localStorage.getItem(EXPORT_PREFERENCES_STORAGE_KEY)).toBe(JSON.stringify({ format: "pdf", template: "default" }));
+    expect(localStorage.getItem("cstd-design:theme")).toBe("neon");
+  });
 });
