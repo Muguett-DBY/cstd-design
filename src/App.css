@@ -1138,11 +1138,34 @@ button:disabled {
 }
 
 .export-filename-preview strong {
+  min-width: 0;
+  flex: 1 1 auto;
   overflow: hidden;
   color: var(--text);
   font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.export-filename-copy {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border: 1px solid rgba(126, 211, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(126, 211, 255, 0.08);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.export-filename-copy:hover {
+  border-color: rgba(126, 211, 255, 0.46);
+  background: rgba(126, 211, 255, 0.14);
 }
 
 .export-empty-warning {
