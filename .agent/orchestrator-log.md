@@ -1555,3 +1555,17 @@
 - Final authenticated local Pages browser smoke passed via `npm run smoke:auth-export` against `http://127.0.0.1:8793` with System Chrome.
 
 **Commit target**: `feat: block empty backup imports`
+
+**Commit/CI**:
+- Commit `6638183` (`feat: block empty backup imports`) pushed to `origin/main`.
+- GitHub Actions run `28238481817` passed the complete deploy workflow.
+
+**Final live deployment smoke**:
+- First checked `https://6638183.cstd-design.pages.dev/`, which returned Cloudflare `Deployment Not Found`; this was an incorrect short-SHA alias, not the deployment URL.
+- Actual deploy log URL `https://0fcedca9.cstd-design.pages.dev/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- `https://cstd-design.pages.dev/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- `https://design.custard.top/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+
+**Campaign 023 final status**:
+- Completed all six required stages: IMPROVE, IMPROVE, UIUX, IMPROVE, CHECK, IMPROVE.
+- Completed code/log changes, RED/GREEN tests, full local verification, authenticated browser smoke, per-stage commits, pushes to `main`, GitHub Actions verification, and final live smoke.
