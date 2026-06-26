@@ -9,6 +9,10 @@ type ExportFormat = "markdown" | "html" | "pdf" | "text" | "notion" | "obsidian"
 type ExportTemplate = "default" | "minimal" | "professional" | "academic";
 type CopyStatus = "idle" | "success" | "error";
 
+const EXPORT_PREFERENCES_STORAGE_KEY = "cstd-design:export-preferences";
+const EXPORT_FORMATS: readonly ExportFormat[] = ["markdown", "html", "pdf", "text", "notion", "obsidian"];
+const EXPORT_TEMPLATES: readonly ExportTemplate[] = ["default", "minimal", "professional", "academic"];
+
 interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -207,9 +211,31 @@ function formatLabel(format: ExportActivityFormat) {
   return labels[format];
 }
 
+function isExportFormat(value: unknown): value is ExportFormat {
+  return typeof value === "string" && EXPORT_FORMATS.includes(value as ExportFormat);
+}
+
+function isExportTemplate(value: unknown): value is ExportTemplate {
+  return typeof value === "string" && EXPORT_TEMPLATES.includes(value as ExportTemplate);
+}
+
+function readExportPreferences(): { format: ExportFormat; template: ExportTemplate } {
+  try {
+    const raw = localStorage.getItem(EXPORT_PREFERENCES_STORAGE_KEY);
+    if (!raw) return { format: "markdown", template: "default" };
+    const parsed = JSON.parse(raw) as { format?: unknown; template?: unknown };
+    return {
+      format: isExportFormat(parsed.format) ? parsed.format : "markdown",
+      template: isExportTemplate(parsed.template) ? parsed.template : "default",
+    };
+  } catch {
+    return { format: "markdown", template: "default" };
+  }
+}
+
 export function ExportModal({ isOpen, onClose, title, messages }: ExportModalProps) {
-  const [format, setFormat] = useState<ExportFormat>("markdown");
-  const [template, setTemplate] = useState<ExportTemplate>("default");
+  const [format, setFormat] = useState<ExportFormat>(() => readExportPreferences().format);
+  const [template, setTemplate] = useState<ExportTemplate>(() => readExportPreferences().template);
   const [useDateRange, setUseDateRange] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({ start: "", end: "" });
   const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
@@ -238,6 +264,14 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
       document.body.style.overflow = "";
     };
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(EXPORT_PREFERENCES_STORAGE_KEY, JSON.stringify({ format, template }));
+    } catch {
+      // Ignore unavailable or full storage.
+    }
+  }, [format, template]);
 
   const exportableMessages = useMemo<ExportableMessage[]>(() => {
     return messages

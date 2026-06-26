@@ -117,6 +117,11 @@ try {
 
   await dialog.getByRole("button", { name: /PDF/ }).click();
   await dialog.getByText(/E2E 导出验证.*\.pdf/).waitFor({ timeout: 10_000 });
+  await dialog.getByRole("button", { name: "关闭导出对话框" }).click();
+  await dialog.waitFor({ state: "detached", timeout: 10_000 });
+  await page.getByRole("button", { name: "高级导出", exact: true }).click();
+  await dialog.waitFor({ timeout: 10_000 });
+  await dialog.getByText(/E2E 导出验证.*\.pdf/).waitFor({ timeout: 10_000 });
 
   await dialog.getByRole("button", { name: /Markdown/ }).click();
   await dialog.getByText(/E2E 导出验证.*\.md/).waitFor({ timeout: 10_000 });

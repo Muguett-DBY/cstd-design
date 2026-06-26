@@ -168,6 +168,21 @@ describe("ExportModal", () => {
     expect(screen.getByLabelText("导出文件名").textContent).toContain("PDF 导出测试.pdf");
   });
 
+  test("remembers the last selected export format across modal sessions", () => {
+    const messages = [
+      { id: "m1", role: "assistant", content: "常用 PDF 导出", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+    ];
+    const first = render(<ExportModal isOpen onClose={vi.fn()} title="偏好测试" messages={messages} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /PDF/ }));
+    first.unmount();
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="偏好测试" messages={messages} />);
+
+    expect(screen.getByLabelText("导出文件名").textContent).toContain("偏好测试.pdf");
+    expect(screen.getByRole("button", { name: /PDF/ }).getAttribute("aria-pressed")).toBe("true");
+  });
+
   test("clears copy status when the export format changes", async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {

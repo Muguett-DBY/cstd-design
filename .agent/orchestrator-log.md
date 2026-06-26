@@ -1220,3 +1220,38 @@
 - `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome, including filename-copy verification.
 
 **Commit target**: `feat: copy export filenames`
+
+**Commit/CI**:
+- Commit `9601f59` (`feat: copy export filenames`) pushed to `origin/main`.
+- GitHub Actions run `28232884333` passed the complete deploy workflow.
+
+### Stage 4/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Export modal settings reset to Markdown/default on every new modal session.
+- Frequent PDF/text users had to reselect their preferred export format each time.
+
+**Goal**: Persist the last selected export format/template safely on the client.
+
+**Plan / TDD**:
+- RED: add a component test proving a PDF selection survives closing and reopening the modal.
+- GREEN: add localStorage-backed preferences with value validation and safe fallback.
+- Extend authenticated browser smoke to verify the persisted PDF format in a real browser.
+
+**Completed**:
+- Added `cstd-design:export-preferences` storing only `format` and `template`.
+- Added validation for accepted export formats/templates.
+- Persisted preference changes while ignoring unavailable/full storage.
+- Updated authenticated smoke to select PDF, close/reopen the modal, and verify the PDF filename remains active.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because reopened modal still showed `偏好测试.md`.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 10 tests passed.
+- `npm test -- --run` — 64 files, 422 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; `ExportModal` async chunk changed to 18.58 kB, gzip 5.97 kB.
+- `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome, including persisted PDF format verification.
+
+**Commit target**: `feat: remember export preferences`

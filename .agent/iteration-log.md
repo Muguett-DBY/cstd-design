@@ -1799,3 +1799,27 @@
 
 ### Next
 - Continue Campaign 022 Stage 4 IMPROVE with another export-flow or reliability improvement now covered by component and browser smoke.
+
+---
+
+## Long Campaign 022 — Stage 4 Export Preferences Persistence (2026-06-26)
+
+### Goal
+- Preserve the user's last export format/template choice across modal sessions.
+
+### Completed
+- Added safe localStorage-backed export preferences for format and template.
+- Validated stored preference values before use; damaged or unknown values fall back to Markdown/default.
+- Extended authenticated browser smoke to confirm PDF format persists after closing and reopening the export modal.
+
+### Verified
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because the second modal session reset to `.md`.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 10 tests passed.
+- Full local gate passed: `npm test -- --run` — 64 files, 422 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Authenticated local Pages browser smoke passed via `npm run smoke:auth-export`, including persisted PDF format verification after modal reopen.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 022 Stage 5 CHECK with systemic audit, targeted fixes, and full verification.
