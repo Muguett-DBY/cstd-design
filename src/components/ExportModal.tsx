@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Clipboard, BookOpen, Database } from "lucide-react";
 import { sanitizeTrustedHtml } from "../utils/sanitizeHtml";
+import { useExportActivity, type ExportActivityFormat } from "../hooks/useExportActivity";
 
 const ASSISTANT_NAME = "助手";
 
@@ -156,6 +157,18 @@ function exportMessageKey(message: ExportModalProps["messages"][number], index: 
   return message.id || `${index}:${message.role}:${message.createdAt || "no-date"}:${message.content.slice(0, 80)}`;
 }
 
+function formatLabel(format: ExportActivityFormat) {
+  const labels: Record<ExportActivityFormat, string> = {
+    markdown: "Markdown",
+    html: "HTML",
+    pdf: "PDF",
+    text: "纯文本",
+    notion: "Notion",
+    obsidian: "Obsidian",
+  };
+  return labels[format];
+}
+
 export function ExportModal({ isOpen, onClose, title, messages }: ExportModalProps) {
   const [format, setFormat] = useState<ExportFormat>("markdown");
   const [template, setTemplate] = useState<ExportTemplate>("default");
@@ -166,6 +179,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const [showPreview, setShowPreview] = useState(false);
   const headingId = useId();
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const exportActivity = useExportActivity();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -296,6 +310,12 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         break;
       }
     }
+    exportActivity.record({
+      id: `export-${Date.now()}-${format}`,
+      title,
+      format,
+      count: filteredMessages.length,
+    });
     onClose();
   };
 
@@ -312,6 +332,22 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
           <p className="export-modal-title">{title}</p>
           <p className="export-modal-count">{filteredMessages.length} 条消息</p>
           <p className="export-filter-summary" aria-live="polite">{exportSummary}</p>
+          {exportActivity.activities.length > 0 && (
+            <section className="export-recent-activity" aria-label="最近导出">
+              <div className="export-recent-header">
+                <span>最近导出</span>
+                <button type="button" onClick={exportActivity.clear}>清除</button>
+              </div>
+              <div className="export-recent-list">
+                {exportActivity.activities.slice(0, 3).map((activity) => (
+                  <div key={activity.id} className="export-recent-item">
+                    <span className="export-recent-title">{activity.title}</span>
+                    <span className="export-recent-meta">{formatLabel(activity.format)} · {activity.count} 条 · {new Date(activity.createdAt).toLocaleString("zh-CN")}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Date Range Selection */}
           <div className="export-option-section">

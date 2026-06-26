@@ -1428,7 +1428,34 @@
 - In-app Browser smoke confirmed app identity, main UI, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `aa950ca` passed GitHub Actions run `28208821128` for the full Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 020 Stage 2 with another product-level improvement. Strong candidates: add a richer import/export history surface, improve export preview validation for HTML/PDF, or add critical flow coverage for export/download behavior.
+
+---
+
+## Long Campaign 020 — Stage 2 Export Activity Trail (2026-06-26)
+
+### Goal
+- Make successful export actions visible after the modal closes/reopens by adding a bounded, persistent recent-export activity trail.
+
+### Completed
+- Added versioned export activity persistence with validation, cap, upsert, and clear behavior.
+- Integrated a “最近导出” section in the export modal showing the latest export title, format, message count, and timestamp.
+- Recorded successful Markdown, HTML, PDF, text, Notion, and Obsidian export attempts.
+- Hardened the early theme bootstrap so missing or blocked `localStorage` cannot blank the app shell before React loads.
+
+### Verified
+- RED/GREEN: `npx vitest run src/hooks/useExportActivity.test.ts` failed before the hook existed, then passed after implementation.
+- RED/GREEN: `npx vitest run src/themeBootstrap.test.ts` reproduced the unsafe bootstrap failure, then passed after guarding storage/media access.
+- Focused tests passed: `npx vitest run src/themeBootstrap.test.ts src/hooks/useExportActivity.test.ts src/components/ExportModal.test.tsx` — 3 files, 6 tests.
+- Full local gate passed: `npm test -- --run` — 64 files, 410 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages served `/` with HTTP 200 on `http://127.0.0.1:8793/`.
+- System Chrome smoke confirmed a non-empty app shell, correct title, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 020 Stage 3 with the required UI/UX pass, focused on making export options and controls easier to scan and operate.

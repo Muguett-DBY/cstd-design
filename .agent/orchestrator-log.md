@@ -677,3 +677,42 @@
 - Browser smoke on local Pages — title `工作台 - 私人中文创作工作台`, main UI visible, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `fix: stabilize export message selection`
+
+**Commit/CI**:
+- Commit `aa950ca` (`fix: stabilize export message selection`) pushed to `origin/main`.
+- GitHub Actions run `28208821128` passed the complete deploy workflow.
+
+### Stage 2/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 1 made export selection stable and visible before export.
+- The export flow still has no persistent confirmation trail after a user exports Markdown, HTML, PDF, text, Notion, or Obsidian formats.
+
+**Goal**: Add a bounded recent-export activity trail so successful export actions become visible and auditable across modal opens.
+
+**Plan / TDD**:
+- RED: add export activity persistence tests before creating the hook.
+- GREEN: add versioned localStorage export activity with validation, cap, upsert, and clear.
+- Integrate the activity trail into `ExportModal` and record successful export attempts.
+
+**Completed**:
+- Added `useExportActivity` with a versioned localStorage envelope, validation, bounded history, upsert, and clear behavior.
+- Added a “最近导出” section to `ExportModal` showing the latest export title, format, message count, and timestamp across modal opens.
+- Recorded successful Markdown, HTML, PDF, text, Notion, and Obsidian export attempts.
+- Fixed an app-shell boot risk discovered during browser smoke by guarding the inline theme bootstrap when storage or media APIs are unavailable.
+
+**Verification before commit**:
+- RED: `npx vitest run src/hooks/useExportActivity.test.ts` failed because `./useExportActivity` did not exist.
+- GREEN: `npx vitest run src/hooks/useExportActivity.test.ts` — 1 file, 2 tests passed.
+- RED: `npx vitest run src/themeBootstrap.test.ts` failed with the unsafe inline `localStorage` access.
+- GREEN: `npx vitest run src/themeBootstrap.test.ts src/hooks/useExportActivity.test.ts src/components/ExportModal.test.tsx` — 3 files, 6 tests passed.
+- `npm test -- --run` — 64 files, 410 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk remained at 385.15 kB and no 600 kB warning was emitted.
+- `git diff --check` — passed; Git reported only existing LF-to-CRLF normalization warnings.
+- Local Pages `http://127.0.0.1:8793/` returned 200.
+- System Chrome smoke on local Pages — title `工作台 - 私人中文创作工作台`, non-empty app shell, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `feat: add export activity history`
