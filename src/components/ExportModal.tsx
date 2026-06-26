@@ -2,6 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Calendar, CheckSquare, FileText, FileCode, Printer, Square, X, Eye, Clipboard, BookOpen, Database } from "lucide-react";
 import { sanitizeTrustedHtml } from "../utils/sanitizeHtml";
 import { useExportActivity, type ExportActivityFormat } from "../hooks/useExportActivity";
+import { EXPORT_PREFERENCES_STORAGE_KEY } from "../storage-keys";
 
 const ASSISTANT_NAME = "助手";
 
@@ -9,7 +10,6 @@ type ExportFormat = "markdown" | "html" | "pdf" | "text" | "notion" | "obsidian"
 type ExportTemplate = "default" | "minimal" | "professional" | "academic";
 type CopyStatus = "idle" | "success" | "error";
 
-const EXPORT_PREFERENCES_STORAGE_KEY = "cstd-design:export-preferences";
 const EXPORT_FORMATS: readonly ExportFormat[] = ["markdown", "html", "pdf", "text", "notion", "obsidian"];
 const EXPORT_TEMPLATES: readonly ExportTemplate[] = ["default", "minimal", "professional", "academic"];
 
