@@ -791,3 +791,43 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. Authenticated copy flow is covered by component-level TDD because the local browser entry is gated by the private access screen.
 
 **Commit target**: `feat: add export copy action`
+
+**Commit/CI**:
+- Commit `ca5c554` (`feat: add export copy action`) pushed to `origin/main`.
+- GitHub Actions run `28210953185` passed the complete deploy workflow. GitHub reported the same non-blocking Node.js 20 deprecation annotation for upstream actions forced onto Node 24.
+
+### Stage 5/6 — CHECK
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_CHECK_MAIN.txt`
+**Start state**:
+- Latest `main` contained the export trust, activity, UI/UX, and copy-action improvements.
+- GitHub Actions was passing, but every recent run emitted a Node.js 20 deprecation annotation for action runtimes forced onto Node 24.
+
+**Audit findings**:
+- P1 CI maintainability: `.github/workflows/pages.yml` still used older action majors (`actions/checkout@v4`, `actions/setup-node@v4`, `gitleaks/gitleaks-action@v2`) plus `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24`, causing repeated runtime deprecation annotations.
+- P2 local validation: `npm ci` initially failed with `EBUSY` because a local `wrangler pages dev` / Miniflare process held `node_modules`; stopping only the current repo's dev server cleared it.
+- No high-severity dependency vulnerabilities found.
+- Secret/debug scan found no committed plaintext secrets or new debug code; matches were docs/examples, workflow secret references, test placeholders, token terminology, or existing local-history logs.
+
+**Completed**:
+- Updated workflow actions using official GitHub release data:
+  - `actions/checkout@v7.0.0`
+  - `actions/setup-node@v6.4.0`
+  - `gitleaks/gitleaks-action@v3.0.0`
+- Removed `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` because the workflow no longer needs to force older JavaScript action runtimes onto Node 24.
+
+**Verification before commit**:
+- `gh api repos/actions/checkout/releases/latest --jq .tag_name` — `v7.0.0`.
+- `gh api repos/actions/setup-node/releases/latest --jq .tag_name` — `v6.4.0`.
+- `gh api repos/gitleaks/gitleaks-action/releases/latest --jq .tag_name` — `v3.0.0`.
+- `npm ci` — passed after stopping the local Pages dev lock; 504 packages installed/audited, 0 vulnerabilities, npm reported allow-scripts review notices for `esbuild`, `sharp`, and `workerd`.
+- `npm test -- --run` — 64 files, 412 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- Local Pages `http://127.0.0.1:8793/` returned 200.
+- Local Pages `/api/session` returned 200 with `{"authenticated":false,"expiresAt":null}`.
+- System Chrome smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `ci: refresh workflow action runtimes`

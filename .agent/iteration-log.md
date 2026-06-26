@@ -1506,7 +1506,36 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors. Authenticated export-copy flow is covered by component TDD because browser entry is gated by private access.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `ca5c554` passed GitHub Actions run `28210953185` for the full Cloudflare Pages deploy workflow. GitHub reported the same non-blocking Node.js 20 deprecation annotation for upstream actions forced onto Node 24.
 
 ### Next
 - Continue Campaign 020 Stage 5 CHECK with a broad local/CI health audit and use its findings to drive the final improvement.
+
+---
+
+## Long Campaign 020 — Stage 5 CI Health Check (2026-06-26)
+
+### Goal
+- Run a broad project health check and fix a concrete CI/runtime maintenance issue before the final improvement stage.
+
+### Completed
+- Audited workflow, package scripts, dependencies, debug markers, secret-like strings, local Pages, `/api/session`, and browser shell behavior.
+- Refreshed GitHub Actions runtimes to official latest releases:
+  - `actions/checkout@v7.0.0`
+  - `actions/setup-node@v6.4.0`
+  - `gitleaks/gitleaks-action@v3.0.0`
+- Removed the compatibility `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` env now that the actions themselves are updated.
+- Diagnosed local `npm ci` `EBUSY` as a current-repo wrangler/miniflare lock and reran successfully after stopping the dev server.
+
+### Verified
+- Official latest action tags verified through `gh api`.
+- `npm ci` passed with 0 vulnerabilities; npm reported allow-scripts review notices for `esbuild`, `sharp`, and `workerd`.
+- Full local gate passed: `npm test -- --run` — 64 files, 412 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 020 Stage 6 with the final product/stability improvement. Strong candidate: make clipboard export gracefully handle browsers without Clipboard API or insecure contexts.
