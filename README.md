@@ -135,6 +135,18 @@ npm run build                     # 完整构建（tsc -b && vite build）
 | `ASSET_CAPABILITY_SECRET` | ✅ | 素材访问令牌签名密钥 |
 | `UPSTREAM_API_KEY` | ✅ | Agnes AI API 密钥 |
 | `AGNES_API_KEY` | ❌ | 旧别名，兼容 Fallback |
+| `E2E_SESSION_SECRET` | ❌ | 仅用于本地/CI 浏览器自动化；启用后 `POST /api/session/test` 必须携带匹配的 `x-cstd-e2e-secret` 才会创建测试会话 |
+
+### 浏览器自动化认证入口
+
+为避免真实浏览器 E2E 只能停在私有访问页，项目提供受专用密钥保护的测试会话入口：
+
+```bash
+curl -i -X POST http://127.0.0.1:8788/api/session/test \
+  -H "x-cstd-e2e-secret: $E2E_SESSION_SECRET"
+```
+
+默认不配置 `E2E_SESSION_SECRET` 时该端点返回 404，不会绕过生产登录。只应在本地或受控 CI 中启用。
 
 ## Cloudflare 绑定
 

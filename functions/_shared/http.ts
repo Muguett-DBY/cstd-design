@@ -1,10 +1,11 @@
-import { clearSessionCookie, createSessionCookie, hashClientFingerprint, hashSessionToken, hmacSha256Base64Url, isThrottleAllowed, nextThrottleState, parseSessionCookie, randomBase64Url, verifyPasswordHash } from "./security";
+import { clearSessionCookie, createSessionCookie, hashClientFingerprint, hashSessionToken, hmacSha256Base64Url, isThrottleAllowed, nextThrottleState, parseSessionCookie, randomBase64Url, timingSafeEqual, verifyPasswordHash } from "./security";
 
 export interface Env {
   DB: D1Database;
   MEDIA_BUCKET: R2Bucket;
   UPSTREAM_API_KEY?: string;
   AGNES_API_KEY?: string;
+  E2E_SESSION_SECRET?: string;
   APP_PASSWORD_HASH: string;
   SESSION_SECRET: string;
   LOGIN_HASH_SECRET: string;
@@ -48,6 +49,19 @@ export function upstreamApiKey(env: Env) {
 export function requireUpstreamApiKey(env: Env) {
   const apiKey = upstreamApiKey(env).trim();
   return apiKey ? { apiKey, response: null } : { apiKey: "", response: json({ error: "服务配置缺失，请检查后台环境变量。" }, 500) };
+}
+
+export function authorizeE2ESessionRequest(request: Request, env: Env) {
+  const expected = env.E2E_SESSION_SECRET?.trim();
+  if (!expected) return json({ error: "测试会话未启用。" }, 404);
+  const provided = request.headers.get("x-cstd-e2e-secret")?.trim() || "";
+  return timingSafeEqual(provided, expected) ? null : json({ error: "测试会话未授权。" }, 403);
+}
+
+export function sessionCookieShouldBeSecure(request: Request) {
+  const url = new URL(request.url);
+  if (url.protocol === "https:") return true;
+  return !(url.hostname === "127.0.0.1" || url.hostname === "localhost");
 }
 
 export async function ensureSchema(db: D1Database) {
@@ -189,15 +203,21 @@ export async function login(request: Request, env: Env, password: string) {
   }
 
   await env.DB.prepare(`DELETE FROM login_attempts WHERE fingerprint = ?1`).bind(fingerprint).run();
+  return createAuthenticatedSession(request, env);
+}
+
+export async function createAuthenticatedSession(request: Request, env: Env) {
+  await ensureSchema(env.DB);
   const sessionId = randomBase64Url(18);
   const token = randomBase64Url(32);
+  const now = Date.now();
   const nowIso = new Date(now).toISOString();
   const expiresAt = new Date(now + SESSION_TTL_MS).toISOString();
   await env.DB.prepare(`INSERT INTO auth_sessions (id, token_hash, created_at, expires_at, last_seen_at) VALUES (?1, ?2, ?3, ?4, ?5)`)
     .bind(sessionId, await hashSessionToken(token), nowIso, expiresAt, nowIso)
     .run();
 
-  return json({ authenticated: true, expiresAt }, 200, { "Set-Cookie": createSessionCookie(sessionId, token, true) });
+  return json({ authenticated: true, expiresAt }, 200, { "Set-Cookie": createSessionCookie(sessionId, token, sessionCookieShouldBeSecure(request)) });
 }
 
 export async function readSession(request: Request, env: Env) {
