@@ -1878,3 +1878,26 @@
   - `https://cstd-design.pages.dev/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned unauthenticated JSON.
   - `https://design.custard.top/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned unauthenticated JSON.
 - Long Campaign 022 completed all six required stages with code/log changes, local validation, browser smoke, commits, pushes, GitHub Actions verification, and live smoke.
+
+---
+
+## Long Campaign 023 — Stage 1 Backup Import Overwrite Status (2026-06-26)
+
+### Goal
+- Make backup import previews safer by showing whether each incoming setting is new or will overwrite existing local data.
+
+### Completed
+- Added component coverage for backup preview import status.
+- Added `将覆盖` / `新增` badges to backup preview rows.
+- Styled preview rows so labels remain readable while status stays prominent.
+
+### Verified
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed before overwrite/new status existed.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 1 test passed.
+- Full local gate passed: `npm test -- --run` — 66 files, 425 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 023 Stage 2 with a backup/restore improvement that makes merge import outcomes more explicit after confirmation.

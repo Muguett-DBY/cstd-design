@@ -1339,3 +1339,37 @@
 **Campaign 022 final status**:
 - Completed all six required stages: IMPROVE, IMPROVE, UIUX, IMPROVE, CHECK, IMPROVE.
 - Completed local full verification, authenticated browser smoke, per-stage commits, pushes to `main`, GitHub Actions deploy verification, and final live smoke.
+
+---
+
+## Long Campaign 023 — 2026-06-26
+
+### Stage 1/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Backup preview labels were readable after Campaign 022.
+- The preview still did not tell users which imported settings would overwrite existing local settings.
+
+**Goal**: Make backup import risk visible before users choose merge or overwrite import.
+
+**Plan / TDD**:
+- RED: add a component test that uploads a backup containing one existing key and one new key, then expects `将覆盖` and `新增` in the import preview.
+- GREEN: compute per-key local existence during preview generation and show status badges.
+- Verify focused test plus full local gate.
+
+**Completed**:
+- Added `src/components/BackupRestore.test.tsx` for import preview behavior.
+- Updated backup preview rows with `将覆盖` / `新增` status badges.
+- Added badge styling that keeps the key label flexible and the status fixed at the row edge.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed because no overwrite/new status appeared.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 1 test passed.
+- `npm test -- --run` — 66 files, 425 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk 385.97 kB gzip 115.06 kB.
+
+**Commit target**: `feat: show backup import overwrite status`
