@@ -19,6 +19,10 @@ interface DateRange {
   end: string;
 }
 
+type ExportableMessage = ExportModalProps["messages"][number] & {
+  exportKey: string;
+};
+
 function generateHTML(title: string, messages: { role: string; content: string; status: string }[]): string {
   const date = new Date().toLocaleString("zh-CN");
   const messageHTML = messages
@@ -148,12 +152,16 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
+function exportMessageKey(message: ExportModalProps["messages"][number], index: number) {
+  return message.id || `${index}:${message.role}:${message.createdAt || "no-date"}:${message.content.slice(0, 80)}`;
+}
+
 export function ExportModal({ isOpen, onClose, title, messages }: ExportModalProps) {
   const [format, setFormat] = useState<ExportFormat>("markdown");
   const [template, setTemplate] = useState<ExportTemplate>("default");
   const [useDateRange, setUseDateRange] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange>({ start: "", end: "" });
-  const [selectedMessages, setSelectedMessages] = useState<Set<number>>(new Set());
+  const [selectedMessages, setSelectedMessages] = useState<Set<string>>(new Set());
   const [showMessageSelection, setShowMessageSelection] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const headingId = useId();
@@ -173,8 +181,16 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     };
   }, [isOpen, onClose]);
 
+  const exportableMessages = useMemo<ExportableMessage[]>(() => {
+    return messages
+      .filter((message) => message.status !== "streaming")
+      .map((message, index) => ({ ...message, exportKey: exportMessageKey(message, index) }));
+  }, [messages]);
+
+  const dateFilterActive = useDateRange && Boolean(dateRange.start) && Boolean(dateRange.end);
+
   const filteredMessages = useMemo(() => {
-    let result = messages.filter((m) => m.status !== "streaming");
+    let result = exportableMessages;
 
     if (useDateRange && dateRange.start && dateRange.end) {
       const start = new Date(dateRange.start);
@@ -188,16 +204,19 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     }
 
     if (showMessageSelection && selectedMessages.size > 0) {
-      result = result.filter((_, index) => selectedMessages.has(index));
+      result = result.filter((message) => selectedMessages.has(message.exportKey));
     }
 
     return result;
-  }, [messages, useDateRange, dateRange, showMessageSelection, selectedMessages]);
+  }, [exportableMessages, useDateRange, dateRange, showMessageSelection, selectedMessages]);
 
   const allSelected = useMemo(() => {
-    const nonStreaming = messages.filter((m) => m.status !== "streaming");
-    return nonStreaming.length > 0 && selectedMessages.size === nonStreaming.length;
-  }, [messages, selectedMessages]);
+    return exportableMessages.length > 0 && exportableMessages.every((message) => selectedMessages.has(message.exportKey));
+  }, [exportableMessages, selectedMessages]);
+
+  const exportSummary = showMessageSelection
+    ? `已选择 ${selectedMessages.size} / ${exportableMessages.length} 条${dateFilterActive ? " · 日期筛选中" : ""}`
+    : `准备导出 ${filteredMessages.length} / ${exportableMessages.length} 条${dateFilterActive ? " · 日期筛选中" : ""}`;
 
   const previewContent = useMemo(() => {
     switch (format) {
@@ -211,21 +230,20 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   }, [title, filteredMessages, format]);
 
   const toggleAllMessages = () => {
-    const nonStreaming = messages.filter((m) => m.status !== "streaming");
     if (allSelected) {
       setSelectedMessages(new Set());
     } else {
-      setSelectedMessages(new Set(nonStreaming.map((_, index) => index)));
+      setSelectedMessages(new Set(exportableMessages.map((message) => message.exportKey)));
     }
   };
 
-  const toggleMessage = (index: number) => {
+  const toggleMessage = (key: string) => {
     setSelectedMessages((prev) => {
       const next = new Set(prev);
-      if (next.has(index)) {
-        next.delete(index);
+      if (next.has(key)) {
+        next.delete(key);
       } else {
-        next.add(index);
+        next.add(key);
       }
       return next;
     });
@@ -293,6 +311,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
         <div className="export-modal-body">
           <p className="export-modal-title">{title}</p>
           <p className="export-modal-count">{filteredMessages.length} 条消息</p>
+          <p className="export-filter-summary" aria-live="polite">{exportSummary}</p>
 
           {/* Date Range Selection */}
           <div className="export-option-section">
@@ -344,12 +363,12 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
                   {allSelected ? "取消全选" : "全选"}
                 </button>
                 <div className="export-message-list">
-                  {messages.filter((m) => m.status !== "streaming").map((m, index) => (
-                    <label key={index} className="export-message-item">
+                  {exportableMessages.map((m) => (
+                    <label key={m.exportKey} className="export-message-item">
                       <input
                         type="checkbox"
-                        checked={selectedMessages.has(index)}
-                        onChange={() => toggleMessage(index)}
+                        checked={selectedMessages.has(m.exportKey)}
+                        onChange={() => toggleMessage(m.exportKey)}
                       />
                       <span className="export-message-role">{m.role === "user" ? "你" : ASSISTANT_NAME}</span>
                       <span className="export-message-preview">{m.content.slice(0, 50)}{m.content.length > 50 ? "..." : ""}</span>

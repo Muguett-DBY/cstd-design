@@ -1046,6 +1046,20 @@ button:disabled {
   margin: 0 0 20px;
 }
 
+.export-filter-summary {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: -8px 0 18px;
+  padding: 6px 10px;
+  border: 1px solid rgba(126, 211, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(126, 211, 255, 0.08);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .export-format-options {
   display: grid;
   gap: 10px;
