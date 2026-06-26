@@ -102,4 +102,26 @@ describe("ExportModal", () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining("需要复制的导出内容"));
     expect(await screen.findByText("已复制当前导出内容。")).toBeTruthy();
   });
+
+  test("falls back to selecting preview text when Clipboard API is unavailable", async () => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: undefined,
+      configurable: true,
+    });
+    const execCommand = vi.fn(() => true);
+    Object.defineProperty(document, "execCommand", {
+      value: execCommand,
+      configurable: true,
+    });
+    const messages = [
+      { id: "m1", role: "assistant", content: "旧浏览器也要可复制", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+    ];
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="导出测试" messages={messages} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "复制内容" }));
+
+    expect(execCommand).toHaveBeenCalledWith("copy");
+    expect(await screen.findByText("已复制当前导出内容。")).toBeTruthy();
+  });
 });

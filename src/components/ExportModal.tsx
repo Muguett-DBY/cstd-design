@@ -154,6 +154,24 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
+async function copyTextToClipboard(content: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(content);
+    return;
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = content;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  textarea.style.left = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  document.body.removeChild(textarea);
+  if (!copied) throw new Error("copy command failed");
+}
+
 function exportMessageKey(message: ExportModalProps["messages"][number], index: number) {
   return message.id || `${index}:${message.role}:${message.createdAt || "no-date"}:${message.content.slice(0, 80)}`;
 }
@@ -339,7 +357,7 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const handleCopyExport = async () => {
     if (!canExport) return;
     try {
-      await navigator.clipboard.writeText(previewContent);
+      await copyTextToClipboard(previewContent);
       setCopyStatus("success");
     } catch {
       setCopyStatus("error");
