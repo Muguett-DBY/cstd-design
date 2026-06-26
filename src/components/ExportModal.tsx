@@ -157,6 +157,7 @@ function downloadFile(content: string, filename: string, mimeType: string) {
 function exportExtension(format: ExportFormat) {
   if (format === "html") return "html";
   if (format === "text") return "txt";
+  if (format === "pdf") return "pdf";
   return "md";
 }
 
