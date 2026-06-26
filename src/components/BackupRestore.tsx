@@ -136,6 +136,7 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
   const unsupportedPreviewCount = preview
     ? Object.keys(preview.data).filter((key) => !BACKUP_KEYS.includes(key)).length
     : 0;
+  const hasImportableItems = previewItems.length > 0;
 
   return (
     <>
@@ -183,6 +184,7 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
                 <strong>导入影响：{previewImpact.overwrite} 项将覆盖，{previewImpact.create} 项新增。</strong>
                 <span>合并导入会跳过已有设置；覆盖导入会替换已有设置。</span>
                 {unsupportedPreviewCount > 0 && <span>将忽略 {unsupportedPreviewCount} 项不支持数据。</span>}
+                {!hasImportableItems && <span>没有可导入的设置。</span>}
               </div>
               <div className="preview-items">
                 {previewItems.map((item) => (
@@ -200,10 +202,10 @@ export function BackupRestore({ onNotice }: { onNotice: (msg: string) => void })
               <button type="button" className="ghost-button" onClick={() => setPreview(null)}>
                 取消
               </button>
-              <button type="button" className="secondary-button" onClick={() => confirmImport(true)}>
+              <button type="button" className="secondary-button" disabled={!hasImportableItems} onClick={() => confirmImport(true)}>
                 合并导入（保留现有）
               </button>
-              <button type="button" className="primary-button" onClick={() => confirmImport(false)}>
+              <button type="button" className="primary-button" disabled={!hasImportableItems} onClick={() => confirmImport(false)}>
                 覆盖导入
               </button>
             </div>

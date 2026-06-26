@@ -1519,3 +1519,39 @@
 - `npm run build` — passed; main `index` chunk 386.61 kB gzip 115.32 kB.
 
 **Commit target**: `fix: include recovery center data in backups`
+
+**Commit/CI**:
+- Commit `b5fface` (`fix: include recovery center data in backups`) pushed to `origin/main`.
+- GitHub Actions run `28238191693` passed the complete deploy workflow.
+
+### Stage 6/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Unsupported backup keys were disclosed in preview.
+- A backup containing only unsupported keys still left merge/overwrite confirmation buttons enabled, allowing a no-op import with misleading feedback.
+
+**Goal**: Block no-op backup imports when there are no supported settings to import.
+
+**Plan / TDD**:
+- RED: add a component test with only unsupported keys, expecting `没有可导入的设置。` and disabled merge/overwrite buttons.
+- GREEN: derive `hasImportableItems` from preview rows, show the empty-import message, and disable confirm buttons when false.
+- Run final full local gate and authenticated browser smoke.
+
+**Completed**:
+- Added no-supported-settings preview coverage.
+- Added empty import state copy in the impact summary.
+- Disabled both import confirmation buttons when the backup has no supported keys.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed because no empty-import message or disabled buttons existed.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx src/storage-keys.test.ts` — 2 files, 9 tests passed.
+- Final full local gate passed:
+  - `npm test -- --run` — 66 files, 431 tests passed.
+  - `npm run typecheck:functions` — passed.
+  - `npm run lint` — passed with 0 warnings.
+  - `npm audit --audit-level=high` — found 0 vulnerabilities.
+  - `npm run build` — passed; main `index` chunk 386.71 kB gzip 115.36 kB.
+- Final authenticated local Pages browser smoke passed via `npm run smoke:auth-export` against `http://127.0.0.1:8793` with System Chrome.
+
+**Commit target**: `feat: block empty backup imports`

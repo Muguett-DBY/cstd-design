@@ -1996,7 +1996,31 @@
 - Full local gate passed: `npm test -- --run` — 66 files, 430 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `b5fface` passed GitHub Actions run `28238191693` for the complete Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 023 Stage 6 final IMPROVE with a final backup-restore usability/reliability increment and full final verification.
+
+---
+
+## Long Campaign 023 — Stage 6 Block Empty Backup Imports Final Improve (2026-06-26)
+
+### Goal
+- Prevent no-op backup imports when a file contains no supported settings.
+
+### Completed
+- Added coverage for backups containing only unsupported keys.
+- Added `没有可导入的设置。` to the import impact summary.
+- Disabled both merge and overwrite import buttons when no supported settings are present.
+
+### Verified
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed before empty-import blocking existed.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx src/storage-keys.test.ts` — 2 files, 9 tests passed.
+- Final full local gate passed: `npm test -- --run` — 66 files, 431 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+- Final authenticated local Pages browser smoke passed via `npm run smoke:auth-export` against `http://127.0.0.1:8793`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Campaign status
+- Pending final commit, CI deploy verification, and live smoke.

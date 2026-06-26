@@ -116,4 +116,22 @@ describe("BackupRestore", () => {
     expect(await screen.findByText("将忽略 1 项不支持数据。")).toBeTruthy();
     expect(screen.queryByText("other-app:token")).toBeNull();
   });
+
+  test("blocks confirmation when a backup has no supported settings", async () => {
+    const { container } = render(<BackupRestore onNotice={vi.fn()} />);
+    const fileInput = container.querySelector('input[type="file"]');
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: {
+        files: [
+          backupFile({
+            "other-app:token": "not-imported",
+          }),
+        ],
+      },
+    });
+
+    expect(await screen.findByText("没有可导入的设置。")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "合并导入（保留现有）" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "覆盖导入" }) as HTMLButtonElement).disabled).toBe(true);
+  });
 });
