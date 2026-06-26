@@ -1561,9 +1561,34 @@
 - System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors. Authenticated copy fallback is covered by component TDD because browser entry is gated by private access.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `bc5cdbe` passed GitHub Actions run `28217920387` for the full Cloudflare Pages deploy workflow.
 
 ### Remaining risks / next directions
 - Browser-level authenticated export interaction remains gated locally by private access, so modal behavior is covered by component tests rather than an authenticated browser E2E.
 - npm still reports allow-scripts review notices for `esbuild`, `sharp`, and `workerd`; this is non-blocking but should be reviewed deliberately if the repo adopts npm script approvals.
 - Next high-value improvement: add an authenticated E2E fixture or test-mode session route so export modal flows can be verified in a real browser without production credentials.
+
+---
+
+## Long Campaign 021 — Stage 1 Safe Export Filename Preview (2026-06-26)
+
+### Goal
+- Continue the export reliability thread by making the exact download filename visible and safe before export.
+
+### Completed
+- Added deterministic safe filename generation by export format.
+- Added fallback to `未命名导出` when a conversation title contains only invalid filename characters.
+- Reused the same safe filename for download paths and showed it in the export workbench through an accessible `导出文件名` preview.
+- Added truncation styling so long filenames remain readable without breaking the modal.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed before the filename preview existed, then passed after implementation.
+- Full local gate passed: `npm test -- --run` — 64 files, 414 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 021 Stage 2 with another export reliability increment. Best candidate: make the chosen export format visibly tied to filename/extension changes and guard copy/download status when switching formats.

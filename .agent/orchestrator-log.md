@@ -868,3 +868,45 @@
 - System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. Authenticated copy fallback is covered by component-level TDD because the local browser entry is gated by the private access screen.
 
 **Commit target**: `fix: add export copy fallback`
+
+**Commit/CI**:
+- Commit `bc5cdbe` (`fix: add export copy fallback`) pushed to `origin/main`.
+- GitHub Actions run `28217920387` passed the complete deploy workflow.
+
+---
+
+## Long Campaign 021 — 3-Level Orchestrator V2 Full Loop (2026-06-26)
+
+### Stage 1/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- `main` was up to date with `origin/main`.
+- Only the pre-existing untracked `.agent/orchestrator-history/campaign-014/` directory was present.
+- Previous loop left the next high-value direction as adding authenticated browser-level coverage for export-modal flows.
+- Because the authenticated browser entry is still gated by private access, this stage adds a stable user-visible export assertion surface that helps the future E2E fixture while improving real export reliability.
+
+**Goal**: Add a safe export filename preview and reuse the same safe filename for downloads, so users can verify the resulting filename before exporting and edge-case titles cannot produce empty filenames.
+
+**Plan / TDD**:
+- RED: add a test that renders an export title made only from invalid filename characters and expects an accessible `导出文件名` preview with `未命名导出.md`.
+- GREEN: add deterministic filename generation by format, fallback to `未命名导出`, show it in the export workbench, and reuse it in download paths.
+- Verify full local gates, Pages Functions smoke, desktop/mobile browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added `buildExportFilename(title, format)` with invalid-character replacement, underscore cleanup, trimming, 64-character base cap, and `未命名导出` fallback.
+- Reused the generated filename for Markdown, text, HTML, Notion, Obsidian, and PDF HTML fallback downloads.
+- Added an accessible `导出文件名` preview in the export workbench.
+- Added CSS for the filename preview so long filenames truncate cleanly instead of crowding the modal.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because no accessible `导出文件名` preview existed.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 6 tests passed.
+- `npm test -- --run` — 64 files, 414 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 16.98 kB gzip 5.57 kB.
+- Local Pages `/` and `/api/session` returned 200; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. Authenticated export filename behavior is covered by component-level TDD because local browser entry is gated by private access.
+
+**Commit target**: `feat: preview safe export filenames`
