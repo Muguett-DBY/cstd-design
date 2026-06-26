@@ -1897,7 +1897,30 @@
 - Full local gate passed: `npm test -- --run` — 66 files, 425 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `9ea5986` passed GitHub Actions run `28234694996` for the complete Cloudflare Pages deploy workflow.
 
 ### Next
 - Continue Campaign 023 Stage 2 with a backup/restore improvement that makes merge import outcomes more explicit after confirmation.
+
+---
+
+## Long Campaign 023 — Stage 2 Backup Merge Import Result Counts (2026-06-26)
+
+### Goal
+- Make merge import completion feedback explicit about imported and skipped existing settings.
+
+### Completed
+- Added coverage for merge import with one existing setting and one new setting.
+- Updated backup restore import logic to count skipped existing keys in merge mode.
+- Preserved the existing local value while importing the new setting and reporting both counts.
+
+### Verified
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed because the merge notice did not include skipped settings.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 2 tests passed.
+- Full local gate passed: `npm test -- --run` — 66 files, 426 tests; `npm run typecheck:functions`; `npm run lint`; `npm audit --audit-level=high`; `npm run build`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 023 Stage 3 UI/UX with a visual refinement that makes backup import choices and consequences easier to scan.

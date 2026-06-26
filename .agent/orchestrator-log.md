@@ -1373,3 +1373,37 @@
 - `npm run build` — passed; main `index` chunk 385.97 kB gzip 115.06 kB.
 
 **Commit target**: `feat: show backup import overwrite status`
+
+**Commit/CI**:
+- Commit `9ea5986` (`feat: show backup import overwrite status`) pushed to `origin/main`.
+- GitHub Actions run `28234694996` passed the complete deploy workflow.
+
+### Stage 2/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 1 preview badges made pre-import overwrite risk visible.
+- After confirming merge import, the notice only reported imported count and hid skipped existing settings.
+
+**Goal**: Make merge import completion feedback match the risk preview by reporting imported and skipped counts.
+
+**Plan / TDD**:
+- RED: add a component test that imports one existing key and one new key in merge mode, expecting a notice with imported and skipped counts.
+- GREEN: track skipped existing keys in merge mode and include that count in the notice.
+- Verify focused test plus full local gate.
+
+**Completed**:
+- Extended `BackupRestore.test.tsx` to verify merge import results and preserved existing local values.
+- Updated `confirmImport` to count skipped keys when merge mode keeps existing data.
+- Kept overwrite-mode notice unchanged unless there are skipped merge items.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/BackupRestore.test.tsx` failed because the notice omitted the skipped count.
+- GREEN: `npx vitest run src/components/BackupRestore.test.tsx` — 1 file, 2 tests passed.
+- `npm test -- --run` — 66 files, 426 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm audit --audit-level=high` — found 0 vulnerabilities.
+- `npm run build` — passed; main `index` chunk 386.03 kB gzip 115.10 kB.
+
+**Commit target**: `feat: report skipped backup merge imports`
