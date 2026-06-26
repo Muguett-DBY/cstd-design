@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 export const EXPORT_ACTIVITY_STORAGE_KEY = "cstd-design:exportActivity:v1";
 const EXPORT_ACTIVITY_VERSION = 1;
 const MAX_EXPORT_ACTIVITIES = 20;
+const MAX_EXPORT_FILENAME_LENGTH = 128;
 
 export type ExportActivityFormat = "markdown" | "html" | "pdf" | "text" | "notion" | "obsidian";
 
@@ -49,8 +50,27 @@ function isExportActivity(value: unknown): value is ExportActivity {
     && typeof activity.createdAt === "string";
 }
 
+function normalizeFilename(filename: unknown) {
+  if (typeof filename !== "string") return undefined;
+  const normalized = filename.trim().slice(0, MAX_EXPORT_FILENAME_LENGTH);
+  return normalized || undefined;
+}
+
+function normalizeActivity(activity: ExportActivity): ExportActivity {
+  const filename = normalizeFilename(activity.filename);
+  if (!filename) return {
+    id: activity.id,
+    title: activity.title,
+    format: activity.format,
+    count: activity.count,
+    createdAt: activity.createdAt,
+  };
+  return { ...activity, filename };
+}
+
 function orderAndTrim(activities: ExportActivity[]) {
   return [...activities]
+    .map(normalizeActivity)
     .sort((a, b) => timestamp(b.createdAt) - timestamp(a.createdAt))
     .slice(0, MAX_EXPORT_ACTIVITIES);
 }
@@ -84,7 +104,7 @@ export function useExportActivity() {
   useEffect(() => persist(activities), [activities]);
 
   const record = useCallback((input: ExportActivityInput) => {
-    const activity = { ...input, createdAt: input.createdAt || new Date().toISOString() } as ExportActivity;
+    const activity = normalizeActivity({ ...input, createdAt: input.createdAt || new Date().toISOString() } as ExportActivity);
     setActivities((current) => orderAndTrim([activity, ...current.filter((item) => item.id !== activity.id)]));
   }, []);
 
