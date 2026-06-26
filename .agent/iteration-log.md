@@ -1298,8 +1298,6 @@
 
 **Recommended next flagship**: Integration tests for critical user flows (chat, image generation, video generation).
 
----
-
 ## Campaign 016 — Reliable Creation Loop (2026-06-26)
 
 **Theme**: Make chat, image, and video creation recoverable after failures or refreshes, with shared status UX and production-style validation.
@@ -1408,3 +1406,29 @@
 
 ### Next
 - Upgrade the creation center into a clearer two-level mobile/desktop information architecture so continuation, recovery, and history remain scannable as data grows.
+
+---
+
+## Long Campaign 020 — Stage 1 Export Trust Upgrade (2026-06-26)
+
+### Goal
+- Continue the export/HTML trust boundary from the previous campaign by making export scope selection predictable and visible.
+
+### Completed
+- Fixed a real export bug where date filtering could shift index-based message selection and preview/export the wrong message.
+- Replaced export selection indices with stable message keys.
+- Added an aria-live export summary pill showing selected/exported count and whether date filtering is active.
+- Added regression coverage for selection stability across date filtering.
+
+### Verified
+- `npx vitest run src/components/ExportModal.test.tsx` passed.
+- `npm test -- --run` passed: 62 files, 405 tests.
+- `npm run typecheck:functions`, `npm run lint`, and `npm run build` passed.
+- Local Pages served `/` with HTTP 200.
+- In-app Browser smoke confirmed app identity, main UI, no framework overlay, and no console warnings/errors.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 020 Stage 2 with another product-level improvement. Strong candidates: add a richer import/export history surface, improve export preview validation for HTML/PDF, or add critical flow coverage for export/download behavior.

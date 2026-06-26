@@ -637,3 +637,43 @@
 - Browser smoke on local Pages — title `工作台 - 私人中文创作工作台`, main UI visible, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `fix: sanitize rendered html surfaces`
+
+**Commit/CI**:
+- Commit `b19583b` (`fix: sanitize rendered html surfaces`) pushed to `origin/main`.
+- GitHub Actions run `28205708791` passed the complete deploy workflow.
+
+---
+
+## Long Campaign 020 — 3-Level Orchestrator V2 Full Loop (2026-06-26)
+
+### Stage 1/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- `main` was up to date with `origin/main`.
+- Only the pre-existing untracked `.agent/orchestrator-history/campaign-014/` directory was present.
+- The previous campaign hardened rendered HTML/SVG surfaces and left export-related trust boundaries as the freshest product area.
+
+**Goal**: Make the export workflow more trustworthy by fixing unstable message selection when date filters are applied, while adding visible export-scope feedback.
+
+**Plan / TDD**:
+- RED: add an ExportModal regression test proving a selected message remains selected after a date filter narrows the export list.
+- GREEN: replace index-based selection with stable message keys and add an aria-live export summary pill.
+- Verify with focused test, then full local CI-equivalent gates, browser smoke, commit, push, and GitHub Actions.
+
+**Completed**:
+- Added `ExportModal` regression coverage for stable message selection after date filtering.
+- Replaced index-based selected-message state with stable message keys derived from IDs or deterministic content metadata.
+- Added an export-scope summary pill so users can see selected count and date-filter state before previewing or exporting.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because the UI had no export summary and the existing index-based selection could drift after date filtering.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 1 test passed.
+- `npm test -- --run` — 62 files, 405 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed.
+- Local Pages `http://127.0.0.1:8793/` returned 200.
+- Browser smoke on local Pages — title `工作台 - 私人中文创作工作台`, main UI visible, no framework overlay, and console warnings/errors were empty.
+
+**Commit target**: `fix: stabilize export message selection`
