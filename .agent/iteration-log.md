@@ -1870,7 +1870,11 @@
 - Final authenticated local Pages browser smoke passed via `npm run smoke:auth-export`.
 
 ### CI status
-- Pending commit/push for this final stage.
+- Commit `d423ee9` passed GitHub Actions run `28234111543` for the complete Cloudflare Pages deploy workflow.
 
 ### Campaign status
-- Pending final commit, push, GitHub Actions verification, and final deployment status check.
+- Final live smoke passed:
+  - `https://cbaad505.cstd-design.pages.dev/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned unauthenticated JSON.
+  - `https://cstd-design.pages.dev/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned unauthenticated JSON.
+  - `https://design.custard.top/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned unauthenticated JSON.
+- Long Campaign 022 completed all six required stages with code/log changes, local validation, browser smoke, commits, pushes, GitHub Actions verification, and live smoke.

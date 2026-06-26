@@ -1326,3 +1326,16 @@
 - `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome.
 
 **Commit target**: `feat: label backup preview keys`
+
+**Commit/CI**:
+- Commit `d423ee9` (`feat: label backup preview keys`) pushed to `origin/main`.
+- GitHub Actions run `28234111543` passed the complete deploy workflow.
+
+**Final live deployment smoke**:
+- `https://cbaad505.cstd-design.pages.dev/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- `https://cstd-design.pages.dev/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- `https://design.custard.top/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+
+**Campaign 022 final status**:
+- Completed all six required stages: IMPROVE, IMPROVE, UIUX, IMPROVE, CHECK, IMPROVE.
+- Completed local full verification, authenticated browser smoke, per-stage commits, pushes to `main`, GitHub Actions deploy verification, and final live smoke.
