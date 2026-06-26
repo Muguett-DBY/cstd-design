@@ -63,4 +63,25 @@ describe("ExportModal", () => {
     expect(preview?.textContent).toContain("第二条已选择");
     expect(preview?.textContent).not.toContain("第三条不应替代第二条");
   });
+
+  test("makes export controls accessible and blocks empty manual selections", () => {
+    const messages = [
+      { id: "m1", role: "user", content: "第一条", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+      { id: "m2", role: "assistant", content: "第二条", status: "done", createdAt: "2026-01-02T10:00:00.000Z" },
+    ];
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="导出测试" messages={messages} />);
+
+    const dateToggle = screen.getByRole("button", { name: "按日期筛选" });
+    expect(dateToggle.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(dateToggle);
+    expect(dateToggle.getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByLabelText("开始日期")).toBeTruthy();
+    expect(screen.getByLabelText("结束日期")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "选择消息" }));
+
+    expect((screen.getByRole("button", { name: "导出" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText("请选择至少一条消息后再导出。")).toBeTruthy();
+  });
 });
