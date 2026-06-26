@@ -64,7 +64,21 @@ export function sessionCookieShouldBeSecure(request: Request) {
   return !(url.hostname === "127.0.0.1" || url.hostname === "localhost");
 }
 
+const schemaInitialization = new WeakMap<D1Database, Promise<void>>();
+
 export async function ensureSchema(db: D1Database) {
+  const pending = schemaInitialization.get(db);
+  if (pending) return pending;
+
+  const initializing = createSchema(db).catch((error) => {
+    schemaInitialization.delete(db);
+    throw error;
+  });
+  schemaInitialization.set(db, initializing);
+  return initializing;
+}
+
+async function createSchema(db: D1Database) {
   await db.batch([
     db.prepare(`CREATE TABLE IF NOT EXISTS auth_sessions (
       id TEXT PRIMARY KEY,

@@ -1746,3 +1746,31 @@
 
 ### Next
 - Continue Campaign 022 Stage 2 with an authenticated browser-verifiable export flow improvement now that the test fixture exists.
+
+---
+
+## Long Campaign 022 — Stage 2 Authenticated Export Browser Smoke (2026-06-26)
+
+### Goal
+- Turn the new test-session fixture into a repeatable real-browser check for authenticated export behavior.
+
+### Completed
+- Added deterministic E2E export fixture content.
+- Added guarded `POST /api/session/test/fixture`, protected by the same `E2E_SESSION_SECRET` header contract.
+- Added `npm run smoke:auth-export` to seed a test session, create a fixture conversation, open the authenticated app shell, verify the advanced export modal, verify Markdown/PDF filename previews, copy generated Markdown export content, and check for overflow/console errors.
+- Fixed authenticated desktop toolbar hit testing by moving chat row actions onto their own wrapping row instead of letting them extend under the right panel.
+- Cached and serialized `ensureSchema` per D1 binding instance to avoid repeated concurrent local D1 DDL initialization errors during browser smoke.
+- Documented the authenticated export smoke command in `README.md`.
+
+### Verified
+- RED: `npx vitest run functions/_shared/core.test.ts` failed before `buildE2EExportFixture` existed.
+- GREEN: `npx vitest run functions/_shared/core.test.ts` — 1 file, 21 tests passed.
+- `npm run smoke:auth-export` initially exposed real blockers: shell selector mismatch, onboarding overlay, toolbar/right-panel pointer interception, and local D1 schema-init flake; all were fixed and reverified.
+- Final `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome and copied fixture export content.
+- Full local gate passed: `npm test -- --run` — 64 files, 420 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 022 Stage 3 UI/UX with a visible export-workflow refinement now covered by authenticated browser smoke.

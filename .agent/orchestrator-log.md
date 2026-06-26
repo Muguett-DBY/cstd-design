@@ -1147,3 +1147,41 @@
 - System Chrome authenticated desktop and 390×844 mobile smoke entered the app shell instead of the private access gate, with no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 **Commit target**: `feat: add guarded e2e session fixture`
+
+**Commit/CI**:
+- Commit `9d93f84` (`feat: add guarded e2e session fixture`) pushed to `origin/main`.
+- GitHub Actions run `28221222174` passed the complete deploy workflow.
+
+### Stage 2/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 1 removed the private-access blocker by adding a guarded test session endpoint.
+- Export behavior was still not covered by a reusable authenticated browser script.
+
+**Goal**: Add a repeatable authenticated browser export smoke and fix any issues it exposes.
+
+**Plan / TDD**:
+- RED: add a function-level fixture contract test before the E2E fixture helper exists.
+- GREEN: add fixture helper and guarded seed endpoint.
+- Add a browser script that authenticates through the guarded endpoint, seeds fixture data, opens the real UI, verifies the advanced export modal, Markdown/PDF filename previews, copied export content, overflow, and console errors.
+- Fix script-discovered UI/backend issues instead of bypassing them.
+
+**Completed**:
+- Added `functions/_shared/e2e-fixtures.ts`.
+- Added guarded `POST /api/session/test/fixture`.
+- Added `scripts/authenticated-export-smoke.mjs` and `npm run smoke:auth-export`.
+- Documented the authenticated export smoke workflow in `README.md`.
+- Fixed chat toolbar wrapping so action buttons remain clickable at 1366px desktop width with the right panel open.
+- Serialized/cached `ensureSchema` per D1 binding to reduce local concurrent D1 DDL initialization failures during browser smoke.
+
+**Verification before commit**:
+- RED: `npx vitest run functions/_shared/core.test.ts` failed because `./e2e-fixtures` did not exist.
+- GREEN: `npx vitest run functions/_shared/core.test.ts` — 1 file, 21 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed.
+- `npm run smoke:auth-export` on `wrangler pages dev dist --port 8794 --binding E2E_SESSION_SECRET=codex-e2e-secret` passed with System Chrome; it verified authenticated app entry, seeded export conversation, advanced export modal, Markdown/PDF filename previews, copied Markdown export content, no horizontal overflow, and no console warnings/errors.
+- Full local gate passed: `npm test -- --run` — 64 files, 420 tests passed; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+**Commit target**: `feat: add authenticated export smoke`
