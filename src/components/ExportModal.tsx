@@ -217,6 +217,8 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   const [showPreview, setShowPreview] = useState(false);
   const [copyStatus, setCopyStatus] = useState<CopyStatus>("idle");
   const [copiedPreviewContent, setCopiedPreviewContent] = useState("");
+  const [filenameCopyStatus, setFilenameCopyStatus] = useState<CopyStatus>("idle");
+  const [copiedFilename, setCopiedFilename] = useState("");
   const headingId = useId();
   const summaryId = useId();
   const exportGuardId = useId();
@@ -298,7 +300,9 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
   }, [title, filteredMessages, format]);
   const exportFilename = useMemo(() => buildExportFilename(title, format), [title, format]);
   const visibleCopyStatus = copiedPreviewContent === previewContent ? copyStatus : "idle";
+  const visibleFilenameCopyStatus = copiedFilename === exportFilename ? filenameCopyStatus : "idle";
   const copyButtonLabel = visibleCopyStatus === "success" ? "重新复制内容" : "复制内容";
+  const filenameCopyButtonLabel = visibleFilenameCopyStatus === "success" ? "重新复制文件名" : "复制文件名";
 
   const toggleAllMessages = () => {
     if (allSelected) {
@@ -389,6 +393,17 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
     }
   };
 
+  const handleCopyFilename = async () => {
+    try {
+      await copyTextToClipboard(exportFilename);
+      setCopiedFilename(exportFilename);
+      setFilenameCopyStatus("success");
+    } catch {
+      setCopiedFilename(exportFilename);
+      setFilenameCopyStatus("error");
+    }
+  };
+
   return (
     <div className="export-modal-overlay" onClick={onClose}>
       <div className="export-modal" role="dialog" aria-modal="true" aria-labelledby={headingId} onClick={(e) => e.stopPropagation()}>
@@ -421,12 +436,20 @@ export function ExportModal({ isOpen, onClose, title, messages }: ExportModalPro
             </div>
           </section>
           <p id={summaryId} className="export-filter-summary" aria-live="polite">{exportSummary}</p>
-          <p className="export-filename-preview" aria-label="导出文件名">
+          <div className="export-filename-preview" aria-label="导出文件名">
             <span>文件名</span>
             <strong>{exportFilename}</strong>
-          </p>
+            <button type="button" className="export-filename-copy" onClick={handleCopyFilename}>
+              <Clipboard size={13} /> {filenameCopyButtonLabel}
+            </button>
+          </div>
           {exportGuardMessage && (
             <p id={exportGuardId} className="export-empty-warning" role="status">{exportGuardMessage}</p>
+          )}
+          {visibleFilenameCopyStatus !== "idle" && (
+            <p className={`export-copy-status ${visibleFilenameCopyStatus}`} role="status">
+              {visibleFilenameCopyStatus === "success" ? "已复制文件名。" : "复制文件名失败。"}
+            </p>
           )}
           {visibleCopyStatus !== "idle" && (
             <p className={`export-copy-status ${visibleCopyStatus}`} role="status">

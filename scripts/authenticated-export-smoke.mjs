@@ -104,7 +104,13 @@ try {
   const dialog = page.getByRole("dialog", { name: "导出对话" });
   await dialog.waitFor({ timeout: 10_000 });
   await dialog.getByText("2 条消息将被导出").waitFor({ timeout: 10_000 });
-  await dialog.getByText(/E2E 导出验证.*\.md/).waitFor({ timeout: 10_000 });
+  const markdownFilename = await dialog.getByText(/E2E 导出验证.*\.md/).textContent({ timeout: 10_000 });
+  await dialog.getByRole("button", { name: "复制文件名" }).click();
+  await dialog.getByText("已复制文件名。").waitFor({ timeout: 10_000 });
+  const copiedFilename = await page.evaluate(() => navigator.clipboard.readText());
+  if (!markdownFilename || copiedFilename !== markdownFilename.trim()) {
+    throw new Error(`expected copied filename ${markdownFilename}, received ${copiedFilename}`);
+  }
 
   await dialog.getByRole("button", { name: "预览导出内容" }).click();
   await dialog.getByText("这是用于高级导出浏览器冒烟的固定回复").first().waitFor({ timeout: 10_000 });

@@ -1185,3 +1185,38 @@
 - Full local gate passed: `npm test -- --run` — 64 files, 420 tests passed; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
 
 **Commit target**: `feat: add authenticated export smoke`
+
+**Commit/CI**:
+- Commit `573d05c` (`feat: add authenticated export smoke`) pushed to `origin/main`.
+- GitHub Actions run `28232604312` passed the complete deploy workflow.
+
+### Stage 3/6 — UIUX
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_UIUX_MAIN.txt`
+**Start state**:
+- The export modal showed the computed filename but did not let users copy it directly.
+- The authenticated browser smoke could verify export modal behavior end-to-end.
+
+**Goal**: Add a visible, accessible filename-copy affordance to the export workflow.
+
+**Plan / TDD**:
+- RED: add a component test expecting a “复制文件名” button that writes the current filename and shows separate success feedback.
+- GREEN: implement dedicated filename copy state and UI.
+- Extend browser smoke to verify filename copy with a real clipboard.
+
+**Completed**:
+- Added a “复制文件名” button beside the filename preview.
+- Added independent filename-copy success/error status messages.
+- Styled the filename row so long names truncate while the copy button remains clickable.
+- Updated `scripts/authenticated-export-smoke.mjs` to verify copying the current Markdown filename before preview/PDF/content checks.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because the “复制文件名” button did not exist.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 9 tests passed.
+- `npm test -- --run` — 64 files, 421 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; `ExportModal` async chunk changed to 17.95 kB, gzip 5.83 kB.
+- `npm run smoke:auth-export` on local Pages `127.0.0.1:8794` passed with System Chrome, including filename-copy verification.
+
+**Commit target**: `feat: copy export filenames`

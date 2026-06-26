@@ -138,6 +138,24 @@ describe("ExportModal", () => {
     expect(screen.getByLabelText("导出文件名").textContent).toContain("未命名导出.md");
   });
 
+  test("copies the current export filename with separate feedback", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText },
+      configurable: true,
+    });
+    const messages = [
+      { id: "m1", role: "assistant", content: "文件名也需要复制", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },
+    ];
+
+    render(<ExportModal isOpen onClose={vi.fn()} title="文件名复制测试" messages={messages} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "复制文件名" }));
+
+    expect(writeText).toHaveBeenCalledWith("文件名复制测试.md");
+    expect(await screen.findByText("已复制文件名。")).toBeTruthy();
+  });
+
   test("shows a pdf filename preview when PDF export is selected", () => {
     const messages = [
       { id: "m1", role: "assistant", content: "PDF 文件名要准确", status: "done", createdAt: "2026-01-01T10:00:00.000Z" },

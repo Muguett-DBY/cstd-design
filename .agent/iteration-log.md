@@ -1774,3 +1774,28 @@
 
 ### Next
 - Continue Campaign 022 Stage 3 UI/UX with a visible export-workflow refinement now covered by authenticated browser smoke.
+
+---
+
+## Long Campaign 022 — Stage 3 Export Filename Copy UX (2026-06-26)
+
+### Goal
+- Improve the export modal workflow with a directly usable filename copy affordance.
+
+### Completed
+- Added a dedicated “复制文件名” action beside the export filename preview.
+- Added independent success/error feedback for filename copying so it does not conflict with export-content copy status.
+- Kept filename copy feedback tied to the current computed filename, so changing format/title invalidates stale status.
+- Updated the authenticated export smoke to verify copying the Markdown filename in a real browser before checking preview/PDF/content copy.
+
+### Verified
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because no accessible “复制文件名” button existed.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 9 tests passed.
+- Full local gate passed: `npm test -- --run` — 64 files, 421 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Authenticated local Pages browser smoke passed via `npm run smoke:auth-export`, including filename-copy verification.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Next
+- Continue Campaign 022 Stage 4 IMPROVE with another export-flow or reliability improvement now covered by component and browser smoke.
