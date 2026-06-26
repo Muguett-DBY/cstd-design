@@ -1535,7 +1535,35 @@
 - System Chrome smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors.
 
 ### CI status
-- Pending commit/push for this stage.
+- Commit `04fdb9a` passed GitHub Actions run `28217721452` for the full Cloudflare Pages deploy workflow. The previous Node.js 20 action-runtime deprecation annotation did not appear in the watch output after refreshing action versions.
 
 ### Next
 - Continue Campaign 020 Stage 6 with the final product/stability improvement. Strong candidate: make clipboard export gracefully handle browsers without Clipboard API or insecure contexts.
+
+---
+
+## Long Campaign 020 — Stage 6 Export Copy Fallback (2026-06-26)
+
+### Goal
+- Finish the long loop by hardening the export copy action for browsers or contexts where Clipboard API is unavailable.
+
+### Completed
+- Added a tested `copyTextToClipboard` helper in `ExportModal`.
+- Preferred `navigator.clipboard.writeText` when available.
+- Added fallback through an off-screen readonly textarea and `document.execCommand("copy")`.
+- Preserved existing success/error status feedback and disabled-copy behavior for empty exports.
+
+### Verified
+- RED/GREEN: `npx vitest run src/components/ExportModal.test.tsx` failed before fallback support, then passed after implementation.
+- Full local gate passed: `npm test -- --run` — 64 files, 413 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- `git diff --check` passed with only existing LF-to-CRLF normalization warnings.
+- Local Pages served `/` and `/api/session` with HTTP 200.
+- System Chrome desktop and 390×844 mobile smoke confirmed app-shell load, no horizontal overflow, no framework overlay, and no console warnings/errors. Authenticated copy fallback is covered by component TDD because browser entry is gated by private access.
+
+### CI status
+- Pending commit/push for this stage.
+
+### Remaining risks / next directions
+- Browser-level authenticated export interaction remains gated locally by private access, so modal behavior is covered by component tests rather than an authenticated browser E2E.
+- npm still reports allow-scripts review notices for `esbuild`, `sharp`, and `workerd`; this is non-blocking but should be reviewed deliberately if the repo adopts npm script approvals.
+- Next high-value improvement: add an authenticated E2E fixture or test-mode session route so export modal flows can be verified in a real browser without production credentials.

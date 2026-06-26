@@ -831,3 +831,40 @@
 - System Chrome smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty.
 
 **Commit target**: `ci: refresh workflow action runtimes`
+
+**Commit/CI**:
+- Commit `04fdb9a` (`ci: refresh workflow action runtimes`) pushed to `origin/main`.
+- GitHub Actions run `28217721452` passed the complete deploy workflow; the previous Node.js 20 action-runtime deprecation annotation no longer appeared in the watch output.
+
+### Stage 6/6 — IMPROVE
+
+**Prompt file**: `C:\Users\12031\Desktop\AGENT_PROMPTS_MAIN_PACK\AGENT_IMPROVE_MAIN.txt`
+**Start state**:
+- Stage 4 added `复制内容` through `navigator.clipboard.writeText`.
+- CHECK left one direct stability candidate: Clipboard API may be unavailable in older browsers, restricted contexts, or non-secure origins.
+
+**Goal**: Make export-copy robust when Clipboard API is missing by adding a tested fallback path.
+
+**Plan / TDD**:
+- RED: add a test that removes `navigator.clipboard`, clicks `复制内容`, and expects `document.execCommand("copy")` plus visible success feedback.
+- GREEN: add a small `copyTextToClipboard` helper that prefers Clipboard API and falls back to a temporary readonly textarea + `execCommand("copy")`.
+- Verify focused and full gates, local Pages/browser smoke, commit, push, and final GitHub Actions.
+
+**Completed**:
+- Added `copyTextToClipboard(content)` in `ExportModal`.
+- Preferred `navigator.clipboard.writeText` when available.
+- Added legacy fallback using an off-screen readonly textarea and `document.execCommand("copy")`.
+- Preserved existing success/error user feedback and empty-content disable behavior.
+
+**Verification before commit**:
+- RED: `npx vitest run src/components/ExportModal.test.tsx` failed because `execCommand("copy")` was not called when Clipboard API was unavailable.
+- GREEN: `npx vitest run src/components/ExportModal.test.tsx` — 1 file, 5 tests passed.
+- `npm test -- --run` — 64 files, 413 tests passed.
+- `npm run typecheck:functions` — passed.
+- `npm run lint` — passed with 0 warnings.
+- `npm run build` — passed; main `index` chunk stayed at 385.15 kB and the `ExportModal` async chunk was 16.63 kB gzip 5.47 kB.
+- `git diff --check` — passed; Git reported only existing LF-to-CRLF normalization warnings.
+- Local Pages `/` and `/api/session` returned 200; `/api/session` returned `{"authenticated":false,"expiresAt":null}`.
+- System Chrome desktop and 390×844 mobile smoke on local Pages — app shell loaded, no horizontal overflow, no framework overlay, and console warnings/errors were empty. Authenticated copy fallback is covered by component-level TDD because the local browser entry is gated by the private access screen.
+
+**Commit target**: `fix: add export copy fallback`
