@@ -913,6 +913,8 @@ button:disabled {
   border-color: var(--accent);
   color: var(--text);
   font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--accent);
+  padding-left: 12px;
 }
 
 .folder-count {
