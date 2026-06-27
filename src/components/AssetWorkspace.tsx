@@ -17,6 +17,21 @@ import { useAssetVersions } from "../hooks/useAssetVersions";
 import { analyzeAssetQuality } from "../hooks/useAssetQuality";
 import { useAssetDeduplication } from "../hooks/useAssetDeduplication";
 
+type SortMode = "dateDesc" | "dateAsc" | "nameAsc" | "nameDesc" | "sizeDesc" | "sizeAsc";
+
+function sortAssets(items: AssetItem[], mode: SortMode): AssetItem[] {
+  const sorted = [...items];
+  switch (mode) {
+    case "dateDesc": return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    case "dateAsc": return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    case "nameAsc": return sorted.sort((a, b) => a.filename.localeCompare(b.filename, "zh-CN"));
+    case "nameDesc": return sorted.sort((a, b) => b.filename.localeCompare(a.filename, "zh-CN"));
+    case "sizeDesc": return sorted.sort((a, b) => b.size - a.size);
+    case "sizeAsc": return sorted.sort((a, b) => a.size - b.size);
+    default: return sorted;
+  }
+}
+
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -24,6 +39,8 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [lastClicked, setLastClicked] = useState<number | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "detail">("grid");
+  const [sortMode, setSortMode] = useState<SortMode>("dateDesc");
   const collections = useCollections();
   const { addTag, removeTag, getTags, allTags, ...assetTags } = useAssetTags();
   const { recordVersion, getVersions } = useAssetVersions();
@@ -43,13 +60,12 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const byCollection = activeCollection ? collections.filterByCollection(byKind.map((a) => a.id), activeCollection) : byKind.map((a) => a.id);
   const byCollectionSet = new Set(byCollection);
   const byTag = tagFilter ? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && byCollectionSet.has(a.id) && getTags(a.id).includes(tagFilter)) : null;
-  const visible = byTag ?? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && byCollectionSet.has(a.id));
+  const visible = sortAssets(byTag ?? allAssets.filter((a) => byKind.some((b) => b.id === a.id) && byCollectionSet.has(a.id)), sortMode);
   const totalSize = visible.reduce((sum, a) => sum + a.size, 0);
   const [showTagPickerFor, setShowTagPickerFor] = useState<string | null>(null);
   const [showCompare, setShowCompare] = useState(false);
   const [showCollectionPickerFor, setShowCollectionPickerFor] = useState<string | null>(null);
   const [showCollectionsManager, setShowCollectionsManager] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "detail">("grid");
 
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {
@@ -152,6 +168,19 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               <LayoutList size={14} />
             </button>
           </div>
+          <select
+            className="asset-sort-select"
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as SortMode)}
+            aria-label="排序方式"
+          >
+            <option value="dateDesc">最新优先</option>
+            <option value="dateAsc">最旧优先</option>
+            <option value="nameAsc">名称 A→Z</option>
+            <option value="nameDesc">名称 Z→A</option>
+            <option value="sizeDesc">最大优先</option>
+            <option value="sizeAsc">最小优先</option>
+          </select>
           {collections.collections.length > 0 && (
             <div className="tag-filter">
               <span className="tag-filter-label">集合：</span>
