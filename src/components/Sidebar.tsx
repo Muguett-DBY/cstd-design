@@ -349,12 +349,21 @@ export function Sidebar({
               <X size={12} />
             </button>
           )}
-          <button type="button" className="filter-toggle" onClick={() => setShowFilters(!showFilters)} title="筛选">
+          <button type="button" className={`filter-toggle${(dateFilter !== "all" || messageCountFilter !== "all" || dateRange.start || dateRange.end) ? " active" : ""}`} onClick={() => setShowFilters(!showFilters)} title="筛选" aria-label="筛选" aria-pressed={showFilters}>
             <Filter size={14} />
+            {(dateFilter !== "all" || messageCountFilter !== "all" || dateRange.start || dateRange.end) && <span className="filter-active-dot" aria-hidden="true" />}
           </button>
         </label>
         {showFilters && (
           <div className="filter-panel">
+            {(dateFilter !== "all" || messageCountFilter !== "all" || dateRange.start || dateRange.end) && (
+              <div className="filter-active-summary">
+                {dateFilter !== "all" && <span>时间: {DATE_FILTER_OPTIONS.find((o) => o.value === dateFilter)?.label}</span>}
+                {messageCountFilter !== "all" && <span>消息: {MESSAGE_COUNT_OPTIONS.find((o) => o.value === messageCountFilter)?.label}</span>}
+                {dateRange.start && <span>从 {dateRange.start}</span>}
+                {dateRange.end && <span>到 {dateRange.end}</span>}
+              </div>
+            )}
             <div className="filter-group">
               <span className="filter-label"><Clock size={12} /> 时间</span>
               <div className="filter-options">

@@ -789,6 +789,18 @@ button:disabled {
   background: var(--soft);
 }
 
+.filter-toggle.active {
+  color: var(--accent);
+}
+
+.filter-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-left: 2px;
+}
+
 .filter-panel {
   padding: 10px 0;
   display: flex;
@@ -796,6 +808,22 @@ button:disabled {
   gap: 10px;
   border-bottom: 1px solid var(--line);
   animation: filterPanelSlide 0.2s ease;
+}
+
+.filter-active-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--accent-soft, color-mix(in srgb, var(--accent) 12%, transparent));
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  font-size: 11px;
+  color: var(--accent);
+}
+
+.filter-active-summary span {
+  white-space: nowrap;
 }
 
 @keyframes filterPanelSlide {
