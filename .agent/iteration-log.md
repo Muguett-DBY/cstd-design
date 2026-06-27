@@ -2221,4 +2221,9 @@
 - Authenticated local Pages browser smoke passed for seeded session/export flow, clipboard checks, export preference persistence, runtime console, and horizontal overflow.
 
 ### Next
-- Commit and push Stage 6, verify GitHub Actions, then close Campaign 025 with live endpoint checks.
+- Campaign 025 is complete. Start a new campaign only for a new product or reliability objective.
+
+### CI and live status
+- Commit `109c8f5` passed GitHub Actions run `28299027843`.
+- Cloudflare production deployment `96a61b37-4e58-498d-aa69-45266ffd822d` points to source `109c8f5`.
+- Direct Pages and custom domains returned HTTP 200 for the app shell and `/api/session`.

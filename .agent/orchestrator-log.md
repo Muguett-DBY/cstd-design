@@ -98,4 +98,9 @@
   - Full tests: `npm test` — 67 files, 446 tests passed.
   - Static/security/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated Pages browser smoke passed against `wrangler pages dev dist`: session fixture, export dialog, filename/content clipboard flows, PDF/Markdown preference persistence, console/runtime and overflow checks.
-- **Status**: Ready for commit, push, GitHub Actions, and final live verification.
+- **Commit/CI**: `109c8f5` — GitHub Actions run `28299027843` passed.
+- **Live verification**:
+  - Cloudflare production deployment `96a61b37-4e58-498d-aa69-45266ffd822d` points to source `109c8f5`.
+  - `https://cstd-design.pages.dev/` and `https://design.custard.top/` returned HTTP 200 with the expected page title.
+  - `/api/session` returned HTTP 200 and the expected unauthenticated session payload on both stable domains.
+- **Final status**: Campaign 025 completed all six stages with local, CI, deployment, and live endpoint verification.
