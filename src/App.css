@@ -2124,6 +2124,16 @@ button:disabled {
   background: color-mix(in srgb, var(--info) 10%, transparent);
   border-radius: 999px;
   padding: 2px 8px;
+  animation: streamingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes streamingPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .markdown {
