@@ -1,6 +1,27 @@
 import { describe, expect, test } from "vitest";
-import { appendChatEvent, buildActiveBranch, filterAssets, formatBytes, initialChatDraft, sortAssets, videoPresetToRequest } from "./app-state";
+import {
+  appendChatEvent,
+  buildActiveBranch,
+  filterAssets,
+  formatBytes,
+  initialChatDraft,
+  readStoredAssetSortMode,
+  sortAssets,
+  videoPresetToRequest,
+  writeStoredAssetSortMode,
+} from "./app-state";
+import { ASSET_SORT_STORAGE_KEY } from "./storage-keys";
 import type { AssetItem, ChatMessage } from "./types";
+
+const storage = new Map<string, string>();
+Object.defineProperty(globalThis, "localStorage", {
+  value: {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => { storage.set(key, value); },
+    removeItem: (key: string) => { storage.delete(key); },
+    clear: () => { storage.clear(); },
+  },
+});
 
 describe("frontend state helpers", () => {
   test("applies streaming chat events to the assistant message", () => {
@@ -54,6 +75,17 @@ describe("frontend state helpers", () => {
 
     expect(sortAssets(assets, "kindAsc").map((asset) => asset.id)).toEqual(["upload", "image", "video-new", "video-old"]);
     expect(assets.map((asset) => asset.id)).toEqual(["video-old", "upload", "image", "video-new"]);
+  });
+
+  test("persists and validates the asset sort mode", () => {
+    localStorage.clear();
+
+    writeStoredAssetSortMode("kindAsc");
+    expect(localStorage.getItem(ASSET_SORT_STORAGE_KEY)).toBe("kindAsc");
+    expect(readStoredAssetSortMode()).toBe("kindAsc");
+
+    localStorage.setItem(ASSET_SORT_STORAGE_KEY, "unknown");
+    expect(readStoredAssetSortMode()).toBe("dateDesc");
   });
 
   test("uses concise defaults for the chat composer", () => {

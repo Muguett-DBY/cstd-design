@@ -2,6 +2,7 @@ export const ONBOARDING_STORAGE_KEY = "cstd-design:onboardingComplete";
 export const EXPORT_PREFERENCES_STORAGE_KEY = "cstd-design:export-preferences";
 export const CREATION_RECOVERY_STORAGE_KEY = "cstd-design:creationRecovery:v1";
 export const CREATION_ACTIVITY_STORAGE_KEY = "cstd-design:creationActivity:v1";
+export const ASSET_SORT_STORAGE_KEY = "cstd-design:assetSortMode";
 
 export const BACKUP_KEYS: readonly string[] = [
   "cstd-design:chat-prompt-templates",

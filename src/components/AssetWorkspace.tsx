@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, Grid, History, LayoutList, List, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
-import { filterAssets, formatBytes, sortAssets, type AssetSortMode } from "../app-state";
+import { filterAssets, formatBytes, readStoredAssetSortMode, sortAssets, type AssetSortMode, writeStoredAssetSortMode } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
 import { AssetMeta } from "./AssetMeta";
 import { ClearAllButton } from "./ClearAllButton";
@@ -25,7 +25,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list" | "detail">("grid");
-  const [sortMode, setSortMode] = useState<AssetSortMode>("dateDesc");
+  const [sortMode, setSortMode] = useState<AssetSortMode>(() => readStoredAssetSortMode());
   const collections = useCollections();
   const { addTag, removeTag, getTags, allTags, ...assetTags } = useAssetTags();
   const { recordVersion, getVersions } = useAssetVersions();
@@ -156,7 +156,11 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
           <select
             className="asset-sort-select"
             value={sortMode}
-            onChange={(e) => setSortMode(e.target.value as AssetSortMode)}
+            onChange={(e) => {
+              const nextMode = e.target.value as AssetSortMode;
+              setSortMode(nextMode);
+              writeStoredAssetSortMode(nextMode);
+            }}
             aria-label="排序方式"
           >
             <option value="dateDesc">最新优先</option>
