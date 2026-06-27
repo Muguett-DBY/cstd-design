@@ -229,5 +229,12 @@
   - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 12 tests passed.
   - Full tests: `npm test` — 67 files, 452 tests passed.
   - Static/security/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending.
-- **Next**: Commit and push Stage 6, verify GitHub Actions, then run final local Pages browser smoke and live deployment checks.
+- **Runtime/browser verification**:
+  - Authenticated local Pages browser smoke passed against `wrangler pages dev dist` at `http://127.0.0.1:8796`.
+  - Smoke covered test-session fixture setup, app load, conversation export dialog, clipboard copy verification, export preference persistence, and generated production assets.
+- **Commit/CI**: `58f33b2` — GitHub Actions run `28305383699` passed.
+- **Live verification**:
+  - Cloudflare production deployment `7e14e761-6106-431d-8bd8-44c10c415d6b` points to source `58f33b2`.
+  - `https://7e14e761.cstd-design.pages.dev/`, `https://cstd-design.pages.dev/`, and `https://design.custard.top/` returned HTTP 200 with title `工作台 - 私人中文创作工作台`.
+  - `/api/session` returned HTTP 200 and unauthenticated JSON on all three live domains.
+- **Final status**: Campaign 026 completed all six required stages with per-stage changes, tests, commits, pushes, GitHub Actions verification, local Pages browser smoke, and live endpoint checks.

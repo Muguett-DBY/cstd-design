@@ -2448,6 +2448,12 @@
 - RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the reset action existed.
 - GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 12 tests passed.
 - Final full local gate passed: `npm test` — 67 files, 452 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Final authenticated local Pages browser smoke passed via `npm run smoke:auth-export` against `http://127.0.0.1:8796`.
 
-### Next
-- Commit and push Stage 6, verify GitHub Actions, run final authenticated local Pages browser smoke, then verify live Cloudflare Pages endpoints.
+### CI and live status
+- Commit `58f33b2` passed GitHub Actions run `28305383699`.
+- Cloudflare production deployment `7e14e761-6106-431d-8bd8-44c10c415d6b` points to source `58f33b2`.
+- Latest direct Pages URL, stable Pages domain, and custom domain returned HTTP 200 for the app shell and `/api/session`.
+
+### Campaign status
+- Long Campaign 026 completed all six required stages with local validation, authenticated browser smoke, commits, pushes, GitHub Actions verification, and live smoke.
