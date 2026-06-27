@@ -55,4 +55,18 @@
   - GREEN targeted: `npm test -- src/app-state.test.ts` — 1 file, 11 tests passed.
   - Full tests: `npm test` — 67 files, 443 tests passed.
   - Static/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`.
+- **Commit/CI**: `a1096cf` — GitHub Actions run `28298436168` passed.
+
+### Stage 4/6 — IMPROVE ✅
+- **Goal**: Prevent hidden selected assets from leaking into batch actions after asset filters change.
+- **Completed**:
+  - Added an Asset Workspace regression test for tag-filter selection reset.
+  - Added test cleanup to avoid cross-test DOM leakage.
+  - Centralized selection reset inside Asset Workspace and applied it to type, collection, and tag filter changes.
+  - Reset both selected asset IDs and shift-click anchor state.
+- **Validation**:
+  - RED confirmed: `npm test -- src/components/AssetWorkspace.test.tsx` failed because tag filtering kept `已选 2 项` visible.
+  - GREEN targeted: `npm test -- src/components/AssetWorkspace.test.tsx` — 1 file, 2 tests passed.
+  - Full tests: `npm test` — 67 files, 444 tests passed.
+  - Static/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`.
 - **Status**: Ready for commit, push, and GitHub Actions verification.

@@ -2147,3 +2147,28 @@
 
 ### Next
 - Continue Campaign 025 Stage 4 IMPROVE with another asset-workspace reliability/product increment.
+
+### CI status
+- Commit `a1096cf` passed GitHub Actions run `28298436168`.
+
+---
+
+## Long Campaign 025 — Stage 4 Asset Selection Reset Reliability (2026-06-28)
+
+### Goal
+- Prevent selected-but-hidden assets from remaining in batch action state after the user changes asset filters.
+
+### Completed
+- Added Asset Workspace test cleanup to keep component tests isolated.
+- Added a regression test that preloads asset tags, selects all assets, then switches a tag filter.
+- Added a shared `resetSelection` helper.
+- Applied selection reset to type filters, collection filters, and tag filters.
+- Reset the shift-click anchor together with selected asset IDs.
+
+### Verified
+- RED: `npm test -- src/components/AssetWorkspace.test.tsx` failed because tag filtering still showed `已选 2 项`.
+- GREEN: `npm test -- src/components/AssetWorkspace.test.tsx` — 1 file, 2 tests passed.
+- Full local gate passed: `npm test` — 67 files, 444 tests; `npm run lint`; `npm run build`; `npm run typecheck:functions`.
+
+### Next
+- Continue Campaign 025 Stage 5 CHECK with a systematic review of persisted storage coverage and release risks.
