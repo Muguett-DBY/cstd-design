@@ -337,7 +337,18 @@ export function Sidebar({
         </div>
         <label className="search-box">
           <Search size={16} />
-          <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索标题或内容..." />
+          <input ref={inputRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索会话..." />
+          {query && (
+            <button
+              type="button"
+              className="search-clear"
+              onClick={() => { setQuery(""); inputRef.current?.focus(); }}
+              title="清空搜索"
+              aria-label="清空搜索"
+            >
+              <X size={12} />
+            </button>
+          )}
           <button type="button" className="filter-toggle" onClick={() => setShowFilters(!showFilters)} title="筛选">
             <Filter size={14} />
           </button>
