@@ -643,7 +643,7 @@ export function ChatWorkspace({
                 <div className="message-body">
                   <div className="message-meta">
                     <span>{row.message.role === "assistant" ? ASSISTANT_NAME : "你"}</span>
-                    <span className="message-time">{row.message.createdAt ? timeAgo(row.message.createdAt) : ""}</span>
+                    <span className="message-time" title={row.message.createdAt ? new Date(row.message.createdAt).toLocaleString("zh-CN") : ""}>{row.message.createdAt ? timeAgo(row.message.createdAt) : ""}</span>
                     {getForwardCount(row.message.id) > 0 && (
                       <span className="forwarded-badge" title={`已转发 ${getForwardCount(row.message.id)} 次`}>
                         <Forward size={10} /> 已转发
