@@ -1505,7 +1505,7 @@ button:disabled {
   background: var(--surface-alpha-38);
   display: grid;
   gap: 6px;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease, padding-left 0.15s ease;
   border-radius: var(--radius-md);
 }
 
@@ -1517,6 +1517,8 @@ button:disabled {
 .conversation-card.active {
   border-color: var(--accent);
   background: var(--user-msg-bg);
+  box-shadow: inset 3px 0 0 var(--accent);
+  padding-left: 14px;
 }
 
 .conversation-card strong {
