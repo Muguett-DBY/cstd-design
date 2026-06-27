@@ -128,5 +128,25 @@
   - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 8 tests passed.
   - Full tests: `npm test` — 67 files, 447 tests passed.
   - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
-- **Commit/CI**: pending.
+- **Commit/CI**: `c1167f6` — GitHub Actions run `28299844519` passed.
 - **Next**: Stage 2 IMPROVE will continue Creation Center task triage with a focused product increment.
+
+### Stage 2/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Make mixed Creation Center pending work easier to triage by type.
+- **Start state**:
+  - Branch: `main`
+  - Prior stage commit `c1167f6` was pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added `全部 / 咨询 / 图片 / 视频` pending-work filter chips.
+  - Counts include active video work in the video bucket and all recoverable records in their workspace buckets.
+  - Filtering hides unrelated active tasks, records, and recent video results.
+  - Empty filtered states now explain when the current filter has no pending work.
+- **Validation**:
+  - RED confirmed: `npm test -- src/components/RecoveryCenter.test.tsx` failed because the filter group was missing.
+  - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 9 tests passed.
+  - Full tests: `npm test` — 67 files, 448 tests passed.
+  - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- **Commit/CI**: pending.
+- **Next**: Stage 3 UIUX will refine the Creation Center panel so the new triage controls feel clearer and more mature.

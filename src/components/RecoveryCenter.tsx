@@ -7,6 +7,7 @@ import type { VideoTaskHistoryEntry } from "../hooks/useVideoTaskHistory";
 import type { AssetItem, ConversationSummary, WorkspaceTab } from "../types";
 
 type RecoveryCenterSection = "continue" | "tasks" | "activity";
+type RecoveryTaskFilter = "all" | CreationRecoveryRecord["type"];
 
 type RecoveryRecommendation =
   | {
@@ -75,10 +76,26 @@ export function RecoveryCenter({
 }) {
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState<RecoveryCenterSection>("continue");
+  const [taskFilter, setTaskFilter] = useState<RecoveryTaskFilter>("all");
   const hasActiveVideoTask = Boolean(activeVideoTask && (activeVideoTask.status === "queued" || activeVideoTask.status === "in_progress"));
   const activeCount = hasActiveVideoTask ? 1 : 0;
   const totalCount = activeCount + records.length;
   const hasPanelContent = hasActiveVideoTask || records.length > 0 || recentVideoTasks.length > 0;
+  const filteredRecords = taskFilter === "all" ? records : records.filter((record) => record.type === taskFilter);
+  const showActiveVideoTask = hasActiveVideoTask && (taskFilter === "all" || taskFilter === "video");
+  const showRecentVideoTasks = recentVideoTasks.length > 0 && (taskFilter === "all" || taskFilter === "video");
+  const hasFilteredTasks = showActiveVideoTask || filteredRecords.length > 0 || showRecentVideoTasks;
+  const taskFilterOptions: Array<{ key: RecoveryTaskFilter; label: string; count: number; ariaLabel: string }> = [
+    { key: "all", label: "全部", count: totalCount, ariaLabel: "显示全部待处理" },
+    { key: "chat", label: "咨询", count: records.filter((record) => record.type === "chat").length, ariaLabel: "只看咨询待处理" },
+    { key: "image", label: "图片", count: records.filter((record) => record.type === "image").length, ariaLabel: "只看图片待处理" },
+    {
+      key: "video",
+      label: "视频",
+      count: activeCount + records.filter((record) => record.type === "video").length,
+      ariaLabel: "只看视频待处理",
+    },
+  ];
   const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
   const toggleOpen = () => {
     if (!open) setSection(hasPanelContent ? "tasks" : "continue");
@@ -287,8 +304,26 @@ export function RecoveryCenter({
                 id="recovery-tasks-panel"
                 aria-label="待处理"
               >
+                {hasPanelContent && (
+                  <div className="recovery-task-filters" role="group" aria-label="待处理类型筛选">
+                    {taskFilterOptions.map((option) => (
+                      <button
+                        key={option.key}
+                        type="button"
+                        className="recovery-filter-chip"
+                        aria-label={option.ariaLabel}
+                        aria-pressed={taskFilter === option.key}
+                        onClick={() => setTaskFilter(option.key)}
+                      >
+                        <span>{option.label}</span>
+                        <strong>{option.count}</strong>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {!hasPanelContent && <p className="recovery-empty">当前没有待处理任务。</p>}
-              {hasActiveVideoTask && activeVideoTask && (
+                {hasPanelContent && !hasFilteredTasks && <p className="recovery-empty">当前筛选没有待处理任务。</p>}
+              {showActiveVideoTask && activeVideoTask && (
                 <article className="recovery-item recovery-item-active">
                   <div>
                     <span className="recovery-kind"><Clock size={12} /> 进行中</span>
@@ -310,10 +345,10 @@ export function RecoveryCenter({
                   </div>
                 </article>
               )}
-              {records.length > 0 && (
+              {filteredRecords.length > 0 && (
                 <>
                   <div className="recovery-list" role="list">
-                    {records.map((record) => (
+                    {filteredRecords.map((record) => (
                       <article key={record.id} className="recovery-item" role="listitem">
                         <div>
                           <span className="recovery-kind">{recoveryTypeLabel(record.type)}</span>
@@ -345,12 +380,14 @@ export function RecoveryCenter({
                       </article>
                     ))}
                   </div>
-                  <button type="button" className="ghost-button danger recovery-clear" aria-label="清空恢复记录" onClick={onClear}>
+                  {taskFilter === "all" && (
+                    <button type="button" className="ghost-button danger recovery-clear" aria-label="清空恢复记录" onClick={onClear}>
                     <Trash2 size={14} /> 清空恢复记录
                   </button>
+                  )}
                 </>
               )}
-              {recentVideoTasks.length > 0 && (
+              {showRecentVideoTasks && (
                 <div className="recovery-recent">
                   <h4><Film size={14} /> 最近视频结果</h4>
                   {recentVideoTasks.slice(0, 3).map((task) => (

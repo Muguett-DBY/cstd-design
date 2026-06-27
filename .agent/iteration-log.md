@@ -1,5 +1,24 @@
 # Iteration Log
 
+## Long Campaign 026 — Stage 2 Creation Center Pending Filters (2026-06-28)
+
+### Goal
+- Make mixed Creation Center pending work easier to triage without scanning every recovery card.
+
+### Completed
+- Added `全部 / 咨询 / 图片 / 视频` pending-work filters.
+- Included active video generation in the video filter count.
+- Filtered active tasks, recoverable records, and recent video results consistently.
+- Added an empty filtered state for categories with no pending work.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the filter group existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 9 tests passed.
+- Full local gate passed: `npm test` — 67 files, 448 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+### Next
+- Continue Stage 3 UI/UX with a more polished and clearer Creation Center panel layout around the priority action and filters.
+
 ## Long Campaign 026 — Stage 1 Creation Center Priority Action (2026-06-28)
 
 ### Goal

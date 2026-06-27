@@ -239,4 +239,32 @@ describe("RecoveryCenter", () => {
     fireEvent.click(screen.getByRole("tab", { name: "近期活动 2" }));
     expect(screen.getByRole("tabpanel", { name: "近期活动" }).textContent).toContain("图片恢复完成");
   });
+
+  test("filters pending creation work by workspace type", () => {
+    render(
+      <RecoveryCenter
+        records={records}
+        activeVideoTask={{ id: "task-active", status: "queued", progress: 0 }}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+    expect(screen.getByRole("group", { name: "待处理类型筛选" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "只看咨询待处理" }));
+    const chatPanel = screen.getByRole("tabpanel", { name: "待处理" });
+    expect(chatPanel.textContent).toContain("未发送消息");
+    expect(chatPanel.textContent).not.toContain("视频生成失败");
+    expect(chatPanel.textContent).not.toContain("视频正在生成");
+
+    fireEvent.click(screen.getByRole("button", { name: "只看视频待处理" }));
+    const videoPanel = screen.getByRole("tabpanel", { name: "待处理" });
+    expect(videoPanel.textContent).toContain("视频正在生成");
+    expect(videoPanel.textContent).toContain("视频生成失败");
+    expect(videoPanel.textContent).not.toContain("未发送消息");
+  });
 });
