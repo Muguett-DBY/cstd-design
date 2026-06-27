@@ -13,7 +13,7 @@ import { usePinnedConversations, partitionPinned } from "../hooks/usePinnedConve
 import { useConversationMerging } from "../hooks/useConversationMerging";
 import type { Folder as FolderType } from "../hooks/useConversationFolders";
 
-type SortMode = "updatedAt" | "createdAt" | "title";
+type SortMode = "updatedAt" | "createdAt" | "title" | "messageCount";
 type DateFilter = "all" | "today" | "week" | "month";
 type MessageCountFilter = "all" | "1-10" | "11-50" | "51-100" | "100+";
 
@@ -21,6 +21,7 @@ const SORT_OPTIONS: { value: SortMode; label: string }[] = [
   { value: "updatedAt", label: "最近更新" },
   { value: "createdAt", label: "创建时间" },
   { value: "title", label: "按标题" },
+  { value: "messageCount", label: "按消息数" },
 ];
 
 const DATE_FILTER_OPTIONS: { value: DateFilter; label: string }[] = [
@@ -90,6 +91,8 @@ function sortConversations(items: ConversationSummary[], mode: SortMode): Conver
       return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     case "title":
       return sorted.sort((a, b) => a.title.localeCompare(b.title, "zh-CN"));
+    case "messageCount":
+      return sorted.sort((a, b) => (b.messageCount || 0) - (a.messageCount || 0));
     default:
       return sorted;
   }
