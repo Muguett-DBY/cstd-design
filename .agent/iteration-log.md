@@ -2100,3 +2100,27 @@
 
 ### Next
 - Continue Campaign 025 Stage 2 with another product-facing asset-workspace improvement, then commit/push and verify CI for each stage.
+
+### CI status
+- Commit `6c55bc3` passed GitHub Actions run `28298169659`.
+
+---
+
+## Long Campaign 025 — Stage 2 Asset Sort Preference Persistence (2026-06-28)
+
+### Goal
+- Keep the selected Asset Workspace sort mode after refreshes and new sessions.
+
+### Completed
+- Added `ASSET_SORT_STORAGE_KEY` to central storage keys.
+- Added validated asset sort preference read/write helpers.
+- Loaded the Asset Workspace sort dropdown from storage.
+- Persisted future sort dropdown changes while safely ignoring unavailable/full storage.
+
+### Verified
+- RED: `npm test -- src/app-state.test.ts` failed before the persistence API existed.
+- GREEN: `npm test -- src/app-state.test.ts` — 1 file, 10 tests passed.
+- Full local gate passed: `npm test` — 67 files, 442 tests; `npm run lint`; `npm run build`; `npm run typecheck:functions`.
+
+### Next
+- Continue Campaign 025 Stage 3 UIUX with a visual clarity improvement for the asset toolbar.

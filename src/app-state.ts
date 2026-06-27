@@ -1,4 +1,5 @@
 import type { AssetFilter, AssetItem, ChatMessage, ChatStreamEvent, ImageSize, VideoPreset } from "./types";
+import { ASSET_SORT_STORAGE_KEY } from "./storage-keys";
 
 export function initialChatDraft() {
   return { content: "", selectedParentId: null as string | null };
@@ -24,6 +25,8 @@ export function filterAssets(assets: AssetItem[], filter: AssetFilter) {
 }
 
 export type AssetSortMode = "dateDesc" | "dateAsc" | "nameAsc" | "nameDesc" | "sizeDesc" | "sizeAsc" | "kindAsc";
+
+const ASSET_SORT_MODES: readonly AssetSortMode[] = ["dateDesc", "dateAsc", "nameAsc", "nameDesc", "sizeDesc", "sizeAsc", "kindAsc"];
 
 const ASSET_KIND_ORDER: Record<AssetItem["kind"], number> = {
   upload: 0,
@@ -54,6 +57,23 @@ export function sortAssets(items: AssetItem[], mode: AssetSortMode): AssetItem[]
       });
     default:
       return sorted;
+  }
+}
+
+export function readStoredAssetSortMode(): AssetSortMode {
+  try {
+    const stored = localStorage.getItem(ASSET_SORT_STORAGE_KEY);
+    return ASSET_SORT_MODES.includes(stored as AssetSortMode) ? (stored as AssetSortMode) : "dateDesc";
+  } catch {
+    return "dateDesc";
+  }
+}
+
+export function writeStoredAssetSortMode(mode: AssetSortMode) {
+  try {
+    localStorage.setItem(ASSET_SORT_STORAGE_KEY, mode);
+  } catch {
+    // Storage may be unavailable or full; sorting should still work for the current session.
   }
 }
 

@@ -29,4 +29,17 @@
   - GREEN targeted: `npm test -- src/app-state.test.ts` — 1 file, 9 tests passed.
   - Full tests: `npm test` — 67 files, 441 tests passed.
   - Static/build gates: `npm run lint`; `npm run build`.
+- **Commit/CI**: `6c55bc3` — GitHub Actions run `28298169659` passed.
+
+### Stage 2/6 — IMPROVE ✅
+- **Goal**: Preserve the user's asset sort preference across sessions.
+- **Completed**:
+  - Added `ASSET_SORT_STORAGE_KEY`.
+  - Added validated `readStoredAssetSortMode` and safe `writeStoredAssetSortMode` helpers.
+  - Initialized Asset Workspace sorting from stored preference and persisted future dropdown changes.
+- **Validation**:
+  - RED confirmed: `npm test -- src/app-state.test.ts` failed before the persistence API existed.
+  - GREEN targeted: `npm test -- src/app-state.test.ts` — 1 file, 10 tests passed.
+  - Full tests: `npm test` — 67 files, 442 tests passed.
+  - Static/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`.
 - **Status**: Ready for commit, push, and GitHub Actions verification.
