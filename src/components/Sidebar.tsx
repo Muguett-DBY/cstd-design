@@ -394,6 +394,19 @@ export function Sidebar({
                 />
               </div>
             </div>
+            {(dateFilter !== "all" || messageCountFilter !== "all" || dateRange.start || dateRange.end) && (
+              <button
+                type="button"
+                className="filter-clear-all"
+                onClick={() => {
+                  setDateFilter("all");
+                  setMessageCountFilter("all");
+                  setDateRange({ start: "", end: "" });
+                }}
+              >
+                清除全部筛选
+              </button>
+            )}
           </div>
         )}
         <div className="sort-bar">

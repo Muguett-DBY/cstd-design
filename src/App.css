@@ -830,6 +830,24 @@ button:disabled {
   font-size: 12px;
 }
 
+.filter-clear-all {
+  margin-top: 4px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.filter-clear-all:hover {
+  background: var(--surface-strong);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
 .folder-bar {
   display: flex;
   flex-wrap: wrap;
