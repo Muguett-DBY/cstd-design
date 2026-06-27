@@ -1245,6 +1245,56 @@
 
 ---
 
+## Campaign 024 — 3-Cycle, 18-Phase Campaign (2026-06-27)
+
+**Theme**: Prompt library productivity, sidebar UX improvements, and visual polish
+
+### Cycle 1 Summary
+1. **Phase 1** (DONE, `411d645`): Recently used prompts section in PromptLibrary (+9 tests, 440 total)
+2. **Phase 2** (DONE, `78ff7df`): messageCount sort option in Sidebar
+3. **Phase 3** (DONE, `9ef4507`): Left border accent on active conversation card
+4. **Phase 4** (DONE, `3dad888`): Conversation count badge in folder chips
+5. **Phase 5** (DONE): Full audit - all checks pass
+6. **Phase 6** (DONE, `79ceabb`): Clear all filters button in Sidebar filter panel
+
+### Cycle 2 Summary
+7. **Phase 7** (DONE, `27c5f20`): Total message count stat in Sidebar panel heading
+8. **Phase 8** (DONE, `c5c5bd8`): Search input clear button in Sidebar
+9. **Phase 9** (DONE, `73c8945`): Left border accent to pinned conversation cards
+10. **Phase 10** (DONE, `b4d461f`): Focus ring to Sidebar search input
+11. **Phase 11** (DONE): Full audit - all checks pass
+12. **Phase 12** (DONE, `0377d33`): Left border accent to active folder chip
+
+### Cycle 3 Summary
+13. **Phase 13** (DONE, `d1cfa2e`): Slide-in animation to Sidebar filter panel
+14. **Phase 14** (DONE, `14b4046`): Fade-in animation to Sidebar conversation list
+15. **Phase 15** (DONE, `35f78c0`): Hover animation to sidebar brand logo
+16. **Phase 16** (DONE, `9a4d505`): Scroll fade mask to Sidebar conversation list
+17. **Phase 17** (DONE): Final quality gate - all checks pass
+18. **Phase 18** (DONE): Campaign wrap-up
+
+### Final Stats
+- **Bundle**: ~675KB (gzip 204KB)
+- **Tests**: 440/440 pass
+- **Phases**: 18/18 complete
+- **Commits**: 16 new commits
+- **TypeScript**: Clean
+- **ESLint**: 0 warnings
+- **All CI runs passed**
+
+### Major Additions
+- **Recently used prompts** in PromptLibrary with tracking and chip display
+- **messageCount sort option** in Sidebar conversation list
+- **Visual polish**: left border accents for active/pinned items, focus rings, animations
+- **Search input clear button** for quick search reset
+- **Clear all filters button** in Sidebar filter panel
+- **Conversation count badges** in folder chips
+- **Total message count stat** in Sidebar panel heading
+- **Scroll fade mask** for better visual hierarchy
+- **9 new tests** for usePromptLibrary hook
+
+---
+
 ## Campaign 015 — 3-Cycle, 18-Phase Campaign (2026-06-25)
 
 **Theme**: Test coverage expansion, error handling hardening, and code quality improvement
