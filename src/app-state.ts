@@ -28,6 +28,16 @@ export type AssetSortMode = "dateDesc" | "dateAsc" | "nameAsc" | "nameDesc" | "s
 
 const ASSET_SORT_MODES: readonly AssetSortMode[] = ["dateDesc", "dateAsc", "nameAsc", "nameDesc", "sizeDesc", "sizeAsc", "kindAsc"];
 
+const ASSET_SORT_LABELS: Record<AssetSortMode, string> = {
+  dateDesc: "最新优先",
+  dateAsc: "最旧优先",
+  nameAsc: "名称 A→Z",
+  nameDesc: "名称 Z→A",
+  sizeDesc: "最大优先",
+  sizeAsc: "最小优先",
+  kindAsc: "类型分组",
+};
+
 const ASSET_KIND_ORDER: Record<AssetItem["kind"], number> = {
   upload: 0,
   image: 1,
@@ -75,6 +85,10 @@ export function writeStoredAssetSortMode(mode: AssetSortMode) {
   } catch {
     // Storage may be unavailable or full; sorting should still work for the current session.
   }
+}
+
+export function assetSortLabel(mode: AssetSortMode) {
+  return ASSET_SORT_LABELS[mode];
 }
 
 export function videoPresetToRequest(preset: VideoPreset) {

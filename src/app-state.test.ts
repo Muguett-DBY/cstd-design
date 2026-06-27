@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   appendChatEvent,
+  assetSortLabel,
   buildActiveBranch,
   filterAssets,
   formatBytes,
@@ -86,6 +87,11 @@ describe("frontend state helpers", () => {
 
     localStorage.setItem(ASSET_SORT_STORAGE_KEY, "unknown");
     expect(readStoredAssetSortMode()).toBe("dateDesc");
+  });
+
+  test("labels asset sort modes for display", () => {
+    expect(assetSortLabel("dateDesc")).toBe("最新优先");
+    expect(assetSortLabel("kindAsc")).toBe("类型分组");
   });
 
   test("uses concise defaults for the chat composer", () => {

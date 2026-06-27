@@ -3318,6 +3318,14 @@ button:disabled {
   color: var(--accent-strong);
 }
 
+.asset-sort-summary {
+  color: var(--text);
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
 .asset-select-bar {
   grid-column: 1 / -1;
   display: flex;
