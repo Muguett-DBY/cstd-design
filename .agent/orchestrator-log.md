@@ -42,4 +42,17 @@
   - GREEN targeted: `npm test -- src/app-state.test.ts` — 1 file, 10 tests passed.
   - Full tests: `npm test` — 67 files, 442 tests passed.
   - Static/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`.
+- **Commit/CI**: `b3067a7` — GitHub Actions run `28298309106` passed.
+
+### Stage 3/6 — UIUX ✅
+- **Goal**: Make the active asset sort state visible without reopening the dropdown.
+- **Completed**:
+  - Added `assetSortLabel` display labels for every asset sort mode.
+  - Added a compact sort summary chip to the asset stats row.
+  - Styled the summary chip to be readable without competing with batch actions.
+- **Validation**:
+  - RED confirmed: `npm test -- src/app-state.test.ts` failed before the label helper existed.
+  - GREEN targeted: `npm test -- src/app-state.test.ts` — 1 file, 11 tests passed.
+  - Full tests: `npm test` — 67 files, 443 tests passed.
+  - Static/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`.
 - **Status**: Ready for commit, push, and GitHub Actions verification.

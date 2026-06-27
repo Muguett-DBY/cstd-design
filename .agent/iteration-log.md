@@ -2124,3 +2124,26 @@
 
 ### Next
 - Continue Campaign 025 Stage 3 UIUX with a visual clarity improvement for the asset toolbar.
+
+### CI status
+- Commit `b3067a7` passed GitHub Actions run `28298309106`.
+
+---
+
+## Long Campaign 025 — Stage 3 Asset Sort Summary UIUX (2026-06-28)
+
+### Goal
+- Make the current Asset Workspace sort mode visible in the main content area after the user changes it.
+
+### Completed
+- Added a shared `assetSortLabel` helper.
+- Added a visible `排序：...` summary chip beside the file count and total size.
+- Styled the chip with soft panel background, border, and compact pill spacing.
+
+### Verified
+- RED: `npm test -- src/app-state.test.ts` failed before `assetSortLabel` existed.
+- GREEN: `npm test -- src/app-state.test.ts` — 1 file, 11 tests passed.
+- Full local gate passed: `npm test` — 67 files, 443 tests; `npm run lint`; `npm run build`; `npm run typecheck:functions`.
+
+### Next
+- Continue Campaign 025 Stage 4 IMPROVE with another asset-workspace reliability/product increment.

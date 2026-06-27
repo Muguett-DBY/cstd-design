@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, Grid, History, LayoutList, List, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
-import { filterAssets, formatBytes, readStoredAssetSortMode, sortAssets, type AssetSortMode, writeStoredAssetSortMode } from "../app-state";
+import { assetSortLabel, filterAssets, formatBytes, readStoredAssetSortMode, sortAssets, type AssetSortMode, writeStoredAssetSortMode } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
 import { AssetMeta } from "./AssetMeta";
 import { ClearAllButton } from "./ClearAllButton";
@@ -253,7 +253,8 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
         </div>
       </div>
       <div className="asset-stats">
-        {visible.length} 个文件，共 {formatBytes(totalSize)}
+        <span>{visible.length} 个文件，共 {formatBytes(totalSize)}</span>
+        <span className="asset-sort-summary">排序：{assetSortLabel(sortMode)}</span>
         {selected.size > 0 && (
           <span className="asset-batch-actions">
             <span className="asset-selected-count">已选 {selected.size} 项</span>
