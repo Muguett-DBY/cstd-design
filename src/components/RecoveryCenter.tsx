@@ -132,6 +132,9 @@ export function RecoveryCenter({
     onSelect(recommendation.record);
     setOpen(false);
   };
+  const clearFilteredRecords = () => {
+    filteredRecords.forEach((record) => onDismiss(record.id));
+  };
 
   return (
     <div className="recovery-center">
@@ -386,10 +389,19 @@ export function RecoveryCenter({
                       </article>
                     ))}
                   </div>
-                  {taskFilter === "all" && (
+                  {taskFilter === "all" ? (
                     <button type="button" className="ghost-button danger recovery-clear" aria-label="清空恢复记录" onClick={onClear}>
                     <Trash2 size={14} /> 清空恢复记录
                   </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="ghost-button danger recovery-clear"
+                      aria-label={`清空${activeTaskFilter.label}恢复记录`}
+                      onClick={clearFilteredRecords}
+                    >
+                      <Trash2 size={14} /> 清空{activeTaskFilter.label}恢复记录
+                    </button>
                   )}
                 </>
               )}
