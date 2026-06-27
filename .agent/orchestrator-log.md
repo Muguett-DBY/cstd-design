@@ -187,5 +187,28 @@
   - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 11 tests passed.
   - Full tests: `npm test` — 67 files, 450 tests passed.
   - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
-- **Commit/CI**: pending.
+- **Commit/CI**: `c089265` — GitHub Actions run `28305133528` passed.
 - **Next**: Stage 5 CHECK will audit the new recovery-center changes for storage, safety, and release risks.
+
+### Stage 5/6 — CHECK ✅
+- **Prompt**: `AGENT_CHECK_MAIN.txt`
+- **Goal**: Audit the Creation Center recovery changes for storage, safety, dependency, and release risks.
+- **Start state**:
+  - Branch: `main`
+  - Prior stage commit `c089265` was pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Findings**:
+  - `npm audit --audit-level=high`: 0 vulnerabilities.
+  - Secret-like scan hits were expected workflow env names, tests, scripts, and documented local E2E references.
+  - Backup coverage already includes `CREATION_RECOVERY_STORAGE_KEY` and `CREATION_ACTIVITY_STORAGE_KEY`.
+  - Real issue found: `useCreationRecovery` did not catch localStorage write failures while `useCreationActivity` already did, so quota/private-mode storage errors could bubble from the recovery effect.
+- **Completed**:
+  - Added regression coverage for localStorage write failures.
+  - Wrapped recovery persistence in try/catch and preserved in-memory recovery records when storage write fails.
+- **Validation**:
+  - RED confirmed: `npm test -- src/hooks/useCreationRecovery.test.ts` failed with `Error: quota exceeded`.
+  - GREEN targeted: `npm test -- src/hooks/useCreationRecovery.test.ts` — 1 file, 4 tests passed.
+  - Full tests: `npm test` — 67 files, 451 tests passed.
+  - Static/security/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`.
+- **Commit/CI**: pending.
+- **Next**: Stage 6 final IMPROVE will add one final Creation Center usability increment and then run final local/CI/live verification.

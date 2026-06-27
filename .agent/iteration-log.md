@@ -1,5 +1,28 @@
 # Iteration Log
 
+## Long Campaign 026 — Stage 5 Recovery Storage Safety CHECK (2026-06-28)
+
+### Goal
+- Audit Creation Center recovery changes for storage, safety, dependency, and release risks.
+
+### Findings
+- High-severity dependency audit returned 0 vulnerabilities.
+- Secret-like scan hits were expected workflow env names, tests, scripts, and local E2E references.
+- Backup coverage already includes recovery backup and recovery activity keys.
+- Real issue found: recovery persistence did not catch localStorage write failures.
+
+### Completed
+- Added regression coverage for localStorage write failures in `useCreationRecovery`.
+- Wrapped recovery persistence in try/catch so storage quota/private-mode failures do not break in-memory recovery records.
+
+### Verified
+- RED: `npm test -- src/hooks/useCreationRecovery.test.ts` failed with `Error: quota exceeded`.
+- GREEN: `npm test -- src/hooks/useCreationRecovery.test.ts` — 1 file, 4 tests passed.
+- Full local gate passed: `npm test` — 67 files, 451 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`.
+
+### Next
+- Finish Stage 6 with a final Creation Center usability increment and final live verification.
+
 ## Long Campaign 026 — Stage 4 Filtered Recovery Cleanup (2026-06-28)
 
 ### Goal
