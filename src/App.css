@@ -468,6 +468,13 @@ button:disabled {
   color: var(--on-accent-text);
 }
 
+.conversation-stat {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
 .conversation-count {
   display: inline-flex;
   align-items: center;
