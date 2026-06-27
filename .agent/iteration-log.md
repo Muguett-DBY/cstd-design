@@ -2198,3 +2198,27 @@
 
 ### Next
 - Continue Campaign 025 Stage 6 final IMPROVE with one final small product increment and final live verification.
+
+### CI status
+- Commit `1ff03e7` passed GitHub Actions run `28298808984`.
+
+---
+
+## Long Campaign 025 — Stage 6 Restore Default Asset Sort (2026-06-28)
+
+### Goal
+- Give users a direct way to undo a persisted non-default Asset Workspace sort choice.
+
+### Completed
+- Added a contextual `恢复默认排序` button beside the active sort summary.
+- Reset the current and stored sort mode to `dateDesc` from one interaction handler.
+- Hid the action when `最新优先` is already active.
+
+### Verified
+- RED: `npm test -- src/components/AssetWorkspace.test.tsx` failed because the reset button was absent.
+- GREEN: `npm test -- src/components/AssetWorkspace.test.tsx` — 1 file, 3 tests passed.
+- Full local gate passed: `npm test` — 67 files, 446 tests; `npm run lint`; `npm run build`; `npm run typecheck:functions`; `npm audit --audit-level=high`; `git diff --check`.
+- Authenticated local Pages browser smoke passed for seeded session/export flow, clipboard checks, export preference persistence, runtime console, and horizontal overflow.
+
+### Next
+- Commit and push Stage 6, verify GitHub Actions, then close Campaign 025 with live endpoint checks.

@@ -57,6 +57,11 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
     setLastClicked(null);
   };
 
+  const resetSortMode = () => {
+    setSortMode("dateDesc");
+    writeStoredAssetSortMode("dateDesc");
+  };
+
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -260,6 +265,11 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
       <div className="asset-stats">
         <span>{visible.length} 个文件，共 {formatBytes(totalSize)}</span>
         <span className="asset-sort-summary">排序：{assetSortLabel(sortMode)}</span>
+        {sortMode !== "dateDesc" ? (
+          <button type="button" className="ghost-button-small" onClick={resetSortMode}>
+            恢复默认排序
+          </button>
+        ) : null}
         {selected.size > 0 && (
           <span className="asset-batch-actions">
             <span className="asset-selected-count">已选 {selected.size} 项</span>

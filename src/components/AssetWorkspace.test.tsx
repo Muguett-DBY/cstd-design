@@ -2,6 +2,7 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api } from "../api";
+import { ASSET_SORT_STORAGE_KEY } from "../storage-keys";
 import type { AssetItem } from "../types";
 import { AssetWorkspace } from "./AssetWorkspace";
 
@@ -90,5 +91,27 @@ describe("AssetWorkspace", () => {
 
     expect(screen.queryByText(/已选/)).toBeNull();
     expect(screen.queryByRole("button", { name: /删除选中/ })).toBeNull();
+  });
+
+  test("restores the default asset sort and persists the reset", async () => {
+    const user = userEvent.setup();
+    storage.set(ASSET_SORT_STORAGE_KEY, "kindAsc");
+
+    render(
+      <AssetWorkspace
+        assets={assets}
+        onAssetsChanged={vi.fn()}
+        onClearAll={vi.fn()}
+        onNotice={vi.fn()}
+        onRequestConfirm={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("排序：类型分组")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "恢复默认排序" }));
+
+    expect(screen.getByText("排序：最新优先")).toBeTruthy();
+    expect(storage.get(ASSET_SORT_STORAGE_KEY)).toBe("dateDesc");
+    expect(screen.queryByRole("button", { name: "恢复默认排序" })).toBeNull();
   });
 });

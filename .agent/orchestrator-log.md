@@ -84,4 +84,18 @@
   - GREEN targeted: `npm test -- src/storage-keys.test.ts` — 1 file, 5 tests passed.
   - Full tests: `npm test` — 67 files, 445 tests passed.
   - Static/security/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`; `npm audit --audit-level=high`.
-- **Status**: Ready for commit, push, and GitHub Actions verification.
+- **Commit/CI**: `1ff03e7` — GitHub Actions run `28298808984` passed.
+
+### Stage 6/6 — IMPROVE ✅
+- **Goal**: Let users quickly return a persisted non-default asset sort to the product default.
+- **Completed**:
+  - Added a contextual `恢复默认排序` action beside the active sort summary.
+  - Reset the UI and persisted preference to `dateDesc` in one event handler.
+  - Kept the action hidden while the default sort is already active.
+- **Validation**:
+  - RED confirmed: `npm test -- src/components/AssetWorkspace.test.tsx` failed because the reset action did not exist.
+  - GREEN targeted: `npm test -- src/components/AssetWorkspace.test.tsx` — 1 file, 3 tests passed.
+  - Full tests: `npm test` — 67 files, 446 tests passed.
+  - Static/security/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated Pages browser smoke passed against `wrangler pages dev dist`: session fixture, export dialog, filename/content clipboard flows, PDF/Markdown preference persistence, console/runtime and overflow checks.
+- **Status**: Ready for commit, push, GitHub Actions, and final live verification.
