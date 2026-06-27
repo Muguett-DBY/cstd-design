@@ -8,6 +8,22 @@ import type { AssetItem, ConversationSummary, WorkspaceTab } from "../types";
 
 type RecoveryCenterSection = "continue" | "tasks" | "activity";
 
+type RecoveryRecommendation =
+  | {
+      kind: "active-video";
+      title: string;
+      detail: string;
+      actionLabel: string;
+    }
+  | {
+      kind: "recovery-record";
+      title: string;
+      detail: string;
+      record: CreationRecoveryRecord;
+      actionLabel: string;
+    }
+  | null;
+
 function recoveryTypeLabel(type: CreationRecoveryRecord["type"]) {
   if (type === "chat") return "咨询";
   if (type === "image") return "图片";
@@ -72,6 +88,32 @@ export function RecoveryCenter({
     action();
     setOpen(false);
   };
+  const recommendation: RecoveryRecommendation = hasActiveVideoTask && activeVideoTask
+    ? {
+        kind: "active-video",
+        title: "视频正在生成",
+        detail: activeVideoTask.status === "queued" ? "排队中，建议先查看当前任务状态。" : `${activeVideoTask.progress}% · 建议先查看当前任务状态。`,
+        actionLabel: "查看建议任务",
+      }
+    : records.length > 0
+      ? {
+          kind: "recovery-record",
+          title: records[0].label,
+          detail: `${recoveryTypeLabel(records[0].type)} · ${records[0].summary}`,
+          record: records[0],
+          actionLabel: "打开建议任务",
+        }
+      : null;
+  const handleRecommendationAction = () => {
+    if (!recommendation) return;
+    if (recommendation.kind === "active-video") {
+      onOpenVideoTask?.();
+      setOpen(false);
+      return;
+    }
+    onSelect(recommendation.record);
+    setOpen(false);
+  };
 
   return (
     <div className="recovery-center">
@@ -112,6 +154,23 @@ export function RecoveryCenter({
                 <strong>{recentVideoTasks.length}</strong>
               </div>
             </div>
+            {recommendation && (
+              <section className="recovery-recommendation" aria-label="建议先处理">
+                <div>
+                  <span>建议先处理</span>
+                  <strong>{recommendation.title}</strong>
+                  <p>{recommendation.detail}</p>
+                </div>
+                <button
+                  type="button"
+                  className="primary-button"
+                  aria-label={recommendation.actionLabel}
+                  onClick={handleRecommendationAction}
+                >
+                  {recommendation.actionLabel}
+                </button>
+              </section>
+            )}
             <div className="recovery-tabs" role="tablist" aria-label="创作中心分区">
               <button
                 type="button"
