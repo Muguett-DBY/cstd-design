@@ -414,7 +414,9 @@ export function Sidebar({
           <button type="button" className={selectedFolder === null ? "folder-chip active" : "folder-chip"} onClick={() => setSelectedFolder(null)} aria-pressed={selectedFolder === null}>
             <Tag size={12} /> 全部
           </button>
-          {folders.map((f) => (
+          {folders.map((f) => {
+            const folderCount = conversations.filter((c) => getConversationFolder(c.id)?.id === f.id).length;
+            return (
             <button
               key={f.id}
               type="button"
@@ -430,11 +432,13 @@ export function Sidebar({
               aria-pressed={selectedFolder === f.id}
             >
               <Folder size={12} style={{ color: f.color }} /> {f.name}
+              {folderCount > 0 && <span className="folder-count">{folderCount}</span>}
               <span className="folder-delete" onClick={(e) => { e.stopPropagation(); deleteFolder(f.id); }} title="删除文件夹" role="button" tabIndex={0} aria-label="删除文件夹">
                 <X size={10} />
               </span>
             </button>
-          ))}
+            );
+          })}
           <button type="button" className={`folder-chip${showArchived ? " active" : ""}`} onClick={() => setShowArchived(!showArchived)} aria-pressed={showArchived}>
             <Archive size={12} /> 归档
             {conversations.filter((c) => isArchived(c.id)).length > 0 && (
