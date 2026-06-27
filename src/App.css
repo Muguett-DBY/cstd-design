@@ -726,6 +726,12 @@ button:disabled {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 10px 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-box:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 .search-box input,
