@@ -104,4 +104,31 @@ describe("useCreationRecovery", () => {
 
     expect(result.current.records).toEqual([]);
   });
+
+  test("keeps in-memory records when storage writes fail", () => {
+    const originalSetItem = globalThis.localStorage.setItem;
+    globalThis.localStorage.setItem = () => {
+      throw new Error("quota exceeded");
+    };
+
+    try {
+      const { result } = renderHook(() => useCreationRecovery());
+
+      act(() => {
+        result.current.upsert({
+          id: "chat-quota",
+          type: "chat",
+          workspace: "chat",
+          label: "未发送消息",
+          summary: "存储已满",
+          payload: { content: "保留在内存里", parentId: null },
+        });
+      });
+
+      expect(result.current.records).toHaveLength(1);
+      expect(result.current.records[0].id).toBe("chat-quota");
+    } finally {
+      globalThis.localStorage.setItem = originalSetItem;
+    }
+  });
 });

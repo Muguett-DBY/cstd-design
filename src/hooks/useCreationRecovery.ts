@@ -83,10 +83,14 @@ function loadRecords(): CreationRecoveryRecord[] {
 }
 
 function persist(records: CreationRecoveryRecord[]) {
-  localStorage.setItem(CREATION_RECOVERY_STORAGE_KEY, JSON.stringify({
-    version: RECOVERY_VERSION,
-    records: orderAndTrim(records),
-  }));
+  try {
+    localStorage.setItem(CREATION_RECOVERY_STORAGE_KEY, JSON.stringify({
+      version: RECOVERY_VERSION,
+      records: orderAndTrim(records),
+    }));
+  } catch {
+    /* ignore storage errors */
+  }
 }
 
 export function useCreationRecovery() {
