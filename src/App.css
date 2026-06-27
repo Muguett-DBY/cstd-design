@@ -1566,6 +1566,11 @@ button:disabled {
   padding-left: 14px;
 }
 
+.conversation-card.pinned {
+  border-left: 3px solid var(--accent);
+  padding-left: 14px;
+}
+
 .conversation-card strong {
   overflow: hidden;
   text-overflow: ellipsis;
