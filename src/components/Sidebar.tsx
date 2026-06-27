@@ -164,7 +164,7 @@ function ConversationCard({
           <GripVertical size={14} />
         </div>
       )}
-      <button type="button" className={isActive ? "conversation-card active" : "conversation-card"} onClick={bulkMode ? onToggleBulkSelect : onSelect}>
+      <button type="button" className={`${isActive ? "conversation-card active" : "conversation-card"}${pinned ? " pinned" : ""}`} onClick={bulkMode ? onToggleBulkSelect : onSelect}>
         <div className="conversation-card-header">
           {folder && <span className="conversation-folder-tag" style={{ background: folder.color }}>{folder.name}</span>}
           {isArchived && <span className="conversation-archived-tag">已归档</span>}
