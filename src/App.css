@@ -1568,6 +1568,8 @@ button:disabled {
   gap: 8px;
   padding-right: 2px;
   animation: conversationListFade 0.2s ease;
+  mask-image: linear-gradient(to bottom, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, black 12px, black calc(100% - 12px), transparent 100%);
 }
 
 @keyframes conversationListFade {
