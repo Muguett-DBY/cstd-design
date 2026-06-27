@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, Grid, History, LayoutList, List, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
-import { filterAssets, formatBytes } from "../app-state";
+import { filterAssets, formatBytes, sortAssets, type AssetSortMode } from "../app-state";
 import type { AssetFilter, AssetItem } from "../types";
 import { AssetMeta } from "./AssetMeta";
 import { ClearAllButton } from "./ClearAllButton";
@@ -17,21 +17,6 @@ import { useAssetVersions } from "../hooks/useAssetVersions";
 import { analyzeAssetQuality } from "../hooks/useAssetQuality";
 import { useAssetDeduplication } from "../hooks/useAssetDeduplication";
 
-type SortMode = "dateDesc" | "dateAsc" | "nameAsc" | "nameDesc" | "sizeDesc" | "sizeAsc";
-
-function sortAssets(items: AssetItem[], mode: SortMode): AssetItem[] {
-  const sorted = [...items];
-  switch (mode) {
-    case "dateDesc": return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    case "dateAsc": return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-    case "nameAsc": return sorted.sort((a, b) => a.filename.localeCompare(b.filename, "zh-CN"));
-    case "nameDesc": return sorted.sort((a, b) => b.filename.localeCompare(a.filename, "zh-CN"));
-    case "sizeDesc": return sorted.sort((a, b) => b.size - a.size);
-    case "sizeAsc": return sorted.sort((a, b) => a.size - b.size);
-    default: return sorted;
-  }
-}
-
 export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -40,7 +25,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [activeCollection, setActiveCollection] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list" | "detail">("grid");
-  const [sortMode, setSortMode] = useState<SortMode>("dateDesc");
+  const [sortMode, setSortMode] = useState<AssetSortMode>("dateDesc");
   const collections = useCollections();
   const { addTag, removeTag, getTags, allTags, ...assetTags } = useAssetTags();
   const { recordVersion, getVersions } = useAssetVersions();
@@ -171,7 +156,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
           <select
             className="asset-sort-select"
             value={sortMode}
-            onChange={(e) => setSortMode(e.target.value as SortMode)}
+            onChange={(e) => setSortMode(e.target.value as AssetSortMode)}
             aria-label="排序方式"
           >
             <option value="dateDesc">最新优先</option>
@@ -180,6 +165,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             <option value="nameDesc">名称 Z→A</option>
             <option value="sizeDesc">最大优先</option>
             <option value="sizeAsc">最小优先</option>
+            <option value="kindAsc">类型分组</option>
           </select>
           {collections.collections.length > 0 && (
             <div className="tag-filter">

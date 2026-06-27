@@ -2079,3 +2079,24 @@
   - `https://design.custard.top/` — HTTP 200, title `工作台 - 私人中文创作工作台`; `/api/session` returned unauthenticated JSON.
 - Note: `https://6638183.cstd-design.pages.dev/` was checked first but is not the actual Pages deployment alias and returned Cloudflare `Deployment Not Found`.
 - Long Campaign 023 completed all six required stages with local validation, authenticated browser smoke, commits, pushes, GitHub Actions verification, and live smoke.
+
+---
+
+## Long Campaign 025 — Stage 1 Asset Type Sorting (2026-06-28)
+
+### Goal
+- Improve the asset library sort controls by adding a type-grouped ordering and moving sorting logic into the shared app-state layer.
+
+### Completed
+- Added `AssetSortMode` and `sortAssets` to `src/app-state.ts`.
+- Added `kindAsc` sorting with order `upload → image → video` and newest-first ordering inside each type.
+- Replaced the Asset Workspace's local sort helper with the shared tested helper.
+- Added the `类型分组` dropdown option.
+
+### Verified
+- RED: `npm test -- src/app-state.test.ts` failed before the shared `sortAssets` helper existed.
+- GREEN: `npm test -- src/app-state.test.ts` — 1 file, 9 tests passed.
+- Full local gate passed: `npm test` — 67 files, 441 tests; `npm run lint`; `npm run build`.
+
+### Next
+- Continue Campaign 025 Stage 2 with another product-facing asset-workspace improvement, then commit/push and verify CI for each stage.
