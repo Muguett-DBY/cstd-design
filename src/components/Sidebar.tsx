@@ -317,7 +317,7 @@ export function Sidebar({
       </nav>
       <section className="conversation-panel">
         <div className="panel-heading">
-          <span>会话列表 {conversations.length > 0 && <span className="conversation-count">{conversations.length}</span>}</span>
+          <span>会话列表 {conversations.length > 0 && <span className="conversation-count">{conversations.length}</span>}{conversations.some((c) => c.messageCount) && <span className="conversation-stat" title="总消息数"> · {conversations.reduce((sum, c) => sum + (c.messageCount || 0), 0)} 条消息</span>}</span>
           <div className="panel-heading-actions">
             {conversations.length > 0 && (
               <button type="button" className={`icon-button${bulkMode ? " active" : ""}`} aria-label="批量选择" onClick={() => { setBulkMode(!bulkMode); setSelectedConversations(new Set()); }} title={bulkMode ? "退出批量选择" : "批量选择"}>
