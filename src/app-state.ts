@@ -23,6 +23,40 @@ export function filterAssets(assets: AssetItem[], filter: AssetFilter) {
   return assets.filter((asset) => asset.kind === filter);
 }
 
+export type AssetSortMode = "dateDesc" | "dateAsc" | "nameAsc" | "nameDesc" | "sizeDesc" | "sizeAsc" | "kindAsc";
+
+const ASSET_KIND_ORDER: Record<AssetItem["kind"], number> = {
+  upload: 0,
+  image: 1,
+  video: 2,
+};
+
+export function sortAssets(items: AssetItem[], mode: AssetSortMode): AssetItem[] {
+  const sorted = [...items];
+  switch (mode) {
+    case "dateDesc":
+      return sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    case "dateAsc":
+      return sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    case "nameAsc":
+      return sorted.sort((a, b) => a.filename.localeCompare(b.filename, "zh-CN"));
+    case "nameDesc":
+      return sorted.sort((a, b) => b.filename.localeCompare(a.filename, "zh-CN"));
+    case "sizeDesc":
+      return sorted.sort((a, b) => b.size - a.size);
+    case "sizeAsc":
+      return sorted.sort((a, b) => a.size - b.size);
+    case "kindAsc":
+      return sorted.sort((a, b) => {
+        const kindDiff = ASSET_KIND_ORDER[a.kind] - ASSET_KIND_ORDER[b.kind];
+        if (kindDiff !== 0) return kindDiff;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    default:
+      return sorted;
+  }
+}
+
 export function videoPresetToRequest(preset: VideoPreset) {
   if (preset === "short") return { preset, numFrames: 121, approxSeconds: 5 };
   if (preset === "max") return { preset, numFrames: 441, approxSeconds: 18 };

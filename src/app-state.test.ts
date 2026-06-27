@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { appendChatEvent, buildActiveBranch, filterAssets, formatBytes, initialChatDraft, videoPresetToRequest } from "./app-state";
+import { appendChatEvent, buildActiveBranch, filterAssets, formatBytes, initialChatDraft, sortAssets, videoPresetToRequest } from "./app-state";
 import type { AssetItem, ChatMessage } from "./types";
 
 describe("frontend state helpers", () => {
@@ -42,6 +42,18 @@ describe("frontend state helpers", () => {
     expect(filterAssets(assets, "image").map((asset) => asset.id)).toEqual(["2"]);
     expect(filterAssets(assets, "video").map((asset) => asset.id)).toEqual(["3"]);
     expect(filterAssets(assets, "all").map((asset) => asset.id)).toEqual(["1", "2", "3"]);
+  });
+
+  test("sorts assets by type with stable secondary ordering", () => {
+    const assets: AssetItem[] = [
+      { id: "video-old", kind: "video", mediaType: "video/mp4", filename: "z.mp4", size: 5, createdAt: "2026-01-01T00:00:00.000Z", url: "/z" },
+      { id: "upload", kind: "upload", mediaType: "image/png", filename: "a.png", size: 1, createdAt: "2026-01-04T00:00:00.000Z", url: "/a" },
+      { id: "image", kind: "image", mediaType: "image/png", filename: "b.png", size: 2, createdAt: "2026-01-03T00:00:00.000Z", url: "/b" },
+      { id: "video-new", kind: "video", mediaType: "video/mp4", filename: "c.mp4", size: 3, createdAt: "2026-01-02T00:00:00.000Z", url: "/c" },
+    ];
+
+    expect(sortAssets(assets, "kindAsc").map((asset) => asset.id)).toEqual(["upload", "image", "video-new", "video-old"]);
+    expect(assets.map((asset) => asset.id)).toEqual(["video-old", "upload", "image", "video-new"]);
   });
 
   test("uses concise defaults for the chat composer", () => {
