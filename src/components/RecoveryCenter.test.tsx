@@ -267,4 +267,23 @@ describe("RecoveryCenter", () => {
     expect(videoPanel.textContent).toContain("视频生成失败");
     expect(videoPanel.textContent).not.toContain("未发送消息");
   });
+
+  test("announces the active pending-work filter", () => {
+    render(
+      <RecoveryCenter
+        records={records}
+        activeVideoTask={{ id: "task-active", status: "queued", progress: 0 }}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("button", { name: "只看咨询待处理" }));
+
+    const summary = screen.getByRole("status", { name: "待处理筛选摘要" });
+    expect(summary.textContent).toContain("当前只看：咨询");
+    expect(summary.textContent).toContain("1 项待处理");
+  });
 });
