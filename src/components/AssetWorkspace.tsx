@@ -52,6 +52,11 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [showCollectionPickerFor, setShowCollectionPickerFor] = useState<string | null>(null);
   const [showCollectionsManager, setShowCollectionsManager] = useState(false);
 
+  const resetSelection = () => {
+    setSelected(new Set());
+    setLastClicked(null);
+  };
+
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -122,7 +127,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               ["image", "图片"],
               ["video", "视频"],
             ]}
-            onChange={(v) => { setFilter(v); setSelected(new Set()); }}
+            onChange={(v) => { setFilter(v); resetSelection(); }}
           />
           <div className="view-mode-toggle" role="radiogroup" aria-label="视图模式">
             <button
@@ -177,7 +182,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               <button
                 type="button"
                 className={`tag-chip clickable${activeCollection === null ? " active" : ""}`}
-                onClick={() => setActiveCollection(null)}
+                onClick={() => { setActiveCollection(null); resetSelection(); }}
               >
                 全部
               </button>
@@ -186,7 +191,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                   key={c.id}
                   type="button"
                   className={`tag-chip clickable${activeCollection === c.id ? " active" : ""}`}
-                  onClick={() => setActiveCollection(activeCollection === c.id ? null : c.id)}
+                  onClick={() => { setActiveCollection(activeCollection === c.id ? null : c.id); resetSelection(); }}
                 >
                   {c.name} ({c.assetIds.length})
                 </button>
@@ -207,7 +212,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               <button
                 type="button"
                 className={`tag-chip clickable${tagFilter === null ? " active" : ""}`}
-                onClick={() => setTagFilter(null)}
+                onClick={() => { setTagFilter(null); resetSelection(); }}
               >
                 全部
               </button>
@@ -216,7 +221,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                   key={tag}
                   type="button"
                   className={`tag-chip clickable${tagFilter === tag ? " active" : ""}`}
-                  onClick={() => setTagFilter(tagFilter === tag ? null : tag)}
+                  onClick={() => { setTagFilter(tagFilter === tag ? null : tag); resetSelection(); }}
                 >
                   {tag}
                 </button>
