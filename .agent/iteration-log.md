@@ -2325,3 +2325,129 @@
 - Commit `109c8f5` passed GitHub Actions run `28299027843`.
 - Cloudflare production deployment `96a61b37-4e58-498d-aa69-45266ffd822d` points to source `109c8f5`.
 - Direct Pages and custom domains returned HTTP 200 for the app shell and `/api/session`.
+
+---
+
+## Long Campaign 026 — Stage 1 Creation Center Priority Action (2026-06-28)
+
+### Goal
+- Surface the next best Creation Center continuity action immediately when recoverable work exists.
+
+### Completed
+- Added a `建议先处理` recommendation region.
+- Prioritized active video generation first, then the newest recoverable creation record.
+- Added a one-click recommendation action that opens the matching active task or recovery record and closes the panel.
+- Added responsive styling for the recommendation card.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the recommendation region existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 8 tests passed.
+- Full local gate passed: `npm test` — 67 files, 447 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+### CI status
+- Commit `c1167f6` passed GitHub Actions run `28299844519`.
+
+---
+
+## Long Campaign 026 — Stage 2 Pending Work Type Filters (2026-06-28)
+
+### Goal
+- Make mixed Creation Center pending work easier to triage by type.
+
+### Completed
+- Added `全部 / 咨询 / 图片 / 视频` pending-work filter chips.
+- Counted active video work in the video bucket and recovery records in their workspace buckets.
+- Filtered active tasks, recovery records, and recent video results consistently.
+- Added an empty filtered-state message when the current type has no pending work.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the filter group existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 9 tests passed.
+- Full local gate passed: `npm test` — 67 files, 448 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+### CI status
+- Commit `e685716` passed GitHub Actions run `28299975080`.
+
+---
+
+## Long Campaign 026 — Stage 3 Pending Filter Summary UIUX (2026-06-28)
+
+### Goal
+- Improve Creation Center filter clarity with visible interaction feedback and mobile validation.
+
+### Completed
+- Added a live `待处理筛选摘要` status line below task filters.
+- Showed whether the panel is displaying all pending work or one workspace type.
+- Styled the summary as a compact feedback strip.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the filter summary status existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 10 tests passed.
+- Full local gate passed: `npm test` — 67 files, 449 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Mobile browser verification passed against `wrangler pages dev dist` at `390x844`: authenticated app shell, seeded recovery records, filter summary, no horizontal overflow, no console warnings/errors.
+
+### CI status
+- Commit `36eff27` passed GitHub Actions run `28300163888`.
+
+---
+
+## Long Campaign 026 — Stage 4 Filtered Recovery Cleanup (2026-06-28)
+
+### Goal
+- Reduce destructive recovery cleanup risk by clearing only the currently filtered recovery type.
+
+### Completed
+- Added contextual `清空{类型}恢复记录` actions for specific pending-work filters.
+- Dismissed only visible records in the active filter.
+- Kept the existing all-record clear action available only in the `全部` filter.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before `清空咨询恢复记录` existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 11 tests passed.
+- Full local gate passed: `npm test` — 67 files, 450 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+### CI status
+- Commit `c089265` passed GitHub Actions run `28305133528`.
+
+---
+
+## Long Campaign 026 — Stage 5 Recovery Storage Failure CHECK (2026-06-28)
+
+### Goal
+- Audit Creation Center recovery changes for storage, safety, dependency, and release risks.
+
+### Completed
+- Ran `npm audit --audit-level=high`: 0 vulnerabilities.
+- Scanned secret-like markers; hits were expected workflow env names, tests, scripts, and documented local E2E references.
+- Confirmed backup coverage already includes `CREATION_RECOVERY_STORAGE_KEY` and `CREATION_ACTIVITY_STORAGE_KEY`.
+- Found `useCreationRecovery` did not catch localStorage write failures while `useCreationActivity` already did.
+- Added regression coverage for storage write failures.
+- Wrapped recovery persistence in try/catch while preserving in-memory records.
+
+### Verified
+- RED: `npm test -- src/hooks/useCreationRecovery.test.ts` failed with `Error: quota exceeded`.
+- GREEN: `npm test -- src/hooks/useCreationRecovery.test.ts` — 1 file, 4 tests passed.
+- Full local gate passed: `npm test` — 67 files, 451 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`.
+
+### CI status
+- Commit `4999238` passed GitHub Actions run `28305235315`.
+
+---
+
+## Long Campaign 026 — Stage 6 Empty Filter Reset Final Improve (2026-06-28)
+
+### Goal
+- Give users a direct way back to all pending work when a specific Creation Center filter is empty.
+
+### Completed
+- Added an actionable empty filtered state.
+- Added `显示全部待处理记录` reset behavior that returns the task filter to `全部`.
+- Styled the empty state as a small action panel.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the reset action existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 12 tests passed.
+- Final full local gate passed: `npm test` — 67 files, 452 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### Next
+- Commit and push Stage 6, verify GitHub Actions, run final authenticated local Pages browser smoke, then verify live Cloudflare Pages endpoints.

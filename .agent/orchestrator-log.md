@@ -210,5 +210,24 @@
   - GREEN targeted: `npm test -- src/hooks/useCreationRecovery.test.ts` — 1 file, 4 tests passed.
   - Full tests: `npm test` — 67 files, 451 tests passed.
   - Static/security/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`.
-- **Commit/CI**: pending.
+- **Commit/CI**: `4999238` — GitHub Actions run `28305235315` passed.
 - **Next**: Stage 6 final IMPROVE will add one final Creation Center usability increment and then run final local/CI/live verification.
+
+### Stage 6/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Give users an explicit escape hatch when a Creation Center pending-work filter is empty.
+- **Start state**:
+  - Branch: `main`
+  - Prior stage commit `4999238` was pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added a contextual empty-filter action for Creation Center pending-work filters.
+  - The action resets the panel from an empty specific filter back to `全部`.
+  - Styled the empty state as an actionable panel instead of a dead-end message.
+- **Validation**:
+  - RED confirmed: `npm test -- src/components/RecoveryCenter.test.tsx` failed because the reset action was missing.
+  - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 12 tests passed.
+  - Full tests: `npm test` — 67 files, 452 tests passed.
+  - Static/security/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending.
+- **Next**: Commit and push Stage 6, verify GitHub Actions, then run final local Pages browser smoke and live deployment checks.

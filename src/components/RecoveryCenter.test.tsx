@@ -307,4 +307,25 @@ describe("RecoveryCenter", () => {
     expect(onDismiss).toHaveBeenCalledWith("chat-1");
     expect(onClear).not.toHaveBeenCalled();
   });
+
+  test("resets the pending-work filter from an empty filtered state", () => {
+    render(
+      <RecoveryCenter
+        records={records}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("button", { name: "只看图片待处理" }));
+
+    expect(screen.getByRole("tabpanel", { name: "待处理" }).textContent).toContain("当前筛选没有待处理任务");
+
+    fireEvent.click(screen.getByRole("button", { name: "显示全部待处理记录" }));
+    const panel = screen.getByRole("tabpanel", { name: "待处理" });
+    expect(panel.textContent).toContain("未发送消息");
+    expect(panel.textContent).toContain("视频生成失败");
+  });
 });

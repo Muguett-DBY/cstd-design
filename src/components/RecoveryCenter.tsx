@@ -331,7 +331,19 @@ export function RecoveryCenter({
                   </p>
                 )}
                 {!hasPanelContent && <p className="recovery-empty">当前没有待处理任务。</p>}
-                {hasPanelContent && !hasFilteredTasks && <p className="recovery-empty">当前筛选没有待处理任务。</p>}
+                {hasPanelContent && !hasFilteredTasks && (
+                  <div className="recovery-empty-action">
+                    <p className="recovery-empty">当前筛选没有待处理任务。</p>
+                    <button
+                      type="button"
+                      className="ghost-button"
+                      aria-label="显示全部待处理记录"
+                      onClick={() => setTaskFilter("all")}
+                    >
+                      显示全部待处理
+                    </button>
+                  </div>
+                )}
               {showActiveVideoTask && activeVideoTask && (
                 <article className="recovery-item recovery-item-active">
                   <div>
