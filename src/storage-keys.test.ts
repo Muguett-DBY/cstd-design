@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
+  ASSET_SORT_STORAGE_KEY,
   BACKUP_KEY_LABELS,
   BACKUP_KEYS,
   CREATION_ACTIVITY_STORAGE_KEY,
@@ -24,5 +25,10 @@ describe("storage key backup coverage", () => {
   test("shows reader-facing labels for recovery center backup data", () => {
     expect(BACKUP_KEY_LABELS[CREATION_RECOVERY_STORAGE_KEY]).toBe("恢复备份");
     expect(BACKUP_KEY_LABELS[CREATION_ACTIVITY_STORAGE_KEY]).toBe("恢复记录");
+  });
+
+  test("includes asset sort preferences in settings backups", () => {
+    expect(BACKUP_KEYS).toContain(ASSET_SORT_STORAGE_KEY);
+    expect(BACKUP_KEY_LABELS[ASSET_SORT_STORAGE_KEY]).toBe("素材排序偏好");
   });
 });

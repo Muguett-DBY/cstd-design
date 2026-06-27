@@ -20,6 +20,7 @@ export const BACKUP_KEYS: readonly string[] = [
   EXPORT_PREFERENCES_STORAGE_KEY,
   CREATION_RECOVERY_STORAGE_KEY,
   CREATION_ACTIVITY_STORAGE_KEY,
+  ASSET_SORT_STORAGE_KEY,
   "cstd-design:dark",
 ] as const;
 
@@ -39,5 +40,6 @@ export const BACKUP_KEY_LABELS: Record<string, string> = {
   [EXPORT_PREFERENCES_STORAGE_KEY]: "导出偏好",
   [CREATION_RECOVERY_STORAGE_KEY]: "恢复备份",
   [CREATION_ACTIVITY_STORAGE_KEY]: "恢复记录",
+  [ASSET_SORT_STORAGE_KEY]: "素材排序偏好",
   "cstd-design:dark": "深色模式",
 };

@@ -69,4 +69,19 @@
   - GREEN targeted: `npm test -- src/components/AssetWorkspace.test.tsx` — 1 file, 2 tests passed.
   - Full tests: `npm test` — 67 files, 444 tests passed.
   - Static/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`.
+- **Commit/CI**: `5393f78` — GitHub Actions run `28298578827` passed.
+
+### Stage 5/6 — CHECK ✅
+- **Goal**: Review the new persisted asset sort preference for backup/security/release coverage gaps.
+- **Completed**:
+  - Ran high-severity dependency audit: 0 vulnerabilities.
+  - Scanned secret-like tokens; hits were expected env names, examples, docs, tests, and function references.
+  - Found the new `ASSET_SORT_STORAGE_KEY` was persisted but not included in Backup/Restore settings coverage.
+  - Added the asset sort preference key to `BACKUP_KEYS`.
+  - Added reader-facing backup preview label `素材排序偏好`.
+- **Validation**:
+  - RED confirmed: `npm test -- src/storage-keys.test.ts` failed because `BACKUP_KEYS` omitted `cstd-design:assetSortMode`.
+  - GREEN targeted: `npm test -- src/storage-keys.test.ts` — 1 file, 5 tests passed.
+  - Full tests: `npm test` — 67 files, 445 tests passed.
+  - Static/security/build gates: `npm run lint`; `npm run build`; `npm run typecheck:functions`; `npm audit --audit-level=high`.
 - **Status**: Ready for commit, push, and GitHub Actions verification.

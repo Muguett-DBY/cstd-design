@@ -2172,3 +2172,29 @@
 
 ### Next
 - Continue Campaign 025 Stage 5 CHECK with a systematic review of persisted storage coverage and release risks.
+
+### CI status
+- Commit `5393f78` passed GitHub Actions run `28298578827`.
+
+---
+
+## Long Campaign 025 — Stage 5 Storage Backup Coverage CHECK (2026-06-28)
+
+### Goal
+- Check whether the new persisted asset sort preference created backup/security/release gaps.
+
+### Completed
+- Ran `npm audit --audit-level=high`: 0 vulnerabilities.
+- Scanned secret-like markers; hits were expected examples, docs, tests, env names, and function references.
+- Audited references for `ASSET_SORT_STORAGE_KEY`, `BACKUP_KEYS`, and `BACKUP_KEY_LABELS`.
+- Found `cstd-design:assetSortMode` was persisted but not included in Backup/Restore settings coverage.
+- Added the asset sort preference key to `BACKUP_KEYS`.
+- Added backup preview label `素材排序偏好`.
+
+### Verified
+- RED: `npm test -- src/storage-keys.test.ts` failed because `BACKUP_KEYS` omitted `ASSET_SORT_STORAGE_KEY`.
+- GREEN: `npm test -- src/storage-keys.test.ts` — 1 file, 5 tests passed.
+- Full local gate passed: `npm test` — 67 files, 445 tests; `npm run lint`; `npm run build`; `npm run typecheck:functions`; `npm audit --audit-level=high`.
+
+### Next
+- Continue Campaign 025 Stage 6 final IMPROVE with one final small product increment and final live verification.
