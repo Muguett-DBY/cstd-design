@@ -5576,6 +5576,12 @@ button:disabled {
   margin-top: 4px;
 }
 
+.conversation-section-count {
+  font-weight: 400;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
 .conversation-section-header:first-child {
   margin-top: 0;
 }

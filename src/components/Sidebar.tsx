@@ -82,6 +82,29 @@ function filterByMessageCount(items: ConversationSummary[], filter: MessageCount
   });
 }
 
+type TimeGroup = "today" | "week" | "month" | "older";
+
+function groupByTime(items: ConversationSummary[]): { group: string; label: string; items: ConversationSummary[] }[] {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay());
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const groups: Record<TimeGroup, ConversationSummary[]> = { today: [], week: [], month: [], older: [] };
+  for (const item of items) {
+    const date = new Date(item.updatedAt);
+    if (date >= startOfDay) groups.today.push(item);
+    else if (date >= startOfWeek) groups.week.push(item);
+    else if (date >= startOfMonth) groups.month.push(item);
+    else groups.older.push(item);
+  }
+  return [
+    { group: "today", label: "今天", items: groups.today },
+    { group: "week", label: "本周", items: groups.week },
+    { group: "month", label: "本月", items: groups.month },
+    { group: "older", label: "更早", items: groups.older },
+  ].filter((g) => g.items.length > 0);
+}
+
 function sortConversations(items: ConversationSummary[], mode: SortMode): ConversationSummary[] {
   const sorted = [...items];
   switch (mode) {
@@ -626,50 +649,52 @@ export function Sidebar({
                         onTogglePin={() => togglePinned(item.id)}
                       />
                     ))}
-                    {pinnedList.length > 0 && otherList.length > 0 && !showArchived && (
-                      <div className="conversation-section-header">
-                        所有会话
+                    {otherList.length > 0 && !showArchived && groupByTime(otherList).map((timeGroup) => (
+                      <div key={timeGroup.group}>
+                        <div className="conversation-section-header">
+                          {timeGroup.label} <span className="conversation-section-count">({timeGroup.items.length})</span>
+                        </div>
+                        {timeGroup.items.map((item) => (
+                          <ConversationCard
+                            key={item.id}
+                            item={item}
+                            isActive={item.id === activeConversationId}
+                            onSelect={() => onSelectConversation(item.id)}
+                            onDelete={() => onDeleteConversation(item.id)}
+                            onRequestConfirm={onRequestConfirm}
+                            dragOverId={dragOverId}
+                            onDragStart={onDragStart}
+                            onDragOver={(e, id) => { onDragOver(e); setDragOverId(id); }}
+                            onDragLeave={() => setDragOverId(null)}
+                            onDrop={(e, id) => { onDrop(e, id); setDragOverId(null); }}
+                            folder={getConversationFolder(item.id)}
+                            onAssignFolder={assignToFolder}
+                            folders={folders}
+                            isArchived={isArchived(item.id)}
+                            onToggleArchive={() => toggleArchive(item.id)}
+                            isBulkSelected={selectedConversations.has(item.id)}
+                            onToggleBulkSelect={() => {
+                              setSelectedConversations((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(item.id)) {
+                                  next.delete(item.id);
+                                } else {
+                                  next.add(item.id);
+                                }
+                                return next;
+                              });
+                            }}
+                            bulkMode={bulkMode}
+                            onMerge={(targetId) => {
+                              mergeConversations(item.id, targetId);
+                            }}
+                            conversations={conversations}
+                            pinned={isPinned(item.id)}
+                            onTogglePin={() => togglePinned(item.id)}
+                          />
+                        ))}
                       </div>
-                    )}
-                    {otherList.map((item) => (
-                <ConversationCard
-                  key={item.id}
-                  item={item}
-                  isActive={item.id === activeConversationId}
-                  onSelect={() => onSelectConversation(item.id)}
-                  onDelete={() => onDeleteConversation(item.id)}
-                  onRequestConfirm={onRequestConfirm}
-                  dragOverId={dragOverId}
-                  onDragStart={onDragStart}
-                  onDragOver={(e, id) => { onDragOver(e); setDragOverId(id); }}
-                  onDragLeave={() => setDragOverId(null)}
-                  onDrop={(e, id) => { onDrop(e, id); setDragOverId(null); }}
-                  folder={getConversationFolder(item.id)}
-                  onAssignFolder={assignToFolder}
-                  folders={folders}
-                  isArchived={isArchived(item.id)}
-                  onToggleArchive={() => toggleArchive(item.id)}
-                  isBulkSelected={selectedConversations.has(item.id)}
-                  onToggleBulkSelect={() => {
-                    setSelectedConversations((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(item.id)) {
-                        next.delete(item.id);
-                      } else {
-                        next.add(item.id);
-                      }
-                      return next;
-                    });
-                  }}
-                  bulkMode={bulkMode}
-                  onMerge={(targetId) => {
-                    mergeConversations(item.id, targetId);
-                  }}
-                  conversations={conversations}
-                  pinned={isPinned(item.id)}
-                  onTogglePin={() => togglePinned(item.id)}
-                />
-              ))}
+                    ))}
                   </>
                 );
               })()}
