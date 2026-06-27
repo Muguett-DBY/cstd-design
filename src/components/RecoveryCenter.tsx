@@ -96,6 +96,7 @@ export function RecoveryCenter({
       ariaLabel: "只看视频待处理",
     },
   ];
+  const activeTaskFilter = taskFilterOptions.find((option) => option.key === taskFilter) || taskFilterOptions[0];
   const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
   const toggleOpen = () => {
     if (!open) setSection(hasPanelContent ? "tasks" : "continue");
@@ -320,6 +321,11 @@ export function RecoveryCenter({
                       </button>
                     ))}
                   </div>
+                )}
+                {hasPanelContent && (
+                  <p className="recovery-filter-summary" role="status" aria-label="待处理筛选摘要">
+                    {taskFilter === "all" ? "当前显示：全部" : `当前只看：${activeTaskFilter.label}`} · {activeTaskFilter.count} 项待处理
+                  </p>
                 )}
                 {!hasPanelContent && <p className="recovery-empty">当前没有待处理任务。</p>}
                 {hasPanelContent && !hasFilteredTasks && <p className="recovery-empty">当前筛选没有待处理任务。</p>}

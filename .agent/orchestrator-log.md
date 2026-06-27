@@ -148,5 +148,25 @@
   - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 9 tests passed.
   - Full tests: `npm test` — 67 files, 448 tests passed.
   - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
-- **Commit/CI**: pending.
+- **Commit/CI**: `e685716` — GitHub Actions run `28299975080` passed.
 - **Next**: Stage 3 UIUX will refine the Creation Center panel so the new triage controls feel clearer and more mature.
+
+### Stage 3/6 — UIUX ✅
+- **Prompt**: `AGENT_UIUX_MAIN.txt`
+- **Goal**: Improve the perceived clarity of Creation Center task filtering with visible interaction feedback and mobile validation.
+- **Start state**:
+  - Branch: `main`
+  - Prior stage commit `e685716` was pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added a live `待处理筛选摘要` status line below task filters.
+  - The summary explains whether the panel is showing all work or only one workspace type.
+  - Styled the summary as a lightweight feedback strip instead of another action surface.
+- **Validation**:
+  - RED confirmed: `npm test -- src/components/RecoveryCenter.test.tsx` failed because the filter summary status was missing.
+  - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 10 tests passed.
+  - Full tests: `npm test` — 67 files, 449 tests passed.
+  - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+  - Mobile browser verification passed against `wrangler pages dev dist` at `390x844`: authenticated app shell, seeded recovery records, filter summary, no horizontal overflow, no console warnings/errors.
+- **Commit/CI**: pending.
+- **Next**: Stage 4 IMPROVE will add one more durable Creation Center product increment before the CHECK stage.

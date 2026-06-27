@@ -1,5 +1,24 @@
 # Iteration Log
 
+## Long Campaign 026 — Stage 3 Creation Center Filter Feedback UIUX (2026-06-28)
+
+### Goal
+- Make Creation Center filter changes easier to understand, especially on mobile where visible context is limited.
+
+### Completed
+- Added a live `待处理筛选摘要` status line below pending-work filters.
+- The summary states whether the list is showing all pending work or a single workspace type.
+- Styled the summary as a compact feedback strip.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the filter summary existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 10 tests passed.
+- Full local gate passed: `npm test` — 67 files, 449 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- Mobile Pages browser verification passed at 390×844 with seeded recovery records, filter summary, no horizontal overflow, and no console warnings/errors.
+
+### Next
+- Continue Stage 4 with a durable Creation Center product increment, then run the CHECK stage against storage and release risks.
+
 ## Long Campaign 026 — Stage 2 Creation Center Pending Filters (2026-06-28)
 
 ### Goal

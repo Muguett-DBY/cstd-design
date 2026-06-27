@@ -9526,6 +9526,17 @@ button:disabled {
   padding: 0 5px;
 }
 
+.recovery-filter-summary {
+  margin: -2px 0 2px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  padding: 8px 10px;
+}
+
 @keyframes recovery-panel-enter {
   from {
     opacity: 0;
