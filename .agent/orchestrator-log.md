@@ -168,5 +168,24 @@
   - Full tests: `npm test` — 67 files, 449 tests passed.
   - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
   - Mobile browser verification passed against `wrangler pages dev dist` at `390x844`: authenticated app shell, seeded recovery records, filter summary, no horizontal overflow, no console warnings/errors.
-- **Commit/CI**: pending.
+- **Commit/CI**: `36eff27` — GitHub Actions run `28300163888` passed.
 - **Next**: Stage 4 IMPROVE will add one more durable Creation Center product increment before the CHECK stage.
+
+### Stage 4/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Reduce destructive recovery cleanup risk by letting users clear only the currently filtered recovery type.
+- **Start state**:
+  - Branch: `main`
+  - Prior stage commit `36eff27` was pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added a contextual `清空{类型}恢复记录` action when a specific pending-work filter is active.
+  - The action dismisses only records visible in the current filter.
+  - The existing all-record clear action remains available only in the `全部` filter.
+- **Validation**:
+  - RED confirmed: `npm test -- src/components/RecoveryCenter.test.tsx` failed because the filtered clear action was missing.
+  - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 11 tests passed.
+  - Full tests: `npm test` — 67 files, 450 tests passed.
+  - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- **Commit/CI**: pending.
+- **Next**: Stage 5 CHECK will audit the new recovery-center changes for storage, safety, and release risks.

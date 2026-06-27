@@ -1,5 +1,23 @@
 # Iteration Log
 
+## Long Campaign 026 — Stage 4 Filtered Recovery Cleanup (2026-06-28)
+
+### Goal
+- Make recovery cleanup safer by avoiding an all-or-nothing clear action when users are focused on one task type.
+
+### Completed
+- Added `清空{类型}恢复记录` when a specific pending-work filter is active.
+- The filtered clear action dismisses only visible records in that type.
+- Kept the existing full clear action available only from the `全部` filter.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the filtered clear action existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 11 tests passed.
+- Full local gate passed: `npm test` — 67 files, 450 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+### Next
+- Run Stage 5 CHECK against Creation Center storage/recovery safety and backup/release coverage.
+
 ## Long Campaign 026 — Stage 3 Creation Center Filter Feedback UIUX (2026-06-28)
 
 ### Goal

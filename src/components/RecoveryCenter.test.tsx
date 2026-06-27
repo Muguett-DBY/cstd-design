@@ -286,4 +286,25 @@ describe("RecoveryCenter", () => {
     expect(summary.textContent).toContain("当前只看：咨询");
     expect(summary.textContent).toContain("1 项待处理");
   });
+
+  test("clears only the currently filtered recovery records", () => {
+    const onDismiss = vi.fn();
+    const onClear = vi.fn();
+    render(
+      <RecoveryCenter
+        records={records}
+        onSelect={vi.fn()}
+        onDismiss={onDismiss}
+        onClear={onClear}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("button", { name: "只看咨询待处理" }));
+    fireEvent.click(screen.getByRole("button", { name: "清空咨询恢复记录" }));
+
+    expect(onDismiss).toHaveBeenCalledOnce();
+    expect(onDismiss).toHaveBeenCalledWith("chat-1");
+    expect(onClear).not.toHaveBeenCalled();
+  });
 });
