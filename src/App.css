@@ -9537,6 +9537,20 @@ button:disabled {
   padding: 8px 10px;
 }
 
+.recovery-empty-action {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 12px;
+}
+
+.recovery-empty-action .recovery-empty {
+  margin: 0;
+}
+
 @keyframes recovery-panel-enter {
   from {
     opacity: 0;
