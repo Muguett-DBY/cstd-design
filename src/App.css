@@ -6949,6 +6949,56 @@ button:disabled {
   border-bottom: 1px solid var(--line);
 }
 
+.prompt-library-recent {
+  padding: 10px 20px 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.prompt-library-recent-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.prompt-library-recent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.prompt-library-recent-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  max-width: 240px;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.prompt-library-recent-item:hover {
+  background: var(--surface-strong);
+  border-color: var(--accent);
+}
+
+.prompt-library-recent-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
 .category-chip {
   padding: 4px 10px;
   border: 1px solid var(--line);

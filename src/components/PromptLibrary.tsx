@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, Search, Plus, Trash2, X } from "lucide-react";
+import { Star, Search, Plus, Trash2, X, Clock } from "lucide-react";
 import { usePromptLibrary } from "../hooks/usePromptLibrary";
 import type { PromptCategory } from "../hooks/promptLibrary";
 
@@ -16,11 +16,13 @@ export function PromptLibrary({ onSelect, onClose }: PromptLibraryProps) {
     toggleFavorite,
     search,
     getFavorites,
+    getRecentlyUsed,
+    recordUsage,
     categories,
   } = usePromptLibrary();
 
   const [query, setQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<PromptCategory | "all" | "favorites">("all");
+  const [selectedCategory, setSelectedCategory] = useState<PromptCategory | "all" | "favorites" | "recent">("all");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newPromptText, setNewPromptText] = useState("");
   const [newPromptCategory, setNewPromptCategory] = useState<PromptCategory>("custom");
@@ -28,9 +30,18 @@ export function PromptLibrary({ onSelect, onClose }: PromptLibraryProps) {
   const filteredPrompts = (() => {
     if (query.trim()) return search(query);
     if (selectedCategory === "favorites") return getFavorites();
+    if (selectedCategory === "recent") return getRecentlyUsed();
     if (selectedCategory === "all") return prompts;
     return prompts.filter((p) => p.category === selectedCategory);
   })();
+
+  const recentlyUsed = getRecentlyUsed(5);
+
+  const handleSelect = (id: string, text: string) => {
+    recordUsage(id);
+    onSelect(text);
+    onClose();
+  };
 
   const handleAdd = () => {
     if (newPromptText.trim()) {
@@ -60,6 +71,28 @@ export function PromptLibrary({ onSelect, onClose }: PromptLibraryProps) {
           />
         </div>
 
+        {recentlyUsed.length > 0 && !query.trim() && selectedCategory === "all" && (
+          <div className="prompt-library-recent">
+            <div className="prompt-library-recent-header">
+              <Clock size={12} /> 最近使用
+            </div>
+            <div className="prompt-library-recent-list">
+              {recentlyUsed.map((prompt) => (
+                <button
+                  key={prompt.id}
+                  type="button"
+                  className="prompt-library-recent-item"
+                  onClick={() => handleSelect(prompt.id, prompt.text)}
+                  title={prompt.text}
+                >
+                  <span className="prompt-library-item-icon">{prompt.icon}</span>
+                  <span className="prompt-library-recent-text">{prompt.text}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="prompt-library-categories">
           <button
             type="button"
@@ -75,6 +108,15 @@ export function PromptLibrary({ onSelect, onClose }: PromptLibraryProps) {
           >
             <Star size={12} /> 收藏
           </button>
+          {recentlyUsed.length > 0 && (
+            <button
+              type="button"
+              className={`category-chip${selectedCategory === "recent" ? " active" : ""}`}
+              onClick={() => setSelectedCategory("recent")}
+            >
+              <Clock size={12} /> 最近使用
+            </button>
+          )}
           {(Object.keys(categories) as PromptCategory[]).map((cat) => (
             <button
               key={cat}
@@ -98,10 +140,7 @@ export function PromptLibrary({ onSelect, onClose }: PromptLibraryProps) {
                 <button
                   type="button"
                   className="prompt-library-item-text"
-                  onClick={() => {
-                    onSelect(prompt.text);
-                    onClose();
-                  }}
+                  onClick={() => handleSelect(prompt.id, prompt.text)}
                 >
                   <span className="prompt-library-item-icon">{prompt.icon}</span>
                   <span>{prompt.text}</span>

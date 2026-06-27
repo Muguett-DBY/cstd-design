@@ -103,6 +103,13 @@ export function usePromptLibrary() {
       .slice(0, limit);
   }, [prompts]);
 
+  const getRecentlyUsed = useCallback((limit: number = 5): LibraryPrompt[] => {
+    return [...prompts]
+      .filter((p) => p.lastUsedAt !== null)
+      .sort((a, b) => (b.lastUsedAt || 0) - (a.lastUsedAt || 0))
+      .slice(0, limit);
+  }, [prompts]);
+
   return {
     prompts,
     addPrompt,
@@ -113,6 +120,7 @@ export function usePromptLibrary() {
     search,
     getFavorites,
     getMostUsed,
+    getRecentlyUsed,
     categories: CATEGORY_LABELS,
     categoryIcons: CATEGORY_ICONS,
   };
