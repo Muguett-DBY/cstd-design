@@ -9366,6 +9366,47 @@ button:disabled {
   line-height: 1;
 }
 
+.recovery-recommendation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 36%, var(--line));
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 18%, transparent), transparent 42%),
+    var(--surface);
+  padding: 12px;
+}
+
+.recovery-recommendation div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.recovery-recommendation span {
+  color: var(--accent-strong);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.recovery-recommendation strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recovery-recommendation p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .recovery-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -9683,6 +9724,10 @@ button:disabled {
 
   .recovery-overview-card {
     padding: 9px 8px;
+  }
+
+  .recovery-recommendation {
+    grid-template-columns: 1fr;
   }
 
   .recovery-continuation-card {

@@ -1,5 +1,24 @@
 # Iteration Log
 
+## Long Campaign 026 — Stage 1 Creation Center Priority Action (2026-06-28)
+
+### Goal
+- Start a new creation-continuity campaign after Campaign 025 and make Creation Center immediately tell users what to handle first.
+
+### Completed
+- Added a `建议先处理` recommendation card to Creation Center.
+- Prioritizes active video generation before recoverable failed/draft creation records.
+- Added a one-click recommendation action that opens the active task or selected recovery record and closes the panel.
+- Added responsive card styling so the action remains readable on mobile.
+
+### Verified
+- RED: `npm test -- src/components/RecoveryCenter.test.tsx` failed before the recommendation region existed.
+- GREEN: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 8 tests passed.
+- Full local gate passed: `npm test` — 67 files, 447 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+
+### Next
+- Continue Stage 2 with better task triage inside Creation Center, especially filtering or grouping mixed recovery work.
+
 ## Campaign 016 — Reliable creation loop (in progress, 2026-06-26)
 
 - Added recoverable chat sending: failed content is restored instead of lost, and users can explicitly retry.

@@ -104,3 +104,29 @@
   - `https://cstd-design.pages.dev/` and `https://design.custard.top/` returned HTTP 200 with the expected page title.
   - `/api/session` returned HTTP 200 and the expected unauthenticated session payload on both stable domains.
 - **Final status**: Campaign 025 completed all six stages with local, CI, deployment, and live endpoint verification.
+
+---
+
+## Long Campaign 026 — Creation Continuity 6-Stage Run (2026-06-28)
+
+### Stage 1/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Start a new campaign after Campaign 025 by improving Creation Center continuity instead of continuing asset-sort polish.
+- **Start state**:
+  - Repository: `E:\DEV\cstd-design`
+  - Branch: `main`
+  - Remote: `origin/main`, `git pull --ff-only` returned `Already up to date`
+  - Existing unrelated worktree state: `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Planned product increment**: Add a priority recommendation card so users can see and act on the next best creation-continuity step immediately.
+- **Completed**:
+  - Added a `建议先处理` recommendation region in Creation Center.
+  - Prioritizes active video generation first, then the newest recoverable creation record.
+  - Added a one-click recommendation action that opens the active task or recovery record and closes the panel.
+  - Added responsive styling for the recommendation card.
+- **Validation**:
+  - RED confirmed: `npm test -- src/components/RecoveryCenter.test.tsx` failed because the recommendation region was missing.
+  - GREEN targeted: `npm test -- src/components/RecoveryCenter.test.tsx` — 1 file, 8 tests passed.
+  - Full tests: `npm test` — 67 files, 447 tests passed.
+  - Static/build gates: `npm run typecheck:functions`; `npm run lint`; `npm run build`.
+- **Commit/CI**: pending.
+- **Next**: Stage 2 IMPROVE will continue Creation Center task triage with a focused product increment.

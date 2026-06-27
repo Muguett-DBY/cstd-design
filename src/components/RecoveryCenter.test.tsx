@@ -107,6 +107,29 @@ describe("RecoveryCenter", () => {
     expect(onOpenVideoTask).toHaveBeenCalledOnce();
   });
 
+  test("recommends the highest priority creation action", () => {
+    const onOpenVideoTask = vi.fn();
+    render(
+      <RecoveryCenter
+        records={records}
+        activeVideoTask={{ id: "task-active", status: "in_progress", progress: 64 }}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+        onOpenVideoTask={onOpenVideoTask}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+    const recommendation = screen.getByRole("region", { name: "建议先处理" });
+    expect(recommendation.textContent).toContain("视频正在生成");
+    expect(recommendation.textContent).toContain("64%");
+
+    fireEvent.click(screen.getByRole("button", { name: "查看建议任务" }));
+    expect(onOpenVideoTask).toHaveBeenCalledOnce();
+  });
+
   test("shows a quick status overview for the creation center", () => {
     render(
       <RecoveryCenter
