@@ -471,4 +471,8 @@
   - GREEN targeted: same command — 1 file, 14 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 468 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8805` on desktop and `390x844` mobile: two stale records remained visible, a fresh record and active task were excluded, the stale summary announced 2 items, no horizontal overflow occurred, and the console/runtime checks were clean.
-- **Commit/CI**: pending commit and production verification.
+- **Commit/CI**: `16607e3 feat: add stale recovery queue`; GitHub Actions run `28321023007` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://5fa43a3c.cstd-design.pages.dev` for source `16607e353d5b27db151d5e55b72882a0a4df266a`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 3 UIUX will make stale recovery items visually and accessibly easier to scan inside the Creation Center queue.
