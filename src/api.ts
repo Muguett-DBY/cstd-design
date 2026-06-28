@@ -5,6 +5,19 @@ const UNAUTHORIZED_EVENT = "auth:unauthorized";
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 800;
 
+export type ServiceReadinessCheck = {
+  id: "database" | "media" | "generation" | "security";
+  label: string;
+  status: "ready" | "attention";
+  detail: string;
+};
+
+export type ServiceReadinessSnapshot = {
+  status: "ready" | "attention";
+  checkedAt: string;
+  checks: ServiceReadinessCheck[];
+};
+
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
@@ -62,6 +75,7 @@ export function onUnauthorized(handler: () => void) {
 
 export const api = {
   session: () => requestJson<{ authenticated: boolean; expiresAt: string | null }>("/api/session"),
+  readiness: () => requestJson<ServiceReadinessSnapshot>("/api/readiness"),
   login: (password: string) => requestJson<{ authenticated: boolean; expiresAt: string }>("/api/session", { method: "POST", body: JSON.stringify({ password }) }),
   logout: () => requestJson<{ authenticated: boolean }>("/api/session", { method: "DELETE" }),
   conversations: (q = "") => requestJson<{ conversations: ConversationSummary[] }>(`/api/conversations${q ? `?q=${encodeURIComponent(q)}` : ""}`),

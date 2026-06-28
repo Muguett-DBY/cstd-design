@@ -243,7 +243,7 @@
 
 ## Long Campaign 027 — Service Readiness 6-Stage Run (2026-06-28)
 
-### Global preparation — residual-risk closure in progress
+### Global preparation — residual-risk closure ✅
 - **Repository**: `E:\DEV\cstd-design`
 - **Branch**: `main`; `git pull --ff-only` returned `Already up to date`.
 - **Protected existing work**: `.agent/orchestrator-history/campaign-014/` remains untracked and will not be edited or committed.
@@ -252,6 +252,16 @@
   - The workflow does not run post-deploy API/auth-boundary smoke checks against the exact deployment URL.
   - A successful production login cannot be automated without the real password; enabling the local E2E session endpoint in production would create an unacceptable bypass risk.
 - **Preparation objective**: add repeatable secret-name validation and exact-deployment smoke checks for the app shell, anonymous session contract, protected API rejection, and disabled E2E session endpoint.
+- **Completed**:
+  - Added required Cloudflare Pages secret-name verification without reading secret values.
+  - Added exact-commit production deployment resolution and API/auth-boundary smoke coverage.
+  - Added cross-platform Wrangler process execution and Node test coverage.
+- **Validation**:
+  - Node release checks: 4 tests passed.
+  - Existing Vitest suite: 67 files, 452 tests passed.
+  - `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check` passed.
+  - Live smoke passed against `https://9aa1e59c.cstd-design.pages.dev` before workflow integration.
+- **Commit/CI**: `970c180 ci: verify production deployment boundaries`; GitHub Actions run `28306107027` passed all steps, including the new secret and deployment checks.
 
 ### Planned sequence
 1. **IMPROVE** — authenticated service-readiness API and user-visible readiness center.
@@ -260,3 +270,26 @@
 4. **IMPROVE** — actionable diagnostics export/copy workflow without secret exposure.
 5. **CHECK** — security, failure-mode, CI, dependency, and regression audit with real fixes.
 6. **IMPROVE** — final reliability increment plus full local, CI, deployment, and live acceptance.
+
+### Stage 1/6 — IMPROVE 🚧
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Give authenticated users one trustworthy place to verify whether core storage, security, and generation configuration are ready before starting work.
+- **Start state**:
+  - Branch: `main`; residual-risk commit `970c180` is pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Planned product increment**:
+  - Add an authenticated readiness API with safe, non-secret checks.
+  - Add a user-visible readiness center in Settings with loading, success, degraded, error, and manual refresh states.
+  - Clearly distinguish configured generation credentials from real upstream availability.
+- **Completed**:
+  - Added a shared service-readiness snapshot builder with database, media, generation, and security checks.
+  - Added authenticated `GET /api/readiness` Pages Function that verifies D1 queryability, R2 listability, required security secret presence, and upstream key configuration without exposing values.
+  - Added a Settings `服务就绪中心` panel with loading, degraded, error, refresh, timestamp, and per-check detail states.
+  - Clarified that generation credentials being configured does not prove upstream availability until the first real generation request.
+- **Validation**:
+  - RED confirmed: `npx vitest run functions/_shared/readiness.test.ts src/components/ServiceReadinessPanel.test.tsx` failed before the readiness module and panel existed.
+  - GREEN targeted: `npx vitest run functions/_shared/readiness.test.ts src/components/ServiceReadinessPanel.test.tsx` — 2 files, 4 tests passed.
+  - Local Pages API smoke passed against `wrangler pages dev dist` with temporary local D1/R2 bindings: unauthenticated `/api/readiness` returned 401; authenticated E2E session returned a readiness JSON with `database`, `media`, `generation`, and `security` checks.
+  - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 69 files, 456 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Next**: Stage 2 IMPROVE will add creation-workspace preflight guidance based on this readiness signal.

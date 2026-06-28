@@ -2457,3 +2457,25 @@
 
 ### Campaign status
 - Long Campaign 026 completed all six required stages with local validation, authenticated browser smoke, commits, pushes, GitHub Actions verification, and live smoke.
+
+---
+
+## Long Campaign 027 — Stage 1 Service Readiness Center (2026-06-28)
+
+### Goal
+- Give authenticated users one trustworthy place to verify whether core storage, security, and generation configuration are ready before starting work.
+
+### Completed
+- Added a shared readiness snapshot builder for `database`, `media`, `generation`, and `security` checks.
+- Added authenticated `GET /api/readiness` with safe D1, R2, secret-presence, and upstream-key-configuration checks.
+- Added a Settings `服务就绪中心` panel with loading, degraded, error, refresh, timestamp, and per-check detail states.
+- Kept generation status honest: configured credentials are reported separately from real upstream availability.
+
+### Verified
+- RED: `npx vitest run functions/_shared/readiness.test.ts src/components/ServiceReadinessPanel.test.tsx` failed before the readiness module and panel existed.
+- GREEN: `npx vitest run functions/_shared/readiness.test.ts src/components/ServiceReadinessPanel.test.tsx` — 2 files, 4 tests passed.
+- Local Pages API smoke passed with temporary local D1/R2 bindings: unauthenticated `/api/readiness` returned 401, authenticated E2E session returned the four expected readiness checks.
+- Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 69 files, 456 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### CI status
+- Pending stage commit and GitHub Actions verification.

@@ -5808,6 +5808,129 @@ button:disabled {
   gap: 6px;
 }
 
+.service-readiness-section {
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 4%, var(--soft));
+}
+
+.service-readiness-heading,
+.service-readiness-summary-copy,
+.service-readiness-checks li,
+.service-readiness-loading,
+.service-readiness-error {
+  display: flex;
+  align-items: flex-start;
+}
+
+.service-readiness-heading {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.service-readiness-heading .settings-hint {
+  margin: 6px 0 0;
+}
+
+.service-readiness-refresh {
+  flex: 0 0 auto;
+}
+
+.service-readiness-loading,
+.service-readiness-error {
+  gap: 9px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.service-readiness-loading {
+  align-items: center;
+  color: var(--muted);
+  background: var(--bg);
+}
+
+.service-readiness-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.service-readiness-error {
+  color: var(--danger, #b42318);
+  background: color-mix(in srgb, var(--danger, #b42318) 8%, var(--bg));
+}
+
+.service-readiness-error div,
+.service-readiness-summary-copy div,
+.service-readiness-checks li div {
+  display: grid;
+  gap: 2px;
+}
+
+.service-readiness-error span,
+.service-readiness-summary-copy span,
+.service-readiness-checks li span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.service-readiness-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.service-readiness-summary-copy {
+  gap: 8px;
+  color: var(--success, #18864b);
+}
+
+.service-readiness-summary.is-attention .service-readiness-summary-copy {
+  color: var(--warning, #9a6700);
+}
+
+.service-readiness-checks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.service-readiness-checks li {
+  gap: 7px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg);
+  color: var(--success, #18864b);
+}
+
+.service-readiness-checks li.is-attention {
+  color: var(--warning, #9a6700);
+}
+
+.service-readiness-checks li strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.is-spinning {
+  animation: spin 0.9s linear infinite;
+}
+
+@media (max-width: 560px) {
+  .service-readiness-checks {
+    grid-template-columns: 1fr;
+  }
+}
+
 .settings-field {
   display: grid;
   grid-template-columns: 120px 1fr;
