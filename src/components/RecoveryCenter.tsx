@@ -422,37 +422,55 @@ export function RecoveryCenter({
               {filteredRecords.length > 0 && (
                 <>
                   <div className="recovery-list" role="list">
-                    {filteredRecords.map((record) => (
-                      <article key={record.id} className="recovery-item" role="listitem">
-                        <div>
-                          <span className="recovery-kind">{recoveryTypeLabel(record.type)}</span>
-                          <h4>{record.label}</h4>
-                          <p>{record.summary}</p>
-                          <time dateTime={record.createdAt}>{formatRecoveryTime(record.createdAt)}</time>
-                        </div>
-                        <div className="recovery-actions">
-                          <button
-                            type="button"
-                            className="ghost-button"
-                            aria-label={`打开 ${record.label}`}
-                            onClick={() => {
-                              onSelect(record);
-                              setOpen(false);
-                            }}
-                          >
-                            打开
-                          </button>
-                          <button
-                            type="button"
-                            className="ghost-button danger"
-                            aria-label={`忽略 ${record.label}`}
-                            onClick={() => onDismiss(record.id)}
-                          >
-                            忽略
-                          </button>
-                        </div>
-                      </article>
-                    ))}
+                    {filteredRecords.map((record) => {
+                      const recordIsStale = isStaleRecovery(record.createdAt);
+                      const recordTypeLabel = recoveryTypeLabel(record.type);
+                      const recordAriaLabel = `${recordIsStale ? "保存较久的恢复项" : "恢复项"}：${record.label}，${recordTypeLabel}，${record.summary}`;
+                      return (
+                        <article
+                          key={record.id}
+                          className={`recovery-item${recordIsStale ? " recovery-item-stale" : ""}`}
+                          role="listitem"
+                          aria-label={recordAriaLabel}
+                        >
+                          <div>
+                            <div className="recovery-item-meta">
+                              <span className="recovery-kind">{recordTypeLabel}</span>
+                              {recordIsStale && (
+                                <span className="recovery-stale-badge">
+                                  <Clock size={12} /> 保存较久
+                                </span>
+                              )}
+                            </div>
+                            <h4>{record.label}</h4>
+                            <p>{record.summary}</p>
+                            {recordIsStale && <p className="recovery-stale-hint">超过 24 小时未处理，建议优先恢复或忽略。</p>}
+                            <time dateTime={record.createdAt}>{formatRecoveryTime(record.createdAt)}</time>
+                          </div>
+                          <div className="recovery-actions">
+                            <button
+                              type="button"
+                              className="ghost-button"
+                              aria-label={`打开 ${record.label}`}
+                              onClick={() => {
+                                onSelect(record);
+                                setOpen(false);
+                              }}
+                            >
+                              打开
+                            </button>
+                            <button
+                              type="button"
+                              className="ghost-button danger"
+                              aria-label={`忽略 ${record.label}`}
+                              onClick={() => onDismiss(record.id)}
+                            >
+                              忽略
+                            </button>
+                          </div>
+                        </article>
+                      );
+                    })}
                   </div>
                   {taskFilter === "all" ? (
                     <button type="button" className="ghost-button danger recovery-clear" aria-label="清空恢复记录" onClick={onClear}>

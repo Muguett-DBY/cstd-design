@@ -2652,3 +2652,24 @@
 
 ### Next
 - Continue Stage 3 UIUX by making stale recovery records easier to scan visually and accessibly inside the Creation Center queue.
+
+---
+
+## Long Campaign 028 — Stage 3 Stale Recovery Item Cues (2026-06-28)
+
+### Goal
+- Make stale recovery records visually and accessibly scannable inside the Creation Center pending queue.
+
+### Completed
+- Added a visible `保存较久` badge and “超过 24 小时未处理” hint to stale recovery records.
+- Added accessible listitem labels that distinguish stale recovery records from fresh records.
+- Added a warm stale-card treatment without changing fresh record behavior.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before stale recovery listitems had record-level accessible labels and stale cues.
+- GREEN: same command — 1 file, 15 tests passed.
+- Full local gate passed: Node smoke 5 tests, Vitest 71 files / 469 tests, Functions typecheck, lint, build, high-level audit, and diff check.
+- Authenticated local Pages browser verification passed at `http://127.0.0.1:8806` on desktop and mobile, including stale/fresh visual separation, stale-only filter, overflow, console, and runtime checks.
+
+### CI status
+- Pending commit, GitHub Actions, and exact-deployment production smoke.

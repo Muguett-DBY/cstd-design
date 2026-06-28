@@ -476,3 +476,20 @@
   - Production smoke resolved exact deployment `https://5fa43a3c.cstd-design.pages.dev` for source `16607e353d5b27db151d5e55b72882a0a4df266a`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 3 UIUX will make stale recovery items visually and accessibly easier to scan inside the Creation Center queue.
+
+### Stage 3/6 — UIUX ✅
+- **Prompt**: `AGENT_UIUX_MAIN.txt`
+- **Goal**: Make stale recovery records visually and accessibly scannable inside the Creation Center pending queue.
+- **Start state**:
+  - Branch: `main`; Stage 2 commit `16607e3` and follow-up record commit `b2bd8c5` are pushed, CI passed, and exact production smoke passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed**:
+  - Added record-level stale priority cues with a visible `保存较久` badge and a clear “超过 24 小时未处理” hint.
+  - Added accessible listitem names that distinguish stale recovery records from fresh recovery records.
+  - Added a warm warning treatment for stale records while keeping fresh records visually neutral.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because stale recovery listitems had no accessible name or per-item stale cue.
+  - GREEN targeted: same command — 1 file, 15 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 469 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8806` on desktop and `390x844` mobile: stale records showed badge and hint, fresh records stayed unmarked, stale filter showed 2 records, no horizontal overflow occurred, and console/runtime checks were clean.
+- **Commit/CI**: pending commit and production verification.
