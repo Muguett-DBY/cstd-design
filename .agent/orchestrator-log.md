@@ -341,7 +341,7 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 4 IMPROVE will add a safe diagnostics export/copy workflow for service readiness without exposing secrets.
 
-### Stage 4/6 — IMPROVE (local verification complete)
+### Stage 4/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Let users copy an actionable service-readiness diagnostic summary for support handoff without exposing secret values.
 - **Start state**:
@@ -357,5 +357,8 @@
   - GREEN targeted: same command — 1 file, 4 tests passed.
   - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 464 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8803`: Settings readiness panel loaded, clipboard copy succeeded, all four check states were present, no secret-like value or assignment was found, no horizontal overflow occurred, and the console reported 0 errors / 0 warnings.
-- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Commit/CI**: `68b996f feat: add safe readiness diagnostics copy`; GitHub Actions run `28312908215` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://d1cb5381.cstd-design.pages.dev` for source `68b996f9c73a31dbe735cecafb10560ee569ecdd`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: After Stage 4 CI/live closure, Stage 5 CHECK will audit readiness failure modes, security boundaries, dependencies, and regressions and fix verified issues.

@@ -2548,4 +2548,5 @@
 - Authenticated local Pages browser verification passed at `http://127.0.0.1:8803`: copy and clipboard content checks passed, no sensitive pattern was found, no overflow occurred, and the console reported 0 errors / 0 warnings.
 
 ### CI status
-- Pending stage commit and GitHub Actions verification.
+- Commit `68b996f` passed GitHub Actions run `28312908215`.
+- Production smoke resolved exact deployment `https://d1cb5381.cstd-design.pages.dev` for source `68b996f9c73a31dbe735cecafb10560ee569ecdd`.
