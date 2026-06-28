@@ -2478,4 +2478,6 @@
 - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 69 files, 456 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 
 ### CI status
-- Pending stage commit and GitHub Actions verification.
+- Commit `d3ba5a6` passed GitHub Actions run `28307175247`.
+- Production smoke resolved exact deployment `https://d271bf06.cstd-design.pages.dev` for source `d3ba5a6c889d02652663f8adf38c37150a9c7b1b`.
+- Exact deployment `/api/readiness` returned HTTP 401 without a session.

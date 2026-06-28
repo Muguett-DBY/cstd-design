@@ -271,7 +271,7 @@
 5. **CHECK** — security, failure-mode, CI, dependency, and regression audit with real fixes.
 6. **IMPROVE** — final reliability increment plus full local, CI, deployment, and live acceptance.
 
-### Stage 1/6 — IMPROVE 🚧
+### Stage 1/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Give authenticated users one trustworthy place to verify whether core storage, security, and generation configuration are ready before starting work.
 - **Start state**:
@@ -291,5 +291,8 @@
   - GREEN targeted: `npx vitest run functions/_shared/readiness.test.ts src/components/ServiceReadinessPanel.test.tsx` — 2 files, 4 tests passed.
   - Local Pages API smoke passed against `wrangler pages dev dist` with temporary local D1/R2 bindings: unauthenticated `/api/readiness` returned 401; authenticated E2E session returned a readiness JSON with `database`, `media`, `generation`, and `security` checks.
   - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 69 files, 456 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Commit/CI**: `d3ba5a6 feat: add service readiness center`; GitHub Actions run `28307175247` passed.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://d271bf06.cstd-design.pages.dev` for source `d3ba5a6c889d02652663f8adf38c37150a9c7b1b`.
+  - `/api/readiness` on the exact deployment returned HTTP 401 without a session, confirming the new endpoint is not public.
 - **Next**: Stage 2 IMPROVE will add creation-workspace preflight guidance based on this readiness signal.
