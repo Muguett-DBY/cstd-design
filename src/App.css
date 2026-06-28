@@ -5808,6 +5808,73 @@ button:disabled {
   gap: 6px;
 }
 
+.creation-preflight {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid color-mix(in srgb, var(--warning, #9a6700) 26%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warning, #9a6700) 7%, var(--bg));
+  color: var(--warning, #9a6700);
+  font-size: 13px;
+}
+
+.creation-preflight.is-error {
+  border-color: color-mix(in srgb, var(--danger, #b42318) 28%, var(--border));
+  background: color-mix(in srgb, var(--danger, #b42318) 7%, var(--bg));
+  color: var(--danger, #b42318);
+}
+
+.creation-preflight > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.creation-preflight strong {
+  color: var(--text);
+}
+
+.creation-preflight span {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.creation-preflight ul {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.creation-preflight li {
+  display: grid;
+  gap: 2px;
+}
+
+.creation-preflight li b {
+  color: var(--text);
+}
+
+.creation-preflight .ghost-button {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .creation-preflight {
+    grid-template-columns: auto 1fr;
+  }
+
+  .creation-preflight .ghost-button {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
 .service-readiness-section {
   padding: 14px;
   border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));

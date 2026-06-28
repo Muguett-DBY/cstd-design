@@ -38,6 +38,8 @@ import { BranchVisualization } from "./BranchVisualization";
 import { useRecoverableChatSend } from "../hooks/useRecoverableChatSend";
 import { CreationStatus } from "./CreationStatus";
 import type { ChatRecoveryPayload, CreationRecoveryInput } from "../hooks/useCreationRecovery";
+import { CreationPreflightNotice } from "./CreationPreflightNotice";
+import type { ServiceReadinessState } from "../hooks/useServiceReadiness";
 
 const ASSISTANT_NAME = "助手";
 
@@ -99,6 +101,7 @@ export function ChatWorkspace({
   onRecordRecovery,
   initialRecoveryPayload,
   onRecoveryResolved,
+  serviceReadiness,
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -120,6 +123,7 @@ export function ChatWorkspace({
   onRecordRecovery?: (record: CreationRecoveryInput) => void;
   initialRecoveryPayload?: ChatRecoveryPayload | null;
   onRecoveryResolved?: () => void;
+  serviceReadiness?: ServiceReadinessState;
 }) {
   const { draft, setDraft, clearDraft } = useDraftPersistence(
     conversation?.id || null,
@@ -494,6 +498,15 @@ export function ChatWorkspace({
             </button>
             <ClearAllButton label="清空全部" onClear={onClearAll} />
           </div>        </div>
+        {serviceReadiness && (
+          <CreationPreflightNotice
+            workspace="chat"
+            snapshot={serviceReadiness.snapshot}
+            loading={serviceReadiness.loading}
+            error={serviceReadiness.error}
+            onRefresh={serviceReadiness.refresh}
+          />
+        )}
 
         {search.isOpen && (
           <MessageSearchBar

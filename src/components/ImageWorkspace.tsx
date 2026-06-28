@@ -14,6 +14,8 @@ import { useWorkspaceDefaults } from "../hooks/useWorkspaceDefaults";
 import { useImageGenerationBatch, type ImageBatchSlot, type ImageGenerationRecipe } from "../hooks/useImageGenerationBatch";
 import { CreationStatus } from "./CreationStatus";
 import type { CreationRecoveryInput } from "../hooks/useCreationRecovery";
+import { CreationPreflightNotice } from "./CreationPreflightNotice";
+import type { ServiceReadinessState } from "../hooks/useServiceReadiness";
 
 const IMAGE_SIZE_STORAGE_KEY = "cstd-design:imageSize";
 
@@ -26,7 +28,7 @@ const STYLE_PRESETS: { id: string; label: string; prefix: string }[] = [
   { id: "sketch", label: "素描", prefix: "铅笔素描风格，" },
 ];
 
-export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void; onRecordRecovery?: (record: CreationRecoveryInput) => void; initialRecoveryPayload?: ImageGenerationRecipe | null; onRecoveryResolved?: () => void }) {
+export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved, serviceReadiness }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void; onRecordRecovery?: (record: CreationRecoveryInput) => void; initialRecoveryPayload?: ImageGenerationRecipe | null; onRecoveryResolved?: () => void; serviceReadiness?: ServiceReadinessState }) {
   const { getDefaults, setDefault } = useWorkspaceDefaults();
   const defaults = getDefaults("image");
   const [prompt, setPrompt] = useState(() => initialRecoveryPayload?.prompt || "");
@@ -152,6 +154,15 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           }} />
         </div>
         <p>每次生成 1 张。选择参考图时会走图生图或多图合成。</p>
+        {serviceReadiness && (
+          <CreationPreflightNotice
+            workspace="image"
+            snapshot={serviceReadiness.snapshot}
+            loading={serviceReadiness.loading}
+            error={serviceReadiness.error}
+            onRefresh={serviceReadiness.refresh}
+          />
+        )}
 
         {/* Prompt Templates Section */}
         {prompt.trim() && (

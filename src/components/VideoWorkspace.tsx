@@ -11,6 +11,8 @@ import { useVideoPresets } from "../hooks/useVideoPresets";
 import { CreationStatus } from "./CreationStatus";
 import type { PersistedVideoTask, VideoGenerationRecipe } from "../hooks/useVideoTaskPersistence";
 import type { CreationRecoveryInput } from "../hooks/useCreationRecovery";
+import { CreationPreflightNotice } from "./CreationPreflightNotice";
+import type { ServiceReadinessState } from "../hooks/useServiceReadiness";
 
 const STATUS_ICONS: Record<string, typeof Clock> = {
   queued: Hourglass,
@@ -32,7 +34,7 @@ function formatElapsed(ms: number): string {
   return `${minutes}分${remainingSeconds}秒`;
 }
 
-export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved }: {
+export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved, serviceReadiness }: {
   assets: AssetItem[];
   onAssetsChanged: () => Promise<void>;
   onNotice: (message: string) => void;
@@ -46,6 +48,7 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
   onRecordRecovery?: (record: CreationRecoveryInput) => void;
   initialRecoveryPayload?: VideoGenerationRecipe | null;
   onRecoveryResolved?: () => void;
+  serviceReadiness?: ServiceReadinessState;
 }) {
   const [prompt, setPrompt] = useState(() => initialRecoveryPayload?.prompt || "");
   const [preset, setPreset] = useState<VideoPreset>(() => initialRecoveryPayload?.preset || "standard");
@@ -148,6 +151,15 @@ export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           />
         </div>
         <p>视频生成期间请保持页面打开。关闭页面后任务会被视为放弃。</p>
+        {serviceReadiness && (
+          <CreationPreflightNotice
+            workspace="video"
+            snapshot={serviceReadiness.snapshot}
+            loading={serviceReadiness.loading}
+            error={serviceReadiness.error}
+            onRefresh={serviceReadiness.refresh}
+          />
+        )}
         <div className="preset-toggle-row">
           <button type="button" className="ghost-button" onClick={() => setShowPresets(!showPresets)}>
             <BookMarked size={14} /> {showPresets ? "收起预设" : `使用预设（${videoPresets.presets.length}）`}
