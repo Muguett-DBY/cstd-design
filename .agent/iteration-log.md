@@ -2672,4 +2672,8 @@
 - Authenticated local Pages browser verification passed at `http://127.0.0.1:8806` on desktop and mobile, including stale/fresh visual separation, stale-only filter, overflow, console, and runtime checks.
 
 ### CI status
-- Pending commit, GitHub Actions, and exact-deployment production smoke.
+- Commit `52b4b8f` passed GitHub Actions run `28321448619`.
+- Production smoke resolved exact deployment `https://4b72a788.cstd-design.pages.dev` for source `52b4b8f0ee050b66e3f441b5733cdc8de0a6cb9e`.
+
+### Next
+- Continue Stage 4 IMPROVE with a stronger stale-recovery bulk handling increment.

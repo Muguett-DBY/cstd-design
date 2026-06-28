@@ -492,4 +492,8 @@
   - GREEN targeted: same command — 1 file, 15 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 469 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8806` on desktop and `390x844` mobile: stale records showed badge and hint, fresh records stayed unmarked, stale filter showed 2 records, no horizontal overflow occurred, and console/runtime checks were clean.
-- **Commit/CI**: pending commit and production verification.
+- **Commit/CI**: `52b4b8f uiux: clarify stale recovery items`; GitHub Actions run `28321448619` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://4b72a788.cstd-design.pages.dev` for source `52b4b8f0ee050b66e3f441b5733cdc8de0a6cb9e`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 4 IMPROVE will add a stronger stale-recovery bulk handling increment.
