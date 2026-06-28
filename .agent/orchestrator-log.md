@@ -238,3 +238,25 @@
   - `https://7e14e761.cstd-design.pages.dev/`, `https://cstd-design.pages.dev/`, and `https://design.custard.top/` returned HTTP 200 with title `工作台 - 私人中文创作工作台`.
   - `/api/session` returned HTTP 200 and unauthenticated JSON on all three live domains.
 - **Final status**: Campaign 026 completed all six required stages with per-stage changes, tests, commits, pushes, GitHub Actions verification, local Pages browser smoke, and live endpoint checks.
+
+---
+
+## Long Campaign 027 — Service Readiness 6-Stage Run (2026-06-28)
+
+### Global preparation — residual-risk closure in progress
+- **Repository**: `E:\DEV\cstd-design`
+- **Branch**: `main`; `git pull --ff-only` returned `Already up to date`.
+- **Protected existing work**: `.agent/orchestrator-history/campaign-014/` remains untracked and will not be edited or committed.
+- **Residual-risk findings**:
+  - Production Pages secrets are configured, but the workflow does not automatically verify their required names before deploy.
+  - The workflow does not run post-deploy API/auth-boundary smoke checks against the exact deployment URL.
+  - A successful production login cannot be automated without the real password; enabling the local E2E session endpoint in production would create an unacceptable bypass risk.
+- **Preparation objective**: add repeatable secret-name validation and exact-deployment smoke checks for the app shell, anonymous session contract, protected API rejection, and disabled E2E session endpoint.
+
+### Planned sequence
+1. **IMPROVE** — authenticated service-readiness API and user-visible readiness center.
+2. **IMPROVE** — creation-workspace preflight guidance based on readiness.
+3. **UIUX** — responsive, accessible readiness status and recovery interactions.
+4. **IMPROVE** — actionable diagnostics export/copy workflow without secret exposure.
+5. **CHECK** — security, failure-mode, CI, dependency, and regression audit with real fixes.
+6. **IMPROVE** — final reliability increment plus full local, CI, deployment, and live acceptance.
