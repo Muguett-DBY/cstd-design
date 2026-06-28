@@ -143,7 +143,7 @@ describe("creation recovery lifecycle", () => {
       />,
     );
 
-    expect(screen.getByRole("status", { name: "创作预检提醒" }).textContent).toContain("生成服务");
+    expect(screen.getByRole("status", { name: "图片创作预检提醒" }).textContent).toContain("生成服务");
   });
 
   test("keeps a restored image backup when a batch retry is only partially successful", async () => {
