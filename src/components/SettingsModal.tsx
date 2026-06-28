@@ -5,6 +5,7 @@ import { THEMES, type ThemeId } from "../hooks/useTheme";
 import type { Language, TranslationKey } from "../hooks/useLanguage";
 import { BackupRestore } from "./BackupRestore";
 import { useCustomShortcuts, type ShortcutAction } from "../hooks/useCustomShortcuts";
+import { ServiceReadinessPanel } from "./ServiceReadinessPanel";
 
 function exportSettingsProfile(args: {
   theme: ThemeId;
@@ -186,6 +187,7 @@ export function SettingsModal({
               ))}
             </div>
           </section>
+          <ServiceReadinessPanel />
           <section className="settings-section">
             <h4>{t("settings.image")}</h4>
             <div className="settings-field">
