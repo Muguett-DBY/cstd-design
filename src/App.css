@@ -9922,19 +9922,51 @@ button:disabled {
   padding: 12px;
 }
 
+.recovery-item-stale {
+  border-color: color-mix(in srgb, var(--warning-border) 62%, var(--line));
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--warning-bg) 58%, transparent), transparent 64%),
+    var(--surface);
+}
+
+.recovery-item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
 .recovery-kind {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-bottom: 6px;
   color: var(--accent-strong);
   font-size: 12px;
   font-weight: 700;
 }
 
+.recovery-stale-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid color-mix(in srgb, var(--warning-border) 70%, transparent);
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: color-mix(in srgb, var(--warning-bg) 72%, transparent);
+  color: var(--warning-text);
+  font-size: 11px;
+  font-weight: 800;
+}
+
 .recovery-item h4,
 .recovery-item p {
   margin: 0;
+}
+
+.recovery-stale-hint {
+  color: var(--warning-text);
+  font-weight: 700;
 }
 
 .recovery-item p,

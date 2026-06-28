@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { RecoveryCenter } from "./RecoveryCenter";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
@@ -394,6 +394,46 @@ describe("RecoveryCenter", () => {
       expect(panel.textContent).not.toContain("刚刚保存的图片提示词");
       expect(panel.textContent).not.toContain("视频正在生成");
       expect(screen.getByRole("status", { name: "待处理筛选摘要" }).textContent).toContain("当前只看：保存较久");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("marks stale recovery records with visible and accessible priority cues", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+    const mixedAgeRecords: CreationRecoveryRecord[] = [
+      ...records,
+      {
+        id: "image-fresh",
+        type: "image",
+        workspace: "image",
+        label: "刚刚保存的图片提示词",
+        summary: "两小时前保存",
+        createdAt: "2026-06-28T10:00:00.000Z",
+        payload: { prompt: "fresh image", style: "none", size: "1024x1024", referenceIds: [], count: 1 },
+      },
+    ];
+
+    try {
+      render(
+        <RecoveryCenter
+          records={mixedAgeRecords}
+          onSelect={vi.fn()}
+          onDismiss={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+      const staleItem = screen.getByRole("listitem", { name: /保存较久的恢复项：未发送消息/ });
+      expect(within(staleItem).getByText("保存较久")).toBeTruthy();
+      expect(within(staleItem).getByText(/超过 24 小时未处理/)).toBeTruthy();
+
+      const freshItem = screen.getByRole("listitem", { name: /恢复项：刚刚保存的图片提示词/ });
+      expect(within(freshItem).queryByText("保存较久")).toBeNull();
+      expect(within(freshItem).queryByText(/超过 24 小时未处理/)).toBeNull();
     } finally {
       vi.useRealTimers();
     }
