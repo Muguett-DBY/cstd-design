@@ -450,4 +450,25 @@
   - GREEN targeted: same command — 1 file, 13 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 467 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8804` on desktop and `390x844` mobile: seeded recovery data produced total 3 / stale 2 / video 2, the risk action filtered to video work, no horizontal overflow occurred, and the console reported no warnings or errors.
+- **Commit/CI**: `bc1611e feat: add creation recovery risk summary`; GitHub Actions run `28320690212` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://76132ef8.cstd-design.pages.dev` for source `bc1611e5cb11c66b2331e4b607d73c831923a1ba`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+
+### Stage 2/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Turn the stale-recovery risk metric into an actionable queue without mixing in active or recently saved work.
+- **Start state**:
+  - Branch: `main`; Stage 1 commit `bc1611e` is pushed, CI passed, and its exact production deployment passed smoke checks.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added a stale-only pending-work filter for recovery records saved at least 24 hours ago.
+  - Added a direct action from the stale-risk card while preserving the separate filter-chip entry point with unique accessible names.
+  - Excluded active video work, recent video history, and recently saved recovery records from the stale queue; scoped cleanup continues to operate on the visible recovery records only.
+  - Expanded the desktop filter grid for the fifth filter while retaining the existing two-column mobile layout.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the stale-risk action did not exist.
+  - GREEN targeted: same command — 1 file, 14 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 468 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8805` on desktop and `390x844` mobile: two stale records remained visible, a fresh record and active task were excluded, the stale summary announced 2 items, no horizontal overflow occurred, and the console/runtime checks were clean.
 - **Commit/CI**: pending commit and production verification.

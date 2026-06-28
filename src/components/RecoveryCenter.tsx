@@ -7,7 +7,7 @@ import type { VideoTaskHistoryEntry } from "../hooks/useVideoTaskHistory";
 import type { AssetItem, ConversationSummary, WorkspaceTab } from "../types";
 
 type RecoveryCenterSection = "continue" | "tasks" | "activity";
-type RecoveryTaskFilter = "all" | CreationRecoveryRecord["type"];
+type RecoveryTaskFilter = "all" | "stale" | CreationRecoveryRecord["type"];
 const STALE_RECOVERY_MS = 24 * 60 * 60 * 1000;
 
 type RecoveryRecommendation =
@@ -87,12 +87,17 @@ export function RecoveryCenter({
   const activeCount = hasActiveVideoTask ? 1 : 0;
   const totalCount = activeCount + records.length;
   const hasPanelContent = hasActiveVideoTask || records.length > 0 || recentVideoTasks.length > 0;
-  const filteredRecords = taskFilter === "all" ? records : records.filter((record) => record.type === taskFilter);
+  const staleRecords = records.filter((record) => isStaleRecovery(record.createdAt));
+  const staleRecoveryCount = staleRecords.length;
+  const filteredRecords = taskFilter === "all"
+    ? records
+    : taskFilter === "stale"
+      ? staleRecords
+      : records.filter((record) => record.type === taskFilter);
   const showActiveVideoTask = hasActiveVideoTask && (taskFilter === "all" || taskFilter === "video");
   const showRecentVideoTasks = recentVideoTasks.length > 0 && (taskFilter === "all" || taskFilter === "video");
   const hasFilteredTasks = showActiveVideoTask || filteredRecords.length > 0 || showRecentVideoTasks;
-  const taskFilterOptions: Array<{ key: RecoveryTaskFilter; label: string; count: number; ariaLabel: string }> = [
-    { key: "all", label: "全部", count: totalCount, ariaLabel: "显示全部待处理" },
+  const workspaceFilterOptions: Array<{ key: CreationRecoveryRecord["type"]; label: string; count: number; ariaLabel: string }> = [
     { key: "chat", label: "咨询", count: records.filter((record) => record.type === "chat").length, ariaLabel: "只看咨询待处理" },
     { key: "image", label: "图片", count: records.filter((record) => record.type === "image").length, ariaLabel: "只看图片待处理" },
     {
@@ -102,11 +107,17 @@ export function RecoveryCenter({
       ariaLabel: "只看视频待处理",
     },
   ];
+  const taskFilterOptions: Array<{ key: RecoveryTaskFilter; label: string; count: number; ariaLabel: string }> = [
+    { key: "all", label: "全部", count: totalCount, ariaLabel: "显示全部待处理" },
+    { key: "stale", label: "保存较久", count: staleRecoveryCount, ariaLabel: "只看保存较久的恢复项" },
+    ...workspaceFilterOptions,
+  ];
   const activeTaskFilter = taskFilterOptions.find((option) => option.key === taskFilter) || taskFilterOptions[0];
-  const riskFocus = taskFilterOptions
-    .filter((option): option is { key: CreationRecoveryRecord["type"]; label: string; count: number; ariaLabel: string } => option.key !== "all")
-    .sort((a, b) => b.count - a.count)[0];
-  const staleRecoveryCount = records.filter((record) => isStaleRecovery(record.createdAt)).length;
+  const riskFocus = [...workspaceFilterOptions].sort((a, b) => b.count - a.count)[0];
+  const openStaleRecoveries = () => {
+    setSection("tasks");
+    setTaskFilter("stale");
+  };
   const openRiskFocus = () => {
     if (!riskFocus) return;
     setSection("tasks");
@@ -197,10 +208,15 @@ export function RecoveryCenter({
                   <strong>{totalCount}</strong>
                   <p>{totalCount > 1 ? "建议按优先级逐项处理。" : "当前只有 1 项需要关注。"}</p>
                 </article>
-                <article>
+                <article className="recovery-risk-focus">
                   <span>保存较久</span>
                   <strong>{staleRecoveryCount}</strong>
                   <p>{staleRecoveryCount > 0 ? "超过 24 小时未处理，建议恢复或清理。" : "暂无长期搁置记录。"}</p>
+                  {staleRecoveryCount > 0 && (
+                    <button type="button" className="ghost-button" aria-label="从风险摘要查看保存较久的恢复项" onClick={openStaleRecoveries}>
+                      <Clock size={13} /> 查看较久记录
+                    </button>
+                  )}
                 </article>
                 <article className="recovery-risk-focus">
                   <span>集中工作区</span>

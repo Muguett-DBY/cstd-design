@@ -2624,4 +2624,27 @@
 - Authenticated local Pages browser verification passed at `http://127.0.0.1:8804` on desktop and mobile, including risk counts, workspace filtering, overflow, console, and runtime checks.
 
 ### CI status
+- Commit `bc1611e` passed GitHub Actions run `28320690212`.
+- Production smoke resolved exact deployment `https://76132ef8.cstd-design.pages.dev` for source `bc1611e5cb11c66b2331e4b607d73c831923a1ba`.
+
+---
+
+## Long Campaign 028 — Stage 2 Stale Recovery Queue (2026-06-28)
+
+### Goal
+- Turn the stale-recovery risk metric into an actionable queue without mixing in active or recently saved work.
+
+### Completed
+- Added a stale-only pending-work filter for records saved at least 24 hours ago.
+- Added direct navigation from the stale-risk card with a distinct accessible name from the filter chip.
+- Kept active tasks, recent history, and fresh records outside the stale queue and retained scoped cleanup semantics.
+- Expanded the desktop filter grid for the fifth filter while preserving the mobile layout.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before the stale-risk action existed.
+- GREEN: same command — 1 file, 14 tests passed.
+- Full local gate passed: Node smoke 5 tests, Vitest 71 files / 468 tests, Functions typecheck, lint, build, high-level audit, and diff check.
+- Authenticated local Pages browser verification passed at `http://127.0.0.1:8805` on desktop and mobile, including stale/fresh/active separation, status announcement, overflow, console, and runtime checks.
+
+### CI status
 - Pending commit, GitHub Actions, and exact-deployment production smoke.
