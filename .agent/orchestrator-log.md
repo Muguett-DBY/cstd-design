@@ -362,3 +362,16 @@
   - Production smoke resolved exact deployment `https://d1cb5381.cstd-design.pages.dev` for source `68b996f9c73a31dbe735cecafb10560ee569ecdd`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: After Stage 4 CI/live closure, Stage 5 CHECK will audit readiness failure modes, security boundaries, dependencies, and regressions and fix verified issues.
+
+### Inserted CI_FIX — Pages Functions propagation retry (in progress)
+- **Prompt**: `AGENT_CI_FIX_MAIN.txt`
+- **Trigger**: Stage 4 record commit `a364128` deployed successfully, but GitHub Actions run `28312955315` failed in `Verify production deployment` because the new exact deployment returned a transient Cloudflare 404 for `GET /api/session` while Pages Functions were still propagating.
+- **Root cause**: The production smoke helper retried only 5xx responses and returned immediately on a non-expected 404, even though the static app shell was already available and the same deployment passed once Functions propagation completed.
+- **Fix**:
+  - Added a regression test that reproduces a transient Functions 404 followed by the expected session response.
+  - Changed endpoint polling to stop only when each endpoint reaches its own expected status, preserving the 200/401/404 boundary assertions.
+- **Validation**:
+  - RED confirmed: the new Node test failed with `GET /api/session expected HTTP 200, received 404` before the fix.
+  - GREEN targeted: `node --test scripts/production-smoke.test.mjs` — 5/5 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 464 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending focused CI-fix commit and rerun.

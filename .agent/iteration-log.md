@@ -2550,3 +2550,12 @@
 ### CI status
 - Commit `68b996f` passed GitHub Actions run `28312908215`.
 - Production smoke resolved exact deployment `https://d1cb5381.cstd-design.pages.dev` for source `68b996f9c73a31dbe735cecafb10560ee569ecdd`.
+
+---
+
+## Long Campaign 027 — Inserted CI Fix: Pages Functions Propagation (2026-06-28)
+
+- Record commit `a364128` reached deployment, but run `28312955315` saw a transient Cloudflare 404 from `/api/session` before Pages Functions propagation completed.
+- Added a RED/GREEN Node regression for 404-then-200 propagation and changed smoke polling to wait for each endpoint's expected status.
+- Full local gate passed: Node smoke 5 tests, Vitest 71 files / 464 tests, Functions typecheck, lint, build, high-level audit, and diff check.
+- Focused CI-fix commit and remote rerun are pending.

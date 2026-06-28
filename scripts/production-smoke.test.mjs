@@ -64,3 +64,32 @@ test("runProductionSmoke verifies the public shell and production auth boundary"
   assert.equal(result.ok, true);
   assert.equal(result.authBoundaryVerified, true);
 });
+
+test("runProductionSmoke retries while Pages Functions are still propagating", async () => {
+  let sessionAttempts = 0;
+  const fetcher = async (url, init = {}) => {
+    const key = `${init.method || "GET"} ${new URL(url).pathname}`;
+    if (key === "GET /") {
+      return new Response("<title>工作台 - 私人中文创作工作台</title>", { status: 200 });
+    }
+    if (key === "GET /api/session") {
+      sessionAttempts += 1;
+      if (sessionAttempts === 1) {
+        return new Response("Functions deployment is not ready", { status: 404 });
+      }
+      return Response.json({ authenticated: false, expiresAt: null });
+    }
+    if (key === "GET /api/conversations") {
+      return Response.json({ error: "请先登录。" }, { status: 401 });
+    }
+    if (key === "POST /api/session/test") {
+      return Response.json({ error: "测试会话未启用。" }, { status: 404 });
+    }
+    throw new Error(`Unexpected request: ${key}`);
+  };
+
+  const result = await runProductionSmoke("https://deployment.example", fetcher);
+
+  assert.equal(result.ok, true);
+  assert.equal(sessionAttempts, 2);
+});
