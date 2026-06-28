@@ -5986,6 +5986,25 @@ button:disabled {
   color: var(--warning, #9a6700);
 }
 
+.service-readiness-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.service-readiness-copy {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.service-readiness-copy-status {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .service-readiness-checks {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

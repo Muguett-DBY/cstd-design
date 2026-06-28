@@ -1,6 +1,7 @@
-import { AlertTriangle, CheckCircle2, RefreshCw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Copy, RefreshCw, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api, type ServiceReadinessSnapshot } from "../api";
+import { formatServiceReadinessDiagnostics } from "../utils/serviceReadinessDiagnostics";
 
 function formatCheckedAt(value: string) {
   const date = new Date(value);
@@ -16,6 +17,7 @@ function formatCheckedAt(value: string) {
 export function ServiceReadinessPanel() {
   const [snapshot, setSnapshot] = useState<ServiceReadinessSnapshot | null>(null);
   const [error, setError] = useState("");
+  const [copyStatus, setCopyStatus] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +39,22 @@ export function ServiceReadinessPanel() {
   const refresh = () => {
     setLoading(true);
     setError("");
+    setCopyStatus("");
     setRefreshKey((current) => current + 1);
+  };
+
+  const copyDiagnostics = async () => {
+    if (!snapshot) return;
+    if (!navigator.clipboard?.writeText) {
+      setCopyStatus("复制失败，请检查浏览器剪贴板权限。");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(formatServiceReadinessDiagnostics(snapshot));
+      setCopyStatus("诊断摘要已复制。");
+    } catch {
+      setCopyStatus("复制失败，请检查浏览器剪贴板权限。");
+    }
   };
 
   return (
@@ -80,6 +97,15 @@ export function ServiceReadinessPanel() {
               <strong>{snapshot.status === "ready" ? "创作环境已就绪" : "创作环境需要处理"}</strong>
               <span>检查于 {formatCheckedAt(snapshot.checkedAt)}{loading ? " · 正在刷新" : ""}</span>
             </div>
+          </div>
+          <div className="service-readiness-actions">
+            <button type="button" className="ghost-button service-readiness-copy" onClick={copyDiagnostics}>
+              <Copy size={14} />
+              复制诊断摘要
+            </button>
+            {copyStatus && (
+              <span className="service-readiness-copy-status" aria-live="polite">{copyStatus}</span>
+            )}
           </div>
           <ul className="service-readiness-checks">
             {snapshot.checks.map((check) => (

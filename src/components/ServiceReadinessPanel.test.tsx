@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api } from "../api";
+import { formatServiceReadinessDiagnostics } from "../utils/serviceReadinessDiagnostics";
 import { ServiceReadinessPanel } from "./ServiceReadinessPanel";
 
 vi.mock("../api", () => ({
@@ -21,13 +22,51 @@ const readySnapshot = {
 };
 
 describe("ServiceReadinessPanel", () => {
+  const writeText = vi.fn();
+
   beforeEach(() => {
     vi.mocked(api.readiness).mockResolvedValue(readySnapshot);
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
   });
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
+  });
+
+  test("formats a copyable diagnostics summary without leaking secret-like values", () => {
+    const tokenLikeValue = ["sk", "prod", "1234567890abcdef"].join("-");
+    const assignedSecretValue = ["super", "secret", "value"].join("-");
+    const text = formatServiceReadinessDiagnostics({
+      status: "attention",
+      checkedAt: "2026-06-28T01:02:03.000Z",
+      checks: [
+        readySnapshot.checks[0],
+        {
+          id: "generation",
+          label: "生成服务",
+          status: "attention",
+          detail: `UPSTREAM_API_KEY=${tokenLikeValue} 未通过上游检查。`,
+        },
+        {
+          id: "security",
+          label: "安全配置",
+          status: "attention",
+          detail: `SESSION_SECRET=${assignedSecretValue} 缺失或格式错误。`,
+        },
+      ],
+    });
+
+    expect(text).toContain("cstd-design 服务诊断摘要");
+    expect(text).toContain("整体状态: attention");
+    expect(text).toContain("生成服务: attention");
+    expect(text).not.toContain(tokenLikeValue);
+    expect(text).not.toContain(assignedSecretValue);
+    expect(text).not.toContain("UPSTREAM_API_KEY=");
+    expect(text).not.toContain("SESSION_SECRET=");
   });
 
   test("loads safe readiness checks and lets the user refresh them", async () => {
@@ -39,6 +78,18 @@ describe("ServiceReadinessPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "重新检查服务状态" }));
     await waitFor(() => expect(api.readiness).toHaveBeenCalledTimes(2));
+  });
+
+  test("copies the sanitized diagnostics summary for support handoff", async () => {
+    render(<ServiceReadinessPanel />);
+
+    await screen.findByText("创作环境已就绪");
+    fireEvent.click(screen.getByRole("button", { name: "复制诊断摘要" }));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(writeText.mock.calls[0][0]).toContain("cstd-design 服务诊断摘要");
+    expect(writeText.mock.calls[0][0]).toContain("数据服务: ready");
+    expect(screen.getByText("诊断摘要已复制。")).toBeTruthy();
   });
 
   test("shows an actionable error state when readiness cannot be loaded", async () => {
