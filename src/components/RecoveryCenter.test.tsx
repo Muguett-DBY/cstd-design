@@ -328,4 +328,33 @@ describe("RecoveryCenter", () => {
     expect(panel.textContent).toContain("未发送消息");
     expect(panel.textContent).toContain("视频生成失败");
   });
+
+  test("summarizes recovery risk and jumps to the highest-risk workspace", () => {
+    render(
+      <RecoveryCenter
+        records={records}
+        activeVideoTask={{ id: "task-active", status: "in_progress", progress: 68 }}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+    const riskSummary = screen.getByRole("region", { name: "恢复风险摘要" });
+    expect(riskSummary.textContent).toContain("待处理总数");
+    expect(riskSummary.textContent).toContain("3");
+    expect(riskSummary.textContent).toContain("保存较久");
+    expect(riskSummary.textContent).toContain("2");
+    expect(riskSummary.textContent).toContain("集中工作区");
+    expect(riskSummary.textContent).toContain("视频 2");
+
+    fireEvent.click(screen.getByRole("button", { name: "只看视频恢复风险" }));
+
+    const panel = screen.getByRole("tabpanel", { name: "待处理" });
+    expect(panel.textContent).toContain("视频正在生成");
+    expect(panel.textContent).toContain("视频生成失败");
+    expect(panel.textContent).not.toContain("未发送消息");
+  });
 });
