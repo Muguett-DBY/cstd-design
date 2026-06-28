@@ -2601,4 +2601,6 @@
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files / 466 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 
 ### CI status
-- Final Stage 6 commit and remote rerun are pending.
+- Commit `432627c` passed GitHub Actions run `28314106427`.
+- Production smoke resolved exact deployment `https://c135e541.cstd-design.pages.dev` for source `432627c453ce19da681222e91ffe4b00b74ead97`.
+- Long Campaign 027 completed: all 6 required stages are implemented, tested locally, pushed, CI-verified, and live-smoke verified.

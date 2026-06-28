@@ -403,7 +403,7 @@
   - Production smoke resolved exact deployment `https://b7e439d4.cstd-design.pages.dev` for source `835890e0b94864ba78432abe1497aeded125f7f0`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 
-### Stage 6/6 — IMPROVE (local verified, remote pending)
+### Stage 6/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Add a final runtime guard for generated remote assets before they are written into R2.
 - **Start state**:
@@ -417,4 +417,8 @@
   - RED confirmed: `npx vitest run functions/_shared/core.test.ts` failed because the remote asset guard did not exist.
   - GREEN targeted: same command — 1 file, 23 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 466 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending final Stage 6 commit and rerun.
+- **Commit/CI**: `432627c feat: guard generated asset downloads`; GitHub Actions run `28314106427` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://c135e541.cstd-design.pages.dev` for source `432627c453ce19da681222e91ffe4b00b74ead97`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Final status**: All 6 required stages are implemented, tested locally, pushed, CI-verified, and live-smoke verified.
