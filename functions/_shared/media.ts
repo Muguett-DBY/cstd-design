@@ -4,6 +4,7 @@ import type { Env } from "./http";
 
 const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp", "video/mp4"]);
 const DEFAULT_MAX_SIZE = 100 * 1024 * 1024;
+export const REMOTE_ASSET_MAX_SIZE = DEFAULT_MAX_SIZE;
 
 export interface UploadCandidate {
   name: string;
@@ -18,6 +19,19 @@ export function validateUpload(files: UploadCandidate[], options: { maxCount: nu
     if (file.size > (options.maxSize ?? DEFAULT_MAX_SIZE)) return { ok: false as const, error: "文件过大，请压缩后再上传。" };
   }
   return { ok: true as const };
+}
+
+export function guardRemoteAssetResponse(response: Response, options: { maxSize?: number } = {}) {
+  if (!response.body) throw new Error("REMOTE_ASSET_FETCH_FAILED");
+
+  const maxSize = options.maxSize ?? REMOTE_ASSET_MAX_SIZE;
+  const size = contentLengthSize(response.headers);
+  if (size > maxSize) throw new Error("REMOTE_ASSET_TOO_LARGE");
+
+  return {
+    body: limitReadableStream(response.body, maxSize),
+    size,
+  };
 }
 
 export async function validateUploadContents(files: File[]) {
@@ -72,6 +86,44 @@ async function detectMediaType(file: File) {
 
 function text(bytes: Uint8Array, start: number, end: number) {
   return String.fromCharCode(...bytes.slice(start, end));
+}
+
+function contentLengthSize(headers: Headers) {
+  const raw = headers.get("content-length");
+  if (!raw) return 0;
+  const size = Number(raw);
+  return Number.isFinite(size) && size > 0 ? Math.floor(size) : 0;
+}
+
+function limitReadableStream(body: ReadableStream<Uint8Array>, maxSize: number) {
+  const reader = body.getReader();
+  let bytesRead = 0;
+
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          controller.close();
+          return;
+        }
+
+        bytesRead += value.byteLength;
+        if (bytesRead > maxSize) {
+          await reader.cancel().catch(() => undefined);
+          controller.error(new Error("REMOTE_ASSET_TOO_LARGE"));
+          return;
+        }
+
+        controller.enqueue(value);
+      } catch (error) {
+        controller.error(error);
+      }
+    },
+    async cancel(reason) {
+      await reader.cancel(reason).catch(() => undefined);
+    },
+  });
 }
 
 function isUnsafeFilenameChar(char: string) {

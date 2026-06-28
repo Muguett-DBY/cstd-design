@@ -56,6 +56,7 @@ export function sanitizeAssistantContent(content: string) {
 export function toClientError(error: unknown, fallback = "生成失败，请稍后重试。") {
   if (!(error instanceof Error)) return fallback;
   if (/已停止|aborted|abort/i.test(error.message)) return "已停止。";
+  if (/REMOTE_ASSET_TOO_LARGE/.test(error.message)) return "生成结果过大，请调整后重试。";
   if (/^服务/.test(error.message) || /^请求参数/.test(error.message) || /^任务不存在/.test(error.message)) return error.message;
   return fallback;
 }
