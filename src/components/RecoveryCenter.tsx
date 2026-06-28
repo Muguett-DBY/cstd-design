@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, CircleX, Clock, Film, History, Image as ImageIcon, MessageSquare, RotateCcw, Trash2, X } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CircleX, Clock, Film, History, Image as ImageIcon, MessageSquare, RotateCcw, Trash2, X } from "lucide-react";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
 import type { CreationActivity } from "../hooks/useCreationActivity";
 import type { PersistedVideoTask } from "../hooks/useVideoTaskPersistence";
@@ -8,6 +8,7 @@ import type { AssetItem, ConversationSummary, WorkspaceTab } from "../types";
 
 type RecoveryCenterSection = "continue" | "tasks" | "activity";
 type RecoveryTaskFilter = "all" | CreationRecoveryRecord["type"];
+const STALE_RECOVERY_MS = 24 * 60 * 60 * 1000;
 
 type RecoveryRecommendation =
   | {
@@ -35,6 +36,11 @@ function formatRecoveryTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+function isStaleRecovery(value: string, now = Date.now()) {
+  const createdAt = Date.parse(value);
+  return Number.isFinite(createdAt) && now - createdAt >= STALE_RECOVERY_MS;
 }
 
 function activityTypeMeta(type: CreationActivity["type"]) {
@@ -97,6 +103,15 @@ export function RecoveryCenter({
     },
   ];
   const activeTaskFilter = taskFilterOptions.find((option) => option.key === taskFilter) || taskFilterOptions[0];
+  const riskFocus = taskFilterOptions
+    .filter((option): option is { key: CreationRecoveryRecord["type"]; label: string; count: number; ariaLabel: string } => option.key !== "all")
+    .sort((a, b) => b.count - a.count)[0];
+  const staleRecoveryCount = records.filter((record) => isStaleRecovery(record.createdAt)).length;
+  const openRiskFocus = () => {
+    if (!riskFocus) return;
+    setSection("tasks");
+    setTaskFilter(riskFocus.key);
+  };
   const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
   const toggleOpen = () => {
     if (!open) setSection(hasPanelContent ? "tasks" : "continue");
@@ -175,6 +190,28 @@ export function RecoveryCenter({
                 <strong>{recentVideoTasks.length}</strong>
               </div>
             </div>
+            {totalCount > 0 && riskFocus && (
+              <section className="recovery-risk-summary" aria-label="恢复风险摘要">
+                <article>
+                  <span>待处理总数</span>
+                  <strong>{totalCount}</strong>
+                  <p>{totalCount > 1 ? "建议按优先级逐项处理。" : "当前只有 1 项需要关注。"}</p>
+                </article>
+                <article>
+                  <span>保存较久</span>
+                  <strong>{staleRecoveryCount}</strong>
+                  <p>{staleRecoveryCount > 0 ? "超过 24 小时未处理，建议恢复或清理。" : "暂无长期搁置记录。"}</p>
+                </article>
+                <article className="recovery-risk-focus">
+                  <span>集中工作区</span>
+                  <strong>{riskFocus.label} {riskFocus.count}</strong>
+                  <p>优先查看这一类待处理。</p>
+                  <button type="button" className="ghost-button" aria-label={`只看${riskFocus.label}恢复风险`} onClick={openRiskFocus}>
+                    <AlertTriangle size={13} /> 查看风险
+                  </button>
+                </article>
+              </section>
+            )}
             {recommendation && (
               <section className="recovery-recommendation" aria-label="建议先处理">
                 <div>

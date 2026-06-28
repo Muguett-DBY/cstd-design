@@ -2604,3 +2604,24 @@
 - Commit `432627c` passed GitHub Actions run `28314106427`.
 - Production smoke resolved exact deployment `https://c135e541.cstd-design.pages.dev` for source `432627c453ce19da681222e91ffe4b00b74ead97`.
 - Long Campaign 027 completed: all 6 required stages are implemented, tested locally, pushed, CI-verified, and live-smoke verified.
+
+---
+
+## Long Campaign 028 — Stage 1 Recovery Risk Summary (2026-06-28)
+
+### Goal
+- Turn Creation Center pending work from a flat list into a prioritized recovery-risk summary.
+
+### Completed
+- Added total pending, stale saved-work, and highest-risk workspace cards.
+- Added a one-click action that opens the highest-risk workspace filter.
+- Added responsive desktop and mobile layouts for the new summary.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before the risk-summary region existed.
+- GREEN: same command — 1 file, 13 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files / 467 tests; Functions typecheck; lint; build; high-level audit; diff check.
+- Authenticated local Pages browser verification passed at `http://127.0.0.1:8804` on desktop and mobile, including risk counts, workspace filtering, overflow, console, and runtime checks.
+
+### CI status
+- Pending commit, GitHub Actions, and exact-deployment production smoke.

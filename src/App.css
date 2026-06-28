@@ -9601,6 +9601,54 @@ button:disabled {
   line-height: 1;
 }
 
+.recovery-risk-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.recovery-risk-summary article {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+  border: 1px solid color-mix(in srgb, var(--warning-border) 46%, var(--line));
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--warning-bg) 72%, transparent), transparent),
+    var(--surface);
+  padding: 10px;
+}
+
+.recovery-risk-summary span {
+  color: color-mix(in srgb, var(--warning-text) 84%, var(--muted));
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.recovery-risk-summary strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recovery-risk-summary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.recovery-risk-focus .ghost-button {
+  width: fit-content;
+  min-height: 28px;
+  margin-top: 2px;
+  padding: 4px 8px;
+}
+
 .recovery-recommendation {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -10036,6 +10084,10 @@ button:disabled {
 
   .recovery-overview-card {
     padding: 9px 8px;
+  }
+
+  .recovery-risk-summary {
+    grid-template-columns: 1fr;
   }
 
   .recovery-recommendation {
