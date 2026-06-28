@@ -38,6 +38,7 @@ import {
 } from "./validation";
 import { assetKindsForClearScope, chatTablesForClearScope, normalizeClearScope } from "./clear";
 import { buildE2EExportFixture } from "./e2e-fixtures";
+import { AgnesClient } from "./agnes";
 
 describe("security", () => {
   test("returns a controlled configuration error for missing auth secrets", async () => {
@@ -271,6 +272,30 @@ describe("media and provider contracts", () => {
       progress: 100,
       videoUrl: "https://x/z.mp4",
     });
+  });
+
+  test("does not read an entire upstream error body into memory", async () => {
+    let fullTextRead = false;
+    const largeErrorBody = new ReadableStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode("x".repeat(8_000)));
+        controller.close();
+      },
+    });
+    const upstreamError = new Response(largeErrorBody, { status: 500 });
+    Object.defineProperty(upstreamError, "text", {
+      value: async () => {
+        fullTextRead = true;
+        return "x".repeat(8_000);
+      },
+    });
+    const client = new AgnesClient({
+      apiKey: "test-key",
+      fetcher: async () => upstreamError,
+    });
+
+    await expect(client.chat([{ role: "user", content: "你好" }])).rejects.toThrow("服务暂时不可用，请稍后重试。");
+    expect(fullTextRead).toBe(false);
   });
 });
 
