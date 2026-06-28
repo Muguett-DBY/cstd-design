@@ -2558,4 +2558,26 @@
 - Record commit `a364128` reached deployment, but run `28312955315` saw a transient Cloudflare 404 from `/api/session` before Pages Functions propagation completed.
 - Added a RED/GREEN Node regression for 404-then-200 propagation and changed smoke polling to wait for each endpoint's expected status.
 - Full local gate passed: Node smoke 5 tests, Vitest 71 files / 464 tests, Functions typecheck, lint, build, high-level audit, and diff check.
-- Focused CI-fix commit and remote rerun are pending.
+- Commit `eb71e83` passed GitHub Actions run `28313108659`.
+- Production smoke resolved exact deployment `https://2adf3499.cstd-design.pages.dev` for source `eb71e83142508ec6a90f01895c53b907e1ca02b9`.
+
+---
+
+## Long Campaign 027 — Stage 5 Provider Runtime Safety CHECK (2026-06-28)
+
+### Goal
+- Audit readiness/provider failure modes, Cloudflare Workers runtime safety, CI reliability, dependency drift, and regression coverage before the final increment.
+
+### Completed
+- Confirmed readiness health messages remain fixed and do not expose implementation exceptions.
+- Added a provider-client regression test proving large upstream error responses must not be read through full `Response.text()`.
+- Replaced full provider error-body reads with a bounded stream reader capped at 2048 bytes, canceling the remainder before safe error normalization.
+- Updated `@cloudflare/workers-types` to `4.20260628.1`.
+
+### Verified
+- RED: `npx vitest run functions/_shared/core.test.ts` failed because the previous implementation called full `Response.text()`.
+- GREEN: same command — 1 file, 22 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files / 465 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### CI status
+- Focused Stage 5 commit and remote rerun are pending.

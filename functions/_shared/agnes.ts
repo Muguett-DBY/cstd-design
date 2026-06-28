@@ -1,6 +1,7 @@
 import { buildChatCompletionPayload, buildImageGenerationPayload, buildVideoCreationPayload, normalizeProviderError, normalizeVideoTask, type ImageGenerationInput, type VideoCreationInput } from "./provider";
 
 const API_BASE = "https://apihub.agnes-ai.com/v1";
+const PROVIDER_ERROR_BODY_LIMIT_BYTES = 2_048;
 
 export interface AgnesClientOptions {
   apiKey: string;
@@ -62,9 +63,45 @@ export class AgnesClient {
       },
     });
     if (!response.ok) {
-      const text = await response.text().catch(() => "");
+      const text = await readProviderErrorBody(response);
       throw new Error(normalizeProviderError(response.status, text));
     }
     return response;
+  }
+}
+
+async function readProviderErrorBody(response: Response) {
+  if (!response.body) return "";
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let bytesRead = 0;
+  let text = "";
+
+  try {
+    while (bytesRead < PROVIDER_ERROR_BODY_LIMIT_BYTES) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const remaining = PROVIDER_ERROR_BODY_LIMIT_BYTES - bytesRead;
+      const chunk = value.byteLength > remaining ? value.slice(0, remaining) : value;
+      bytesRead += chunk.byteLength;
+      text += decoder.decode(chunk, { stream: true });
+
+      if (value.byteLength > remaining || bytesRead >= PROVIDER_ERROR_BODY_LIMIT_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        break;
+      }
+    }
+
+    return text + decoder.decode();
+  } catch {
+    return "";
+  } finally {
+    try {
+      reader.releaseLock();
+    } catch {
+      // Some runtimes keep the lock until cancellation settles; the failed request is already ending.
+    }
   }
 }

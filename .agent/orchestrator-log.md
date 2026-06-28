@@ -363,7 +363,7 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: After Stage 4 CI/live closure, Stage 5 CHECK will audit readiness failure modes, security boundaries, dependencies, and regressions and fix verified issues.
 
-### Inserted CI_FIX — Pages Functions propagation retry (in progress)
+### Inserted CI_FIX — Pages Functions propagation retry ✅
 - **Prompt**: `AGENT_CI_FIX_MAIN.txt`
 - **Trigger**: Stage 4 record commit `a364128` deployed successfully, but GitHub Actions run `28312955315` failed in `Verify production deployment` because the new exact deployment returned a transient Cloudflare 404 for `GET /api/session` while Pages Functions were still propagating.
 - **Root cause**: The production smoke helper retried only 5xx responses and returned immediately on a non-expected 404, even though the static app shell was already available and the same deployment passed once Functions propagation completed.
@@ -374,4 +374,28 @@
   - RED confirmed: the new Node test failed with `GET /api/session expected HTTP 200, received 404` before the fix.
   - GREEN targeted: `node --test scripts/production-smoke.test.mjs` — 5/5 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 464 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending focused CI-fix commit and rerun.
+- **Commit/CI**: `eb71e83 fix: retry production boundary propagation`; GitHub Actions run `28313108659` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://2adf3499.cstd-design.pages.dev` for source `eb71e83142508ec6a90f01895c53b907e1ca02b9`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+
+### Stage 5/6 — CHECK (local verified, remote pending)
+- **Prompt**: `AGENT_CHECK_MAIN.txt`
+- **Goal**: Audit readiness/provider failure modes, Cloudflare Workers runtime safety, CI reliability, dependency drift, and regression coverage before the final increment.
+- **Start state**:
+  - Branch: `main`; CI fix commit `eb71e83` is pushed, CI passed, and its exact production deployment passed smoke checks.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Findings**:
+  - The readiness endpoint keeps implementation exceptions server-side and returns fixed health messages.
+  - Production-smoke propagation retry is now covered by a Node regression test and confirmed in CI.
+  - The upstream provider client still read full non-2xx response bodies through `response.text()`, which could amplify large upstream error bodies in a Workers request.
+  - `@cloudflare/workers-types` lock was behind the current npm version.
+- **Completed**:
+  - Added a regression test proving provider error handling must not call full `Response.text()` for a large upstream error body.
+  - Replaced full error-body reads with a bounded stream reader that consumes at most 2048 bytes and cancels the remainder before normalizing a safe client error.
+  - Updated `@cloudflare/workers-types` to `4.20260628.1`.
+- **Validation**:
+  - RED confirmed: `npx vitest run functions/_shared/core.test.ts` failed because the previous implementation called full `Response.text()`.
+  - GREEN targeted: same command — 1 file, 22 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 465 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending Stage 5 focused commit and rerun.
