@@ -119,6 +119,33 @@ describe("creation recovery lifecycle", () => {
     await waitFor(() => expect(onRecoveryResolved).toHaveBeenCalledOnce());
   });
 
+  test("shows readiness preflight guidance inside image creation", () => {
+    render(
+      <ImageWorkspace
+        assets={[]}
+        onAssetsChanged={noopAsync}
+        onNotice={vi.fn()}
+        onClearAll={noopAsync}
+        online
+        serviceReadiness={{
+          snapshot: {
+            status: "attention",
+            checkedAt: "2026-06-28T00:00:00.000Z",
+            checks: [
+              { id: "database", label: "数据服务", status: "ready", detail: "数据服务可访问。" },
+              { id: "generation", label: "生成服务", status: "attention", detail: "生成服务尚未配置。" },
+            ],
+          },
+          loading: false,
+          error: "",
+          refresh: vi.fn(),
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("status", { name: "创作预检提醒" }).textContent).toContain("生成服务");
+  });
+
   test("keeps a restored image backup when a batch retry is only partially successful", async () => {
     const onRecoveryResolved = vi.fn();
     vi.mocked(api.generateImage)

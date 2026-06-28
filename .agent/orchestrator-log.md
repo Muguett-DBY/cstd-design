@@ -296,3 +296,22 @@
   - Production smoke resolved exact deployment `https://d271bf06.cstd-design.pages.dev` for source `d3ba5a6c889d02652663f8adf38c37150a9c7b1b`.
   - `/api/readiness` on the exact deployment returned HTTP 401 without a session, confirming the new endpoint is not public.
 - **Next**: Stage 2 IMPROVE will add creation-workspace preflight guidance based on this readiness signal.
+
+### Stage 2/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Surface service-readiness preflight guidance directly inside creation workspaces before users start consultation, image, or video work.
+- **Start state**:
+  - Branch: `main`; Stage 1 commit `d3ba5a6` and record commit `da43bb0` are pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added `useServiceReadiness(authenticated)` so the authenticated app loads `/api/readiness` once and supports manual refresh without hiding stale status.
+  - Added `CreationPreflightNotice` for loading, degraded, and retryable-error states.
+  - Added non-blocking preflight guidance to Chat, Image, and Video workspaces.
+  - Passed the same readiness state from `App` into all three creation workspaces.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/CreationPreflightNotice.test.tsx src/hooks/useServiceReadiness.test.ts src/components/CreationRecoveryLifecycle.test.tsx` failed because the hook/component and workspace integration did not exist.
+  - GREEN targeted: same command — 3 files, 10 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 462 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser smoke passed against `http://127.0.0.1:8801` with Chrome, test session fixture, export dialog, copy verification, console/runtime checks, and no horizontal overflow.
+- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Next**: Stage 3 UIUX will refine responsive and accessible readiness surfaces.

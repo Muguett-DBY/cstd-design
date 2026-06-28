@@ -2481,3 +2481,25 @@
 - Commit `d3ba5a6` passed GitHub Actions run `28307175247`.
 - Production smoke resolved exact deployment `https://d271bf06.cstd-design.pages.dev` for source `d3ba5a6c889d02652663f8adf38c37150a9c7b1b`.
 - Exact deployment `/api/readiness` returned HTTP 401 without a session.
+
+---
+
+## Long Campaign 027 — Stage 2 Creation Preflight Guidance (2026-06-28)
+
+### Goal
+- Surface service-readiness preflight guidance directly inside creation workspaces before users start consultation, image, or video work.
+
+### Completed
+- Added `useServiceReadiness(authenticated)` to load authenticated readiness once and refresh it manually while preserving stale status during refresh.
+- Added `CreationPreflightNotice` with loading, degraded, and retryable-error states.
+- Added non-blocking preflight guidance to Chat, Image, and Video workspaces.
+- Passed the shared readiness state from `App` into all three creation workspaces.
+
+### Verified
+- RED: `npx vitest run src/components/CreationPreflightNotice.test.tsx src/hooks/useServiceReadiness.test.ts src/components/CreationRecoveryLifecycle.test.tsx` failed before the hook/component and workspace integration existed.
+- GREEN: same command — 3 files, 10 tests passed.
+- Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 462 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Authenticated local Pages browser smoke passed against `http://127.0.0.1:8801` with Chrome, test session fixture, export dialog, copy verification, console/runtime checks, and no horizontal overflow.
+
+### CI status
+- Pending stage commit and GitHub Actions verification.

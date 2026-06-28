@@ -40,6 +40,7 @@ import { useUsageStats } from "./hooks/useUsageStats";
 import { useCreationRecovery, type CreationRecoveryRecord } from "./hooks/useCreationRecovery";
 import { deriveCreationCenterHighlights } from "./creation-center-model";
 import { useCreationActivity } from "./hooks/useCreationActivity";
+import { useServiceReadiness } from "./hooks/useServiceReadiness";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -92,6 +93,7 @@ function AppInner() {
   const { records: recoveryRecords, upsert: upsertRecovery, dismiss: dismissRecovery, clear: clearRecovery } = useCreationRecovery();
   const [selectedRecovery, setSelectedRecovery] = useState<CreationRecoveryRecord | null>(null);
   const { activities: creationActivities, record: recordCreationActivity, clear: clearCreationActivity } = useCreationActivity();
+  const serviceReadiness = useServiceReadiness(authenticated);
   const creationHighlights = useMemo(
     () => deriveCreationCenterHighlights({ conversations, assets, videoHistory: videoHistory.history }),
     [assets, conversations, videoHistory.history],
@@ -757,6 +759,7 @@ function AppInner() {
             onRecordRecovery={upsertRecovery}
             initialRecoveryPayload={selectedRecovery?.type === "chat" ? selectedRecovery.payload : null}
             onRecoveryResolved={selectedRecovery?.type === "chat" ? resolveSelectedRecovery : undefined}
+            serviceReadiness={serviceReadiness}
           />
           </ErrorBoundary>
         )}
@@ -774,6 +777,7 @@ function AppInner() {
             onRecordRecovery={upsertRecovery}
             initialRecoveryPayload={selectedRecovery?.type === "image" ? selectedRecovery.payload : null}
             onRecoveryResolved={selectedRecovery?.type === "image" ? resolveSelectedRecovery : undefined}
+            serviceReadiness={serviceReadiness}
           />
           </Suspense>
           </ErrorBoundary>
@@ -796,6 +800,7 @@ function AppInner() {
             onRecordRecovery={upsertRecovery}
             initialRecoveryPayload={selectedRecovery?.type === "video" ? selectedRecovery.payload : null}
             onRecoveryResolved={selectedRecovery?.type === "video" ? resolveSelectedRecovery : undefined}
+            serviceReadiness={serviceReadiness}
           />
           <VideoTasksPanel
             history={videoHistory.history}
