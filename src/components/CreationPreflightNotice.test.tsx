@@ -27,13 +27,15 @@ describe("CreationPreflightNotice", () => {
       />,
     );
 
-    const notice = screen.getByRole("status", { name: "创作预检提醒" });
-    expect(notice.textContent).toContain("创作前建议先处理 2 项服务配置");
+    const notice = screen.getByRole("status", { name: "图片创作预检提醒" });
+    expect(notice.textContent).toContain("图片创作预检需要处理 2 项");
+    expect(notice.textContent).toContain("需处理 2 项");
     expect(notice.textContent).toContain("素材存储");
     expect(notice.textContent).toContain("生成服务");
     expect(notice.textContent).toContain("仍可继续尝试");
+    expect(screen.getByRole("list", { name: "需要处理的服务项目" }).textContent).toContain("素材存储");
 
-    fireEvent.click(screen.getByRole("button", { name: "重新检查创作预检" }));
+    fireEvent.click(screen.getByRole("button", { name: "重新检查图片创作预检" }));
     expect(onRefresh).toHaveBeenCalledOnce();
   });
 
@@ -68,8 +70,8 @@ describe("CreationPreflightNotice", () => {
       />,
     );
 
-    const alert = screen.getByRole("alert", { name: "创作预检失败" });
+    const alert = screen.getByRole("alert", { name: "视频创作预检失败" });
     expect(alert.textContent).toContain("网络连接失败");
-    expect(alert.textContent).toContain("重新检查创作预检");
+    expect(alert.textContent).toContain("重新检查视频创作预检");
   });
 });

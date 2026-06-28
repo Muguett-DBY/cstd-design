@@ -313,5 +313,27 @@
   - GREEN targeted: same command — 3 files, 10 tests passed.
   - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 462 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser smoke passed against `http://127.0.0.1:8801` with Chrome, test session fixture, export dialog, copy verification, console/runtime checks, and no horizontal overflow.
-- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Commit/CI**: `4c7365e feat: add creation readiness preflight`; GitHub Actions run `28311467893` passed.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://37164b5a.cstd-design.pages.dev` for source `4c7365e37d9009ca1e58ab8b7c21f0b8eb6a7a39`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 3 UIUX will refine responsive and accessible readiness surfaces.
+
+### Stage 3/6 — UIUX ✅
+- **Prompt**: `AGENT_UIUX_MAIN.txt`
+- **Goal**: Make creation-workspace preflight warnings clearer, more accessible, and more reliable on mobile.
+- **Start state**:
+  - Branch: `main`; Stage 2 commit `4c7365e` is pushed and CI passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added workspace-specific accessible names for chat, image, and video preflight notices.
+  - Added a visible preflight title and compact status badge so degraded service state is understandable at a glance.
+  - Added an accessible list label for affected services and workspace-specific refresh button labels.
+  - Tightened mobile layout so long refresh actions can wrap without horizontal overflow.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/CreationPreflightNotice.test.tsx` failed because the generic preflight notice did not expose the required workspace-specific labels, title, badge, or list name.
+  - GREEN targeted: `npx vitest run src/components/CreationPreflightNotice.test.tsx src/components/CreationRecoveryLifecycle.test.tsx` — 2 files, 8 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 462 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Mobile Pages browser verification passed against `http://127.0.0.1:8802` at `390x844` with authenticated session, intentionally degraded readiness, image-workspace preflight notice, no console warnings/errors, and no horizontal overflow.
+- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Next**: Stage 4 IMPROVE will add a safe diagnostics export/copy workflow for service readiness without exposing secrets.

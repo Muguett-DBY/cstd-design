@@ -2502,4 +2502,28 @@
 - Authenticated local Pages browser smoke passed against `http://127.0.0.1:8801` with Chrome, test session fixture, export dialog, copy verification, console/runtime checks, and no horizontal overflow.
 
 ### CI status
+- Commit `4c7365e` passed GitHub Actions run `28311467893`.
+- Production smoke resolved exact deployment `https://37164b5a.cstd-design.pages.dev` for source `4c7365e37d9009ca1e58ab8b7c21f0b8eb6a7a39`.
+- Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+
+---
+
+## Long Campaign 027 — Stage 3 Preflight Notice UIUX (2026-06-28)
+
+### Goal
+- Make creation-workspace preflight warnings clearer, more accessible, and more reliable on mobile.
+
+### Completed
+- Added workspace-specific accessible names for chat, image, and video preflight notices.
+- Added a visible preflight title and compact status badge for degraded service state.
+- Added an accessible list label for affected services and workspace-specific refresh button labels.
+- Tightened mobile layout so long refresh actions can wrap without horizontal overflow.
+
+### Verified
+- RED: `npx vitest run src/components/CreationPreflightNotice.test.tsx` failed before the workspace-specific labels, title, badge, and list name existed.
+- GREEN: `npx vitest run src/components/CreationPreflightNotice.test.tsx src/components/CreationRecoveryLifecycle.test.tsx` — 2 files, 8 tests passed.
+- Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 462 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Mobile Pages browser verification passed against `http://127.0.0.1:8802` at `390x844` with authenticated session, intentionally degraded readiness, image-workspace preflight notice, no console warnings/errors, and no horizontal overflow.
+
+### CI status
 - Pending stage commit and GitHub Actions verification.
