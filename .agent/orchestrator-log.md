@@ -335,5 +335,27 @@
   - GREEN targeted: `npx vitest run src/components/CreationPreflightNotice.test.tsx src/components/CreationRecoveryLifecycle.test.tsx` — 2 files, 8 tests passed.
   - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 462 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Mobile Pages browser verification passed against `http://127.0.0.1:8802` at `390x844` with authenticated session, intentionally degraded readiness, image-workspace preflight notice, no console warnings/errors, and no horizontal overflow.
-- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Commit/CI**: `c00b62f uiux: refine creation preflight notice`; GitHub Actions run `28311747575` passed.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://544cd376.cstd-design.pages.dev` for source `c00b62febf16c502cc8367f2c9152a1f43e8224d`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 4 IMPROVE will add a safe diagnostics export/copy workflow for service readiness without exposing secrets.
+
+### Stage 4/6 — IMPROVE (local verification complete)
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Let users copy an actionable service-readiness diagnostic summary for support handoff without exposing secret values.
+- **Start state**:
+  - Branch: `main`; Stage 3 commit `c00b62f` is pushed, CI passed, and its exact production deployment passed smoke checks.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added a copyable readiness diagnostic summary containing the overall state, timestamp, and all check statuses.
+  - Added client-side redaction for secret-like assignments and token-shaped values before any clipboard write.
+  - Added clipboard availability/failure handling and an accessible success/failure announcement.
+  - Added responsive actions styling and isolated the pure formatter in `src/utils` to preserve React Fast Refresh constraints.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed before the formatter and copy action existed.
+  - GREEN targeted: same command — 1 file, 4 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 464 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8803`: Settings readiness panel loaded, clipboard copy succeeded, all four check states were present, no secret-like value or assignment was found, no horizontal overflow occurred, and the console reported 0 errors / 0 warnings.
+- **Commit/CI**: pending stage commit and GitHub Actions verification.
+- **Next**: After Stage 4 CI/live closure, Stage 5 CHECK will audit readiness failure modes, security boundaries, dependencies, and regressions and fix verified issues.

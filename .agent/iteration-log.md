@@ -2526,4 +2526,26 @@
 - Mobile Pages browser verification passed against `http://127.0.0.1:8802` at `390x844` with authenticated session, intentionally degraded readiness, image-workspace preflight notice, no console warnings/errors, and no horizontal overflow.
 
 ### CI status
+- Commit `c00b62f` passed GitHub Actions run `28311747575`.
+- Production smoke resolved exact deployment `https://544cd376.cstd-design.pages.dev` for source `c00b62febf16c502cc8367f2c9152a1f43e8224d`.
+
+---
+
+## Long Campaign 027 — Stage 4 Safe Readiness Diagnostics (2026-06-28)
+
+### Goal
+- Let users copy an actionable service-readiness diagnostic summary for support handoff without exposing secret values.
+
+### Completed
+- Added a readiness diagnostic formatter with secret-assignment and token-shape redaction.
+- Added a Settings copy action with clipboard failure handling and accessible feedback.
+- Added responsive action styling and isolated the formatter from the React component module.
+
+### Verified
+- RED: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed before the formatter and copy action existed.
+- GREEN: same command — 1 file, 4 tests passed.
+- Full local gate passed: `npm test` — Node smoke 4 tests plus Vitest 71 files, 464 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Authenticated local Pages browser verification passed at `http://127.0.0.1:8803`: copy and clipboard content checks passed, no sensitive pattern was found, no overflow occurred, and the console reported 0 errors / 0 warnings.
+
+### CI status
 - Pending stage commit and GitHub Actions verification.
