@@ -357,4 +357,45 @@ describe("RecoveryCenter", () => {
     expect(panel.textContent).toContain("视频生成失败");
     expect(panel.textContent).not.toContain("未发送消息");
   });
+
+  test("opens a stale-only recovery queue from the risk summary", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+    const mixedAgeRecords: CreationRecoveryRecord[] = [
+      ...records,
+      {
+        id: "image-fresh",
+        type: "image",
+        workspace: "image",
+        label: "刚刚保存的图片提示词",
+        summary: "两小时前保存",
+        createdAt: "2026-06-28T10:00:00.000Z",
+        payload: { prompt: "fresh image", style: "none", size: "1024x1024", referenceIds: [], count: 1 },
+      },
+    ];
+
+    try {
+      render(
+        <RecoveryCenter
+          records={mixedAgeRecords}
+          activeVideoTask={{ id: "task-active", status: "in_progress", progress: 68 }}
+          onSelect={vi.fn()}
+          onDismiss={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+      fireEvent.click(screen.getByRole("button", { name: "从风险摘要查看保存较久的恢复项" }));
+
+      const panel = screen.getByRole("tabpanel", { name: "待处理" });
+      expect(panel.textContent).toContain("未发送消息");
+      expect(panel.textContent).toContain("视频生成失败");
+      expect(panel.textContent).not.toContain("刚刚保存的图片提示词");
+      expect(panel.textContent).not.toContain("视频正在生成");
+      expect(screen.getByRole("status", { name: "待处理筛选摘要" }).textContent).toContain("当前只看：保存较久");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
