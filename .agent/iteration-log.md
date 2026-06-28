@@ -2580,4 +2580,25 @@
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files / 465 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 
 ### CI status
-- Focused Stage 5 commit and remote rerun are pending.
+- Commit `835890e` passed GitHub Actions run `28313963197`.
+- Production smoke resolved exact deployment `https://b7e439d4.cstd-design.pages.dev` for source `835890e0b94864ba78432abe1497aeded125f7f0`.
+
+---
+
+## Long Campaign 027 — Stage 6 Generated Asset Size Guard (2026-06-28)
+
+### Goal
+- Add a final runtime guard for generated remote assets before they are written into R2.
+
+### Completed
+- Added `guardRemoteAssetResponse` to reject oversized declared remote assets and wrap remote streams with a 100 MB byte-counting limit.
+- Applied the guard to generated image downloads and completed video downloads before R2 writes.
+- Added a clear user-facing error for oversized generated results.
+
+### Verified
+- RED: `npx vitest run functions/_shared/core.test.ts` failed before the remote asset guard existed.
+- GREEN: same command — 1 file, 23 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files / 466 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### CI status
+- Final Stage 6 commit and remote rerun are pending.

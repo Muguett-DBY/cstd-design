@@ -379,7 +379,7 @@
   - Production smoke resolved exact deployment `https://2adf3499.cstd-design.pages.dev` for source `eb71e83142508ec6a90f01895c53b907e1ca02b9`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 
-### Stage 5/6 — CHECK (local verified, remote pending)
+### Stage 5/6 — CHECK ✅
 - **Prompt**: `AGENT_CHECK_MAIN.txt`
 - **Goal**: Audit readiness/provider failure modes, Cloudflare Workers runtime safety, CI reliability, dependency drift, and regression coverage before the final increment.
 - **Start state**:
@@ -398,4 +398,23 @@
   - RED confirmed: `npx vitest run functions/_shared/core.test.ts` failed because the previous implementation called full `Response.text()`.
   - GREEN targeted: same command — 1 file, 22 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 465 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending Stage 5 focused commit and rerun.
+- **Commit/CI**: `835890e fix: bound upstream error diagnostics`; GitHub Actions run `28313963197` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://b7e439d4.cstd-design.pages.dev` for source `835890e0b94864ba78432abe1497aeded125f7f0`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+
+### Stage 6/6 — IMPROVE (local verified, remote pending)
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Add a final runtime guard for generated remote assets before they are written into R2.
+- **Start state**:
+  - Branch: `main`; Stage 5 commit `835890e` is pushed, CI passed, and its exact production deployment passed smoke checks.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` remains untracked and preserved.
+- **Completed**:
+  - Added `guardRemoteAssetResponse` to reject oversized declared remote assets and wrap remote streams with a 100 MB byte-counting limit.
+  - Applied the guard to generated image downloads and completed video downloads before R2 writes.
+  - Added a clear user-facing error for oversized generated results.
+- **Validation**:
+  - RED confirmed: `npx vitest run functions/_shared/core.test.ts` failed because the remote asset guard did not exist.
+  - GREEN targeted: same command — 1 file, 23 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 466 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending final Stage 6 commit and rerun.

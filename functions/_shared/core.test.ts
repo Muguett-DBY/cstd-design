@@ -13,6 +13,7 @@ import {
   contentDisposition,
   createAssetCapabilityToken,
   createObjectKey,
+  guardRemoteAssetResponse,
   publicFilename,
   safeMediaType,
   sanitizeFilename,
@@ -197,6 +198,30 @@ describe("media and provider contracts", () => {
       ok: false,
       error: "只支持 PNG、JPEG、WebP 或 MP4 文件。",
     });
+  });
+
+  test("guards generated remote asset size by headers and streamed bytes", async () => {
+    expect(() =>
+      guardRemoteAssetResponse(new Response("x", { headers: { "content-length": "101" } }), { maxSize: 100 }),
+    ).toThrow("REMOTE_ASSET_TOO_LARGE");
+
+    const guarded = guardRemoteAssetResponse(
+      new Response(
+        new ReadableStream({
+          start(controller) {
+            controller.enqueue(new Uint8Array(60));
+            controller.enqueue(new Uint8Array(60));
+            controller.close();
+          },
+        }),
+      ),
+      { maxSize: 100 },
+    );
+    const reader = guarded.body.getReader();
+
+    await expect(reader.read()).resolves.toMatchObject({ done: false });
+    await expect(reader.read()).rejects.toThrow("REMOTE_ASSET_TOO_LARGE");
+    expect(toClientError(new Error("REMOTE_ASSET_TOO_LARGE"))).toBe("生成结果过大，请调整后重试。");
   });
 
   test("creates and verifies short-lived asset capability tokens", async () => {

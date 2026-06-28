@@ -1,6 +1,6 @@
 import { AgnesClient } from "../_shared/agnes";
 import { enforceRateLimit, getExtension, json, readJson, requireSession, requireUpstreamApiKey, type PagesContext } from "../_shared/http";
-import { assetCapabilityUrls, createObjectKey, safeMediaType } from "../_shared/media";
+import { assetCapabilityUrls, createObjectKey, guardRemoteAssetResponse, safeMediaType } from "../_shared/media";
 import { toClientError, type ImageSize } from "../_shared/provider";
 import { ImageRequestSchema, parseRequest } from "../_shared/validation";
 
@@ -22,11 +22,12 @@ export async function onRequestPost({ request, env }: PagesContext) {
     const remoteUrl = await client.image({ prompt, size, referenceUrls });
     const remote = await client.fetchRemote(remoteUrl);
     const contentType = safeMediaType(remote.headers.get("content-type"), "image/png");
+    const remoteAsset = guardRemoteAssetResponse(remote);
     const id = crypto.randomUUID();
     const filename = `image-${id}.${getExtension(`image.${contentType.split("/")[1] || "png"}`, contentType)}`;
     const objectKey = createObjectKey("image", id, getExtension(filename, contentType));
-    await env.MEDIA_BUCKET.put(objectKey, remote.body, { httpMetadata: { contentType } });
-    const sizeValue = Number(remote.headers.get("content-length") || 0);
+    await env.MEDIA_BUCKET.put(objectKey, remoteAsset.body, { httpMetadata: { contentType } });
+    const sizeValue = remoteAsset.size;
     const now = new Date().toISOString();
     await env.DB.prepare(`INSERT INTO assets (id, kind, media_type, object_key, filename, size, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`)
       .bind(id, "image", contentType, objectKey, filename, sizeValue, now)
