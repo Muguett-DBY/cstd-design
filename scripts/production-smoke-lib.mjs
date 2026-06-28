@@ -24,17 +24,17 @@ export function selectDeploymentForCommit(deployments, commitSha) {
   return deployment;
 }
 
-async function fetchWithRetry(fetcher, url, init) {
+async function fetchWithRetry(fetcher, url, init, expectedStatus) {
   let response;
   let lastError;
-  for (let attempt = 1; attempt <= 5; attempt += 1) {
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
     try {
       response = await fetcher(url, init);
-      if (response.status < 500) return response;
+      if (response.status === expectedStatus) return response;
     } catch (error) {
       lastError = error;
     }
-    if (attempt < 5) {
+    if (attempt < 10) {
       await new Promise((resolve) => setTimeout(resolve, attempt * 500));
     }
   }
@@ -43,7 +43,7 @@ async function fetchWithRetry(fetcher, url, init) {
 }
 
 async function expectStatus(fetcher, baseUrl, path, status, init = {}) {
-  const response = await fetchWithRetry(fetcher, `${baseUrl}${path}`, init);
+  const response = await fetchWithRetry(fetcher, `${baseUrl}${path}`, init, status);
   const body = await response.text();
   if (response.status !== status) {
     throw new Error(`${init.method || "GET"} ${path} expected HTTP ${status}, received ${response.status}: ${body.slice(0, 300)}`);
