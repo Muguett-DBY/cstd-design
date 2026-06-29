@@ -1,5 +1,26 @@
 # Iteration Log
 
+## Long Campaign 031 — Stage 1 Global Search Message Targeting IMPROVE (2026-06-30)
+
+### Goal
+- Make Global Search message results trustworthy by routing active-conversation message matches to the exact selected message.
+
+### Completed locally
+- Added `GlobalSearchModal` coverage for selecting an active-conversation message result.
+- Added `useMessageSearch` coverage for focusing a result by exact message id.
+- Passed the active conversation id and exact message callback through Global Search.
+- Added App-level message target state and handed it to `ChatWorkspace`.
+- Opened the in-conversation message search UI, restored the searched query, focused the matching message result, and reused the existing scroll/highlight behavior.
+- Fixed the new effect dependencies so lint remains clean.
+
+### Verified so far
+- RED: `npx vitest run src/components/GlobalSearchModal.test.tsx src/hooks/useMessageSearch.test.ts` failed before exact routing and focus support were implemented.
+- GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx src/hooks/useMessageSearch.test.ts` — 2 files, 2 tests passed.
+- Full local gate passed after implementation and lint fix: `npm test` — Node smoke 5 tests plus Vitest 73 files, 484 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### Next
+- Commit and push Stage 1, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 2.
+
 ## Long Campaign 030 — Stage 6 Empty Activity Start Actions IMPROVE (2026-06-30)
 
 ### Goal

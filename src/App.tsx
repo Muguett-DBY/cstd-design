@@ -212,6 +212,12 @@ function AppInner() {
 
   const [editingAsset, setEditingAsset] = useState<AssetItem | null>(null);
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [globalMessageTarget, setGlobalMessageTarget] = useState<{
+    conversationId: string;
+    messageId: string;
+    query: string;
+    requestId: number;
+  } | null>(null);
 
   const openLightbox = useCallback((asset: AssetItem) => {
     setLightboxAsset(asset);
@@ -243,6 +249,17 @@ function AppInner() {
       setLoadingConversation(false);
     }
   }, [toast]);
+
+  const focusGlobalMessage = useCallback(async (conversationId: string, messageId: string, query: string) => {
+    if (conversation?.id !== conversationId) await openConversation(conversationId);
+    setActiveTab("chat");
+    setGlobalMessageTarget((current) => ({
+      conversationId,
+      messageId,
+      query,
+      requestId: (current?.requestId || 0) + 1,
+    }));
+  }, [conversation?.id, openConversation]);
 
   const handleCreateConversation = useCallback(async () => {
     try {
@@ -630,9 +647,11 @@ function AppInner() {
         open={globalSearchOpen}
         onClose={() => setGlobalSearchOpen(false)}
         conversations={conversations}
+        activeConversationId={conversation?.id || null}
         activeMessages={activeMessages}
         assets={assets}
         onSelectConversation={(id) => { void openConversation(id); }}
+        onSelectMessage={(conversationId, messageId, query) => { void focusGlobalMessage(conversationId, messageId, query); }}
         onSelectAsset={openLightbox}
       />
 
@@ -760,6 +779,10 @@ function AppInner() {
             initialRecoveryPayload={selectedRecovery?.type === "chat" ? selectedRecovery.payload : null}
             onRecoveryResolved={selectedRecovery?.type === "chat" ? resolveSelectedRecovery : undefined}
             serviceReadiness={serviceReadiness}
+            messageSearchTarget={globalMessageTarget?.conversationId === conversation?.id ? globalMessageTarget : null}
+            onMessageSearchTargetHandled={(requestId) => {
+              setGlobalMessageTarget((current) => current?.requestId === requestId ? null : current);
+            }}
           />
           </ErrorBoundary>
         )}

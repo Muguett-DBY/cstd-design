@@ -135,6 +135,13 @@ export function useMessageSearch(messages: ChatMessage[], threads: Record<string
     setActiveIndex((prev) => (prev - 1 + totalResults) % totalResults);
   }, [totalResults]);
 
+  const focusResult = useCallback((messageId: string) => {
+    const resultIndex = results.findIndex((result) => result.messageId === messageId);
+    if (resultIndex < 0) return false;
+    setActiveIndex(resultIndex);
+    return true;
+  }, [results]);
+
   const openSearch = useCallback(() => {
     setIsOpen(true);
   }, []);
@@ -156,6 +163,7 @@ export function useMessageSearch(messages: ChatMessage[], threads: Record<string
     activeResult,
     goNext,
     goPrev,
+    focusResult,
     isOpen,
     openSearch,
     closeSearch,

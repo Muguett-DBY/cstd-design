@@ -2,6 +2,34 @@
 
 ---
 
+## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)
+
+### Global preparation
+- **Repository**: `E:\DEV\cstd-design`
+- **Branch**: `main`, synchronized with `origin/main` using `git fetch --prune` and `git pull --ff-only`.
+- **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE.
+- **Prompt files read**: `03_LONG_6_STAGE_MAIN_V2.txt`, `AGENT_IMPROVE_MAIN.txt`, `AGENT_UIUX_MAIN.txt`, and `AGENT_CHECK_MAIN.txt`.
+- **CI contract**: `.github/workflows/pages.yml` runs install, tests, functions typecheck, lint, build, secret checks, D1 migrations, Pages deployment, and exact production smoke.
+- **Preserved user state**: unrelated untracked `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untouched.
+- **Carry-forward direction**: Campaign 030 explicitly closed the Creation Center line and required the next campaign to use a verified workflow need instead of adding more surface area there.
+- **Product review**: Global Search is a core navigation entry with no component tests. Verified defects include message results opening the first conversation instead of the active conversation, and tag/collection results closing without navigating. This campaign will make search trustworthy, actionable, responsive, and stable.
+
+### Stage 1/6 — IMPROVE 🚧
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Turn active-conversation message results into exact navigation targets that open the in-conversation search state and focus the selected message.
+- **Start state**: `main...origin/main`; only the two preserved unrelated untracked directories are present.
+- **Completed locally**:
+  - Added component coverage proving a Global Search message result routes to the exact active conversation and message instead of opening the first conversation.
+  - Added hook coverage for focusing a message-search result by message id.
+  - Added `activeConversationId`/`onSelectMessage` plumbing from `GlobalSearchModal` through `App` into `ChatWorkspace`.
+  - Opened the in-conversation search UI, restored the selected query, focused the exact result, and let the existing message-highlight effect scroll to the selected message.
+  - Fixed a lint dependency issue in the new `ChatWorkspace` effects by using stable destructured search APIs.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/GlobalSearchModal.test.tsx src/hooks/useMessageSearch.test.ts` failed before the new routing/focus behavior existed.
+  - GREEN targeted: same command — 2 files, 2 tests passed.
+  - Full local gate passed after the lint fix: `npm test` — Node smoke 5 tests plus Vitest 73 files, 484 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending feature commit, push, GitHub Actions, and exact deployment smoke.
+
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 
 ### Global preparation
