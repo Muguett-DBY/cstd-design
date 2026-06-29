@@ -1,5 +1,24 @@
 # Iteration Log
 
+## Long Campaign 030 — Stage 4 Priority Action IMPROVE (2026-06-30)
+
+### Goal
+- Turn the new Creation Center priority status from a passive cue into an actionable shortcut.
+
+### Completed
+- Added a contextual priority action button to the `创作中心优先状态` card.
+- The action jumps to the saved-for-too-long queue when stale recovery work exists.
+- The same action routes to pending work, recent activity, or continue-work states when those are the highest priority.
+- Adjusted desktop and mobile layout so the new action remains aligned and tappable.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the priority action button did not exist.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 25 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 480 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### Next
+- Stage 5 CHECK should audit recent activity/recovery edge cases and fix a real stability issue with a failing test first.
+
 ## Long Campaign 030 — Stage 3 Creation Center Priority UIUX (2026-06-30)
 
 ### Goal

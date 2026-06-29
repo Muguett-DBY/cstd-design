@@ -121,6 +121,7 @@ export function RecoveryCenter({
         label: "优先级",
         title: "先处理保存较久任务",
         detail: `${staleRecoveryCount} 项保存较久，建议先恢复或清理。`,
+        actionLabel: "处理优先任务",
       }
     : totalCount > 0
       ? {
@@ -128,6 +129,7 @@ export function RecoveryCenter({
           label: "待处理",
           title: `${totalCount} 项任务待处理`,
           detail: "建议从待处理列表恢复、查看或清理当前创作任务。",
+          actionLabel: "处理优先任务",
         }
       : recentActivities.length > 0
         ? {
@@ -135,12 +137,14 @@ export function RecoveryCenter({
             label: "近期活动",
             title: "最近创作已整理",
             detail: `${recentActivities.length} 条活动已归档，可回看结果后继续创作。`,
+            actionLabel: "查看近期活动",
           }
         : {
             tone: "idle",
             label: "已就绪",
             title: "创作中心已就绪",
             detail: "暂无积压任务，可直接开始新的咨询、图片或视频创作。",
+            actionLabel: "继续创作",
           };
   const filteredRecords = taskFilter === "all"
     ? records
@@ -201,6 +205,21 @@ export function RecoveryCenter({
   const selectTaskFilter = (filter: RecoveryTaskFilter) => {
     setTaskFilter(filter);
     setCleanupNotice(null);
+  };
+  const handlePriorityStatusAction = () => {
+    if (staleRecoveryCount > 0) {
+      openStaleRecoveries();
+      return;
+    }
+    if (totalCount > 0) {
+      setSection("tasks");
+      return;
+    }
+    if (recentActivities.length > 0) {
+      setSection("activity");
+      return;
+    }
+    setSection("continue");
   };
   const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
   const toggleOpen = () => {
@@ -286,6 +305,9 @@ export function RecoveryCenter({
                 <strong>{priorityStatus.title}</strong>
                 <p>{priorityStatus.detail}</p>
               </div>
+              <button type="button" className="ghost-button" aria-label={priorityStatus.actionLabel} onClick={handlePriorityStatusAction}>
+                {priorityStatus.actionLabel}
+              </button>
             </section>
             {totalCount > 0 && riskFocus && (
               <section className="recovery-risk-summary" aria-label="恢复风险摘要">

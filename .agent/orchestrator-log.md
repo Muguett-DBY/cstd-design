@@ -59,6 +59,21 @@
 - **Exact deployment**: `https://9c86109b.cstd-design.pages.dev` passed production smoke for commit `6be0c604451a6cdd5ab077ec47411f8b67a17826`.
 - **Next**: Stage 4 IMPROVE will add a concrete action-level improvement that uses the new priority status.
 
+### Stage 4/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Convert the new priority status card from passive information into a direct action point.
+- **Completed**:
+  - Added a contextual action button to `创作中心优先状态`.
+  - The action jumps to the saved-for-too-long queue when stale recovery work is the current priority.
+  - The action routes to pending tasks, recent activity, or continue-work states when those are more relevant.
+  - Adjusted desktop and mobile layout for the new action.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the priority action did not exist.
+  - GREEN targeted: `npx vitest run src/components/RecoveryCenter.test.tsx` — 25 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 480 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending push and GitHub Actions verification.
+- **Next**: Stage 5 CHECK will audit activity/recovery edge cases and fix a real stability issue.
+
 ## Overview
 - **Start**: 2026-06-27T14:00:00Z
 - **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE
