@@ -18,7 +18,9 @@
 - Local Pages browser QA passed on desktop 1440×900 and mobile 390×844 with browser-stubbed authenticated empty API responses: queue-priority prompt, stale-first order, saved-for-too-long jump, overflow, console, and runtime checks passed.
 
 ### CI
-- Pending commit and GitHub Actions follow-up.
+- Commit `eb19544 feat: prioritize stale workspace recoveries` pushed to `main`.
+- GitHub Actions run `28370347935` passed all steps.
+- Exact deployment `https://cf8ab860.cstd-design.pages.dev` passed production smoke for commit `eb19544921004f369531a0ec70db012216d7f9f7`.
 
 ### Next
 - Stage 5 CHECK should audit the latest recovery queue behavior for real regressions and close any issue with a failing test first.

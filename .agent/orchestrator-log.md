@@ -637,7 +637,7 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 4 IMPROVE will add a product increment around workspace-specific recovery handling now that the task panel is easier to read.
 
-### Stage 4/6 — IMPROVE 🔄
+### Stage 4/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Improve workspace-specific recovery handling so a filtered workspace queue still prioritizes old saved work.
 - **Start state**:
@@ -653,4 +653,8 @@
   - GREEN targeted: same command — 1 file, 20 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 475 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Local Pages browser verification passed at `http://127.0.0.1:8813` on desktop `1440x900` and mobile `390x844` with browser-stubbed authenticated empty API responses: queue-priority prompt appeared, stale video appeared before fresh video, the callout jumped to the saved-for-too-long queue, no horizontal overflow occurred, and console/page errors were clean.
-- **Commit/CI**: pending.
+- **Commit/CI**: `eb19544 feat: prioritize stale workspace recoveries`; GitHub Actions run `28370347935` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://cf8ab860.cstd-design.pages.dev` for source `eb19544921004f369531a0ec70db012216d7f9f7`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 5 CHECK will audit the latest recovery queue behavior for real regressions and close any issue with a failing test first.
