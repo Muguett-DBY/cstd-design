@@ -1,5 +1,26 @@
 # Iteration Log
 
+## Long Campaign 029 — Stage 1 Stale Recovery Bulk Cleanup (2026-06-29)
+
+### Goal
+- Continue the Creation Center stale-recovery path by making old backlog cleanup discoverable from the priority panel.
+
+### Completed
+- Added `忽略全部较久` to `保存较久优先处理`.
+- The action dismisses only stale records in oldest-first order and preserves fresh recovery records.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before the priority-panel bulk action existed.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 17 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 472 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local Pages browser QA passed on desktop 1440×900 and mobile 390×844.
+
+### CI
+- Pending commit and GitHub Actions follow-up.
+
+### Next
+- Stage 2 should make recovery backlog progress easier to understand after cleanup, especially when several workspace types remain.
+
 ## Long Campaign 026 — Stage 5 Recovery Storage Safety CHECK (2026-06-28)
 
 ### Goal

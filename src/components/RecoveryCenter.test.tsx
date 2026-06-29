@@ -504,4 +504,63 @@ describe("RecoveryCenter", () => {
       vi.useRealTimers();
     }
   });
+
+  test("clears all stale recoveries directly from the priority panel", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+    const newerStaleRecord: CreationRecoveryRecord = {
+      id: "chat-stale-newer",
+      type: "chat",
+      workspace: "chat",
+      label: "较新保存的咨询",
+      summary: "昨天保存",
+      createdAt: "2026-06-27T11:00:00.000Z",
+      payload: { content: "newer stale", parentId: null },
+    };
+    const oldestStaleRecord: CreationRecoveryRecord = {
+      id: "video-stale-oldest",
+      type: "video",
+      workspace: "video",
+      label: "最旧保存的视频",
+      summary: "三天前保存",
+      createdAt: "2026-06-25T01:00:00.000Z",
+      payload: { prompt: "oldest video", preset: "standard", fps: 24, width: 1152, height: 768, referenceAssetIds: [], keyframes: false },
+    };
+    const freshRecord: CreationRecoveryRecord = {
+      id: "image-fresh",
+      type: "image",
+      workspace: "image",
+      label: "刚保存的图片",
+      summary: "两小时前保存",
+      createdAt: "2026-06-28T10:00:00.000Z",
+      payload: { prompt: "fresh", style: "none", size: "1024x1024", referenceIds: [], count: 1 },
+    };
+    const onDismiss = vi.fn();
+    const onClear = vi.fn();
+
+    try {
+      render(
+        <RecoveryCenter
+          records={[freshRecord, newerStaleRecord, oldestStaleRecord]}
+          onSelect={vi.fn()}
+          onDismiss={onDismiss}
+          onClear={onClear}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+      fireEvent.click(screen.getByRole("button", { name: "从风险摘要查看保存较久的恢复项" }));
+
+      const priorityRegion = screen.getByRole("region", { name: "保存较久优先处理" });
+      fireEvent.click(within(priorityRegion).getByRole("button", { name: "忽略全部保存较久恢复项" }));
+
+      expect(onDismiss).toHaveBeenCalledTimes(2);
+      expect(onDismiss).toHaveBeenNthCalledWith(1, oldestStaleRecord.id);
+      expect(onDismiss).toHaveBeenNthCalledWith(2, newerStaleRecord.id);
+      expect(onDismiss).not.toHaveBeenCalledWith(freshRecord.id);
+      expect(onClear).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

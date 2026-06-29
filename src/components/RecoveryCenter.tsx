@@ -129,6 +129,9 @@ export function RecoveryCenter({
     if (!oldestStaleRecord) return;
     onDismiss(oldestStaleRecord.id);
   };
+  const dismissAllStaleRecoveries = () => {
+    staleQueueRecords.forEach((record) => onDismiss(record.id));
+  };
   const openRiskFocus = () => {
     if (!riskFocus) return;
     setSection("tasks");
@@ -407,6 +410,9 @@ export function RecoveryCenter({
                       </button>
                       <button type="button" className="ghost-button" aria-label="忽略最旧保存的恢复项" onClick={dismissOldestStaleRecovery}>
                         忽略最旧记录
+                      </button>
+                      <button type="button" className="ghost-button danger" aria-label="忽略全部保存较久恢复项" onClick={dismissAllStaleRecoveries}>
+                        忽略全部较久
                       </button>
                     </div>
                   </section>

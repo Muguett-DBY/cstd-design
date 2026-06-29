@@ -561,3 +561,32 @@
   - Production smoke resolved exact deployment `https://6ae8e16a.cstd-design.pages.dev` for source `e7e04a87f9410f7fe7f2413ae8c980a54a4583ea`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Final status**: All 6 required stages are implemented, regression-tested, browser-verified, pushed to `main`, CI-verified, and exact-deployment smoke verified. No tracked implementation work remains outside this campaign record update.
+
+---
+
+## Long Campaign 029 — 6-stage Creation Center completion loop (2026-06-29)
+
+### Global preparation
+- **Repository**: `E:\DEV\cstd-design`
+- **Branch**: `main`; start HEAD `3806f92` is synced with `origin/main`.
+- **Protected existing work**: `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` are unrelated untracked directories and are preserved outside commits.
+- **Prompt sequence**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE.
+- **CI contract**: GitHub Actions `Deploy Cloudflare Pages` uses Node 24, `npm ci`, `npm test`, `npm run typecheck:functions`, `npm run lint`, `npm run build`, production secret verification, remote D1 migrations, Pages deploy, and production smoke.
+- **Carry-forward direction**: Continue Creation Center recovery/stale-work handling after Campaign 028 completed oldest-first stale cleanup.
+
+### Stage 1/6 — IMPROVE 🔄
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Make the oldest-first stale recovery queue easier to complete by exposing direct bulk cleanup from the priority panel.
+- **Start state**:
+  - Branch: `main`; HEAD `3806f92` is pushed and synced with `origin/main`.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed locally**:
+  - Added a direct `忽略全部较久` action inside `保存较久优先处理`.
+  - The action dismisses only stale records in oldest-first order and preserves fresh recovery records.
+  - Kept existing per-record and filtered-clear behavior unchanged.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the priority region lacked `忽略全部保存较久恢复项`.
+  - GREEN targeted: same command — 1 file, 17 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 472 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8810` on desktop `1440x900` and mobile `390x844`: bulk stale cleanup removed only stale records from UI/localStorage, preserved a fresh recovery record, showed no horizontal overflow, and reported no console/page errors.
+- **Commit/CI**: pending.
