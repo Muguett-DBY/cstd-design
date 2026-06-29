@@ -24,7 +24,8 @@
   - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the summary showed the older activity as latest.
   - GREEN targeted: `npx vitest run src/components/RecoveryCenter.test.tsx` — 22 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 477 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending push and GitHub Actions verification.
+- **Commit/CI**: `5b03a38 feat: order creation activity by time`; GitHub Actions run `28391364834` passed.
+- **Exact deployment**: `https://aef063ca.cstd-design.pages.dev` passed production smoke for commit `5b03a381f1e0b31a41539c63b978357ac895df3c`.
 - **Next**: Stage 2 IMPROVE will make recent activity more actionable after this ordering fix.
 
 ## Overview
