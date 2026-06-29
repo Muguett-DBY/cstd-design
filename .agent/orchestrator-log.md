@@ -55,7 +55,8 @@
   - GREEN targeted: `npx vitest run src/components/RecoveryCenter.test.tsx` — 24 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 479 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Local production preview browser QA passed on desktop 1440×900 and mobile 390×844 with stubbed authenticated API data: priority status, risk summary, activity outcome summary, overflow, console, and page errors checked.
-- **Commit/CI**: pending push and GitHub Actions verification.
+- **Commit/CI**: `6be0c60 uiux: surface creation center priority`; GitHub Actions run `28393344663` passed.
+- **Exact deployment**: `https://9c86109b.cstd-design.pages.dev` passed production smoke for commit `6be0c604451a6cdd5ab077ec47411f8b67a17826`.
 - **Next**: Stage 4 IMPROVE will add a concrete action-level improvement that uses the new priority status.
 
 ## Overview

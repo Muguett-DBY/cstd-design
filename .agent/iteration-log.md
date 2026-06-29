@@ -16,6 +16,11 @@
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 479 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 - Local production preview browser QA passed on desktop 1440×900 and mobile 390×844 with stubbed authenticated API data: priority status, risk summary, activity outcome summary, horizontal overflow, console errors, and page errors checked.
 
+### CI
+- Commit `6be0c60 uiux: surface creation center priority` pushed to `main`.
+- GitHub Actions run `28393344663` passed all steps.
+- Exact deployment `https://9c86109b.cstd-design.pages.dev` passed production smoke for commit `6be0c604451a6cdd5ab077ec47411f8b67a17826`.
+
 ### Next
 - Stage 4 IMPROVE should add an action-level improvement around the new priority status rather than more visual-only polish.
 
