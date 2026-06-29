@@ -16,6 +16,10 @@
 - GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 25 tests passed.
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 480 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 
+### CI status
+- Commit `4d8db33` passed GitHub Actions run `28394104810`.
+- Exact deployment `https://e4f0d600.cstd-design.pages.dev` passed production smoke for commit `4d8db33d2af2197b12dda42dd0c6c56cf54adfc9`.
+
 ### Next
 - Stage 5 CHECK should audit recent activity/recovery edge cases and fix a real stability issue with a failing test first.
 
