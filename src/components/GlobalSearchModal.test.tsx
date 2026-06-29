@@ -124,4 +124,49 @@ describe("GlobalSearchModal", () => {
     fireEvent.click(screen.getByRole("button", { name: /Launch Board/ }));
     expect(onSelectCollection).toHaveBeenCalledWith("collection-1", "Launch Board");
   });
+
+  test("shows result count and keyboard position feedback", () => {
+    const props = {
+      open: true,
+      onClose: vi.fn(),
+      conversations: [
+        {
+          id: "conversation-1",
+          title: "Launch plan",
+          activeLeafId: null,
+          createdAt: "2026-06-30T00:00:00.000Z",
+          updatedAt: "2026-06-30T00:00:00.000Z",
+          messageCount: 3,
+        },
+      ],
+      activeMessages: [],
+      assets: [
+        {
+          id: "asset-1",
+          kind: "image" as const,
+          mediaType: "image/png",
+          filename: "launch.png",
+          size: 1024,
+          createdAt: "2026-06-30T00:00:00.000Z",
+          url: "/launch.png",
+        },
+      ],
+      onSelectConversation: vi.fn(),
+      onSelectAsset: vi.fn(),
+    };
+
+    render(<GlobalSearchModal {...props} />);
+    const input = screen.getByRole("textbox", { name: "全局搜索" });
+    fireEvent.change(input, { target: { value: "launch" } });
+
+    expect(screen.getByText("共 2 个结果")).toBeTruthy();
+    expect(screen.getByText("当前 1/2")).toBeTruthy();
+    expect(screen.getByText("↑↓ 选择")).toBeTruthy();
+    expect(screen.getByText("Enter 打开")).toBeTruthy();
+
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+
+    expect(screen.getByText("当前 2/2")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /launch.png/ }).getAttribute("aria-current")).toBe("true");
+  });
 });

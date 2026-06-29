@@ -146,9 +146,11 @@ export function GlobalSearchModal({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
+      if (results.length === 0) return;
       setActiveIndex((i) => Math.min(i + 1, results.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
+      if (results.length === 0) return;
       setActiveIndex((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
@@ -166,6 +168,8 @@ export function GlobalSearchModal({
   };
 
   let runningIndex = 0;
+  const hasQuery = query.trim() !== "";
+  const activePosition = results.length > 0 ? Math.min(activeIndex + 1, results.length) : 0;
 
   return (
     <div className="global-search-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="全局搜索">
@@ -186,6 +190,25 @@ export function GlobalSearchModal({
           <button type="button" className="icon-button" onClick={onClose} aria-label="关闭">
             <X size={18} />
           </button>
+        </div>
+        <div className="global-search-status" aria-live="polite">
+          <div className="global-search-summary">
+            {!hasQuery ? (
+              <span>输入关键词后开始搜索</span>
+            ) : results.length === 0 ? (
+              <span>没有匹配结果</span>
+            ) : (
+              <>
+                <span>共 {results.length} 个结果</span>
+                <span>当前 {activePosition}/{results.length}</span>
+              </>
+            )}
+          </div>
+          <div className="global-search-shortcuts" aria-label="搜索快捷键">
+            <span>↑↓ 选择</span>
+            <span>Enter 打开</span>
+            <span>Esc 关闭</span>
+          </div>
         </div>
         <div className="global-search-results">
           {query.trim() === "" ? (
@@ -217,6 +240,7 @@ export function GlobalSearchModal({
                         key={r.id}
                         type="button"
                         className={`global-search-item${isActive ? " active" : ""}`}
+                        aria-current={isActive ? "true" : undefined}
                         onMouseEnter={() => setActiveIndex(idx)}
                         onClick={r.onClick}
                       >
