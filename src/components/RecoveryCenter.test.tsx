@@ -217,6 +217,31 @@ describe("RecoveryCenter", () => {
     expect(onClearActivity).toHaveBeenCalledOnce();
   });
 
+  test("orders recent creation activity by actual timestamp before summarizing", () => {
+    const unsortedActivities: CreationActivity[] = [
+      { id: "activity-older", type: "restored", workspace: "chat", label: "较早恢复咨询", createdAt: "2026-06-26T05:00:00.000Z" },
+      { id: "activity-newer", type: "completed", workspace: "image", label: "最新图片完成", createdAt: "2026-06-26T06:00:00.000Z" },
+    ];
+
+    render(
+      <RecoveryCenter
+        records={[]}
+        activities={unsortedActivities}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("tab", { name: "近期活动 2" }));
+
+    expect(screen.getByRole("status", { name: "创作活动摘要" }).textContent).toContain("最新：最新图片完成");
+    const activityRegion = screen.getByRole("region", { name: "近期创作活动" });
+    const activityLabels = Array.from(activityRegion.querySelectorAll(".recovery-activity-item strong")).map((node) => node.textContent);
+    expect(activityLabels).toEqual(["最新图片完成", "较早恢复咨询"]);
+  });
+
   test("does not show an inactive clear-activity action without a clear handler", () => {
     render(
       <RecoveryCenter
