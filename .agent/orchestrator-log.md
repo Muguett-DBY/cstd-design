@@ -659,7 +659,7 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 5 CHECK will audit the latest recovery queue behavior for real regressions and close any issue with a failing test first.
 
-### Stage 5/6 — CHECK 🔄
+### Stage 5/6 — CHECK ✅
 - **Prompt**: `AGENT_CHECK_MAIN.txt`
 - **Goal**: Audit the latest recovery-center changes for actionable regressions and fix verified issues with regression coverage.
 - **Finding fixed**:
@@ -674,4 +674,8 @@
   - GREEN targeted: same command — 1 file, 21 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 476 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Local Pages browser verification passed at `http://127.0.0.1:8814` on desktop `1440x900` and mobile `390x844` with browser-stubbed authenticated empty API responses: app-level clear-activity button remained available with the real app handler, no horizontal overflow occurred, and console/page errors were clean.
-- **Commit/CI**: pending.
+- **Commit/CI**: `9099e6e fix: hide inactive activity clear action`; GitHub Actions run `28387875984` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://388ca258.cstd-design.pages.dev` for source `9099e6eadc42cf3a9a5fb4c957b5d649e63e6226`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 6 final IMPROVE will add one final user-facing completion increment and then run final release closure.

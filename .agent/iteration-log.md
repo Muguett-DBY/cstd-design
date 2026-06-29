@@ -21,7 +21,9 @@
 - Local Pages browser QA passed on desktop 1440×900 and mobile 390×844 with browser-stubbed authenticated empty API responses: App-level clear-activity button remained available, overflow, console, and runtime checks passed.
 
 ### CI
-- Pending commit and GitHub Actions follow-up.
+- Commit `9099e6e fix: hide inactive activity clear action` pushed to `main`.
+- GitHub Actions run `28387875984` passed all steps.
+- Exact deployment `https://388ca258.cstd-design.pages.dev` passed production smoke for commit `9099e6eadc42cf3a9a5fb4c957b5d649e63e6226`.
 
 ### Next
 - Stage 6 final IMPROVE should add one final user-facing completion increment, then run the final full verification and release closure.
