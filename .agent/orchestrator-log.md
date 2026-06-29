@@ -574,7 +574,7 @@
 - **CI contract**: GitHub Actions `Deploy Cloudflare Pages` uses Node 24, `npm ci`, `npm test`, `npm run typecheck:functions`, `npm run lint`, `npm run build`, production secret verification, remote D1 migrations, Pages deploy, and production smoke.
 - **Carry-forward direction**: Continue Creation Center recovery/stale-work handling after Campaign 028 completed oldest-first stale cleanup.
 
-### Stage 1/6 — IMPROVE 🔄
+### Stage 1/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Make the oldest-first stale recovery queue easier to complete by exposing direct bulk cleanup from the priority panel.
 - **Start state**:
@@ -589,4 +589,8 @@
   - GREEN targeted: same command — 1 file, 17 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 472 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8810` on desktop `1440x900` and mobile `390x844`: bulk stale cleanup removed only stale records from UI/localStorage, preserved a fresh recovery record, showed no horizontal overflow, and reported no console/page errors.
-- **Commit/CI**: pending.
+- **Commit/CI**: `1e34523 feat: add stale recovery bulk cleanup`; GitHub Actions run `28366524968` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://9aecc268.cstd-design.pages.dev` for source `1e345230e346f9471d64a6423fa001f8b466e4d1`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 2 IMPROVE will make recovery backlog progress easier to understand after cleanup, especially when several workspace types remain.

@@ -16,7 +16,9 @@
 - Local Pages browser QA passed on desktop 1440×900 and mobile 390×844.
 
 ### CI
-- Pending commit and GitHub Actions follow-up.
+- Commit `1e34523 feat: add stale recovery bulk cleanup` pushed to `main`.
+- GitHub Actions run `28366524968` passed all steps.
+- Exact deployment `https://9aecc268.cstd-design.pages.dev` passed production smoke for commit `1e345230e346f9471d64a6423fa001f8b466e4d1`.
 
 ### Next
 - Stage 2 should make recovery backlog progress easier to understand after cleanup, especially when several workspace types remain.
