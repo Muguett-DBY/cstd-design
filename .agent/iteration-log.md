@@ -1,5 +1,24 @@
 # Iteration Log
 
+## Long Campaign 030 — Stage 3 Creation Center Priority UIUX (2026-06-30)
+
+### Goal
+- Make the Creation Center panel communicate the next priority immediately when it opens, especially after activity and recovery summaries grew denser.
+
+### Completed
+- Added a `创作中心优先状态` card directly under the overview metrics.
+- The card adapts to stale backlog, active pending work, recent activity, or idle states.
+- Added warning/success visual treatment and mobile one-column behavior so the card remains readable on narrow screens.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because `创作中心优先状态` did not exist.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 24 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 479 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local production preview browser QA passed on desktop 1440×900 and mobile 390×844 with stubbed authenticated API data: priority status, risk summary, activity outcome summary, horizontal overflow, console errors, and page errors checked.
+
+### Next
+- Stage 4 IMPROVE should add an action-level improvement around the new priority status rather than more visual-only polish.
+
 ## Long Campaign 030 — Stage 2 Activity Outcome Summary IMPROVE (2026-06-30)
 
 ### Goal

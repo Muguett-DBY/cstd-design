@@ -43,6 +43,21 @@
 - **Exact deployment**: `https://f7e8b75a.cstd-design.pages.dev` passed production smoke for commit `a96701e5c52773c9aabc95d3593a53bbc3567d24`.
 - **Next**: Stage 3 UIUX will improve the panel hierarchy and responsive feel around the new activity/recovery overview.
 
+### Stage 3/6 — UIUX ✅
+- **Prompt**: `AGENT_UIUX_MAIN.txt`
+- **Goal**: Improve first-glance Creation Center hierarchy so users immediately understand the next priority before scanning the whole panel.
+- **Completed**:
+  - Added a `创作中心优先状态` card below the overview metrics.
+  - The card adapts to stale backlog, active pending work, recent activity, or idle states.
+  - Added warning/success treatments and mobile one-column layout for the new status card.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because `创作中心优先状态` was missing.
+  - GREEN targeted: `npx vitest run src/components/RecoveryCenter.test.tsx` — 24 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 479 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Local production preview browser QA passed on desktop 1440×900 and mobile 390×844 with stubbed authenticated API data: priority status, risk summary, activity outcome summary, overflow, console, and page errors checked.
+- **Commit/CI**: pending push and GitHub Actions verification.
+- **Next**: Stage 4 IMPROVE will add a concrete action-level improvement that uses the new priority status.
+
 ## Overview
 - **Start**: 2026-06-27T14:00:00Z
 - **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE

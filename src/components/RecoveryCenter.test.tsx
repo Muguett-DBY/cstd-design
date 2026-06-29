@@ -157,6 +157,31 @@ describe("RecoveryCenter", () => {
     expect(overview.textContent).toContain("2");
   });
 
+  test("surfaces the current creation center priority at first glance", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+
+    try {
+      render(
+        <RecoveryCenter
+          records={records}
+          onSelect={vi.fn()}
+          onDismiss={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+      const priorityStatus = screen.getByRole("region", { name: "创作中心优先状态" });
+      expect(priorityStatus.textContent).toContain("先处理保存较久任务");
+      expect(priorityStatus.textContent).toContain("2 项保存较久");
+      expect(priorityStatus.textContent).toContain("建议先恢复或清理");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("continues recent work across chat, image, and video workspaces", () => {
     const onContinueConversation = vi.fn();
     const onOpenRecentImage = vi.fn();

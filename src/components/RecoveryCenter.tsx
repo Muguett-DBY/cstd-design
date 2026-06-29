@@ -115,6 +115,33 @@ export function RecoveryCenter({
     }),
     { completed: 0, restored: 0, ignored: 0 } satisfies Record<CreationActivity["type"], number>,
   );
+  const priorityStatus = staleRecoveryCount > 0
+    ? {
+        tone: "warning",
+        label: "优先级",
+        title: "先处理保存较久任务",
+        detail: `${staleRecoveryCount} 项保存较久，建议先恢复或清理。`,
+      }
+    : totalCount > 0
+      ? {
+          tone: "active",
+          label: "待处理",
+          title: `${totalCount} 项任务待处理`,
+          detail: "建议从待处理列表恢复、查看或清理当前创作任务。",
+        }
+      : recentActivities.length > 0
+        ? {
+            tone: "success",
+            label: "近期活动",
+            title: "最近创作已整理",
+            detail: `${recentActivities.length} 条活动已归档，可回看结果后继续创作。`,
+          }
+        : {
+            tone: "idle",
+            label: "已就绪",
+            title: "创作中心已就绪",
+            detail: "暂无积压任务，可直接开始新的咨询、图片或视频创作。",
+          };
   const filteredRecords = taskFilter === "all"
     ? records
     : taskFilter === "stale"
@@ -253,6 +280,13 @@ export function RecoveryCenter({
                 <strong>{recentVideoTasks.length}</strong>
               </div>
             </div>
+            <section className={`recovery-priority-status recovery-priority-${priorityStatus.tone}`} aria-label="创作中心优先状态">
+              <span>{priorityStatus.label}</span>
+              <div>
+                <strong>{priorityStatus.title}</strong>
+                <p>{priorityStatus.detail}</p>
+              </div>
+            </section>
             {totalCount > 0 && riskFocus && (
               <section className="recovery-risk-summary" aria-label="恢复风险摘要">
                 <article>
