@@ -12,13 +12,15 @@
 - Added Asset Workspace filter target initialization for tag and collection requests.
 - Used request-keyed remounting for Asset Workspace targets so the feature stays compatible with the React hook lint rules.
 
-### Verified so far
+### Verified
 - RED: `npx vitest run src/components/GlobalSearchModal.test.tsx src/components/AssetWorkspace.test.tsx` failed because collection results did not route, tag search did not find tag names, and Asset Workspace ignored external filter targets.
 - GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx src/components/AssetWorkspace.test.tsx` — 2 files, 7 tests passed.
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 487 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Commit `455d9dc feat: route global search asset filters` was pushed to `main`; GitHub Actions run `28409497305` passed all deployment steps.
+- Exact deployment `https://926ad811.cstd-design.pages.dev` passed production smoke for commit `455d9dc960d2ed7502233f405960454a6fbe636e`.
 
 ### Next
-- Commit and push Stage 2, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 3 UIUX.
+- Continue Stage 3 UIUX by improving Global Search clarity and keyboard/visual feedback now that more result types are actionable.
 
 ## Long Campaign 031 — Stage 1 Global Search Message Targeting IMPROVE (2026-06-30)
 

@@ -32,7 +32,7 @@
 - **Exact deployment**: `https://7d7e6ea1.cstd-design.pages.dev` passed production smoke for commit `e6690046bb9608abc0ae03aec6fa7a96709ea3ca`.
 - **Next**: Stage 2 IMPROVE will make another inert Global Search result type actionable so the search surface behaves consistently beyond messages.
 
-### Stage 2/6 — IMPROVE 🚧
+### Stage 2/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Make Global Search tag and collection results actionable by routing them into the Asset Workspace with the matching filter applied.
 - **Start state**: Stage 1 feature and record commits were pushed to `main`; both GitHub Actions runs passed and exact production smoke passed for `85d67dd`.
@@ -46,7 +46,9 @@
   - RED confirmed: `npx vitest run src/components/GlobalSearchModal.test.tsx src/components/AssetWorkspace.test.tsx` failed because collection results did not route, tags were not matched by tag name, and Asset Workspace ignored external filter targets.
   - GREEN targeted: same command — 2 files, 7 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 487 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending feature commit, push, GitHub Actions, and exact deployment smoke.
+- **Commit/CI**: `455d9dc feat: route global search asset filters`; pushed to `main`; GitHub Actions run `28409497305` passed all steps.
+- **Exact deployment**: `https://926ad811.cstd-design.pages.dev` passed production smoke for commit `455d9dc960d2ed7502233f405960454a6fbe636e`.
+- **Next**: Stage 3 UIUX will improve Global Search clarity and keyboard/visual feedback now that more result types are actionable.
 
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 
