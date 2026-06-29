@@ -50,6 +50,23 @@
 - **Exact deployment**: `https://926ad811.cstd-design.pages.dev` passed production smoke for commit `455d9dc960d2ed7502233f405960454a6fbe636e`.
 - **Next**: Stage 3 UIUX will improve Global Search clarity and keyboard/visual feedback now that more result types are actionable.
 
+### Stage 3/6 — UIUX 🚧
+- **Prompt**: `AGENT_UIUX_MAIN.txt`
+- **Goal**: Improve Global Search clarity after message, tag, and collection results became actionable by showing result count, keyboard guidance, and current selection feedback.
+- **Start state**: Stage 2 feature and record commits were pushed to `main`; both GitHub Actions runs passed and exact production smoke passed for `f7b63ba`.
+- **Completed locally**:
+  - Added a compact Global Search status row with empty/query/result states.
+  - Added result count and current keyboard-selection position, e.g. `共 2 个结果` and `当前 1/2`.
+  - Added visible shortcut chips for arrow selection, Enter open, and Esc close.
+  - Added `aria-current` to the active result and a left accent bar so the selected item is easier to scan.
+  - Guarded ArrowUp/ArrowDown handling when no results exist.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/GlobalSearchModal.test.tsx` failed because result count, current position, shortcut hints, and active-result ARIA feedback were missing.
+  - GREEN targeted: same command — 1 file, 3 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 488 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Local production preview browser QA passed at `http://127.0.0.1:8818` on desktop 1440×900 and mobile 390×844: status row, shortcut hints, keyboard selection movement, active-result marker, horizontal overflow, console errors, and page errors checked.
+- **Commit/CI**: pending feature commit, push, GitHub Actions, and exact deployment smoke.
+
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 
 ### Global preparation

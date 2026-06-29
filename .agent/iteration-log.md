@@ -1,5 +1,26 @@
 # Iteration Log
 
+## Long Campaign 031 — Stage 3 Global Search Feedback UIUX (2026-06-30)
+
+### Goal
+- Improve Global Search clarity and keyboard confidence after message, tag, and collection results became actionable.
+
+### Completed locally
+- Added a result status row under the search input.
+- Added result count and current keyboard-selection position.
+- Added visible shortcut chips for `↑↓ 选择`, `Enter 打开`, and `Esc 关闭`.
+- Added `aria-current` and a left accent marker to the active result.
+- Guarded arrow-key handling when no results exist.
+
+### Verified so far
+- RED: `npx vitest run src/components/GlobalSearchModal.test.tsx` failed because the new result count, current position, shortcut hints, and active-result ARIA feedback were missing.
+- GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx` — 1 file, 3 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 488 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local production preview browser QA passed at `http://127.0.0.1:8818` on desktop 1440×900 and mobile 390×844: status row, shortcut hints, keyboard selection movement, active-result marker, horizontal overflow, console errors, and page errors checked.
+
+### Next
+- Commit and push Stage 3, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 4 IMPROVE.
+
 ## Long Campaign 031 — Stage 2 Global Search Asset Filters IMPROVE (2026-06-30)
 
 ### Goal
