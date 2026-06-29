@@ -534,4 +534,8 @@
   - GREEN targeted: same command — 1 file, 5 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 471 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8808` on desktop and `390x844` mobile: invalid-timestamp recovery data stayed hidden, the valid record remained visible, trigger count showed only 1 recoverable item, no horizontal overflow occurred, and console/runtime checks were clean.
-- **Commit/CI**: pending commit and production verification.
+- **Commit/CI**: `0218200 fix: reject invalid recovery timestamps`; GitHub Actions run `28363902766` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://06599af3.cstd-design.pages.dev` for source `0218200893f819f0f42784f7d8a6305d5c3e476b`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 6 final IMPROVE will add one final recovery-center completion affordance and run final verification.
