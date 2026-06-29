@@ -668,4 +668,56 @@ describe("RecoveryCenter", () => {
       vi.useRealTimers();
     }
   });
+
+  test("prioritizes stale records inside a workspace-specific recovery queue", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+    const videoQueueRecords: CreationRecoveryRecord[] = [
+      {
+        id: "video-fresh",
+        type: "video",
+        workspace: "video",
+        label: "刚保存的视频提示词",
+        summary: "刚保存的草稿",
+        createdAt: "2026-06-28T10:00:00.000Z",
+        payload: { prompt: "fresh video", preset: "standard", fps: 24, width: 1152, height: 768, referenceAssetIds: [], keyframes: false },
+      },
+      {
+        id: "video-stale",
+        type: "video",
+        workspace: "video",
+        label: "较久保存的视频提示词",
+        summary: "两天前保存的草稿",
+        createdAt: "2026-06-26T08:00:00.000Z",
+        payload: { prompt: "stale video", preset: "standard", fps: 24, width: 1152, height: 768, referenceAssetIds: [], keyframes: false },
+      },
+    ];
+
+    try {
+      render(
+        <RecoveryCenter
+          records={videoQueueRecords}
+          onSelect={vi.fn()}
+          onDismiss={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+      fireEvent.click(screen.getByRole("button", { name: "只看视频待处理" }));
+
+      const queuePrompt = screen.getByRole("region", { name: "当前队列优先提示" });
+      expect(queuePrompt.textContent).toContain("视频队列含 1 项保存较久");
+      expect(queuePrompt.textContent).toContain("已排在当前队列前面");
+
+      const videoItems = within(screen.getByRole("list")).getAllByRole("listitem");
+      expect(videoItems[0].getAttribute("aria-label")).toContain("较久保存的视频提示词");
+      expect(videoItems[1].getAttribute("aria-label")).toContain("刚保存的视频提示词");
+
+      fireEvent.click(within(queuePrompt).getByRole("button", { name: "查看全部保存较久恢复项" }));
+      expect(screen.getByRole("status", { name: "待处理筛选摘要" }).textContent).toContain("当前只看：保存较久");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

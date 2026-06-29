@@ -636,3 +636,21 @@
   - Production smoke resolved exact deployment `https://4975bd3c.cstd-design.pages.dev` for source `7150dfa91ad5a3e3520de23e4cf96d1c1c65b801`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 4 IMPROVE will add a product increment around workspace-specific recovery handling now that the task panel is easier to read.
+
+### Stage 4/6 — IMPROVE 🔄
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Improve workspace-specific recovery handling so a filtered workspace queue still prioritizes old saved work.
+- **Start state**:
+  - Branch: `main`; Stage 3 record commit `970626b` is pushed, CI passed, and exact production smoke passed at `https://de27729e.cstd-design.pages.dev`.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed locally**:
+  - Workspace-specific recovery filters now sort saved-for-too-long records before fresh records while leaving the global all-work queue unchanged.
+  - Added a `当前队列优先提示` callout when the active workspace queue contains saved-for-too-long records.
+  - The callout explains that stale records have been moved to the front and offers a direct jump to the global saved-for-too-long queue.
+  - Added responsive styling for the new callout.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because `当前队列优先提示` did not exist and the video queue still showed the fresh item first.
+  - GREEN targeted: same command — 1 file, 20 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 475 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Local Pages browser verification passed at `http://127.0.0.1:8813` on desktop `1440x900` and mobile `390x844` with browser-stubbed authenticated empty API responses: queue-priority prompt appeared, stale video appeared before fresh video, the callout jumped to the saved-for-too-long queue, no horizontal overflow occurred, and console/page errors were clean.
+- **Commit/CI**: pending.

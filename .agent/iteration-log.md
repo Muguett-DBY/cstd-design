@@ -1,5 +1,28 @@
 # Iteration Log
 
+## Long Campaign 029 — Stage 4 Workspace Queue Stale Priority (2026-06-29)
+
+### Goal
+- Make workspace-specific recovery queues handle saved-for-too-long work without forcing users to scan fresh and stale records together.
+
+### Completed
+- Workspace-specific recovery filters now sort saved-for-too-long records before fresh records.
+- Added a `当前队列优先提示` callout for filtered workspace queues that contain saved-for-too-long records.
+- The callout explains that old saved records are already front-loaded and links to the global saved-for-too-long queue.
+- Added responsive styling for the new callout.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before the queue-priority prompt existed.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 20 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 475 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local Pages browser QA passed on desktop 1440×900 and mobile 390×844 with browser-stubbed authenticated empty API responses: queue-priority prompt, stale-first order, saved-for-too-long jump, overflow, console, and runtime checks passed.
+
+### CI
+- Pending commit and GitHub Actions follow-up.
+
+### Next
+- Stage 5 CHECK should audit the latest recovery queue behavior for real regressions and close any issue with a failing test first.
+
 ## Long Campaign 029 — Stage 3 Creation Center Flow Guide UIUX (2026-06-29)
 
 ### Goal
