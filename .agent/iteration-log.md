@@ -12,14 +12,16 @@
 - Added `aria-current` and a left accent marker to the active result.
 - Guarded arrow-key handling when no results exist.
 
-### Verified so far
+### Verified
 - RED: `npx vitest run src/components/GlobalSearchModal.test.tsx` failed because the new result count, current position, shortcut hints, and active-result ARIA feedback were missing.
 - GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx` — 1 file, 3 tests passed.
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 488 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 - Local production preview browser QA passed at `http://127.0.0.1:8818` on desktop 1440×900 and mobile 390×844: status row, shortcut hints, keyboard selection movement, active-result marker, horizontal overflow, console errors, and page errors checked.
+- Commit `a9b5f7d uiux: clarify global search feedback` was pushed to `main`; GitHub Actions run `28410366920` passed all deployment steps.
+- Exact deployment `https://b3b02a3e.cstd-design.pages.dev` passed production smoke for commit `a9b5f7d8cc24dee04624b86fd5154723429fe54a`.
 
 ### Next
-- Commit and push Stage 3, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 4 IMPROVE.
+- Continue Stage 4 IMPROVE with a stronger action-oriented Global Search increment using the clarified result feedback.
 
 ## Long Campaign 031 — Stage 2 Global Search Asset Filters IMPROVE (2026-06-30)
 
