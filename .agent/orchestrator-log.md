@@ -539,3 +539,25 @@
   - Production smoke resolved exact deployment `https://06599af3.cstd-design.pages.dev` for source `0218200893f819f0f42784f7d8a6305d5c3e476b`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 6 final IMPROVE will add one final recovery-center completion affordance and run final verification.
+
+### Stage 6/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Complete the oldest-first stale recovery path with a direct cleanup action and visible progress so users can advance through the queue without searching individual cards.
+- **Start state**:
+  - Branch: `main`; Stage 5 commit `0218200` and follow-up record commit `eae7e78` are pushed, CI passed, and exact production smoke passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed**:
+  - Added a visible stale-queue progress line showing how many saved recoveries remain.
+  - Added a direct `忽略最旧记录` action beside the existing open action.
+  - Kept the stale panel open after cleanup so the next-oldest recovery automatically becomes the priority item.
+  - Added responsive wrapping for the two priority actions without changing recovery storage semantics.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the priority region lacked progress text and the direct ignore action.
+  - GREEN targeted: same command — 1 file, 16 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 471 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8809` on desktop and `390x844` mobile: two stale records were shown oldest-first, direct ignore removed only the oldest record from UI and local storage, the next-oldest item and count 1 appeared immediately, fresh recovery data remained stored but hidden from the stale queue, no horizontal overflow occurred, and console/runtime checks were clean.
+- **Commit/CI**: `e7e04a8 feat: streamline stale recovery cleanup`; GitHub Actions run `28364706741` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://6ae8e16a.cstd-design.pages.dev` for source `e7e04a87f9410f7fe7f2413ae8c980a54a4583ea`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Final status**: All 6 required stages are implemented, regression-tested, browser-verified, pushed to `main`, CI-verified, and exact-deployment smoke verified. No tracked implementation work remains outside this campaign record update.

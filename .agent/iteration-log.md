@@ -2727,3 +2727,29 @@
 
 ### Next
 - Continue Stage 6 final IMPROVE with one final recovery-center completion affordance and final verification.
+
+---
+
+## Long Campaign 028 — Stage 6 Stale Recovery Cleanup Progression (2026-06-29)
+
+### Goal
+- Complete the oldest-first stale recovery path with direct cleanup and visible remaining-work progress.
+
+### Completed
+- Added a progress line showing the number of stale recoveries remaining.
+- Added a direct action to ignore the oldest stale recovery from the priority panel.
+- Kept the queue open and automatically advanced the next-oldest record after cleanup.
+- Added responsive wrapping for the priority actions.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before the progress text and direct oldest-record ignore action existed.
+- GREEN: same command — 1 file, 16 tests passed.
+- Full local gate passed: Node smoke 5 tests, Vitest 71 files / 471 tests, Functions typecheck, lint, build, high-level audit, and diff check.
+- Authenticated local Pages browser verification passed at `http://127.0.0.1:8809` on desktop and mobile, including oldest-only removal, immediate next-oldest progression, count update from 2 to 1, fresh-record preservation, overflow, console, and runtime checks.
+
+### CI status
+- Commit `e7e04a8` passed GitHub Actions run `28364706741`.
+- Production smoke resolved exact deployment `https://6ae8e16a.cstd-design.pages.dev` for source `e7e04a87f9410f7fe7f2413ae8c980a54a4583ea`.
+
+### Final status
+- All six Campaign 028 stages are complete, tested, pushed, CI-verified, and live-smoke verified.
