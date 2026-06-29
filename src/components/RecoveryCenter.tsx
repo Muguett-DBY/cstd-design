@@ -43,6 +43,17 @@ function isStaleRecovery(value: string, now = Date.now()) {
   return Number.isFinite(createdAt) && now - createdAt >= STALE_RECOVERY_MS;
 }
 
+function sortWorkspaceRecoveryRecords(records: CreationRecoveryRecord[]) {
+  return [...records].sort((a, b) => {
+    const aIsStale = isStaleRecovery(a.createdAt);
+    const bIsStale = isStaleRecovery(b.createdAt);
+    if (aIsStale && bIsStale) return Date.parse(a.createdAt) - Date.parse(b.createdAt);
+    if (aIsStale) return -1;
+    if (bIsStale) return 1;
+    return 0;
+  });
+}
+
 function activityTypeMeta(type: CreationActivity["type"]) {
   if (type === "completed") return { label: "已完成", icon: CheckCircle2 };
   if (type === "ignored") return { label: "已忽略", icon: CircleX };
@@ -95,7 +106,11 @@ export function RecoveryCenter({
     ? records
     : taskFilter === "stale"
       ? staleQueueRecords
-      : records.filter((record) => record.type === taskFilter);
+      : sortWorkspaceRecoveryRecords(records.filter((record) => record.type === taskFilter));
+  const activeWorkspaceStaleCount = taskFilter === "all" || taskFilter === "stale"
+    ? 0
+    : records.filter((record) => record.type === taskFilter && isStaleRecovery(record.createdAt)).length;
+  const showQueuePriorityPrompt = activeWorkspaceStaleCount > 0;
   const showActiveVideoTask = hasActiveVideoTask && (taskFilter === "all" || taskFilter === "video");
   const showRecentVideoTasks = recentVideoTasks.length > 0 && (taskFilter === "all" || taskFilter === "video");
   const hasFilteredTasks = showActiveVideoTask || filteredRecords.length > 0 || showRecentVideoTasks;
@@ -427,6 +442,17 @@ export function RecoveryCenter({
                   <p className="recovery-cleanup-notice" role="status" aria-label="恢复清理结果">
                     <CheckCircle2 size={14} /> {cleanupNotice}
                   </p>
+                )}
+                {showQueuePriorityPrompt && (
+                  <section className="recovery-queue-priority" aria-label="当前队列优先提示">
+                    <div>
+                      <strong>{activeTaskFilter.label}队列含 {activeWorkspaceStaleCount} 项保存较久</strong>
+                      <span>已排在当前队列前面，建议先恢复或清理。</span>
+                    </div>
+                    <button type="button" className="ghost-button" aria-label="查看全部保存较久恢复项" onClick={openStaleRecoveries}>
+                      <Clock size={13} /> 查看较久记录
+                    </button>
+                  </section>
                 )}
                 {taskFilter === "stale" && oldestStaleRecord && (
                   <section className="recovery-stale-priority" aria-label="保存较久优先处理">
