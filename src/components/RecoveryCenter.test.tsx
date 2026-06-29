@@ -438,4 +438,64 @@ describe("RecoveryCenter", () => {
       vi.useRealTimers();
     }
   });
+
+  test("prioritizes the oldest stale recovery and opens it from the stale queue", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+    const newerStaleRecord: CreationRecoveryRecord = {
+      id: "chat-stale-newer",
+      type: "chat",
+      workspace: "chat",
+      label: "较新保存的咨询",
+      summary: "昨天保存",
+      createdAt: "2026-06-27T11:00:00.000Z",
+      payload: { content: "newer stale", parentId: null },
+    };
+    const oldestStaleRecord: CreationRecoveryRecord = {
+      id: "video-stale-oldest",
+      type: "video",
+      workspace: "video",
+      label: "最旧保存的视频",
+      summary: "三天前保存",
+      createdAt: "2026-06-25T01:00:00.000Z",
+      payload: { prompt: "oldest video", preset: "standard", fps: 24, width: 1152, height: 768, referenceAssetIds: [], keyframes: false },
+    };
+    const freshRecord: CreationRecoveryRecord = {
+      id: "chat-fresh",
+      type: "chat",
+      workspace: "chat",
+      label: "刚保存的咨询",
+      summary: "两小时前保存",
+      createdAt: "2026-06-28T10:00:00.000Z",
+      payload: { content: "fresh", parentId: null },
+    };
+    const onSelect = vi.fn();
+
+    try {
+      render(
+        <RecoveryCenter
+          records={[newerStaleRecord, freshRecord, oldestStaleRecord]}
+          onSelect={onSelect}
+          onDismiss={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+      fireEvent.click(screen.getByRole("button", { name: "从风险摘要查看保存较久的恢复项" }));
+
+      const panel = screen.getByRole("tabpanel", { name: "待处理" });
+      const staleItems = within(panel).getAllByRole("listitem");
+      expect(staleItems[0].getAttribute("aria-label")).toContain("最旧保存的视频");
+      expect(staleItems[1].getAttribute("aria-label")).toContain("较新保存的咨询");
+      expect(panel.textContent).not.toContain("刚保存的咨询");
+
+      const priorityRegion = screen.getByRole("region", { name: "保存较久优先处理" });
+      expect(priorityRegion.textContent).toContain("最旧保存的视频");
+      fireEvent.click(within(priorityRegion).getByRole("button", { name: "打开最旧保存的恢复项" }));
+      expect(onSelect).toHaveBeenCalledWith(oldestStaleRecord);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

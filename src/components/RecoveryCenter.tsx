@@ -88,11 +88,12 @@ export function RecoveryCenter({
   const totalCount = activeCount + records.length;
   const hasPanelContent = hasActiveVideoTask || records.length > 0 || recentVideoTasks.length > 0;
   const staleRecords = records.filter((record) => isStaleRecovery(record.createdAt));
+  const staleQueueRecords = [...staleRecords].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   const staleRecoveryCount = staleRecords.length;
   const filteredRecords = taskFilter === "all"
     ? records
     : taskFilter === "stale"
-      ? staleRecords
+      ? staleQueueRecords
       : records.filter((record) => record.type === taskFilter);
   const showActiveVideoTask = hasActiveVideoTask && (taskFilter === "all" || taskFilter === "video");
   const showRecentVideoTasks = recentVideoTasks.length > 0 && (taskFilter === "all" || taskFilter === "video");
@@ -114,9 +115,15 @@ export function RecoveryCenter({
   ];
   const activeTaskFilter = taskFilterOptions.find((option) => option.key === taskFilter) || taskFilterOptions[0];
   const riskFocus = [...workspaceFilterOptions].sort((a, b) => b.count - a.count)[0];
+  const oldestStaleRecord = staleQueueRecords[0];
   const openStaleRecoveries = () => {
     setSection("tasks");
     setTaskFilter("stale");
+  };
+  const openOldestStaleRecovery = () => {
+    if (!oldestStaleRecord) return;
+    onSelect(oldestStaleRecord);
+    setOpen(false);
   };
   const openRiskFocus = () => {
     if (!riskFocus) return;
@@ -382,6 +389,17 @@ export function RecoveryCenter({
                   <p className="recovery-filter-summary" role="status" aria-label="待处理筛选摘要">
                     {taskFilter === "all" ? "当前显示：全部" : `当前只看：${activeTaskFilter.label}`} · {activeTaskFilter.count} 项待处理
                   </p>
+                )}
+                {taskFilter === "stale" && oldestStaleRecord && (
+                  <section className="recovery-stale-priority" aria-label="保存较久优先处理">
+                    <div>
+                      <strong>最旧记录优先</strong>
+                      <span>{oldestStaleRecord.label} · {formatRecoveryTime(oldestStaleRecord.createdAt)}</span>
+                    </div>
+                    <button type="button" className="ghost-button" aria-label="打开最旧保存的恢复项" onClick={openOldestStaleRecovery}>
+                      打开最旧记录
+                    </button>
+                  </section>
                 )}
                 {!hasPanelContent && <p className="recovery-empty">当前没有待处理任务。</p>}
                 {hasPanelContent && !hasFilteredTasks && (
