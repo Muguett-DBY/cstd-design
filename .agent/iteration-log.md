@@ -17,10 +17,12 @@
 - Local Pages browser QA passed on desktop 1440×900 and mobile 390×844 with browser-stubbed authenticated empty API responses: activity summary count/latest text, clear-activity button, overflow, console, and runtime checks passed.
 
 ### CI
-- Pending commit and GitHub Actions follow-up.
+- Commit `c613564 feat: summarize recent creation activity` pushed to `main`.
+- GitHub Actions run `28388581506` passed all steps.
+- Exact deployment `https://5e02a230.cstd-design.pages.dev` passed production smoke for commit `c61356417e7315883b141cc690a0f798b0cad447`.
 
 ### Final closure
-- After commit, push, CI, and exact production smoke, run final worktree/status verification and summarize all six stages.
+- All six Long Campaign 029 stages are implemented, locally tested, browser-verified where applicable, pushed to `main`, CI-verified, and exact-deployment smoke-verified.
 
 ## Long Campaign 029 — Stage 5 Activity Clear Handler CHECK (2026-06-30)
 

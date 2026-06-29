@@ -680,7 +680,7 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 6 final IMPROVE will add one final user-facing completion increment and then run final release closure.
 
-### Stage 6/6 — IMPROVE 🔄
+### Stage 6/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Add a final completion-oriented user-facing increment to make recent Creation Center outcomes easier to scan.
 - **Completed locally**:
@@ -692,4 +692,8 @@
   - GREEN targeted: same command — 1 file, 21 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 476 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Local Pages browser verification passed at `http://127.0.0.1:8815` on desktop `1440x900` and mobile `390x844` with browser-stubbed authenticated empty API responses: activity summary displayed the count and latest item, clear-activity button remained available, no horizontal overflow occurred, and console/page errors were clean.
-- **Commit/CI**: pending.
+- **Commit/CI**: `c613564 feat: summarize recent creation activity`; GitHub Actions run `28388581506` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://5e02a230.cstd-design.pages.dev` for source `c61356417e7315883b141cc690a0f798b0cad447`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Final status**: All six Campaign 029 stages are complete, tested locally, browser-verified where applicable, pushed to `main`, GitHub Actions-verified, and exact-deployment smoke-verified.
