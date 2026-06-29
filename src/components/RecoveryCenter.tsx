@@ -125,6 +125,10 @@ export function RecoveryCenter({
     onSelect(oldestStaleRecord);
     setOpen(false);
   };
+  const dismissOldestStaleRecovery = () => {
+    if (!oldestStaleRecord) return;
+    onDismiss(oldestStaleRecord.id);
+  };
   const openRiskFocus = () => {
     if (!riskFocus) return;
     setSection("tasks");
@@ -395,10 +399,16 @@ export function RecoveryCenter({
                     <div>
                       <strong>最旧记录优先</strong>
                       <span>{oldestStaleRecord.label} · {formatRecoveryTime(oldestStaleRecord.createdAt)}</span>
+                      <small>共 {staleRecoveryCount} 项，按最旧优先处理</small>
                     </div>
-                    <button type="button" className="ghost-button" aria-label="打开最旧保存的恢复项" onClick={openOldestStaleRecovery}>
-                      打开最旧记录
-                    </button>
+                    <div className="recovery-stale-priority-actions">
+                      <button type="button" className="ghost-button" aria-label="打开最旧保存的恢复项" onClick={openOldestStaleRecovery}>
+                        打开最旧记录
+                      </button>
+                      <button type="button" className="ghost-button" aria-label="忽略最旧保存的恢复项" onClick={dismissOldestStaleRecovery}>
+                        忽略最旧记录
+                      </button>
+                    </div>
                   </section>
                 )}
                 {!hasPanelContent && <p className="recovery-empty">当前没有待处理任务。</p>}

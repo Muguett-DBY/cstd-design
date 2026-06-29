@@ -9831,7 +9831,7 @@ button:disabled {
   background: color-mix(in srgb, var(--warning-bg) 54%, transparent);
 }
 
-.recovery-stale-priority div {
+.recovery-stale-priority > div:first-child {
   min-width: 0;
   display: grid;
   gap: 2px;
@@ -9848,6 +9848,18 @@ button:disabled {
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.recovery-stale-priority small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.recovery-stale-priority-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .recovery-empty-action {
