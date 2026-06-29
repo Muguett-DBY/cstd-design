@@ -625,4 +625,47 @@ describe("RecoveryCenter", () => {
       vi.useRealTimers();
     }
   });
+
+  test("shows a scannable pending-work flow guide", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+    const mixedAgeRecords: CreationRecoveryRecord[] = [
+      ...records,
+      {
+        id: "image-fresh",
+        type: "image",
+        workspace: "image",
+        label: "刚刚保存的图片提示词",
+        summary: "两小时前保存",
+        createdAt: "2026-06-28T10:00:00.000Z",
+        payload: { prompt: "fresh image", style: "none", size: "1024x1024", referenceIds: [], count: 1 },
+      },
+    ];
+
+    try {
+      render(
+        <RecoveryCenter
+          records={mixedAgeRecords}
+          onSelect={vi.fn()}
+          onDismiss={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+
+      const flowGuide = screen.getByRole("region", { name: "待处理流程提示" });
+      expect(flowGuide.textContent).toContain("先看优先级");
+      expect(flowGuide.textContent).toContain("2 项保存较久");
+      expect(flowGuide.textContent).toContain("当前队列");
+      expect(flowGuide.textContent).toContain("全部");
+      expect(flowGuide.textContent).toContain("下一步");
+      expect(flowGuide.textContent).toContain("恢复或忽略");
+
+      fireEvent.click(screen.getByRole("button", { name: "从风险摘要查看保存较久的恢复项" }));
+      expect(screen.getByRole("region", { name: "待处理流程提示" }).textContent).toContain("保存较久");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

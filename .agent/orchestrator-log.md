@@ -615,3 +615,20 @@
   - Production smoke resolved exact deployment `https://13253a6e.cstd-design.pages.dev` for source `dd40a1ddcb174b3925d7e04f0dfa4c13e6d13d9f`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 3 UIUX will improve the visual hierarchy of the Creation Center task flow now that stale cleanup has a complete interaction loop.
+
+### Stage 3/6 — UIUX 🔄
+- **Prompt**: `AGENT_UIUX_MAIN.txt`
+- **Goal**: Improve the Creation Center task panel visual hierarchy so users can quickly understand priority, current queue, and next action.
+- **Start state**:
+  - Branch: `main`; Stage 2 record commit `3e437c6` is pushed, CI passed, and exact production smoke passed at `https://4fe43321.cstd-design.pages.dev`.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed locally**:
+  - Added a `待处理流程提示` guide with three scannable steps: priority, current queue, and next action.
+  - The guide updates when users switch from all work to stale-only work.
+  - Added desktop three-column and mobile single-column styling to avoid cramped small-screen text.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because `待处理流程提示` did not exist.
+  - GREEN targeted: same command — 1 file, 19 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 474 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8812` on desktop `1440x900` and mobile `390x844`: flow guide appeared, reflected stale filter changes, remained visible, had no horizontal overflow, and reported no console/page errors.
+- **Commit/CI**: pending.

@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 029 — Stage 3 Creation Center Flow Guide UIUX (2026-06-29)
+
+### Goal
+- Make the Creation Center task panel easier to scan by showing priority, current queue, and next action together.
+
+### Completed
+- Added a `待处理流程提示` guide with priority, current queue, and next action.
+- The guide updates when switching from all work to stale-only work.
+- Added responsive styling: three columns on desktop, single-column on mobile.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before the flow guide existed.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 19 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 474 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local Pages browser QA passed on desktop 1440×900 and mobile 390×844.
+
+### CI
+- Pending commit and GitHub Actions follow-up.
+
+### Next
+- Stage 4 should add a product increment around workspace-specific recovery handling now that the task panel is easier to read.
+
 ## Long Campaign 029 — Stage 2 Stale Cleanup Completion Feedback (2026-06-29)
 
 ### Goal
