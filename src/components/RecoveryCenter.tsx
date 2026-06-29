@@ -83,6 +83,7 @@ export function RecoveryCenter({
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState<RecoveryCenterSection>("continue");
   const [taskFilter, setTaskFilter] = useState<RecoveryTaskFilter>("all");
+  const [cleanupNotice, setCleanupNotice] = useState<string | null>(null);
   const hasActiveVideoTask = Boolean(activeVideoTask && (activeVideoTask.status === "queued" || activeVideoTask.status === "in_progress"));
   const activeCount = hasActiveVideoTask ? 1 : 0;
   const totalCount = activeCount + records.length;
@@ -119,6 +120,7 @@ export function RecoveryCenter({
   const openStaleRecoveries = () => {
     setSection("tasks");
     setTaskFilter("stale");
+    setCleanupNotice(null);
   };
   const openOldestStaleRecovery = () => {
     if (!oldestStaleRecord) return;
@@ -130,12 +132,20 @@ export function RecoveryCenter({
     onDismiss(oldestStaleRecord.id);
   };
   const dismissAllStaleRecoveries = () => {
+    const cleanupCount = staleQueueRecords.length;
     staleQueueRecords.forEach((record) => onDismiss(record.id));
+    setTaskFilter("all");
+    setCleanupNotice(`已忽略 ${cleanupCount} 项保存较久记录，已切回全部待处理。`);
   };
   const openRiskFocus = () => {
     if (!riskFocus) return;
     setSection("tasks");
     setTaskFilter(riskFocus.key);
+    setCleanupNotice(null);
+  };
+  const selectTaskFilter = (filter: RecoveryTaskFilter) => {
+    setTaskFilter(filter);
+    setCleanupNotice(null);
   };
   const triggerClassName = `recovery-trigger${totalCount > 0 ? " has-recovery-work" : ""}`;
   const toggleOpen = () => {
@@ -384,7 +394,7 @@ export function RecoveryCenter({
                         className="recovery-filter-chip"
                         aria-label={option.ariaLabel}
                         aria-pressed={taskFilter === option.key}
-                        onClick={() => setTaskFilter(option.key)}
+                        onClick={() => selectTaskFilter(option.key)}
                       >
                         <span>{option.label}</span>
                         <strong>{option.count}</strong>
@@ -395,6 +405,11 @@ export function RecoveryCenter({
                 {hasPanelContent && (
                   <p className="recovery-filter-summary" role="status" aria-label="待处理筛选摘要">
                     {taskFilter === "all" ? "当前显示：全部" : `当前只看：${activeTaskFilter.label}`} · {activeTaskFilter.count} 项待处理
+                  </p>
+                )}
+                {cleanupNotice && (
+                  <p className="recovery-cleanup-notice" role="status" aria-label="恢复清理结果">
+                    <CheckCircle2 size={14} /> {cleanupNotice}
                   </p>
                 )}
                 {taskFilter === "stale" && oldestStaleRecord && (
