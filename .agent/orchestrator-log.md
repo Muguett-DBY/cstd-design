@@ -595,7 +595,7 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 2 IMPROVE will make recovery backlog progress easier to understand after cleanup, especially when several workspace types remain.
 
-### Stage 2/6 — IMPROVE 🔄
+### Stage 2/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Improve the post-cleanup recovery flow so users are not left in an empty stale filter after clearing old records.
 - **Start state**:
@@ -610,4 +610,8 @@
   - GREEN targeted: same command — 1 file, 18 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 473 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8811` on desktop `1440x900` and mobile `390x844`: cleanup notice appeared, filter returned to all, only the fresh record remained, no horizontal overflow occurred, and console/page errors were clean.
-- **Commit/CI**: pending.
+- **Commit/CI**: `dd40a1d feat: confirm stale recovery cleanup`; GitHub Actions run `28367075348` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://13253a6e.cstd-design.pages.dev` for source `dd40a1ddcb174b3925d7e04f0dfa4c13e6d13d9f`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 3 UIUX will improve the visual hierarchy of the Creation Center task flow now that stale cleanup has a complete interaction loop.

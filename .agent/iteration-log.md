@@ -17,7 +17,9 @@
 - Local Pages browser QA passed on desktop 1440×900 and mobile 390×844.
 
 ### CI
-- Pending commit and GitHub Actions follow-up.
+- Commit `dd40a1d feat: confirm stale recovery cleanup` pushed to `main`.
+- GitHub Actions run `28367075348` passed all steps.
+- Exact deployment `https://13253a6e.cstd-design.pages.dev` passed production smoke for commit `dd40a1ddcb174b3925d7e04f0dfa4c13e6d13d9f`.
 
 ### Next
 - Stage 3 UIUX should improve the visual hierarchy of the Creation Center task flow now that stale cleanup has a complete interaction loop.
