@@ -36,6 +36,7 @@ import { VideoTasksPanel } from "./components/VideoTasksPanel";
 import { useVideoTaskHistory } from "./hooks/useVideoTaskHistory";
 import { ImageEditor } from "./components/ImageEditor";
 import { GlobalSearchModal } from "./components/GlobalSearchModal";
+import type { AssetWorkspaceFilterTarget } from "./components/AssetWorkspace";
 import { useUsageStats } from "./hooks/useUsageStats";
 import { useCreationRecovery, type CreationRecoveryRecord } from "./hooks/useCreationRecovery";
 import { deriveCreationCenterHighlights } from "./creation-center-model";
@@ -47,6 +48,10 @@ const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m)
 const VideoWorkspace = lazy(() => import("./components/VideoWorkspace").then((m) => ({ default: m.VideoWorkspace })));
 const AssetWorkspace = lazy(() => import("./components/AssetWorkspace").then((m) => ({ default: m.AssetWorkspace })));
 const Lightbox = lazy(() => import("./components/Lightbox").then((m) => ({ default: m.Lightbox })));
+
+type AssetFilterTargetInput =
+  | { type: "tag"; tag: string }
+  | { type: "collection"; collectionId: string; name: string };
 
 const CLEAR_LABELS: Record<ClearScope, string> = {
   all: "全部内容",
@@ -218,6 +223,9 @@ function AppInner() {
     query: string;
     requestId: number;
   } | null>(null);
+  const [globalAssetFilterTarget, setGlobalAssetFilterTarget] = useState<AssetWorkspaceFilterTarget | null>(null);
+  const [assetWorkspaceFilterKey, setAssetWorkspaceFilterKey] = useState(0);
+  const nextAssetFilterRequestId = useRef(0);
 
   const openLightbox = useCallback((asset: AssetItem) => {
     setLightboxAsset(asset);
@@ -260,6 +268,18 @@ function AppInner() {
       requestId: (current?.requestId || 0) + 1,
     }));
   }, [conversation?.id, openConversation]);
+
+  const focusGlobalAssetFilter = useCallback((target: AssetFilterTargetInput) => {
+    const requestId = nextAssetFilterRequestId.current + 1;
+    nextAssetFilterRequestId.current = requestId;
+    setActiveTab("assets");
+    setAssetWorkspaceFilterKey(requestId);
+    setGlobalAssetFilterTarget(
+      target.type === "tag"
+        ? { type: "tag", tag: target.tag, requestId }
+        : { type: "collection", collectionId: target.collectionId, name: target.name, requestId },
+    );
+  }, []);
 
   const handleCreateConversation = useCallback(async () => {
     try {
@@ -653,6 +673,8 @@ function AppInner() {
         onSelectConversation={(id) => { void openConversation(id); }}
         onSelectMessage={(conversationId, messageId, query) => { void focusGlobalMessage(conversationId, messageId, query); }}
         onSelectAsset={openLightbox}
+        onSelectTag={(tag) => focusGlobalAssetFilter({ type: "tag", tag })}
+        onSelectCollection={(collectionId, name) => focusGlobalAssetFilter({ type: "collection", collectionId, name })}
       />
 
       <KeyboardShortcutsHelp
@@ -837,7 +859,19 @@ function AppInner() {
         {activeTab === "assets" && (
           <ErrorBoundary key="assets">
           <Suspense fallback={<div className="messages-skeleton"><div className="message-skeleton"><div className="skeleton-avatar" /><div className="skeleton-body"><div className="skeleton-line" /></div></div></div>}>
-          <AssetWorkspace assets={assets} onAssetsChanged={refreshAssets} onClearAll={() => clearScope("assets")} onNotice={(msg: string) => toast(msg, "info")} onPreview={openLightbox} onRequestConfirm={requestConfirm} />
+          <AssetWorkspace
+            key={`assets-${assetWorkspaceFilterKey}`}
+            assets={assets}
+            onAssetsChanged={refreshAssets}
+            onClearAll={() => clearScope("assets")}
+            onNotice={(msg: string) => toast(msg, "info")}
+            onPreview={openLightbox}
+            onRequestConfirm={requestConfirm}
+            assetFilterTarget={globalAssetFilterTarget}
+            onAssetFilterTargetHandled={(requestId) => {
+              setGlobalAssetFilterTarget((current) => current?.requestId === requestId ? null : current);
+            }}
+          />
           </Suspense>
           </ErrorBoundary>
         )}

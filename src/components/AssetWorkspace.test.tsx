@@ -114,4 +114,64 @@ describe("AssetWorkspace", () => {
     expect(storage.get(ASSET_SORT_STORAGE_KEY)).toBe("dateDesc");
     expect(screen.queryByRole("button", { name: "恢复默认排序" })).toBeNull();
   });
+
+  test("applies an external tag filter target", async () => {
+    storage.set("cstd-design:asset-tags", JSON.stringify({
+      "asset-1": ["raw"],
+      "asset-2": ["generated"],
+    }));
+    const onNotice = vi.fn();
+    const onAssetFilterTargetHandled = vi.fn();
+
+    render(
+      <AssetWorkspace
+        assets={assets}
+        onAssetsChanged={vi.fn()}
+        onClearAll={vi.fn()}
+        onNotice={onNotice}
+        onRequestConfirm={vi.fn()}
+        assetFilterTarget={{ type: "tag", tag: "raw", requestId: 7 }}
+        onAssetFilterTargetHandled={onAssetFilterTargetHandled}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(onAssetFilterTargetHandled).toHaveBeenCalledWith(7);
+    });
+    expect(screen.getByText("first.png")).toBeTruthy();
+    expect(screen.queryByText("second.png")).toBeNull();
+    expect(onNotice).toHaveBeenCalledWith("已筛选标签：raw");
+  });
+
+  test("applies an external collection filter target", async () => {
+    storage.set("cstd-design:asset-collections", JSON.stringify([
+      {
+        id: "collection-1",
+        name: "Launch Board",
+        assetIds: ["asset-2"],
+        createdAt: "2026-06-30T00:00:00.000Z",
+      },
+    ]));
+    const onNotice = vi.fn();
+    const onAssetFilterTargetHandled = vi.fn();
+
+    render(
+      <AssetWorkspace
+        assets={assets}
+        onAssetsChanged={vi.fn()}
+        onClearAll={vi.fn()}
+        onNotice={onNotice}
+        onRequestConfirm={vi.fn()}
+        assetFilterTarget={{ type: "collection", collectionId: "collection-1", name: "Launch Board", requestId: 9 }}
+        onAssetFilterTargetHandled={onAssetFilterTargetHandled}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(onAssetFilterTargetHandled).toHaveBeenCalledWith(9);
+    });
+    expect(screen.queryByText("first.png")).toBeNull();
+    expect(screen.getByText("second.png")).toBeTruthy();
+    expect(onNotice).toHaveBeenCalledWith("已打开集合：Launch Board");
+  });
 });

@@ -1,5 +1,25 @@
 # Iteration Log
 
+## Long Campaign 031 — Stage 2 Global Search Asset Filters IMPROVE (2026-06-30)
+
+### Goal
+- Make Global Search tag and collection results open the Asset Workspace with the matching filter already applied.
+
+### Completed locally
+- Fixed Global Search tag discovery so it searches tag names and reports tag frequencies.
+- Added collection selection callbacks to Global Search.
+- Added App-level asset filter request state for tag and collection search results.
+- Added Asset Workspace filter target initialization for tag and collection requests.
+- Used request-keyed remounting for Asset Workspace targets so the feature stays compatible with the React hook lint rules.
+
+### Verified so far
+- RED: `npx vitest run src/components/GlobalSearchModal.test.tsx src/components/AssetWorkspace.test.tsx` failed because collection results did not route, tag search did not find tag names, and Asset Workspace ignored external filter targets.
+- GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx src/components/AssetWorkspace.test.tsx` — 2 files, 7 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 487 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### Next
+- Commit and push Stage 2, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 3 UIUX.
+
 ## Long Campaign 031 — Stage 1 Global Search Message Targeting IMPROVE (2026-06-30)
 
 ### Goal
