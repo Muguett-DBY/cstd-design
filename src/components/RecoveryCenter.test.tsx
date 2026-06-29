@@ -215,6 +215,25 @@ describe("RecoveryCenter", () => {
     expect(onClearActivity).toHaveBeenCalledOnce();
   });
 
+  test("does not show an inactive clear-activity action without a clear handler", () => {
+    render(
+      <RecoveryCenter
+        records={[]}
+        activities={activities}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("tab", { name: "近期活动 2" }));
+
+    const activityRegion = screen.getByRole("region", { name: "近期创作活动" });
+    expect(activityRegion.textContent).toContain("图片恢复完成");
+    expect(screen.queryByRole("button", { name: "清空创作活动" })).toBeNull();
+  });
+
   test("organizes continuation, tasks, and activity into accessible sections", () => {
     render(
       <RecoveryCenter
