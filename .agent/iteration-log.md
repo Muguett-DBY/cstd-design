@@ -17,7 +17,9 @@
 - Local Pages browser QA passed on desktop 1440×900 and mobile 390×844.
 
 ### CI
-- Pending commit and GitHub Actions follow-up.
+- Commit `7150dfa uiux: add recovery flow guide` pushed to `main`.
+- GitHub Actions run `28369487237` passed all steps.
+- Exact deployment `https://4975bd3c.cstd-design.pages.dev` passed production smoke for commit `7150dfa91ad5a3e3520de23e4cf96d1c1c65b801`.
 
 ### Next
 - Stage 4 should add a product increment around workspace-specific recovery handling now that the task panel is easier to read.

@@ -616,7 +616,7 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 3 UIUX will improve the visual hierarchy of the Creation Center task flow now that stale cleanup has a complete interaction loop.
 
-### Stage 3/6 — UIUX 🔄
+### Stage 3/6 — UIUX ✅
 - **Prompt**: `AGENT_UIUX_MAIN.txt`
 - **Goal**: Improve the Creation Center task panel visual hierarchy so users can quickly understand priority, current queue, and next action.
 - **Start state**:
@@ -631,4 +631,8 @@
   - GREEN targeted: same command — 1 file, 19 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 474 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8812` on desktop `1440x900` and mobile `390x844`: flow guide appeared, reflected stale filter changes, remained visible, had no horizontal overflow, and reported no console/page errors.
-- **Commit/CI**: pending.
+- **Commit/CI**: `7150dfa uiux: add recovery flow guide`; GitHub Actions run `28369487237` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://4975bd3c.cstd-design.pages.dev` for source `7150dfa91ad5a3e3520de23e4cf96d1c1c65b801`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 4 IMPROVE will add a product increment around workspace-specific recovery handling now that the task panel is easier to read.
