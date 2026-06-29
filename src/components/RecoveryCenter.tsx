@@ -407,6 +407,22 @@ export function RecoveryCenter({
                     {taskFilter === "all" ? "当前显示：全部" : `当前只看：${activeTaskFilter.label}`} · {activeTaskFilter.count} 项待处理
                   </p>
                 )}
+                {hasPanelContent && (
+                  <section className="recovery-flow-guide" aria-label="待处理流程提示">
+                    <article>
+                      <span>先看优先级</span>
+                      <strong>{staleRecoveryCount > 0 ? `${staleRecoveryCount} 项保存较久` : "暂无长期搁置"}</strong>
+                    </article>
+                    <article>
+                      <span>当前队列</span>
+                      <strong>{activeTaskFilter.label}</strong>
+                    </article>
+                    <article>
+                      <span>下一步</span>
+                      <strong>{activeTaskFilter.count > 0 ? "恢复或忽略" : "切换筛选"}</strong>
+                    </article>
+                  </section>
+                )}
                 {cleanupNotice && (
                   <p className="recovery-cleanup-notice" role="status" aria-label="恢复清理结果">
                     <CheckCircle2 size={14} /> {cleanupNotice}
