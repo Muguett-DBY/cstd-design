@@ -2697,4 +2697,8 @@
 - Authenticated local Pages browser verification passed at `http://127.0.0.1:8807` on desktop and mobile, including oldest-first sorting, priority action, restored video prompt, overflow, console, and runtime checks.
 
 ### CI status
-- Pending commit, GitHub Actions, and exact-deployment production smoke.
+- Commit `4260d24` passed GitHub Actions run `28363376152`.
+- Production smoke resolved exact deployment `https://6f6d7396.cstd-design.pages.dev` for source `4260d248d1b50c478e94c76b587d63d61736e11b`.
+
+### Next
+- Continue Stage 5 CHECK by auditing stale recovery date handling, invalid timestamps, clear actions, and release gates.

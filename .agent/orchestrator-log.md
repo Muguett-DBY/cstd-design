@@ -513,4 +513,8 @@
   - GREEN targeted: same command — 1 file, 16 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 470 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Authenticated local Pages browser verification passed at `http://127.0.0.1:8807` on desktop and `390x844` mobile: oldest stale record sorted first, fresh record hidden, priority panel opened the oldest video recovery, the restored video prompt appeared in the workspace, no horizontal overflow occurred, and console/runtime checks were clean.
-- **Commit/CI**: pending commit and production verification.
+- **Commit/CI**: `4260d24 feat: prioritize oldest stale recovery`; GitHub Actions run `28363376152` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://6f6d7396.cstd-design.pages.dev` for source `4260d248d1b50c478e94c76b587d63d61736e11b`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
+- **Next**: Stage 5 CHECK will audit stale recovery date handling, invalid timestamps, clear actions, and release gates.
