@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { RecoveryCenter } from "./RecoveryCenter";
 import type { CreationRecoveryRecord } from "../hooks/useCreationRecovery";
@@ -559,6 +560,67 @@ describe("RecoveryCenter", () => {
       expect(onDismiss).toHaveBeenNthCalledWith(2, newerStaleRecord.id);
       expect(onDismiss).not.toHaveBeenCalledWith(freshRecord.id);
       expect(onClear).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  test("returns to the remaining queue with a completion notice after bulk stale cleanup", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+    const newerStaleRecord: CreationRecoveryRecord = {
+      id: "chat-stale-newer",
+      type: "chat",
+      workspace: "chat",
+      label: "较新保存的咨询",
+      summary: "昨天保存",
+      createdAt: "2026-06-27T11:00:00.000Z",
+      payload: { content: "newer stale", parentId: null },
+    };
+    const oldestStaleRecord: CreationRecoveryRecord = {
+      id: "video-stale-oldest",
+      type: "video",
+      workspace: "video",
+      label: "最旧保存的视频",
+      summary: "三天前保存",
+      createdAt: "2026-06-25T01:00:00.000Z",
+      payload: { prompt: "oldest video", preset: "standard", fps: 24, width: 1152, height: 768, referenceAssetIds: [], keyframes: false },
+    };
+    const freshRecord: CreationRecoveryRecord = {
+      id: "image-fresh",
+      type: "image",
+      workspace: "image",
+      label: "刚保存的图片",
+      summary: "两小时前保存",
+      createdAt: "2026-06-28T10:00:00.000Z",
+      payload: { prompt: "fresh", style: "none", size: "1024x1024", referenceIds: [], count: 1 },
+    };
+
+    function StatefulRecoveryCenter() {
+      const [currentRecords, setCurrentRecords] = useState([freshRecord, newerStaleRecord, oldestStaleRecord]);
+      return (
+        <RecoveryCenter
+          records={currentRecords}
+          onSelect={vi.fn()}
+          onDismiss={(id) => setCurrentRecords((items) => items.filter((item) => item.id !== id))}
+          onClear={() => setCurrentRecords([])}
+        />
+      );
+    }
+
+    try {
+      render(<StatefulRecoveryCenter />);
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+      fireEvent.click(screen.getByRole("button", { name: "从风险摘要查看保存较久的恢复项" }));
+      fireEvent.click(screen.getByRole("button", { name: "忽略全部保存较久恢复项" }));
+
+      expect(screen.getByRole("status", { name: "恢复清理结果" }).textContent).toContain("已忽略 2 项保存较久记录");
+      expect(screen.getByRole("status", { name: "待处理筛选摘要" }).textContent).toContain("当前显示：全部");
+      const panel = screen.getByRole("tabpanel", { name: "待处理" });
+      expect(panel.textContent).toContain("刚保存的图片");
+      expect(panel.textContent).not.toContain("较新保存的咨询");
+      expect(panel.textContent).not.toContain("最旧保存的视频");
     } finally {
       vi.useRealTimers();
     }

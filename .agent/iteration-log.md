@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 029 — Stage 2 Stale Cleanup Completion Feedback (2026-06-29)
+
+### Goal
+- Make the post-cleanup recovery queue self-explanatory after users bulk-ignore old stale records.
+
+### Completed
+- Added a `恢复清理结果` live status after bulk stale cleanup.
+- Automatically returned the task filter to `全部` after clearing stale records.
+- Kept remaining fresh recovery records visible for the next action.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before completion feedback and filter reset existed.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 18 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 473 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local Pages browser QA passed on desktop 1440×900 and mobile 390×844.
+
+### CI
+- Pending commit and GitHub Actions follow-up.
+
+### Next
+- Stage 3 UIUX should improve the visual hierarchy of the Creation Center task flow now that stale cleanup has a complete interaction loop.
+
 ## Long Campaign 029 — Stage 1 Stale Recovery Bulk Cleanup (2026-06-29)
 
 ### Goal

@@ -594,3 +594,20 @@
   - Production smoke resolved exact deployment `https://9aecc268.cstd-design.pages.dev` for source `1e345230e346f9471d64a6423fa001f8b466e4d1`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 2 IMPROVE will make recovery backlog progress easier to understand after cleanup, especially when several workspace types remain.
+
+### Stage 2/6 — IMPROVE 🔄
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Improve the post-cleanup recovery flow so users are not left in an empty stale filter after clearing old records.
+- **Start state**:
+  - Branch: `main`; Stage 1 record commit `86ae2d6` is pushed, CI passed, and exact production smoke passed at `https://bc0e4051.cstd-design.pages.dev`.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed locally**:
+  - Added a `恢复清理结果` live status after bulk stale cleanup.
+  - Automatically returns the task filter to `全部` after clearing all stale records.
+  - Kept the remaining fresh recovery record visible so users can continue the queue without manually resetting filters.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because no cleanup result status existed and the stale filter stayed selected.
+  - GREEN targeted: same command — 1 file, 18 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 473 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8811` on desktop `1440x900` and mobile `390x844`: cleanup notice appeared, filter returned to all, only the fresh record remained, no horizontal overflow occurred, and console/page errors were clean.
+- **Commit/CI**: pending.
