@@ -9603,7 +9603,7 @@ button:disabled {
 
 .recovery-priority-status {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
   border: 1px solid var(--line);
@@ -9636,6 +9636,11 @@ button:disabled {
   color: var(--muted);
   font-size: 11px;
   line-height: 1.45;
+}
+
+.recovery-priority-status .ghost-button {
+  justify-self: end;
+  white-space: nowrap;
 }
 
 .recovery-priority-warning {
@@ -10332,6 +10337,10 @@ button:disabled {
 
   .recovery-priority-status > span {
     width: fit-content;
+  }
+
+  .recovery-priority-status .ghost-button {
+    justify-self: stretch;
   }
 
   .recovery-risk-summary {

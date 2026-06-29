@@ -182,6 +182,30 @@ describe("RecoveryCenter", () => {
     }
   });
 
+  test("jumps from the priority status to the most relevant work queue", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-28T12:00:00.000Z"));
+
+    try {
+      render(
+        <RecoveryCenter
+          records={records}
+          onSelect={vi.fn()}
+          onDismiss={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+      fireEvent.click(within(screen.getByRole("region", { name: "创作中心优先状态" })).getByRole("button", { name: "处理优先任务" }));
+
+      expect(screen.getByRole("status", { name: "待处理筛选摘要" }).textContent).toContain("当前只看：保存较久");
+      expect(screen.getByRole("region", { name: "保存较久优先处理" }).textContent).toContain("最旧记录优先");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   test("continues recent work across chat, image, and video workspaces", () => {
     const onContinueConversation = vi.fn();
     const onOpenRecentImage = vi.fn();
