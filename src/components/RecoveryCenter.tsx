@@ -608,9 +608,11 @@ export function RecoveryCenter({
                   <section className="recovery-activity" aria-label="近期创作活动">
                     <div className="recovery-activity-heading">
                       <h4><History size={14} /> 近期活动</h4>
-                      <button type="button" className="ghost-button" aria-label="清空创作活动" onClick={onClearActivity}>
-                        清空
-                      </button>
+                      {onClearActivity && (
+                        <button type="button" className="ghost-button" aria-label="清空创作活动" onClick={onClearActivity}>
+                          清空
+                        </button>
+                      )}
                     </div>
                     <div className="recovery-activity-list">
                       {activities.slice(0, 5).map((activity) => {

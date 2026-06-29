@@ -658,3 +658,20 @@
   - Production smoke resolved exact deployment `https://cf8ab860.cstd-design.pages.dev` for source `eb19544921004f369531a0ec70db012216d7f9f7`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 5 CHECK will audit the latest recovery queue behavior for real regressions and close any issue with a failing test first.
+
+### Stage 5/6 — CHECK 🔄
+- **Prompt**: `AGENT_CHECK_MAIN.txt`
+- **Goal**: Audit the latest recovery-center changes for actionable regressions and fix verified issues with regression coverage.
+- **Finding fixed**:
+  - `RecoveryCenter` exposed `清空创作活动` whenever activities existed even though `onClearActivity` is optional.
+  - In reusable/component-level contexts without a clear handler, that created an enabled button with no effect.
+- **Completed locally**:
+  - Added regression coverage for rendering activity history without `onClearActivity`.
+  - Hid the clear-activity action unless a clear handler is present.
+  - Preserved the app-level behavior where `App` passes a clear handler and the button remains available.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because `清空创作活动` was still visible without a clear handler.
+  - GREEN targeted: same command — 1 file, 21 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 476 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Local Pages browser verification passed at `http://127.0.0.1:8814` on desktop `1440x900` and mobile `390x844` with browser-stubbed authenticated empty API responses: app-level clear-activity button remained available with the real app handler, no horizontal overflow occurred, and console/page errors were clean.
+- **Commit/CI**: pending.

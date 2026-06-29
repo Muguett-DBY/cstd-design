@@ -1,5 +1,31 @@
 # Iteration Log
 
+## Long Campaign 029 — Stage 5 Activity Clear Handler CHECK (2026-06-30)
+
+### Goal
+- Audit the recovery-center changes for real regressions and close an actionable component-level issue.
+
+### Finding fixed
+- `RecoveryCenter` exposed `清空创作活动` whenever activities existed even though `onClearActivity` is optional.
+- In contexts that render activity history without a clear handler, the button was enabled but inert.
+
+### Completed
+- Added regression coverage for activity history without `onClearActivity`.
+- Hid the clear-activity action unless a clear handler is present.
+- Preserved App-level behavior where the clear handler is supplied.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the clear-activity button was still visible without a handler.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 21 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 476 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local Pages browser QA passed on desktop 1440×900 and mobile 390×844 with browser-stubbed authenticated empty API responses: App-level clear-activity button remained available, overflow, console, and runtime checks passed.
+
+### CI
+- Pending commit and GitHub Actions follow-up.
+
+### Next
+- Stage 6 final IMPROVE should add one final user-facing completion increment, then run the final full verification and release closure.
+
 ## Long Campaign 029 — Stage 4 Workspace Queue Stale Priority (2026-06-29)
 
 ### Goal
