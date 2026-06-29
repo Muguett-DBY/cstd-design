@@ -470,13 +470,14 @@ describe("RecoveryCenter", () => {
       payload: { content: "fresh", parentId: null },
     };
     const onSelect = vi.fn();
+    const onDismiss = vi.fn();
 
     try {
       render(
         <RecoveryCenter
           records={[newerStaleRecord, freshRecord, oldestStaleRecord]}
           onSelect={onSelect}
-          onDismiss={vi.fn()}
+          onDismiss={onDismiss}
           onClear={vi.fn()}
         />,
       );
@@ -492,6 +493,11 @@ describe("RecoveryCenter", () => {
 
       const priorityRegion = screen.getByRole("region", { name: "保存较久优先处理" });
       expect(priorityRegion.textContent).toContain("最旧保存的视频");
+      expect(priorityRegion.textContent).toContain("共 2 项，按最旧优先处理");
+      fireEvent.click(within(priorityRegion).getByRole("button", { name: "忽略最旧保存的恢复项" }));
+      expect(onDismiss).toHaveBeenCalledWith(oldestStaleRecord.id);
+      expect(onSelect).not.toHaveBeenCalled();
+
       fireEvent.click(within(priorityRegion).getByRole("button", { name: "打开最旧保存的恢复项" }));
       expect(onSelect).toHaveBeenCalledWith(oldestStaleRecord);
     } finally {
