@@ -1,5 +1,23 @@
 # Iteration Log
 
+## Long Campaign 030 — Stage 5 Activity Timestamp CHECK (2026-06-30)
+
+### Goal
+- Audit Creation Center activity persistence for damaged timestamp data before it reaches the recent-activity UI.
+
+### Completed
+- Found that persisted creation activity accepted any string `createdAt`, including invalid dates.
+- Added a regression test that seeds one valid activity and one invalid-timestamp activity.
+- Hardened activity validation and ordering so invalid timestamps are filtered before exposure and persistence.
+
+### Verified
+- RED: `npx vitest run src/hooks/useCreationActivity.test.ts` failed because the invalid activity was still loaded.
+- GREEN: `npx vitest run src/hooks/useCreationActivity.test.ts` — 3 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 481 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### Next
+- Push Stage 5, verify GitHub Actions and production smoke, then continue Stage 6 final IMPROVE with one user-facing completion increment.
+
 ## Long Campaign 030 — Stage 4 Priority Action IMPROVE (2026-06-30)
 
 ### Goal

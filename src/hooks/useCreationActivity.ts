@@ -29,6 +29,10 @@ function timestamp(value: string) {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
+function hasValidTimestamp(value: string) {
+  return Number.isFinite(Date.parse(value));
+}
+
 function isActivity(value: unknown): value is CreationActivity {
   if (!value || typeof value !== "object") return false;
   const activity = value as Partial<CreationActivity>;
@@ -36,11 +40,13 @@ function isActivity(value: unknown): value is CreationActivity {
     && (activity.type === "restored" || activity.type === "completed" || activity.type === "ignored")
     && (activity.workspace === "chat" || activity.workspace === "image" || activity.workspace === "video" || activity.workspace === "assets")
     && typeof activity.label === "string"
-    && typeof activity.createdAt === "string";
+    && typeof activity.createdAt === "string"
+    && hasValidTimestamp(activity.createdAt);
 }
 
 function orderAndTrim(activities: CreationActivity[]) {
   return [...activities]
+    .filter((activity) => hasValidTimestamp(activity.createdAt))
     .sort((a, b) => timestamp(b.createdAt) - timestamp(a.createdAt))
     .slice(0, MAX_ACTIVITIES);
 }

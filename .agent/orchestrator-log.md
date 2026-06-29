@@ -77,6 +77,20 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 5 CHECK will audit activity/recovery edge cases and fix a real stability issue.
 
+### Stage 5/6 — CHECK ✅
+- **Prompt**: `AGENT_CHECK_MAIN.txt`
+- **Goal**: Audit Creation Center activity persistence for invalid timestamp pollution and fix the verified storage issue.
+- **Completed**:
+  - Found that versioned creation activity only required `createdAt` to be a string, allowing invalid timestamps to load into recent activity.
+  - Added a regression test for persisted activity containing one valid record and one invalid-timestamp record.
+  - Tightened activity validation and ordering/trimming to filter invalid timestamps before UI exposure or persistence.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/hooks/useCreationActivity.test.ts` failed because the invalid activity was still loaded.
+  - GREEN targeted: `npx vitest run src/hooks/useCreationActivity.test.ts` — 3 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 481 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending push and GitHub Actions verification.
+- **Next**: Stage 6 final IMPROVE will add one user-facing completion increment, then run final full verification and release closure.
+
 ## Overview
 - **Start**: 2026-06-27T14:00:00Z
 - **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE

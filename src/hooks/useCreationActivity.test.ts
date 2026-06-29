@@ -53,4 +53,31 @@ describe("useCreationActivity", () => {
     act(() => result.current.clear());
     expect(result.current.activities).toEqual([]);
   });
+
+  test("ignores persisted activity with invalid timestamps", () => {
+    storage.set(CREATION_ACTIVITY_STORAGE_KEY, JSON.stringify({
+      version: 1,
+      activities: [
+        {
+          id: "valid-activity",
+          type: "completed",
+          workspace: "image",
+          label: "有效图片完成",
+          createdAt: "2026-06-30T10:00:00.000Z",
+        },
+        {
+          id: "invalid-activity",
+          type: "restored",
+          workspace: "chat",
+          label: "损坏活动不应显示",
+          createdAt: "not-a-date",
+        },
+      ],
+    }));
+
+    const { result } = renderHook(() => useCreationActivity());
+
+    expect(result.current.activities).toHaveLength(1);
+    expect(result.current.activities[0].id).toBe("valid-activity");
+  });
 });
