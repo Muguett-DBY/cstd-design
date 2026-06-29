@@ -335,6 +335,29 @@ describe("RecoveryCenter", () => {
     expect(screen.queryByRole("button", { name: "清空创作活动" })).toBeNull();
   });
 
+  test("offers start actions from an empty recent activity state", () => {
+    const onStartWorkspace = vi.fn();
+    render(
+      <RecoveryCenter
+        records={[]}
+        activities={[]}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+        onStartWorkspace={onStartWorkspace}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("tab", { name: "近期活动 0" }));
+
+    const emptyActivityRegion = screen.getByRole("region", { name: "活动为空时开始创作" });
+    expect(emptyActivityRegion.textContent).toContain("还没有近期创作活动");
+
+    fireEvent.click(within(emptyActivityRegion).getByRole("button", { name: "从活动空状态开始图片创作" }));
+    expect(onStartWorkspace).toHaveBeenCalledWith("image");
+  });
+
   test("organizes continuation, tasks, and activity into accessible sections", () => {
     render(
       <RecoveryCenter

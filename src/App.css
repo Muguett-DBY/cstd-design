@@ -10299,6 +10299,32 @@ button:disabled {
   font-size: 10px;
 }
 
+.recovery-activity-empty {
+  display: grid;
+  gap: 12px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 28%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+  padding: 12px;
+}
+
+.recovery-activity-empty strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.recovery-activity-empty .recovery-empty {
+  margin: 0;
+}
+
+.recovery-activity-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 @media (max-width: 560px) {
   .recovery-center {
     top: auto;
@@ -10341,6 +10367,10 @@ button:disabled {
 
   .recovery-priority-status .ghost-button {
     justify-self: stretch;
+  }
+
+  .recovery-activity-empty-actions {
+    display: grid;
   }
 
   .recovery-risk-summary {
