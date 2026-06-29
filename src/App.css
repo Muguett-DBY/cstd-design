@@ -9601,6 +9601,63 @@ button:disabled {
   line-height: 1;
 }
 
+.recovery-priority-status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  margin-bottom: 12px;
+  padding: 10px 12px;
+}
+
+.recovery-priority-status > span {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 5px 8px;
+  text-transform: uppercase;
+}
+
+.recovery-priority-status strong {
+  display: block;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.recovery-priority-status p {
+  margin: 3px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.recovery-priority-warning {
+  border-color: color-mix(in srgb, var(--warning) 36%, var(--line));
+  background: color-mix(in srgb, var(--warning) 10%, var(--surface));
+}
+
+.recovery-priority-warning > span {
+  background: color-mix(in srgb, var(--warning) 20%, transparent);
+  color: var(--warning);
+}
+
+.recovery-priority-success {
+  border-color: color-mix(in srgb, var(--success) 34%, var(--line));
+  background: color-mix(in srgb, var(--success) 9%, var(--surface));
+}
+
+.recovery-priority-success > span {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  color: var(--success);
+}
+
 .recovery-risk-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -10266,6 +10323,15 @@ button:disabled {
 
   .recovery-overview-card {
     padding: 9px 8px;
+  }
+
+  .recovery-priority-status {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .recovery-priority-status > span {
+    width: fit-content;
   }
 
   .recovery-risk-summary {
