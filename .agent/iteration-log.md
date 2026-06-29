@@ -15,6 +15,11 @@
 - GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 23 tests passed.
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 478 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 
+### CI
+- Commit `a96701e feat: summarize creation activity outcomes` pushed to `main`.
+- GitHub Actions run `28391887567` passed all steps.
+- Exact deployment `https://f7e8b75a.cstd-design.pages.dev` passed production smoke for commit `a96701e5c52773c9aabc95d3593a53bbc3567d24`.
+
 ### Next
 - Stage 3 UIUX should make the Creation Center panel feel clearer and more mature around the activity/recovery overview.
 
