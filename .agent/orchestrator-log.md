@@ -88,7 +88,10 @@
   - RED confirmed: `npx vitest run src/hooks/useCreationActivity.test.ts` failed because the invalid activity was still loaded.
   - GREEN targeted: `npx vitest run src/hooks/useCreationActivity.test.ts` — 3 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 481 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending push and GitHub Actions verification.
+- **Commit/CI**: `e43a947 fix: ignore invalid creation activity timestamps`; GitHub Actions run `28406281601` passed all steps.
+- **Live verification**:
+  - Production smoke resolved exact deployment `https://1ba9740f.cstd-design.pages.dev` for source `e43a94753b5d73651d29de4c63421552e152af68`.
+  - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 6 final IMPROVE will add one user-facing completion increment, then run final full verification and release closure.
 
 ## Overview

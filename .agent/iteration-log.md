@@ -15,8 +15,12 @@
 - GREEN: `npx vitest run src/hooks/useCreationActivity.test.ts` — 3 tests passed.
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 481 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 
+### CI status
+- Commit `e43a947` passed GitHub Actions run `28406281601`.
+- Exact deployment `https://1ba9740f.cstd-design.pages.dev` passed production smoke for commit `e43a94753b5d73651d29de4c63421552e152af68`.
+
 ### Next
-- Push Stage 5, verify GitHub Actions and production smoke, then continue Stage 6 final IMPROVE with one user-facing completion increment.
+- Continue Stage 6 final IMPROVE with one user-facing completion increment, then run final full verification and release closure.
 
 ## Long Campaign 030 — Stage 4 Priority Action IMPROVE (2026-06-30)
 
