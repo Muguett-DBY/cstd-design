@@ -1,5 +1,23 @@
 # Iteration Log
 
+## Long Campaign 030 — Stage 2 Activity Outcome Summary IMPROVE (2026-06-30)
+
+### Goal
+- Turn recent Creation Center activity into a more actionable review surface instead of only showing a chronological list.
+
+### Completed
+- Added a `创作活动结果摘要` status row for completed, restored, and ignored outcomes.
+- Styled the outcome row as compact scannable chips below the latest-activity summary.
+- Kept the list newest-first from Stage 1 while adding outcome distribution.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because `创作活动结果摘要` did not exist.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 23 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 478 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### Next
+- Stage 3 UIUX should make the Creation Center panel feel clearer and more mature around the activity/recovery overview.
+
 ## Long Campaign 030 — Stage 1 Activity Ordering IMPROVE (2026-06-30)
 
 ### Goal

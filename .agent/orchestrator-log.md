@@ -28,6 +28,20 @@
 - **Exact deployment**: `https://aef063ca.cstd-design.pages.dev` passed production smoke for commit `5b03a381f1e0b31a41539c63b978357ac895df3c`.
 - **Next**: Stage 2 IMPROVE will make recent activity more actionable after this ordering fix.
 
+### Stage 2/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Make recent activity easier to review by exposing outcome distribution across completed, restored, and ignored work.
+- **Completed**:
+  - Added a `创作活动结果摘要` status row to the activity tab.
+  - Summarized completed, restored, and ignored counts from the timestamp-ordered activity list.
+  - Added compact outcome-chip styling that preserves the small panel footprint.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because `创作活动结果摘要` was missing.
+  - GREEN targeted: `npx vitest run src/components/RecoveryCenter.test.tsx` — 23 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 478 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending push and GitHub Actions verification.
+- **Next**: Stage 3 UIUX will improve the panel hierarchy and responsive feel around the new activity/recovery overview.
+
 ## Overview
 - **Start**: 2026-06-27T14:00:00Z
 - **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE
