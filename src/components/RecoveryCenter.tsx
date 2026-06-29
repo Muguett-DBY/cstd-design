@@ -108,6 +108,13 @@ export function RecoveryCenter({
   const staleQueueRecords = [...staleRecords].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   const staleRecoveryCount = staleRecords.length;
   const recentActivities = [...activities].sort((a, b) => activityTimestamp(b.createdAt) - activityTimestamp(a.createdAt));
+  const activityOutcomeCounts = recentActivities.reduce(
+    (counts, activity) => ({
+      ...counts,
+      [activity.type]: counts[activity.type] + 1,
+    }),
+    { completed: 0, restored: 0, ignored: 0 } satisfies Record<CreationActivity["type"], number>,
+  );
   const filteredRecords = taskFilter === "all"
     ? records
     : taskFilter === "stale"
@@ -622,6 +629,11 @@ export function RecoveryCenter({
                     </div>
                     <p className="recovery-activity-summary" role="status" aria-label="创作活动摘要">
                       最近 {recentActivities.length} 条创作活动 · 最新：{recentActivities[0].label}
+                    </p>
+                    <p className="recovery-activity-outcomes" role="status" aria-label="创作活动结果摘要">
+                      <span>已完成 {activityOutcomeCounts.completed}</span>
+                      <span>已恢复 {activityOutcomeCounts.restored}</span>
+                      <span>已忽略 {activityOutcomeCounts.ignored}</span>
                     </p>
                     <div className="recovery-activity-list">
                       {recentActivities.slice(0, 5).map((activity) => {

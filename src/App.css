@@ -10174,6 +10174,24 @@ button:disabled {
   padding: 8px 10px;
 }
 
+.recovery-activity-outcomes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+}
+
+.recovery-activity-outcomes span {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 6px 8px;
+  text-align: center;
+}
+
 .recovery-activity-list {
   display: grid;
   gap: 6px;

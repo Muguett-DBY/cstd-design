@@ -242,6 +242,31 @@ describe("RecoveryCenter", () => {
     expect(activityLabels).toEqual(["最新图片完成", "较早恢复咨询"]);
   });
 
+  test("summarizes recent creation activity outcomes", () => {
+    const mixedActivities: CreationActivity[] = [
+      ...activities,
+      { id: "activity-ignored", type: "ignored", workspace: "video", label: "已忽略旧视频", createdAt: "2026-06-26T04:00:00.000Z" },
+    ];
+
+    render(
+      <RecoveryCenter
+        records={[]}
+        activities={mixedActivities}
+        onSelect={vi.fn()}
+        onDismiss={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /创作中心/ }));
+    fireEvent.click(screen.getByRole("tab", { name: "近期活动 3" }));
+
+    const outcomeSummary = screen.getByRole("status", { name: "创作活动结果摘要" });
+    expect(outcomeSummary.textContent).toContain("已完成 1");
+    expect(outcomeSummary.textContent).toContain("已恢复 1");
+    expect(outcomeSummary.textContent).toContain("已忽略 1");
+  });
+
   test("does not show an inactive clear-activity action without a clear handler", () => {
     render(
       <RecoveryCenter
