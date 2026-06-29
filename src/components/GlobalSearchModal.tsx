@@ -24,6 +24,7 @@ export function GlobalSearchModal({
   onSelectMessage,
   onSelectAsset,
   onSelectTag,
+  onSelectCollection,
 }: {
   open: boolean;
   onClose: () => void;
@@ -35,12 +36,13 @@ export function GlobalSearchModal({
   onSelectMessage?: (conversationId: string, messageId: string, query: string) => void;
   onSelectAsset: (asset: AssetItem) => void;
   onSelectTag?: (tag: string) => void;
+  onSelectCollection?: (collectionId: string, name: string) => void;
 }) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const collections = useCollections();
-  const tags = useAssetTags();
+  const { tagFrequency } = useAssetTags();
 
   useEffect(() => {
     if (!open) return;
@@ -105,13 +107,13 @@ export function GlobalSearchModal({
         });
       }
     }
-    for (const [tag, ids] of Object.entries(tags.tags)) {
-      if (tag.includes(q) && ids.length > 0) {
+    for (const [tag, count] of Object.entries(tagFrequency())) {
+      if (tag.includes(q) && count > 0) {
         out.push({
           type: "tag",
           id: `tag-${tag}`,
           title: `#${tag}`,
-          subtitle: `${ids.length} 个资产`,
+          subtitle: `${count} 个资产`,
           onClick: () => { onSelectTag?.(tag); onClose(); },
         });
       }
@@ -123,12 +125,12 @@ export function GlobalSearchModal({
           id: `col-${c.id}`,
           title: c.name,
           subtitle: `集合 · ${c.assetIds.length} 个资产`,
-          onClick: () => { onClose(); },
+          onClick: () => { onSelectCollection?.(c.id, c.name); onClose(); },
         });
       }
     }
     return out.slice(0, 30);
-  }, [query, conversations, activeConversationId, activeMessages, assets, tags.tags, collections.collections, onSelectConversation, onSelectMessage, onSelectAsset, onSelectTag, onClose]);
+  }, [query, conversations, activeConversationId, activeMessages, assets, tagFrequency, collections.collections, onSelectConversation, onSelectMessage, onSelectAsset, onSelectTag, onSelectCollection, onClose]);
 
   const grouped = useMemo(() => {
     const groups: Record<string, GlobalSearchResult[]> = {};

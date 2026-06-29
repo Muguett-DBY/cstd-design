@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, Grid, History, LayoutList, List, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { assetSortLabel, filterAssets, formatBytes, readStoredAssetSortMode, sortAssets, type AssetSortMode, writeStoredAssetSortMode } from "../app-state";
@@ -17,15 +17,24 @@ import { useAssetVersions } from "../hooks/useAssetVersions";
 import { analyzeAssetQuality } from "../hooks/useAssetQuality";
 import { useAssetDeduplication } from "../hooks/useAssetDeduplication";
 
-export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void }) {
+export type AssetWorkspaceFilterTarget =
+  | { type: "tag"; tag: string; requestId: number }
+  | { type: "collection"; collectionId: string; name: string; requestId: number };
+
+export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm, assetFilterTarget, onAssetFilterTargetHandled }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void; assetFilterTarget?: AssetWorkspaceFilterTarget | null; onAssetFilterTargetHandled?: (requestId: number) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [lastClicked, setLastClicked] = useState<number | null>(null);
-  const [tagFilter, setTagFilter] = useState<string | null>(null);
-  const [activeCollection, setActiveCollection] = useState<string | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | null>(
+    assetFilterTarget?.type === "tag" ? assetFilterTarget.tag : null,
+  );
+  const [activeCollection, setActiveCollection] = useState<string | null>(
+    assetFilterTarget?.type === "collection" ? assetFilterTarget.collectionId : null,
+  );
   const [viewMode, setViewMode] = useState<"grid" | "list" | "detail">("grid");
   const [sortMode, setSortMode] = useState<AssetSortMode>(() => readStoredAssetSortMode());
+  const notifiedFilterTargetRef = useRef<number | null>(null);
   const collections = useCollections();
   const { addTag, removeTag, getTags, allTags, ...assetTags } = useAssetTags();
   const { recordVersion, getVersions } = useAssetVersions();
@@ -61,6 +70,18 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
     setSortMode("dateDesc");
     writeStoredAssetSortMode("dateDesc");
   };
+
+  useEffect(() => {
+    if (!assetFilterTarget) return;
+    if (notifiedFilterTargetRef.current === assetFilterTarget.requestId) return;
+    notifiedFilterTargetRef.current = assetFilterTarget.requestId;
+    if (assetFilterTarget.type === "tag") {
+      onNotice(`已筛选标签：${assetFilterTarget.tag}`);
+    } else {
+      onNotice(`已打开集合：${assetFilterTarget.name}`);
+    }
+    onAssetFilterTargetHandled?.(assetFilterTarget.requestId);
+  }, [assetFilterTarget, onAssetFilterTargetHandled, onNotice]);
 
   const toggleSelect = (id: string, index: number, shiftKey: boolean) => {
     setSelected((prev) => {

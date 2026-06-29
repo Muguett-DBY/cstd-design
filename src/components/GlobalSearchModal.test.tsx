@@ -1,6 +1,20 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { GlobalSearchModal } from "./GlobalSearchModal";
+
+const storage = new Map<string, string>();
+Object.defineProperty(globalThis, "localStorage", {
+  value: {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => { storage.set(key, value); },
+    removeItem: (key: string) => { storage.delete(key); },
+    clear: () => { storage.clear(); },
+  },
+});
+
+beforeEach(() => {
+  localStorage.clear();
+});
 
 afterEach(() => cleanup());
 
@@ -56,5 +70,58 @@ describe("GlobalSearchModal", () => {
       "checklist",
     );
     expect(onSelectConversation).not.toHaveBeenCalled();
+  });
+
+  test("routes tag and collection results to asset library filters", () => {
+    localStorage.setItem("cstd-design:asset-tags", JSON.stringify({
+      "asset-1": ["launch"],
+    }));
+    localStorage.setItem("cstd-design:asset-collections", JSON.stringify([
+      {
+        id: "collection-1",
+        name: "Launch Board",
+        assetIds: ["asset-1"],
+        createdAt: "2026-06-30T00:00:00.000Z",
+      },
+    ]));
+
+    const onSelectTag = vi.fn();
+    const onSelectCollection = vi.fn();
+    const props = {
+      open: true,
+      onClose: vi.fn(),
+      conversations: [],
+      activeMessages: [],
+      assets: [
+        {
+          id: "asset-1",
+          kind: "image" as const,
+          mediaType: "image/png",
+          filename: "brief.png",
+          size: 1024,
+          createdAt: "2026-06-30T00:00:00.000Z",
+          url: "/brief.png",
+        },
+      ],
+      onSelectConversation: vi.fn(),
+      onSelectAsset: vi.fn(),
+      onSelectTag,
+      onSelectCollection,
+    };
+
+    const { rerender } = render(<GlobalSearchModal {...props} />);
+    fireEvent.change(screen.getByRole("textbox", { name: "全局搜索" }), {
+      target: { value: "launch" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /#launch/ }));
+    expect(onSelectTag).toHaveBeenCalledWith("launch");
+
+    props.onClose.mockClear();
+    rerender(<GlobalSearchModal {...props} />);
+    fireEvent.change(screen.getByRole("textbox", { name: "全局搜索" }), {
+      target: { value: "board" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Launch Board/ }));
+    expect(onSelectCollection).toHaveBeenCalledWith("collection-1", "Launch Board");
   });
 });
