@@ -94,6 +94,21 @@
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 6 final IMPROVE will add one user-facing completion increment, then run final full verification and release closure.
 
+### Stage 6/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Finish the Creation Center activity loop by making the empty recent-activity state actionable.
+- **Completed**:
+  - Replaced the passive empty activity message with an accessible `活动为空时开始创作` panel.
+  - Added consulting, image, and video start actions from the empty activity state when workspace-start handlers are available.
+  - Added responsive styling so empty-state actions wrap on desktop and stack on mobile.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the empty activity action region did not exist.
+  - GREEN targeted: `npx vitest run src/components/RecoveryCenter.test.tsx` — 26 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 482 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Local preview browser QA passed at `http://127.0.0.1:8817` on desktop 1440×900 and mobile 390×844: empty activity panel visible, image start action closed Creation Center and activated the image workspace, no horizontal overflow, no console warnings/errors, and preview port cleanup confirmed.
+- **Commit/CI**: pending push and GitHub Actions verification.
+- **Next**: Close campaign after Stage 6 CI, exact production smoke, final log closure, and final status check.
+
 ## Overview
 - **Start**: 2026-06-27T14:00:00Z
 - **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE

@@ -1,5 +1,24 @@
 # Iteration Log
 
+## Long Campaign 030 — Stage 6 Empty Activity Start Actions IMPROVE (2026-06-30)
+
+### Goal
+- Finish the Creation Center activity loop by turning an empty recent-activity state into a direct creation starting point.
+
+### Completed
+- Replaced the passive empty activity message with an accessible `活动为空时开始创作` panel.
+- Added direct empty-state actions for consulting, image, and video creation when `onStartWorkspace` is available.
+- Styled the empty panel and made the action layout wrap on desktop and stack on mobile.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the empty activity action region did not exist.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 26 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 482 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local preview browser QA passed on desktop 1440×900 and mobile 390×844: empty activity panel visible, image start action closed Creation Center and activated the image workspace, no horizontal overflow, no console warnings/errors, and preview port 8817 was cleaned up.
+
+### Next
+- Push Stage 6, verify GitHub Actions and production smoke, then close the full six-stage campaign.
+
 ## Long Campaign 030 — Stage 5 Activity Timestamp CHECK (2026-06-30)
 
 ### Goal

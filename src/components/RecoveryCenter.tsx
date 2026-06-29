@@ -708,7 +708,25 @@ export function RecoveryCenter({
                     </div>
                   </section>
                 ) : (
-                  <p className="recovery-empty">完成、恢复或忽略任务后，活动会显示在这里。</p>
+                  <section className="recovery-activity-empty" aria-label="活动为空时开始创作">
+                    <div>
+                      <strong>还没有近期创作活动</strong>
+                      <p className="recovery-empty">完成、恢复或忽略任务后，活动会显示在这里。也可以直接开始一次新的创作。</p>
+                    </div>
+                    {onStartWorkspace && (
+                      <div className="recovery-activity-empty-actions" role="group" aria-label="从空活动状态开始创作">
+                        <button type="button" className="ghost-button" aria-label="从活动空状态开始咨询创作" onClick={() => runAndClose(() => onStartWorkspace("chat"))}>
+                          <MessageSquare size={13} /> 咨询
+                        </button>
+                        <button type="button" className="ghost-button" aria-label="从活动空状态开始图片创作" onClick={() => runAndClose(() => onStartWorkspace("image"))}>
+                          <ImageIcon size={13} /> 图片
+                        </button>
+                        <button type="button" className="ghost-button" aria-label="从活动空状态开始视频创作" onClick={() => runAndClose(() => onStartWorkspace("video"))}>
+                          <Film size={13} /> 视频
+                        </button>
+                      </div>
+                    )}
+                  </section>
                 )}
               </div>
             )}
