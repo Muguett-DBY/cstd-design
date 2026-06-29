@@ -102,6 +102,8 @@ export function ChatWorkspace({
   initialRecoveryPayload,
   onRecoveryResolved,
   serviceReadiness,
+  messageSearchTarget,
+  onMessageSearchTargetHandled,
 }: {
   conversation: ConversationDetail | null;
   messages: ChatMessage[];
@@ -124,6 +126,8 @@ export function ChatWorkspace({
   initialRecoveryPayload?: ChatRecoveryPayload | null;
   onRecoveryResolved?: () => void;
   serviceReadiness?: ServiceReadinessState;
+  messageSearchTarget?: { messageId: string; query: string; requestId: number } | null;
+  onMessageSearchTargetHandled?: (requestId: number) => void;
 }) {
   const { draft, setDraft, clearDraft } = useDraftPersistence(
     conversation?.id || null,
@@ -166,6 +170,12 @@ export function ChatWorkspace({
   const { isBookmarked, toggleBookmark, getBookmarkedMessages } = useMessageBookmarking(conversation?.id || null);
   const { logForward, getForwardedMessages, getForwardCount } = useMessageForwarding();
   const search = useMessageSearch(messages, repliesByParent);
+  const {
+    focusResult: focusSearchResult,
+    openSearch,
+    query: messageSearchQuery,
+    setQuery: setMessageSearchQuery,
+  } = search;
   const savedSearches = useSavedSearches();
   const messageRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -176,6 +186,19 @@ export function ChatWorkspace({
   const [showPicker, setShowPicker] = useState(false);
   const [pendingForward, setPendingForward] = useState<{ messageId: string; content: string; threadParentId?: string } | null>(null);
   const chatRecovery = useRecoverableChatSend();
+
+  useEffect(() => {
+    if (!messageSearchTarget) return;
+    setMessageSearchQuery(messageSearchTarget.query);
+    openSearch();
+  }, [messageSearchTarget, openSearch, setMessageSearchQuery]);
+
+  useEffect(() => {
+    if (!messageSearchTarget || messageSearchQuery !== messageSearchTarget.query) return;
+    if (focusSearchResult(messageSearchTarget.messageId)) {
+      onMessageSearchTargetHandled?.(messageSearchTarget.requestId);
+    }
+  }, [messageSearchTarget, onMessageSearchTargetHandled, focusSearchResult, messageSearchQuery]);
 
   useEffect(() => {
     const textarea = textareaRef.current;

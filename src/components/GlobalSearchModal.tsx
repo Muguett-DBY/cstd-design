@@ -17,18 +17,22 @@ export function GlobalSearchModal({
   open,
   onClose,
   conversations,
+  activeConversationId,
   activeMessages,
   assets,
   onSelectConversation,
+  onSelectMessage,
   onSelectAsset,
   onSelectTag,
 }: {
   open: boolean;
   onClose: () => void;
   conversations: ConversationSummary[];
+  activeConversationId?: string | null;
   activeMessages: ChatMessage[];
   assets: AssetItem[];
   onSelectConversation: (id: string) => void;
+  onSelectMessage?: (conversationId: string, messageId: string, query: string) => void;
   onSelectAsset: (asset: AssetItem) => void;
   onSelectTag?: (tag: string) => void;
 }) {
@@ -69,16 +73,24 @@ export function GlobalSearchModal({
         });
       }
     }
-    for (const m of activeMessages) {
-      if (m.content.toLowerCase().includes(q)) {
-        out.push({
-          type: "message",
-          id: `msg-${m.id}`,
-          title: (m.role === "user" ? "你: " : "助手: ") + (m.content || "").slice(0, 80),
-          subtitle: m.content.length > 80 ? m.content.slice(80, 160) + "..." : undefined,
-          match: m.content,
-          onClick: () => { onSelectConversation(conversations[0]?.id || ""); onClose(); },
-        });
+    const messageConversationId = activeConversationId || null;
+    const activeConversation = conversations.find((conversation) => conversation.id === messageConversationId);
+    if (messageConversationId) {
+      for (const m of activeMessages) {
+        if (m.content.toLowerCase().includes(q)) {
+          out.push({
+            type: "message",
+            id: `msg-${m.id}`,
+            title: (m.role === "user" ? "你: " : "助手: ") + (m.content || "").slice(0, 80),
+            subtitle: activeConversation?.title || "当前会话",
+            match: m.content,
+            onClick: () => {
+              if (onSelectMessage) onSelectMessage(messageConversationId, m.id, query.trim());
+              else onSelectConversation(messageConversationId);
+              onClose();
+            },
+          });
+        }
       }
     }
     for (const a of assets) {
@@ -116,7 +128,7 @@ export function GlobalSearchModal({
       }
     }
     return out.slice(0, 30);
-  }, [query, conversations, activeMessages, assets, tags.tags, collections.collections, onSelectConversation, onSelectAsset, onSelectTag, onClose]);
+  }, [query, conversations, activeConversationId, activeMessages, assets, tags.tags, collections.collections, onSelectConversation, onSelectMessage, onSelectAsset, onSelectTag, onClose]);
 
   const grouped = useMemo(() => {
     const groups: Record<string, GlobalSearchResult[]> = {};
