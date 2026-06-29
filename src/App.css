@@ -10163,6 +10163,17 @@ button:disabled {
   font-size: 13px;
 }
 
+.recovery-activity-summary {
+  margin: 0;
+  border: 1px dashed color-mix(in srgb, var(--accent) 24%, var(--line));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+  padding: 8px 10px;
+}
+
 .recovery-activity-list {
   display: grid;
   gap: 6px;

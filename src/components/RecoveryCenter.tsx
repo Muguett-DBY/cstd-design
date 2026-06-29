@@ -614,6 +614,9 @@ export function RecoveryCenter({
                         </button>
                       )}
                     </div>
+                    <p className="recovery-activity-summary" role="status" aria-label="创作活动摘要">
+                      最近 {activities.length} 条创作活动 · 最新：{activities[0].label}
+                    </p>
                     <div className="recovery-activity-list">
                       {activities.slice(0, 5).map((activity) => {
                         const meta = activityTypeMeta(activity.type);

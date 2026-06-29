@@ -211,6 +211,8 @@ describe("RecoveryCenter", () => {
     const activityRegion = screen.getByRole("region", { name: "近期创作活动" });
     expect(activityRegion.textContent).toContain("图片恢复完成");
     expect(activityRegion.textContent).toContain("已打开未发送消息");
+    expect(screen.getByRole("status", { name: "创作活动摘要" }).textContent).toContain("最近 2 条创作活动");
+    expect(screen.getByRole("status", { name: "创作活动摘要" }).textContent).toContain("最新：图片恢复完成");
     fireEvent.click(screen.getByRole("button", { name: "清空创作活动" }));
     expect(onClearActivity).toHaveBeenCalledOnce();
   });
