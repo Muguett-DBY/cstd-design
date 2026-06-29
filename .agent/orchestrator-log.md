@@ -497,3 +497,20 @@
   - Production smoke resolved exact deployment `https://4b72a788.cstd-design.pages.dev` for source `52b4b8f0ee050b66e3f441b5733cdc8de0a6cb9e`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 4 IMPROVE will add a stronger stale-recovery bulk handling increment.
+
+### Stage 4/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Turn the stale recovery queue into an oldest-first action path so users can resolve the longest-idle work without manual sorting.
+- **Start state**:
+  - Branch: `main`; Stage 3 commit `52b4b8f` and follow-up record commit `0b2e9f3` are pushed, CI passed, and exact production smoke passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed**:
+  - Sorted the stale-only queue by oldest saved record first.
+  - Added a `保存较久优先处理` priority panel that calls out the oldest stale record.
+  - Added a direct action that opens the oldest stale recovery record and closes Creation Center.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the stale queue still showed the newer stale record first and no priority panel existed.
+  - GREEN targeted: same command — 1 file, 16 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 470 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8807` on desktop and `390x844` mobile: oldest stale record sorted first, fresh record hidden, priority panel opened the oldest video recovery, the restored video prompt appeared in the workspace, no horizontal overflow occurred, and console/runtime checks were clean.
+- **Commit/CI**: pending commit and production verification.

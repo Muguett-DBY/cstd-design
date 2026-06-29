@@ -2677,3 +2677,24 @@
 
 ### Next
 - Continue Stage 4 IMPROVE with a stronger stale-recovery bulk handling increment.
+
+---
+
+## Long Campaign 028 — Stage 4 Oldest-First Stale Recovery (2026-06-29)
+
+### Goal
+- Turn the stale recovery queue into an oldest-first action path.
+
+### Completed
+- Sorted the stale-only queue by oldest saved recovery record first.
+- Added a `保存较久优先处理` panel that highlights the oldest stale record.
+- Added a direct action to open the oldest stale record and close Creation Center.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed before stale records were sorted oldest-first and before the priority panel existed.
+- GREEN: same command — 1 file, 16 tests passed.
+- Full local gate passed: Node smoke 5 tests, Vitest 71 files / 470 tests, Functions typecheck, lint, build, high-level audit, and diff check.
+- Authenticated local Pages browser verification passed at `http://127.0.0.1:8807` on desktop and mobile, including oldest-first sorting, priority action, restored video prompt, overflow, console, and runtime checks.
+
+### CI status
+- Pending commit, GitHub Actions, and exact-deployment production smoke.
