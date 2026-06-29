@@ -54,19 +54,22 @@ type RecoveryEnvelope = {
 function isRecoveryRecord(value: unknown): value is CreationRecoveryRecord {
   if (!value || typeof value !== "object") return false;
   const record = value as Partial<CreationRecoveryRecord>;
+  const createdAt = typeof record.createdAt === "string" ? Date.parse(record.createdAt) : Number.NaN;
   return typeof record.id === "string"
     && (record.type === "chat" || record.type === "image" || record.type === "video")
     && record.workspace === record.type
     && typeof record.label === "string"
     && typeof record.summary === "string"
     && typeof record.createdAt === "string"
+    && Number.isFinite(createdAt)
     && typeof record.payload === "object"
     && record.payload !== null;
 }
 
 function orderAndTrim(records: CreationRecoveryRecord[]) {
   return [...records]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .filter((record) => Number.isFinite(Date.parse(record.createdAt)))
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))
     .slice(0, MAX_RECOVERY_RECORDS);
 }
 

@@ -518,3 +518,20 @@
   - Production smoke resolved exact deployment `https://6f6d7396.cstd-design.pages.dev` for source `4260d248d1b50c478e94c76b587d63d61736e11b`.
   - Exact deployment passed anonymous session, protected API boundary, and disabled E2E-bypass checks.
 - **Next**: Stage 5 CHECK will audit stale recovery date handling, invalid timestamps, clear actions, and release gates.
+
+### Stage 5/6 — CHECK ✅
+- **Prompt**: `AGENT_CHECK_MAIN.txt`
+- **Goal**: Audit recovery storage safety and fix real invalid timestamp pollution before it reaches the Creation Center UI.
+- **Start state**:
+  - Branch: `main`; Stage 4 commit `4260d24` and follow-up record commit `be72d47` are pushed, CI passed, and exact production smoke passed.
+  - Existing unrelated `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untracked and preserved.
+- **Completed**:
+  - Found that versioned recovery records only required `createdAt` to be a string, allowing invalid timestamps to load into the user-visible queue.
+  - Tightened stored recovery validation to require finite parsed timestamps.
+  - Hardened ordering/trimming to filter invalid timestamps before sorting and persistence.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/hooks/useCreationRecovery.test.ts` failed because an invalid `createdAt` record was still loaded.
+  - GREEN targeted: same command — 1 file, 5 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 471 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser verification passed at `http://127.0.0.1:8808` on desktop and `390x844` mobile: invalid-timestamp recovery data stayed hidden, the valid record remained visible, trigger count showed only 1 recoverable item, no horizontal overflow occurred, and console/runtime checks were clean.
+- **Commit/CI**: pending commit and production verification.

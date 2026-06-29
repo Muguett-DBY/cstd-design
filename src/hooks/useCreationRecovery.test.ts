@@ -40,6 +40,37 @@ describe("useCreationRecovery", () => {
     expect(result.current.records.at(-1)?.id).toBe("op-5");
   });
 
+  test("ignores stored records with invalid creation timestamps", () => {
+    storage.set(CREATION_RECOVERY_STORAGE_KEY, JSON.stringify({
+      version: 1,
+      records: [
+        {
+          id: "chat-valid",
+          type: "chat",
+          workspace: "chat",
+          label: "有效恢复",
+          summary: "时间有效",
+          createdAt: "2026-06-28T10:00:00.000Z",
+          payload: { content: "valid", parentId: null },
+        },
+        {
+          id: "chat-invalid",
+          type: "chat",
+          workspace: "chat",
+          label: "坏时间恢复",
+          summary: "时间无效",
+          createdAt: "not-a-date",
+          payload: { content: "invalid", parentId: null },
+        },
+      ],
+    }));
+
+    const { result } = renderHook(() => useCreationRecovery());
+
+    expect(result.current.records).toHaveLength(1);
+    expect(result.current.records[0].id).toBe("chat-valid");
+  });
+
   test("ignores corrupt storage and clears invalid data on next write", () => {
     storage.set(CREATION_RECOVERY_STORAGE_KEY, "{bad json");
     const { result } = renderHook(() => useCreationRecovery());

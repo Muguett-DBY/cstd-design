@@ -2702,3 +2702,24 @@
 
 ### Next
 - Continue Stage 5 CHECK by auditing stale recovery date handling, invalid timestamps, clear actions, and release gates.
+
+---
+
+## Long Campaign 028 — Stage 5 Recovery Timestamp Guard (2026-06-29)
+
+### Goal
+- Audit recovery storage safety and prevent invalid timestamp records from reaching Creation Center.
+
+### Completed
+- Found and fixed invalid `createdAt` records loading into the user-visible recovery queue.
+- Tightened stored recovery validation to require finite parsed timestamps.
+- Hardened ordering/trimming to filter invalid timestamps before sorting and persistence.
+
+### Verified
+- RED: `npx vitest run src/hooks/useCreationRecovery.test.ts` failed before invalid timestamp records were rejected.
+- GREEN: same command — 1 file, 5 tests passed.
+- Full local gate passed: Node smoke 5 tests, Vitest 71 files / 471 tests, Functions typecheck, lint, build, high-level audit, and diff check.
+- Authenticated local Pages browser verification passed at `http://127.0.0.1:8808` on desktop and mobile, including invalid-record filtering, valid-record visibility, trigger count, overflow, console, and runtime checks.
+
+### CI status
+- Pending commit, GitHub Actions, and exact-deployment production smoke.
