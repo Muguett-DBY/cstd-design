@@ -14,7 +14,7 @@
 - **Carry-forward direction**: Campaign 030 explicitly closed the Creation Center line and required the next campaign to use a verified workflow need instead of adding more surface area there.
 - **Product review**: Global Search is a core navigation entry with no component tests. Verified defects include message results opening the first conversation instead of the active conversation, and tag/collection results closing without navigating. This campaign will make search trustworthy, actionable, responsive, and stable.
 
-### Stage 1/6 — IMPROVE 🚧
+### Stage 1/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Turn active-conversation message results into exact navigation targets that open the in-conversation search state and focus the selected message.
 - **Start state**: `main...origin/main`; only the two preserved unrelated untracked directories are present.
@@ -28,7 +28,9 @@
   - RED confirmed: `npx vitest run src/components/GlobalSearchModal.test.tsx src/hooks/useMessageSearch.test.ts` failed before the new routing/focus behavior existed.
   - GREEN targeted: same command — 2 files, 2 tests passed.
   - Full local gate passed after the lint fix: `npm test` — Node smoke 5 tests plus Vitest 73 files, 484 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending feature commit, push, GitHub Actions, and exact deployment smoke.
+- **Commit/CI**: `e669004 feat: target global search message results`; pushed to `main`; GitHub Actions run `28408764767` passed all steps.
+- **Exact deployment**: `https://7d7e6ea1.cstd-design.pages.dev` passed production smoke for commit `e6690046bb9608abc0ae03aec6fa7a96709ea3ca`.
+- **Next**: Stage 2 IMPROVE will make another inert Global Search result type actionable so the search surface behaves consistently beyond messages.
 
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 

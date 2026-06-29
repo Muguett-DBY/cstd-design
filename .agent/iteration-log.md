@@ -13,13 +13,15 @@
 - Opened the in-conversation message search UI, restored the searched query, focused the matching message result, and reused the existing scroll/highlight behavior.
 - Fixed the new effect dependencies so lint remains clean.
 
-### Verified so far
+### Verified
 - RED: `npx vitest run src/components/GlobalSearchModal.test.tsx src/hooks/useMessageSearch.test.ts` failed before exact routing and focus support were implemented.
 - GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx src/hooks/useMessageSearch.test.ts` — 2 files, 2 tests passed.
 - Full local gate passed after implementation and lint fix: `npm test` — Node smoke 5 tests plus Vitest 73 files, 484 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Commit `e669004 feat: target global search message results` was pushed to `main`; GitHub Actions run `28408764767` passed all deployment steps.
+- Exact deployment `https://7d7e6ea1.cstd-design.pages.dev` passed production smoke for commit `e6690046bb9608abc0ae03aec6fa7a96709ea3ca`.
 
 ### Next
-- Commit and push Stage 1, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 2.
+- Continue Stage 2 IMPROVE by making another inert Global Search result type actionable.
 
 ## Long Campaign 030 — Stage 6 Empty Activity Start Actions IMPROVE (2026-06-30)
 
