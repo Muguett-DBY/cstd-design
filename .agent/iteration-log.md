@@ -1,5 +1,23 @@
 # Iteration Log
 
+## Long Campaign 030 — Stage 1 Activity Ordering IMPROVE (2026-06-30)
+
+### Goal
+- Continue the Creation Center maturity line by making recent creation activity reliable when activity props arrive out of order.
+
+### Completed
+- Added component-level ordering for recent creation activity by actual timestamp.
+- The activity summary now reports the real latest activity instead of assuming the first prop item is newest.
+- The visible activity list now renders newest-first even when callers pass unsorted data.
+
+### Verified
+- RED: `npx vitest run src/components/RecoveryCenter.test.tsx` failed with the summary showing the older activity as latest.
+- GREEN: `npx vitest run src/components/RecoveryCenter.test.tsx` — 22 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 477 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### Next
+- Stage 2 IMPROVE should turn recent activity into a more actionable review surface, not just a chronological log.
+
 ## Long Campaign 029 — Stage 6 Activity Summary Completion Increment (2026-06-30)
 
 ### Goal

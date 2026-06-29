@@ -60,6 +60,11 @@ function activityTypeMeta(type: CreationActivity["type"]) {
   return { label: "已恢复", icon: RotateCcw };
 }
 
+function activityTimestamp(value: string) {
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export function RecoveryCenter({
   records,
   activeVideoTask,
@@ -102,6 +107,7 @@ export function RecoveryCenter({
   const staleRecords = records.filter((record) => isStaleRecovery(record.createdAt));
   const staleQueueRecords = [...staleRecords].sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
   const staleRecoveryCount = staleRecords.length;
+  const recentActivities = [...activities].sort((a, b) => activityTimestamp(b.createdAt) - activityTimestamp(a.createdAt));
   const filteredRecords = taskFilter === "all"
     ? records
     : taskFilter === "stale"
@@ -615,10 +621,10 @@ export function RecoveryCenter({
                       )}
                     </div>
                     <p className="recovery-activity-summary" role="status" aria-label="创作活动摘要">
-                      最近 {activities.length} 条创作活动 · 最新：{activities[0].label}
+                      最近 {recentActivities.length} 条创作活动 · 最新：{recentActivities[0].label}
                     </p>
                     <div className="recovery-activity-list">
-                      {activities.slice(0, 5).map((activity) => {
+                      {recentActivities.slice(0, 5).map((activity) => {
                         const meta = activityTypeMeta(activity.type);
                         const Icon = meta.icon;
                         return (

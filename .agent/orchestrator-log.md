@@ -1,5 +1,32 @@
 # Orchestrator Log - 6-Phase Run (2026-06-27)
 
+---
+
+## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
+
+### Global preparation
+- **Repository**: `E:\DEV\cstd-design`
+- **Branch**: `main`
+- **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE
+- **Prompt files read**: `03_LONG_6_STAGE_MAIN_V2.txt`, `AGENT_IMPROVE_MAIN.txt`, `AGENT_UIUX_MAIN.txt`, `AGENT_CHECK_MAIN.txt`
+- **CI contract**: `.github/workflows/pages.yml` runs `npm ci`, `npm test`, `npm run typecheck:functions`, `npm run lint`, `npm run build`, production secret verification, D1 migrations, Pages deploy, and `npm run smoke:production`.
+- **Start state**: `main...origin/main`; unrelated untracked `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` preserved.
+- **Carry-forward direction**: Continue the Creation Center maturity line after Campaign 029 completed recovery queue cleanup, stale prioritization, and activity summary.
+
+### Stage 1/6 — IMPROVE ✅
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Make recent Creation Center activity reliable and user-visible even when the caller passes unsorted activities.
+- **Completed**:
+  - Added newest-first ordering for recent activity inside `RecoveryCenter`.
+  - Fixed the activity summary so `最新` reflects the real newest timestamp, not array position.
+  - Added regression coverage for unsorted activity props.
+- **Validation**:
+  - RED confirmed: `npx vitest run src/components/RecoveryCenter.test.tsx` failed because the summary showed the older activity as latest.
+  - GREEN targeted: `npx vitest run src/components/RecoveryCenter.test.tsx` — 22 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 71 files, 477 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending push and GitHub Actions verification.
+- **Next**: Stage 2 IMPROVE will make recent activity more actionable after this ordering fix.
+
 ## Overview
 - **Start**: 2026-06-27T14:00:00Z
 - **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE
