@@ -1,5 +1,25 @@
 # Iteration Log
 
+## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
+
+### Goal
+- Clear known release risks before starting the next long 6-stage orchestrator loop.
+
+### Completed locally
+- Converted Vite 8 build chunking from the deprecated-style `rollupOptions.output.manualChunks` hook to `build.rolldownOptions.output.codeSplitting` groups for React, markdown, KaTeX, diagram layout, and diagram rendering dependencies.
+- Added `scripts/verify-build-budget.mjs` and wired it into `npm run build`.
+- Kept initial static JavaScript at a 600 KiB budget while documenting and enforcing a reviewed 700 KiB allowance for Mermaid's lazy-loaded parser core chunk.
+- Added `.gitignore` coverage for local agent/browser artifacts: `.agent/orchestrator-history/` and `.playwright-cli/`.
+
+### Verified
+- RED reproduced: `npm run build` emitted Vite's large chunk warning for `chunk-KEIR6QF5-DNzq6p3w.js` at 662.65 kB.
+- Sourcemap analysis confirmed the oversized file is a single third-party `@mermaid-js/parser` core module loaded from the Mermaid markdown rendering path, not an initial application bundle.
+- GREEN: `npm run build` passed with no Vite large chunk warning and the new budget verifier passed: 1 initial JS chunk <= 600 KiB, lazy JS chunks <= 600 KiB except the reviewed Mermaid parser allowance.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 82 files, 524 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 385-commit gitleaks scan; `git diff --check`.
+
+### Next
+- Start Campaign 033 from the long 6-stage orchestrator contract after this risk preflight is pushed, CI-verified, and exact-deployment smoke-verified.
+
 ## Long Campaign 032 — Stage 6 Readiness Refresh Feedback IMPROVE (2026-06-30)
 
 ### Goal

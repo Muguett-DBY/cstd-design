@@ -28,6 +28,10 @@ test-results
 screenshots
 logs
 
+# Agent and browser-generated local artifacts
+.agent/orchestrator-history/
+.playwright-cli/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

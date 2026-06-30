@@ -2,6 +2,28 @@
 
 ---
 
+## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
+
+### Scope
+- **Repository**: `E:\DEV\cstd-design`
+- **Branch**: `main`, aligned with `origin/main` before edits.
+- **Reason**: The previous campaign left a concrete build-size warning risk, and the working tree also showed local generated artifact directories that should not stay as recurring untracked noise.
+
+### Implemented
+- Replaced the old Vite `rollupOptions.output.manualChunks` KaTeX-only split with Vite 8 `build.rolldownOptions.output.codeSplitting` groups for React, markdown, KaTeX, diagram layout, and diagram rendering dependencies.
+- Raised Vite's warning threshold to 700 kB only after confirming the sole over-600 KiB chunk is Mermaid's lazy-loaded parser core and not an initial-load bundle.
+- Added `scripts/verify-build-budget.mjs` to enforce the real budget: initial static JS chunks <= 600 KiB, lazy chunks <= 600 KiB except the reviewed Mermaid parser core allowance <= 700 KiB.
+- Added `.gitignore` entries for `.agent/orchestrator-history/` and `.playwright-cli/` so local agent/browser artifacts stay outside commits without deleting user data.
+
+### Verification
+- RED reproduced: `npm run build` emitted Vite's large chunk warning for `chunk-KEIR6QF5-DNzq6p3w.js`.
+- Sourcemap inspection tied that chunk to `@mermaid-js/parser/dist/chunks/mermaid-parser.core/chunk-KEIR6QF5.mjs`; static import graph inspection confirmed the app entry chunk does not statically import it.
+- GREEN local gate passed: `npm test` passed Node smoke 5/5 plus Vitest 82 files / 524 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 385-commit gitleaks scan; and `git diff --check`.
+- Build result: no Vite large chunk warning; custom build budget reported 1 initial JS chunk <= 600 KiB and accepted the reviewed lazy Mermaid parser chunk at 647.12 KiB.
+
+### Next
+- Push this preflight fix to `main`, verify GitHub Actions and exact deployment smoke, then start Campaign 033 using the required IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE sequence.
+
 ## Long Campaign 032 — 6-stage Service Readiness action loop (2026-06-30)
 
 ### Global preparation
