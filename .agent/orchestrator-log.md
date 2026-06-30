@@ -69,7 +69,8 @@
 - **TDD evidence**: RED targeted test failed because refreshing from generation/media attention to ready did not show `刚刚恢复：生成服务、素材存储`; GREEN targeted test passed all 10 `ServiceReadinessPanel` cases.
 - **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 524 tests; Functions typecheck, lint, build, high-severity audit, 383-commit gitleaks scan, and `git diff --check` passed.
 - **Browser QA**: Local production preview browser QA passed at desktop 1440×900 and mobile 390×844. With authenticated API stubs, the panel loaded attention state, refreshed to ready state, showed `刚刚恢复：生成服务、素材存储`, reached 100% progress, had no horizontal overflow, and reported no console/page errors.
-- **Release state**: Scoped commit, push, CI, and exact production smoke remain pending.
+- **Release**: Commit `40774b4 feat: summarize readiness refresh changes` was pushed to `main`; GitHub Actions run `28440956586` passed every step. Exact deployment `https://3278c2f7.cstd-design.pages.dev` passed production smoke for `40774b47ba998d7ece68ed03f2b3b7668fd8a0c6`.
+- **Final status**: All six Campaign 032 stages are complete, tested locally, browser-verified where applicable, pushed to `main`, GitHub Actions-verified, and exact-deployment smoke-verified.
 
 ## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)
 

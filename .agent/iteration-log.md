@@ -18,10 +18,11 @@
 - Browser QA passed at desktop 1440×900 and mobile 390×844 with authenticated API stubs: attention loaded, refresh changed to ready, `刚刚恢复：生成服务、素材存储` rendered, progress reached 100%, no horizontal overflow, and zero console/page errors.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+- Commit `40774b4 feat: summarize readiness refresh changes` was pushed to `main`; GitHub Actions run `28440956586` passed all deployment steps.
+- Exact deployment `https://3278c2f7.cstd-design.pages.dev` passed production smoke for commit `40774b47ba998d7ece68ed03f2b3b7668fd8a0c6`.
 
 ### Next
-- Close Campaign 032 after scoped commit, push, CI verification, and exact production smoke.
+- Campaign 032 is complete; no further Service Readiness blocker remains from this campaign.
 
 ## Long Campaign 032 — Stage 5 Readiness Response Guard CHECK (2026-06-30)
 
