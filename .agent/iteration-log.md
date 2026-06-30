@@ -20,10 +20,11 @@
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 490 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 
 ### CI status
-- Pending commit, push, GitHub Actions, and exact production smoke.
+- Commit `c7f7833 fix: validate saved search storage` was pushed to `main`; GitHub Actions run `28418675582` passed all deployment steps.
+- Exact deployment `https://e203882a.cstd-design.pages.dev` passed production smoke for commit `c7f78334ca46f22adc44fc041d98160d8c0ef297`.
 
 ### Next
-- Close Stage 5 with CI and exact deployment smoke, then continue Stage 6 final IMPROVE.
+- Continue Stage 6 final IMPROVE with one final user-facing Global Search increment and final release closure.
 
 ## Long Campaign 031 — Stage 4 Global Search Saved Queries IMPROVE (2026-06-30)
 

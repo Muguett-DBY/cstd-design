@@ -88,7 +88,7 @@
 - **Exact deployment**: `https://e05557d0.cstd-design.pages.dev` passed production smoke for commit `bbb6379ea51c59141db727dc74a76541014594d2`.
 - **Next**: Stage 5 CHECK will audit Global Search edge cases and fix any verified stability issue with failing coverage first.
 
-### Stage 5/6 — CHECK 🚧
+### Stage 5/6 — CHECK ✅
 - **Prompt**: `AGENT_CHECK_MAIN.txt`
 - **Goal**: Audit the saved Global Search path for stability issues and fix a verified edge case with regression coverage.
 - **Finding fixed**:
@@ -102,9 +102,9 @@
   - RED confirmed: `npx vitest run src/hooks/useSavedSearches.test.ts` failed because invalid object data was returned instead of ignored.
   - GREEN targeted: `npx vitest run src/hooks/useSavedSearches.test.ts src/components/GlobalSearchModal.test.tsx` — 2 files, 10 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 490 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
-- **Commit/CI**: pending.
-- **Exact deployment**: pending.
-- **Next**: Commit, push, CI-watch, and exact production smoke this CHECK fix before starting Stage 6 final IMPROVE.
+- **Commit/CI**: `c7f7833 fix: validate saved search storage`; pushed to `main`; GitHub Actions run `28418675582` passed all steps.
+- **Exact deployment**: `https://e203882a.cstd-design.pages.dev` passed production smoke for commit `c7f78334ca46f22adc44fc041d98160d8c0ef297`.
+- **Next**: Stage 6 final IMPROVE will add one final user-facing Global Search increment, then run final release closure.
 
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 
