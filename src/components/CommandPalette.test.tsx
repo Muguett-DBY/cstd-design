@@ -3,7 +3,23 @@ import { Search } from "lucide-react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { CommandPalette, type CommandItem } from "./CommandPalette";
 
-afterEach(() => cleanup());
+const recentCommandsKey = "cstd-design:commandPaletteRecent:v1";
+const storage = new Map<string, string>();
+
+Object.defineProperty(globalThis, "localStorage", {
+  value: {
+    getItem: (key: string) => storage.get(key) ?? null,
+    setItem: (key: string, value: string) => { storage.set(key, value); },
+    removeItem: (key: string) => { storage.delete(key); },
+    clear: () => { storage.clear(); },
+  },
+  configurable: true,
+});
+
+afterEach(() => {
+  storage.clear();
+  cleanup();
+});
 
 function renderPalette(items: CommandItem[]) {
   return render(
@@ -89,5 +105,28 @@ describe("CommandPalette", () => {
     fireEvent.keyDown(input, { key: "ArrowDown" });
 
     expect(screen.getByText("当前 2/2")).toBeTruthy();
+  });
+
+  test("promotes the most recently executed command on the next open", () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const items: CommandItem[] = [
+      { id: "first", label: "First", icon: Search, group: "navigation", perform: first },
+      { id: "second", label: "Second", icon: Search, group: "action", perform: second },
+    ];
+
+    const { unmount } = renderPalette(items);
+    fireEvent.click(screen.getByRole("option", { name: /Second/ }));
+
+    expect(second).toHaveBeenCalledOnce();
+    expect(first).not.toHaveBeenCalled();
+    expect(JSON.parse(localStorage.getItem(recentCommandsKey) ?? "[]")).toEqual(["second"]);
+
+    unmount();
+    renderPalette(items);
+
+    expect(screen.getByText("最近使用")).toBeTruthy();
+    expect(screen.getAllByRole("option")[0].textContent).toContain("Second");
+    expect(screen.getAllByRole("option", { name: /Second/ })).toHaveLength(1);
   });
 });

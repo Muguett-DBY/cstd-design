@@ -3,6 +3,7 @@ export const EXPORT_PREFERENCES_STORAGE_KEY = "cstd-design:export-preferences";
 export const CREATION_RECOVERY_STORAGE_KEY = "cstd-design:creationRecovery:v1";
 export const CREATION_ACTIVITY_STORAGE_KEY = "cstd-design:creationActivity:v1";
 export const ASSET_SORT_STORAGE_KEY = "cstd-design:assetSortMode";
+export const COMMAND_PALETTE_RECENT_STORAGE_KEY = "cstd-design:commandPaletteRecent:v1";
 
 export const BACKUP_KEYS: readonly string[] = [
   "cstd-design:chat-prompt-templates",
@@ -21,6 +22,7 @@ export const BACKUP_KEYS: readonly string[] = [
   CREATION_RECOVERY_STORAGE_KEY,
   CREATION_ACTIVITY_STORAGE_KEY,
   ASSET_SORT_STORAGE_KEY,
+  COMMAND_PALETTE_RECENT_STORAGE_KEY,
   "cstd-design:dark",
 ] as const;
 
@@ -41,5 +43,6 @@ export const BACKUP_KEY_LABELS: Record<string, string> = {
   [CREATION_RECOVERY_STORAGE_KEY]: "恢复备份",
   [CREATION_ACTIVITY_STORAGE_KEY]: "恢复记录",
   [ASSET_SORT_STORAGE_KEY]: "素材排序偏好",
+  [COMMAND_PALETTE_RECENT_STORAGE_KEY]: "最近使用命令",
   "cstd-design:dark": "深色模式",
 };

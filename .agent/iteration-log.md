@@ -1,5 +1,29 @@
 # Iteration Log
 
+## Long Campaign 033 — Stage 4 Recent Commands IMPROVE (2026-07-01)
+
+### Goal
+- Make repeated command work faster by surfacing recently executed commands at the top of the command palette.
+
+### Completed locally
+- Added persistent recent-command history under `cstd-design:commandPaletteRecent:v1`.
+- Recorded successful click and Enter command execution before closing the palette.
+- Added a `最近使用` section when the palette opens without a query.
+- Deduplicated the recent command from its normal group while keeping normal search results unchanged.
+- Included recent command history in the settings backup key allowlist with a reader-facing label.
+
+### Verified
+- RED: `npx vitest run src/components/CommandPalette.test.tsx src/storage-keys.test.ts` failed because executing `Second` left recent command storage empty and the backup key was missing.
+- GREEN targeted: same command — 2 files, 11 tests passed.
+- Debug correction: the first full gate rejected an indexed group write as possibly undefined and flagged an `onClose` hook dependency; root-cause fix used an explicit local group assignment and added the missing dependency.
+- Full local gate passed after correction: `npm test` — Node smoke 5 tests plus Vitest 83 files, 530 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 390-commit gitleaks scan; `git diff --check`.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+
+### Next
+- Continue Stage 5 CHECK by auditing the new recent-command history for malformed or duplicate persisted data.
+
 ## Long Campaign 033 — Stage 3 Command Feedback UIUX (2026-07-01)
 
 ### Goal
@@ -17,7 +41,9 @@
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 83 files, 528 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 389-commit gitleaks scan; `git diff --check`.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, exact production smoke, and live desktop/mobile browser verification are pending.
+- Commit `c8afc5e uiux: clarify command search position` was pushed to `main`; GitHub Actions run `28458567769` passed all deployment steps.
+- Exact deployment `https://ec60e0db.cstd-design.pages.dev` passed production smoke for `c8afc5e0cbc29f50ba960fb0f6048ef65823c51b`.
+- Live browser QA passed on desktop and mobile: summary text rendered, ArrowDown updated current position, `settings` filtered to `共 1 个命令 / 当前 1/1`, Enter opened Settings, mobile had no horizontal overflow, and console reported 0 errors and 0 warnings.
 
 ### Next
 - Continue Stage 4 IMPROVE with a stronger action-oriented command-palette increment after Stage 3 release verification closes.

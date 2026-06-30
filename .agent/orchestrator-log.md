@@ -33,7 +33,15 @@
 - **TDD evidence**: RED confirmed `共 2 个命令` and `当前 1/2` were missing; GREEN targeted suite passed 4/4.
 - **Implementation**: Added a live command summary row with total filtered commands and active keyboard position, plus mobile-safe summary styling and tabular numeric position feedback.
 - **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 528 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 389-commit gitleaks scan, and `git diff --check` passed.
-- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live desktop/mobile browser verification.
+- **Release**: Commit `c8afc5e uiux: clarify command search position` was pushed to `main`; GitHub Actions run `28458567769` passed; exact deployment `https://ec60e0db.cstd-design.pages.dev` passed production smoke and live desktop/mobile browser QA for summary position feedback, `settings` filtering/execution, mobile overflow, and clean console warnings/errors.
+
+### Stage 4/6 — IMPROVE
+- **Goal**: Surface recently executed commands so repeated command work is faster without searching again.
+- **TDD evidence**: RED confirmed executing `Second` did not persist recent history and the backup allowlist lacked the new key; GREEN targeted suite passed 11/11 across `CommandPalette` and storage-key coverage.
+- **Implementation**: Added bounded recent-command persistence, a `最近使用` section for empty-query palette opens, recent-vs-normal deduplication, click/Enter execution recording, and settings-backup coverage for `cstd-design:commandPaletteRecent:v1`.
+- **Debug correction**: Full gate initially rejected an indexed group write as possibly undefined and flagged a missing `onClose` hook dependency. Fixed the grouped-section write through an explicit local array and added the dependency.
+- **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 530 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 390-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live browser verification.
 
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
 

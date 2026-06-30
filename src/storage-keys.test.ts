@@ -31,4 +31,9 @@ describe("storage key backup coverage", () => {
     expect(BACKUP_KEYS).toContain(ASSET_SORT_STORAGE_KEY);
     expect(BACKUP_KEY_LABELS[ASSET_SORT_STORAGE_KEY]).toBe("素材排序偏好");
   });
+
+  test("includes command palette recent history in settings backups", () => {
+    expect(BACKUP_KEYS).toContain("cstd-design:commandPaletteRecent:v1");
+    expect(BACKUP_KEY_LABELS["cstd-design:commandPaletteRecent:v1"]).toBe("最近使用命令");
+  });
 });
