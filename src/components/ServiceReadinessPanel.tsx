@@ -37,6 +37,54 @@ const READINESS_ACTION_COPY: Record<ServiceReadinessCheck["id"], { title: string
   },
 };
 
+const READINESS_CHECK_IDS = new Set<ServiceReadinessCheck["id"]>(["database", "media", "generation", "security"]);
+const READINESS_CHECK_STATUSES = new Set<ServiceReadinessCheck["status"]>(["ready", "attention"]);
+const READINESS_SNAPSHOT_STATUSES = new Set<ServiceReadinessSnapshot["status"]>(["ready", "attention"]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isReadinessCheckId(value: unknown): value is ServiceReadinessCheck["id"] {
+  return typeof value === "string" && READINESS_CHECK_IDS.has(value as ServiceReadinessCheck["id"]);
+}
+
+function isReadinessCheckStatus(value: unknown): value is ServiceReadinessCheck["status"] {
+  return typeof value === "string" && READINESS_CHECK_STATUSES.has(value as ServiceReadinessCheck["status"]);
+}
+
+function isReadinessSnapshotStatus(value: unknown): value is ServiceReadinessSnapshot["status"] {
+  return typeof value === "string" && READINESS_SNAPSHOT_STATUSES.has(value as ServiceReadinessSnapshot["status"]);
+}
+
+function normalizeServiceReadinessSnapshot(value: unknown): ServiceReadinessSnapshot {
+  if (!isRecord(value) || !isReadinessSnapshotStatus(value.status) || typeof value.checkedAt !== "string" || !Array.isArray(value.checks)) {
+    throw new Error("服务状态响应格式异常。");
+  }
+
+  return {
+    status: value.status,
+    checkedAt: value.checkedAt,
+    checks: value.checks.map((check) => {
+      if (
+        !isRecord(check)
+        || !isReadinessCheckId(check.id)
+        || !isReadinessCheckStatus(check.status)
+        || typeof check.label !== "string"
+        || typeof check.detail !== "string"
+      ) {
+        throw new Error("服务状态响应格式异常。");
+      }
+      return {
+        id: check.id,
+        label: check.label,
+        status: check.status,
+        detail: check.detail,
+      };
+    }),
+  };
+}
+
 function readinessActions(checks: ServiceReadinessCheck[]) {
   return checks
     .filter((check) => check.status === "attention")
@@ -109,7 +157,7 @@ export function ServiceReadinessPanel() {
     let active = true;
     void api.readiness()
       .then((next) => {
-        if (active) setSnapshot(next);
+        if (active) setSnapshot(normalizeServiceReadinessSnapshot(next));
       })
       .catch((reason: unknown) => {
         if (active) setError(reason instanceof Error ? reason.message : "服务状态检查失败。");
