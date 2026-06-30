@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 032 — Stage 4 Pending Readiness Summary IMPROVE (2026-06-30)
+
+### Goal
+- Make degraded Service Readiness results easy to hand off as an action-only recovery summary.
+
+### Completed locally
+- Added `复制待处理摘要` only when readiness has attention checks.
+- Copied the recommended action order and workspace availability impact.
+- Excluded ready-check diagnostic noise such as `数据服务: ready` from the action handoff.
+
+### Verified
+- RED: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed because `复制待处理摘要` did not exist.
+- GREEN targeted: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` — 1 file, 8 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 82 files, 522 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 381-commit gitleaks scan; `git diff --check`.
+- Browser QA passed at desktop 1440×900 and mobile 390×844 with authenticated API stubs: pending summary copied the expected action order and workspace impact, excluded ready-check noise, had no horizontal overflow, and had zero console/page errors.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+
+### Next
+- Continue Stage 5 CHECK by auditing Service Readiness failure/response edge cases and fixing any verified issue with regression coverage first.
+
 ## Long Campaign 032 — Stage 3 Readiness Progress UIUX (2026-06-30)
 
 ### Goal
@@ -17,7 +39,8 @@
 - Production-preview browser QA passed at desktop 1440×900 and mobile 390×844 with 50% progress, no overflow, no console errors, no page errors, and no failed requests.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+- Commit `d9035b4 uiux: clarify service readiness progress` was pushed to `main`; GitHub Actions run `28438597365` passed all deployment steps.
+- Exact deployment `https://3cd5a1a0.cstd-design.pages.dev` passed production smoke for commit `d9035b4165c91548633f98248d9b205a0b471206`.
 
 ### Next
 - Continue Stage 4 IMPROVE with an actionable recovery follow-up for the Service Readiness attention state.

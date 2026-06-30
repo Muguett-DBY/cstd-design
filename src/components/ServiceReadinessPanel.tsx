@@ -70,6 +70,34 @@ const AVAILABILITY_LABEL: Record<WorkspaceAvailability, string> = {
   blocked: "不可用",
 };
 
+function formatPendingReadinessSummary(snapshot: ServiceReadinessSnapshot) {
+  const actions = readinessActions(snapshot.checks);
+  const workspaces = workspaceAvailability(snapshot.checks);
+  const lines = [
+    "cstd-design 服务待处理摘要",
+    `整体状态: ${snapshot.status}`,
+    `检查时间: ${snapshot.checkedAt}`,
+    "",
+    "建议处理顺序:",
+  ];
+
+  if (actions.length === 0) {
+    lines.push("- 当前无待处理服务。");
+  } else {
+    actions.forEach((check, index) => {
+      const prefix = index === 0 ? "先" : "再";
+      lines.push(`${index + 1}. ${prefix}${check.action.title} — ${check.action.reason}`);
+    });
+  }
+
+  lines.push("", "工作区可用性:");
+  workspaces.forEach((workspace) => {
+    lines.push(`- ${workspace.label}: ${AVAILABILITY_LABEL[workspace.status]}`);
+  });
+
+  return lines.join("\n");
+}
+
 export function ServiceReadinessPanel() {
   const [snapshot, setSnapshot] = useState<ServiceReadinessSnapshot | null>(null);
   const [error, setError] = useState("");
@@ -108,6 +136,20 @@ export function ServiceReadinessPanel() {
     try {
       await navigator.clipboard.writeText(formatServiceReadinessDiagnostics(snapshot));
       setCopyStatus("诊断摘要已复制。");
+    } catch {
+      setCopyStatus("复制失败，请检查浏览器剪贴板权限。");
+    }
+  };
+
+  const copyPendingSummary = async () => {
+    if (!snapshot) return;
+    if (!navigator.clipboard?.writeText) {
+      setCopyStatus("复制失败，请检查浏览器剪贴板权限。");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(formatPendingReadinessSummary(snapshot));
+      setCopyStatus("待处理摘要已复制。");
     } catch {
       setCopyStatus("复制失败，请检查浏览器剪贴板权限。");
     }
@@ -180,6 +222,12 @@ export function ServiceReadinessPanel() {
               <Copy size={14} />
               复制诊断摘要
             </button>
+            {actions.length > 0 && (
+              <button type="button" className="ghost-button service-readiness-copy" onClick={copyPendingSummary}>
+                <Copy size={14} />
+                复制待处理摘要
+              </button>
+            )}
             {copyStatus && (
               <span className="service-readiness-copy-status" aria-live="polite">{copyStatus}</span>
             )}

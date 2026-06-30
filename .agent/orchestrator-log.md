@@ -40,6 +40,16 @@
 - **TDD evidence**: RED targeted test failed because the summary did not expose `2 / 4 项已就绪` or an accessible `服务就绪进度` progressbar; GREEN targeted test passed all 7 `ServiceReadinessPanel` cases.
 - **Browser QA**: Production preview passed at desktop 1440×900 and mobile 390×844. The overview rendered `2 / 4 项已就绪`, `2 项待处理`, and 50% progress with no overflow, console errors, page errors, or failed requests.
 - **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 521 tests; Functions typecheck, lint, build, high-severity audit, 380-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Commit `d9035b4 uiux: clarify service readiness progress` was pushed to `main`; GitHub Actions run `28438597365` passed every step. Exact deployment `https://3cd5a1a0.cstd-design.pages.dev` passed production smoke for `d9035b4165c91548633f98248d9b205a0b471206`.
+
+### Stage 4/6 — IMPROVE
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Let degraded Service Readiness states produce a concise action-only handoff without copying full ready-check noise.
+- **Implemented**: Added `复制待处理摘要` only when attention checks exist. The copied text includes the remediation order and workspace availability impact, while omitting ready-check diagnostic lines that are irrelevant for immediate recovery.
+- **TDD evidence**: RED targeted test failed because the `复制待处理摘要` button was missing; GREEN targeted test passed all 8 `ServiceReadinessPanel` cases.
+- **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 522 tests; Functions typecheck, lint, build, high-severity audit, 381-commit gitleaks scan, and `git diff --check` passed.
+- **Browser QA**: Local production preview browser QA passed at desktop 1440×900 and mobile 390×844 with authenticated API stubs. The pending summary copied the expected action order and workspace impact, excluded `数据服务: ready`, had no horizontal overflow, and reported no console/page errors.
+- **Debug note**: Vite preview does not serve Pages Functions, so the first QA script stayed on the private access screen because `/api/session` returned HTML. The final browser script stubbed the minimum authenticated API responses and waited for the main app to mount before opening the command palette.
 - **Release state**: Scoped commit, push, CI, and exact production smoke remain pending.
 
 ## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)
