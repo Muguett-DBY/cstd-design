@@ -44,6 +44,32 @@ function readinessActions(checks: ServiceReadinessCheck[]) {
     .sort((a, b) => a.action.priority - b.action.priority);
 }
 
+type WorkspaceAvailability = "ready" | "limited" | "blocked";
+
+function workspaceAvailability(checks: ServiceReadinessCheck[]) {
+  const attention = new Set(checks.filter((check) => check.status === "attention").map((check) => check.id));
+  const foundationBlocked = attention.has("security") || attention.has("database");
+  const generationBlocked = foundationBlocked || attention.has("generation");
+  const assetStatus: WorkspaceAvailability = foundationBlocked
+    ? "blocked"
+    : attention.has("media") ? "limited" : "ready";
+
+  return [
+    { label: "咨询创作", status: generationBlocked ? "blocked" as const : "ready" as const },
+    {
+      label: "图片与视频",
+      status: generationBlocked ? "blocked" as const : attention.has("media") ? "limited" as const : "ready" as const,
+    },
+    { label: "素材库", status: assetStatus },
+  ];
+}
+
+const AVAILABILITY_LABEL: Record<WorkspaceAvailability, string> = {
+  ready: "可用",
+  limited: "受限",
+  blocked: "不可用",
+};
+
 export function ServiceReadinessPanel() {
   const [snapshot, setSnapshot] = useState<ServiceReadinessSnapshot | null>(null);
   const [error, setError] = useState("");
@@ -87,6 +113,7 @@ export function ServiceReadinessPanel() {
     }
   };
   const actions = snapshot ? readinessActions(snapshot.checks) : [];
+  const workspaces = snapshot ? workspaceAvailability(snapshot.checks) : [];
 
   return (
     <section className="settings-section service-readiness-section" aria-labelledby="service-readiness-title">
@@ -137,6 +164,21 @@ export function ServiceReadinessPanel() {
             {copyStatus && (
               <span className="service-readiness-copy-status" aria-live="polite">{copyStatus}</span>
             )}
+          </div>
+          <div className="service-readiness-impact">
+            <div>
+              <strong>工作区可用性</strong>
+              <span>根据当前检查结果预估，不影响已保存在本地的内容。</span>
+            </div>
+            <ul aria-label="工作区可用性">
+              {workspaces.map((workspace) => (
+                <li key={workspace.label} className={`is-${workspace.status}`}>
+                  <span className="service-readiness-impact-dot" aria-hidden="true" />
+                  <strong>{workspace.label}</strong>
+                  <span>{AVAILABILITY_LABEL[workspace.status]}</span>
+                </li>
+              ))}
+            </ul>
           </div>
           {actions.length > 0 && (
             <div className="service-readiness-action-plan" aria-labelledby="service-readiness-action-title">

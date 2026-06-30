@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 032 — Stage 2 Readiness Impact Map IMPROVE (2026-06-30)
+
+### Goal
+- Explain which workspaces remain available when only part of the service stack is degraded.
+
+### Completed locally
+- Added an accessible three-state `工作区可用性` map for consultation, image/video, and asset workflows.
+- Distinguished foundational security/data blockers from generation outages and storage-only limitations.
+- Added responsive cards that collapse to a single column on mobile.
+
+### Verified
+- RED: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed because the named availability list did not exist.
+- GREEN targeted: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` — 1 file, 6 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 82 files, 520 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 379-commit gitleaks scan; `git diff --check`.
+- Production-preview browser QA passed at desktop 1440×900 and mobile 390×844 with correct blocked/limited labels and no overflow, console errors, page errors, or failed requests.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+
+### Next
+- Continue Stage 3 UIUX by strengthening the summary hierarchy with a compact readiness score and progress treatment.
+
 ## Long Campaign 032 — Stage 1 Service Readiness Actions IMPROVE (2026-06-30)
 
 ### Goal
@@ -17,7 +39,8 @@
 - Production-preview browser QA passed at desktop 1440×900 and mobile 390×844 with no overflow, console errors, page errors, or failed requests.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+- Commit `403e1b5 feat: guide service readiness remediation` was pushed to `main`; GitHub Actions run `28437131543` passed all deployment steps.
+- Exact deployment `https://a83828e9.cstd-design.pages.dev` passed production smoke for commit `403e1b5af9b3ff663059e88be0def476d15ec098`.
 
 ### Next
 - Continue Stage 2 IMPROVE with a visible readiness impact map that clarifies which creation workflows remain available under partial degradation.

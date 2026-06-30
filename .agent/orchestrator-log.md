@@ -22,7 +22,16 @@
 - **TDD evidence**: RED targeted test failed on the missing accessible `服务就绪建议处理顺序` list; GREEN targeted test passed all 5 `ServiceReadinessPanel` cases.
 - **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 519 tests; Functions typecheck, lint, build, high-severity audit, and `git diff --check` passed.
 - **Browser QA**: Production preview passed at desktop 1440×900 and mobile 390×844. The prioritized plan rendered at both widths with no horizontal overflow, console errors, page errors, or failed requests. Service Worker interception was deliberately blocked in the isolated Playwright context so deterministic API fixtures could cover both StrictMode requests.
-- **Release state**: Ready for scoped commit and push; GitHub Actions and exact production smoke remain pending.
+- **Release**: Commit `403e1b5 feat: guide service readiness remediation` was pushed to `main`; GitHub Actions run `28437131543` passed every step. Exact deployment `https://a83828e9.cstd-design.pages.dev` passed production smoke for `403e1b5af9b3ff663059e88be0def476d15ec098`.
+
+### Stage 2/6 — IMPROVE
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Show which creation workspaces remain usable under partial service degradation instead of forcing users to infer impact from infrastructure checks.
+- **Implemented**: Added a three-state `工作区可用性` map. Security or database attention blocks all dependent workspaces; generation attention blocks consultation, image, and video creation; media attention limits generated-output persistence and the asset library without overstating total outage.
+- **TDD evidence**: RED targeted test failed on the missing accessible `工作区可用性` list; GREEN targeted test passed all 6 `ServiceReadinessPanel` cases.
+- **Browser QA**: Production preview passed at desktop 1440×900 and mobile 390×844. The map rendered `咨询创作 不可用`, `图片与视频 不可用`, and `素材库 受限` with no overflow, console errors, page errors, or failed requests.
+- **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 520 tests; Functions typecheck, lint, build, high-severity audit, 379-commit gitleaks scan, and `git diff --check` passed.
+- **Release state**: Scoped commit, push, CI, and exact production smoke remain pending.
 
 ## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)
 
