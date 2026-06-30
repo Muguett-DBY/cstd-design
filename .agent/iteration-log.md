@@ -1,5 +1,26 @@
 # Iteration Log
 
+## Long Campaign 031 — Stage 4 Global Search Saved Queries IMPROVE (2026-06-30)
+
+### Goal
+- Let users turn a useful Global Search query into a reusable saved search and reapply it without retyping.
+
+### Completed locally
+- Added `保存本次搜索` for non-empty global queries.
+- Reused the existing saved-search persistence hook and storage key.
+- Added empty-state saved-search chips for the latest saved queries.
+- Reapplying a saved search restores the query and resets result selection.
+- Added compact styling for the save action and saved-search chips.
+
+### Verified so far
+- RED: `npx vitest run src/components/GlobalSearchModal.test.tsx` failed because the save/reapply controls were missing.
+- GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx` — 1 file, 4 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 489 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Local production preview browser QA passed at `http://127.0.0.1:8818` on desktop 1440×900 and mobile 390×844: save action persisted `launch`, empty-state saved chip restored the query, horizontal overflow, console errors, and page errors checked.
+
+### Next
+- Commit and push Stage 4, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 5 CHECK.
+
 ## Long Campaign 031 — Stage 3 Global Search Feedback UIUX (2026-06-30)
 
 ### Goal

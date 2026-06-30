@@ -3,6 +3,7 @@ import { Folder, Hash, Image as ImageIcon, MessageSquare, Search, Tag, X } from 
 import type { AssetItem, ChatMessage, ConversationSummary } from "../types";
 import { useCollections } from "../hooks/useCollections";
 import { useAssetTags } from "../hooks/useAssetTags";
+import { useSavedSearches } from "../hooks/useSavedSearches";
 
 export interface GlobalSearchResult {
   type: "message" | "asset" | "conversation" | "tag" | "collection";
@@ -43,6 +44,7 @@ export function GlobalSearchModal({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const collections = useCollections();
   const { tagFrequency } = useAssetTags();
+  const savedSearches = useSavedSearches();
 
   useEffect(() => {
     if (!open) return;
@@ -169,7 +171,13 @@ export function GlobalSearchModal({
 
   let runningIndex = 0;
   const hasQuery = query.trim() !== "";
+  const trimmedQuery = query.trim();
   const activePosition = results.length > 0 ? Math.min(activeIndex + 1, results.length) : 0;
+  const canSaveQuery = trimmedQuery.length > 0 && !savedSearches.saved.some((saved) => saved.query === trimmedQuery);
+  const applySavedQuery = (savedQuery: string) => {
+    setQuery(savedQuery);
+    setActiveIndex(0);
+  };
 
   return (
     <div className="global-search-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="全局搜索">
@@ -203,6 +211,22 @@ export function GlobalSearchModal({
                 <span>当前 {activePosition}/{results.length}</span>
               </>
             )}
+            {canSaveQuery && (
+              <button
+                type="button"
+                className="global-search-save"
+                onClick={() => {
+                  savedSearches.add({
+                    name: trimmedQuery,
+                    query: trimmedQuery,
+                    roleFilter: "all",
+                    dateFilter: "all",
+                  });
+                }}
+              >
+                保存本次搜索
+              </button>
+            )}
           </div>
           <div className="global-search-shortcuts" aria-label="搜索快捷键">
             <span>↑↓ 选择</span>
@@ -215,6 +239,20 @@ export function GlobalSearchModal({
             <div className="global-search-empty">
               <Search size={32} />
               <span>输入关键词开始全局搜索</span>
+              {savedSearches.saved.length > 0 && (
+                <div className="global-search-saved-list" aria-label="已保存搜索">
+                  {savedSearches.saved.slice(0, 6).map((saved) => (
+                    <button
+                      key={saved.id}
+                      type="button"
+                      className="global-search-saved-chip"
+                      onClick={() => applySavedQuery(saved.query)}
+                    >
+                      使用已保存搜索：{saved.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ) : results.length === 0 ? (
             <div className="global-search-empty">

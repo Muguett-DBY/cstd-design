@@ -9136,6 +9136,22 @@ button:disabled {
   background: var(--bg);
 }
 
+.global-search-save,
+.global-search-saved-chip {
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.global-search-save:hover,
+.global-search-saved-chip:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
 .global-search-results {
   overflow-y: auto;
   max-height: 60vh;
@@ -9150,6 +9166,14 @@ button:disabled {
   gap: 8px;
   padding: 40px 20px;
   color: var(--muted);
+}
+
+.global-search-saved-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
 }
 
 .global-search-group {

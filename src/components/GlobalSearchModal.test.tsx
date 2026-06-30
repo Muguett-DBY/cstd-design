@@ -169,4 +169,39 @@ describe("GlobalSearchModal", () => {
     expect(screen.getByText("当前 2/2")).toBeTruthy();
     expect(screen.getByRole("button", { name: /launch.png/ }).getAttribute("aria-current")).toBe("true");
   });
+
+  test("saves and reapplies a global search query", () => {
+    const props = {
+      open: true,
+      onClose: vi.fn(),
+      conversations: [
+        {
+          id: "conversation-1",
+          title: "Launch plan",
+          activeLeafId: null,
+          createdAt: "2026-06-30T00:00:00.000Z",
+          updatedAt: "2026-06-30T00:00:00.000Z",
+          messageCount: 3,
+        },
+      ],
+      activeMessages: [],
+      assets: [],
+      onSelectConversation: vi.fn(),
+      onSelectAsset: vi.fn(),
+    };
+
+    render(<GlobalSearchModal {...props} />);
+    const input = screen.getByRole("textbox", { name: "全局搜索" }) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "launch" } });
+    fireEvent.click(screen.getByRole("button", { name: "保存本次搜索" }));
+
+    const saved = JSON.parse(localStorage.getItem("cstd-design:saved-searches") || "[]");
+    expect(saved[0].query).toBe("launch");
+
+    fireEvent.change(input, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "使用已保存搜索：launch" }));
+
+    expect(input.value).toBe("launch");
+    expect(screen.getByText("共 1 个结果")).toBeTruthy();
+  });
 });
