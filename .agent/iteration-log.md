@@ -1,5 +1,30 @@
 # Iteration Log
 
+## Long Campaign 031 — Stage 5 Saved Search Storage CHECK (2026-06-30)
+
+### Goal
+- Audit the saved Global Search path for stability issues and fix a verified storage edge case with regression coverage.
+
+### Finding fixed
+- Invalid JSON shapes in `cstd-design:saved-searches` could make `useSavedSearches` return a non-array object.
+- Global Search expects an array of saved searches, so corrupted localStorage could crash the modal when it tried to call array methods.
+
+### Completed locally
+- Added a regression test for invalid persisted saved-search data.
+- Changed saved-search loading to ignore non-array parsed values.
+- Added per-entry validation for id, name, query, role filter, date filter, and finite creation timestamp.
+
+### Verified
+- RED: `npx vitest run src/hooks/useSavedSearches.test.ts` failed before invalid persisted data was ignored.
+- GREEN targeted: `npx vitest run src/hooks/useSavedSearches.test.ts src/components/GlobalSearchModal.test.tsx` — 2 files, 10 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 490 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+
+### CI status
+- Pending commit, push, GitHub Actions, and exact production smoke.
+
+### Next
+- Close Stage 5 with CI and exact deployment smoke, then continue Stage 6 final IMPROVE.
+
 ## Long Campaign 031 — Stage 4 Global Search Saved Queries IMPROVE (2026-06-30)
 
 ### Goal

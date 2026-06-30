@@ -88,6 +88,24 @@
 - **Exact deployment**: `https://e05557d0.cstd-design.pages.dev` passed production smoke for commit `bbb6379ea51c59141db727dc74a76541014594d2`.
 - **Next**: Stage 5 CHECK will audit Global Search edge cases and fix any verified stability issue with failing coverage first.
 
+### Stage 5/6 — CHECK 🚧
+- **Prompt**: `AGENT_CHECK_MAIN.txt`
+- **Goal**: Audit the saved Global Search path for stability issues and fix a verified edge case with regression coverage.
+- **Finding fixed**:
+  - `useSavedSearches` trusted parsed localStorage data and could return a non-array object.
+  - Global Search then called array methods such as `.some`, `.slice`, and `.map` on invalid persisted data, which could crash the modal after storage corruption or manual edits.
+- **Completed locally**:
+  - Added regression coverage for invalid persisted saved-search data.
+  - Hardened saved-search loading so non-array JSON returns an empty list.
+  - Filtered persisted entries to valid saved-search records only, including role/date filters and finite `createdAt` timestamps.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/hooks/useSavedSearches.test.ts` failed because invalid object data was returned instead of ignored.
+  - GREEN targeted: `npx vitest run src/hooks/useSavedSearches.test.ts src/components/GlobalSearchModal.test.tsx` — 2 files, 10 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 490 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- **Commit/CI**: pending.
+- **Exact deployment**: pending.
+- **Next**: Commit, push, CI-watch, and exact production smoke this CHECK fix before starting Stage 6 final IMPROVE.
+
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 
 ### Global preparation
