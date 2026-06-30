@@ -125,4 +125,16 @@ describe("ServiceReadinessPanel", () => {
     expect(actionList.textContent).toContain("再处理素材存储");
     expect(actionList.textContent).toContain("避免上传和生成结果无法保存");
   });
+
+  test("shows which workspaces remain usable during partial degradation", async () => {
+    vi.mocked(api.readiness).mockResolvedValueOnce(attentionSnapshot);
+
+    render(<ServiceReadinessPanel />);
+
+    await screen.findByText("创作环境需要处理");
+    const impactList = screen.getByRole("list", { name: "工作区可用性" });
+    expect(impactList.textContent).toContain("咨询创作不可用");
+    expect(impactList.textContent).toContain("图片与视频不可用");
+    expect(impactList.textContent).toContain("素材库受限");
+  });
 });
