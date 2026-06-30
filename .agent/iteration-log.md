@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 033 — Stage 2 Keyboard Selection IMPROVE (2026-07-01)
+
+### Goal
+- Keep Enter execution aligned with the visible result after a query replaces or shrinks the command list.
+
+### Completed locally
+- Reset selection synchronously whenever the search query changes or the palette opens.
+- Derived a safe active index for dynamic item changes without effect-driven state updates.
+- Kept Arrow navigation within bounds for empty and non-empty results and scrolled the active option into view.
+
+### Verified
+- RED: after selecting the third command and narrowing to one different result, Enter called the sole visible command 0 times.
+- GREEN targeted: `npx vitest run src/components/CommandPalette.test.tsx` — 1 file, 3 tests passed.
+- Debug gate: the first full lint run rejected effect-driven index clamping; root-cause correction moved clamping to derived render state and targeted tests plus lint passed.
+- Full local gate passed after correction: `npm test` — Node smoke 5 tests plus Vitest 83 files, 527 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 388-commit gitleaks scan; `git diff --check`.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+
+### Next
+- Continue Stage 3 UIUX with visible result-count and keyboard-position feedback.
+
 ## Long Campaign 033 — Stage 1 Command Discovery IMPROVE (2026-07-01)
 
 ### Goal
@@ -16,7 +38,9 @@
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 83 files, 526 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 387-commit gitleaks scan; `git diff --check`.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+- Commit `172102f fix: search command aliases` was pushed to `main`; GitHub Actions run `28456268069` passed all deployment steps.
+- Exact deployment `https://e194cebc.cstd-design.pages.dev` passed production smoke for `172102f9ce93319138acb401064fa11c29475627`.
+- Live authenticated browser QA passed: Ctrl+K + `settings` returned only `偏好设置`; Enter opened Settings; console reported 0 errors and 0 warnings.
 
 ### Next
 - Continue Stage 2 IMPROVE by keeping keyboard selection valid when a query narrows or replaces the result set.

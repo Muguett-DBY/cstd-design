@@ -83,14 +83,21 @@ export function CommandPalette({
     }
     return groups;
   }, [filtered]);
+  const safeActiveIndex = filtered.length === 0 ? 0 : Math.min(activeIndex, filtered.length - 1);
 
   const groupOrder: CommandItem["group"][] = ["navigation", "conversation", "action"];
 
   useEffect(() => {
     if (open && inputRef.current) {
+      setActiveIndex(0);
       inputRef.current.focus();
     }
   }, [open]);
+
+  useEffect(() => {
+    const activeOption = listRef.current?.querySelector<HTMLElement>(`[data-command-index="${safeActiveIndex}"]`);
+    activeOption?.scrollIntoView?.({ block: "nearest" });
+  }, [safeActiveIndex, filtered]);
 
   useEffect(() => {
     if (!open) return;
@@ -98,17 +105,17 @@ export function CommandPalette({
       if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        setActiveIndex((i) => Math.min(i + 1, filtered.length - 1));
+        setActiveIndex(filtered.length === 0 ? 0 : Math.min(safeActiveIndex + 1, filtered.length - 1));
         return;
       }
       if (event.key === "ArrowUp") {
         event.preventDefault();
-        setActiveIndex((i) => Math.max(i - 1, 0));
+        setActiveIndex(Math.max(safeActiveIndex - 1, 0));
         return;
       }
       if (event.key === "Enter") {
         event.preventDefault();
-        const item = filtered[activeIndex];
+        const item = filtered[safeActiveIndex];
         if (item) {
           item.perform();
           onClose();
@@ -118,7 +125,7 @@ export function CommandPalette({
     };
     window.addEventListener("keydown", handler, true);
     return () => window.removeEventListener("keydown", handler, true);
-  }, [open, filtered, activeIndex, onClose]);
+  }, [open, filtered, safeActiveIndex, onClose]);
 
   if (!open) return null;
 
@@ -132,7 +139,10 @@ export function CommandPalette({
           <input
             ref={inputRef}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setActiveIndex(0);
+            }}
             placeholder="搜索操作、对话、页面..."
             aria-label="命令搜索"
             className="command-palette-input"
@@ -155,7 +165,7 @@ export function CommandPalette({
                     {groupKey === "navigation" ? "导航" : groupKey === "conversation" ? "对话" : "操作"}
                   </div>
                   {group.map((item) => {
-                    const isActive = runningIndex === activeIndex;
+                    const isActive = runningIndex === safeActiveIndex;
                     const idx = runningIndex;
                     runningIndex++;
                     const Icon = item.icon;
@@ -165,6 +175,7 @@ export function CommandPalette({
                         type="button"
                         role="option"
                         aria-selected={isActive}
+                        data-command-index={idx}
                         className={`command-palette-item${isActive ? " active" : ""}`}
                         onMouseEnter={() => setActiveIndex(idx)}
                         onClick={() => { item.perform(); onClose(); }}

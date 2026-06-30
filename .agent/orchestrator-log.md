@@ -18,6 +18,14 @@
 - **TDD evidence**: RED confirmed both alias-only `settings` and description-only `帧率` queries returned no option; GREEN targeted suite passed 2/2.
 - **Implementation**: Reworked `scoreItem` to calculate weighted scores for all discoverability fields and trim the query before ranking.
 - **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 526 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 387-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Commit `172102f fix: search command aliases` was pushed to `main`; GitHub Actions run `28456268069` passed; exact deployment `https://e194cebc.cstd-design.pages.dev` passed production smoke and authenticated browser QA for alias search and Enter execution with 0 console errors/warnings.
+
+### Stage 2/6 — IMPROVE
+- **Goal**: Keep keyboard selection valid as queries replace or shrink the result set.
+- **TDD evidence**: RED confirmed Enter did not execute the sole visible command after moving to index 3 then narrowing; GREEN targeted suite passed 3/3.
+- **Implementation**: Query/open resets, render-derived safe index, bounded Arrow navigation, and active-option scrolling.
+- **Debug correction**: Full lint rejected synchronous state clamping inside an effect. Replaced that effect with a derived safe index; targeted tests and lint then passed.
+- **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 527 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 388-commit gitleaks scan, and `git diff --check` passed.
 - **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live browser verification.
 
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)

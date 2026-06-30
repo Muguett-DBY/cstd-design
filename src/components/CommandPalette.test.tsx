@@ -54,4 +54,25 @@ describe("CommandPalette", () => {
 
     expect(screen.getByRole("option", { name: /偏好设置/ })).toBeTruthy();
   });
+
+  test("executes the first result after a query replaces the result set", () => {
+    const first = vi.fn();
+    const second = vi.fn();
+    const third = vi.fn();
+    renderPalette([
+      { id: "first", label: "First", icon: Search, group: "action", perform: first },
+      { id: "second", label: "Second", icon: Search, group: "action", perform: second },
+      { id: "third", label: "Third", icon: Search, group: "action", perform: third },
+    ]);
+    const input = screen.getByRole("textbox", { name: "命令搜索" });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+
+    fireEvent.change(input, { target: { value: "Second" } });
+    fireEvent.keyDown(input, { key: "Enter" });
+
+    expect(second).toHaveBeenCalledOnce();
+    expect(first).not.toHaveBeenCalled();
+    expect(third).not.toHaveBeenCalled();
+  });
 });
