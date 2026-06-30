@@ -149,4 +149,22 @@ describe("ServiceReadinessPanel", () => {
     const progress = screen.getByRole("progressbar", { name: "服务就绪进度" });
     expect(progress.getAttribute("aria-valuenow")).toBe("50");
   });
+
+  test("copies an actionable pending summary without ready-check noise", async () => {
+    vi.mocked(api.readiness).mockResolvedValueOnce(attentionSnapshot);
+
+    render(<ServiceReadinessPanel />);
+
+    await screen.findByText("创作环境需要处理");
+    fireEvent.click(screen.getByRole("button", { name: "复制待处理摘要" }));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    const copied = writeText.mock.calls[0][0] as string;
+    expect(copied).toContain("cstd-design 服务待处理摘要");
+    expect(copied).toContain("先处理生成服务");
+    expect(copied).toContain("再处理素材存储");
+    expect(copied).toContain("咨询创作: 不可用");
+    expect(copied).not.toContain("数据服务: ready");
+    expect(screen.getByText("待处理摘要已复制。")).toBeTruthy();
+  });
 });
