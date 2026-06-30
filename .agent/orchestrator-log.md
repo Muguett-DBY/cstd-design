@@ -2,6 +2,24 @@
 
 ---
 
+## Long Campaign 033 — 6-stage Command Palette trust loop (2026-07-01)
+
+### Global preparation
+- **Repository**: `E:\DEV\cstd-design`.
+- **Branch**: `main`, aligned with `origin/main` after the build-budget risk preflight.
+- **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE.
+- **Prompt files read**: `03_LONG_6_STAGE_MAIN_V2.txt`, `AGENT_IMPROVE_MAIN.txt`, `AGENT_UIUX_MAIN.txt`, `AGENT_CHECK_MAIN.txt`, and `AGENT_CI_FIX_MAIN.txt`.
+- **Design**: Existing `CommandPalette` receives six incremental releases; no new runtime dependency and no command-definition migration.
+- **Carry-forward direction**: Campaign 032 closed Service Readiness and the risk preflight closed its build-size warning. Repository review found a separate core-navigation defect: `CommandItem.keywords` and descriptions could not discover a command unless its label already matched.
+- **Implementation plan**: `docs/superpowers/plans/2026-07-01-command-palette-trust-loop.md`, committed as `18ecbde`.
+
+### Stage 1/6 — IMPROVE
+- **Goal**: Search command labels, visible descriptions, and declared aliases independently while preserving label-first relevance.
+- **TDD evidence**: RED confirmed both alias-only `settings` and description-only `帧率` queries returned no option; GREEN targeted suite passed 2/2.
+- **Implementation**: Reworked `scoreItem` to calculate weighted scores for all discoverability fields and trim the query before ranking.
+- **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 526 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 387-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live browser verification.
+
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
 
 ### Scope

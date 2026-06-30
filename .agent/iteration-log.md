@@ -1,5 +1,26 @@
 # Iteration Log
 
+## Long Campaign 033 — Stage 1 Command Discovery IMPROVE (2026-07-01)
+
+### Goal
+- Make every declared command alias and visible description usable for command discovery instead of requiring a label match first.
+
+### Completed locally
+- Added the first dedicated `CommandPalette` component regression suite.
+- Changed ranking so label, description, and keyword aliases match independently.
+- Kept label matches weighted above equivalent description and alias matches, and normalized surrounding query whitespace.
+
+### Verified
+- RED: `npx vitest run src/components/CommandPalette.test.tsx` failed both alias-only and description-only searches because the option disappeared.
+- GREEN targeted: `npx vitest run src/components/CommandPalette.test.tsx` — 1 file, 2 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 83 files, 526 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 387-commit gitleaks scan; `git diff --check`.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+
+### Next
+- Continue Stage 2 IMPROVE by keeping keyboard selection valid when a query narrows or replaces the result set.
+
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
 
 ### Goal

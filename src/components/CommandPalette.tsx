@@ -38,15 +38,17 @@ function fuzzyMatch(query: string, target: string): { score: number; matched: bo
 function scoreItem(query: string, item: CommandItem): number {
   if (!query) return 1;
   const labelMatch = fuzzyMatch(query, item.label);
-  if (!labelMatch.matched) return 0;
-  let s = labelMatch.score;
-  if (item.keywords) {
-    for (const kw of item.keywords) {
-      const km = fuzzyMatch(query, kw);
-      if (km.matched) s += km.score * 0.5;
-    }
-  }
-  return s;
+  const descriptionMatch = fuzzyMatch(query, item.description ?? "");
+  const keywordScore = item.keywords?.reduce((best, keyword) => {
+    const match = fuzzyMatch(query, keyword);
+    return match.matched ? Math.max(best, match.score) : best;
+  }, 0) ?? 0;
+
+  return Math.max(
+    labelMatch.matched ? labelMatch.score * 3 : 0,
+    descriptionMatch.matched ? descriptionMatch.score * 2 : 0,
+    keywordScore,
+  );
 }
 
 export function CommandPalette({
@@ -65,8 +67,9 @@ export function CommandPalette({
 
   const filtered = useMemo(() => {
     if (!query.trim()) return items;
+    const normalizedQuery = query.trim();
     const scored = items
-      .map((item) => ({ item, score: scoreItem(query, item) }))
+      .map((item) => ({ item, score: scoreItem(normalizedQuery, item) }))
       .filter((x) => x.score > 0)
       .sort((a, b) => b.score - a.score);
     return scored.map((x) => x.item);
