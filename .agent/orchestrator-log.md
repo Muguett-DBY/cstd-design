@@ -31,6 +31,15 @@
 - **TDD evidence**: RED targeted test failed on the missing accessible `工作区可用性` list; GREEN targeted test passed all 6 `ServiceReadinessPanel` cases.
 - **Browser QA**: Production preview passed at desktop 1440×900 and mobile 390×844. The map rendered `咨询创作 不可用`, `图片与视频 不可用`, and `素材库 受限` with no overflow, console errors, page errors, or failed requests.
 - **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 520 tests; Functions typecheck, lint, build, high-severity audit, 379-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Commit `5afb7fa feat: map service readiness impact` was pushed to `main`; GitHub Actions run `28437676500` passed every step. Exact deployment `https://fe149471.cstd-design.pages.dev` passed production smoke for `5afb7fab7427d8533312a319b678eccf38100075`.
+
+### Stage 3/6 — UIUX
+- **Prompt**: `AGENT_UIUX_MAIN.txt`
+- **Goal**: Strengthen the Service Readiness summary hierarchy so degraded environments expose completion progress before detailed checks.
+- **Implemented**: Added a compact readiness overview with ready/total count, pending count, and accessible progressbar. The treatment switches warning/success tone with the snapshot state and collapses cleanly on mobile.
+- **TDD evidence**: RED targeted test failed because the summary did not expose `2 / 4 项已就绪` or an accessible `服务就绪进度` progressbar; GREEN targeted test passed all 7 `ServiceReadinessPanel` cases.
+- **Browser QA**: Production preview passed at desktop 1440×900 and mobile 390×844. The overview rendered `2 / 4 项已就绪`, `2 项待处理`, and 50% progress with no overflow, console errors, page errors, or failed requests.
+- **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 521 tests; Functions typecheck, lint, build, high-severity audit, 380-commit gitleaks scan, and `git diff --check` passed.
 - **Release state**: Scoped commit, push, CI, and exact production smoke remain pending.
 
 ## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)

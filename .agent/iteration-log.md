@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 032 — Stage 3 Readiness Progress UIUX (2026-06-30)
+
+### Goal
+- Make Service Readiness status easier to scan by showing completion progress before detailed checks.
+
+### Completed locally
+- Added a compact readiness overview above the action area.
+- Exposed ready/total count, pending count, and an accessible `服务就绪进度` progressbar.
+- Added warning/success visual treatment and mobile single-column wrapping.
+
+### Verified
+- RED: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed because readiness progress summary text and progressbar did not exist.
+- GREEN targeted: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` — 1 file, 7 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 82 files, 521 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 380-commit gitleaks scan; `git diff --check`.
+- Production-preview browser QA passed at desktop 1440×900 and mobile 390×844 with 50% progress, no overflow, no console errors, no page errors, and no failed requests.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+
+### Next
+- Continue Stage 4 IMPROVE with an actionable recovery follow-up for the Service Readiness attention state.
+
 ## Long Campaign 032 — Stage 2 Readiness Impact Map IMPROVE (2026-06-30)
 
 ### Goal
@@ -17,7 +39,8 @@
 - Production-preview browser QA passed at desktop 1440×900 and mobile 390×844 with correct blocked/limited labels and no overflow, console errors, page errors, or failed requests.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+- Commit `5afb7fa feat: map service readiness impact` was pushed to `main`; GitHub Actions run `28437676500` passed all deployment steps.
+- Exact deployment `https://fe149471.cstd-design.pages.dev` passed production smoke for commit `5afb7fab7427d8533312a319b678eccf38100075`.
 
 ### Next
 - Continue Stage 3 UIUX by strengthening the summary hierarchy with a compact readiness score and progress treatment.

@@ -137,4 +137,16 @@ describe("ServiceReadinessPanel", () => {
     expect(impactList.textContent).toContain("图片与视频不可用");
     expect(impactList.textContent).toContain("素材库受限");
   });
+
+  test("summarizes readiness progress before the detailed checks", async () => {
+    vi.mocked(api.readiness).mockResolvedValueOnce(attentionSnapshot);
+
+    render(<ServiceReadinessPanel />);
+
+    await screen.findByText("创作环境需要处理");
+    expect(screen.getByText("2 / 4 项已就绪")).toBeTruthy();
+    expect(screen.getByText("2 项待处理")).toBeTruthy();
+    const progress = screen.getByRole("progressbar", { name: "服务就绪进度" });
+    expect(progress.getAttribute("aria-valuenow")).toBe("50");
+  });
 });
