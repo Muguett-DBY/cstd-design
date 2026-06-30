@@ -1,5 +1,30 @@
 # Iteration Log
 
+## Long Campaign 032 — Stage 5 Readiness Response Guard CHECK (2026-06-30)
+
+### Goal
+- Prevent malformed or forward-incompatible Service Readiness responses from crashing Settings.
+
+### Finding fixed
+- Unknown check ids from `/api/readiness` reached the action-plan renderer, where `check.action.title` was read from `undefined`.
+
+### Completed locally
+- Added runtime normalization before storing Service Readiness snapshots.
+- Rejects invalid snapshot status, non-array checks, unknown check ids, invalid check statuses, and missing text fields.
+- Routes invalid responses into the existing `暂时无法检查` alert with `服务状态响应格式异常。`.
+
+### Verified
+- RED: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed with a React render crash for an unknown readiness check id.
+- GREEN targeted: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` — 1 file, 9 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 82 files, 523 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 382-commit gitleaks scan; `git diff --check`.
+- Browser QA passed at desktop 1440×900 and mobile 390×844 with an invalid readiness response: safe alert rendered, normal attention summary did not render, no horizontal overflow, and zero console/page errors.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+
+### Next
+- Continue Stage 6 final IMPROVE with one final Service Readiness recovery feedback increment, then close the campaign.
+
 ## Long Campaign 032 — Stage 4 Pending Readiness Summary IMPROVE (2026-06-30)
 
 ### Goal
@@ -17,7 +42,8 @@
 - Browser QA passed at desktop 1440×900 and mobile 390×844 with authenticated API stubs: pending summary copied the expected action order and workspace impact, excluded ready-check noise, had no horizontal overflow, and had zero console/page errors.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+- Commit `474e8b7 feat: copy pending readiness summary` was pushed to `main`; GitHub Actions run `28439700768` passed all deployment steps.
+- Exact deployment `https://d7c287ed.cstd-design.pages.dev` passed production smoke for commit `474e8b752498effaac18246a2b7e8da7ff6c75de`.
 
 ### Next
 - Continue Stage 5 CHECK by auditing Service Readiness failure/response edge cases and fixing any verified issue with regression coverage first.

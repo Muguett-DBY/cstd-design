@@ -113,6 +113,22 @@ describe("ServiceReadinessPanel", () => {
     expect(screen.getByRole("button", { name: "重新检查服务状态" })).toBeTruthy();
   });
 
+  test("shows a safe error when readiness response shape is invalid", async () => {
+    vi.mocked(api.readiness).mockResolvedValueOnce({
+      status: "attention",
+      checkedAt: "2026-06-28T00:00:00.000Z",
+      checks: [
+        { id: "unknown", label: "未知服务", status: "attention", detail: "未知服务异常。" },
+      ],
+    } as unknown as Awaited<ReturnType<typeof api.readiness>>);
+
+    render(<ServiceReadinessPanel />);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("服务状态响应格式异常");
+    expect(screen.queryByText("创作环境需要处理")).toBeNull();
+  });
+
   test("turns degraded readiness checks into a prioritized action checklist", async () => {
     vi.mocked(api.readiness).mockResolvedValueOnce(attentionSnapshot);
 

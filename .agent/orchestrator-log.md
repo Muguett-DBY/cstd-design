@@ -50,6 +50,16 @@
 - **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 522 tests; Functions typecheck, lint, build, high-severity audit, 381-commit gitleaks scan, and `git diff --check` passed.
 - **Browser QA**: Local production preview browser QA passed at desktop 1440×900 and mobile 390×844 with authenticated API stubs. The pending summary copied the expected action order and workspace impact, excluded `数据服务: ready`, had no horizontal overflow, and reported no console/page errors.
 - **Debug note**: Vite preview does not serve Pages Functions, so the first QA script stayed on the private access screen because `/api/session` returned HTML. The final browser script stubbed the minimum authenticated API responses and waited for the main app to mount before opening the command palette.
+- **Release**: Commit `474e8b7 feat: copy pending readiness summary` was pushed to `main`; GitHub Actions run `28439700768` passed every step. Exact deployment `https://d7c287ed.cstd-design.pages.dev` passed production smoke for `474e8b752498effaac18246a2b7e8da7ff6c75de`.
+
+### Stage 5/6 — CHECK
+- **Prompt**: `AGENT_CHECK_MAIN.txt`
+- **Goal**: Audit Service Readiness response handling for real stability risks and fix verified issues with regression coverage.
+- **Finding fixed**: A malformed or forward-incompatible `/api/readiness` response with an unknown check id could crash `ServiceReadinessPanel` while rendering the action plan because `check.action` was undefined.
+- **Implemented**: Added runtime normalization for Service Readiness snapshots before state is stored. Unknown snapshot status, non-array checks, unknown check ids, invalid check status, or missing text fields now throw a controlled `服务状态响应格式异常。` error and use the existing alert/retry path instead of rendering partial unsafe state.
+- **TDD evidence**: RED targeted test reproduced the crash and React error when an unknown `id: "unknown"` check was returned; GREEN targeted test passed all 9 `ServiceReadinessPanel` cases.
+- **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 523 tests; Functions typecheck, lint, build, high-severity audit, 382-commit gitleaks scan, and `git diff --check` passed.
+- **Browser QA**: Local production preview browser QA passed at desktop 1440×900 and mobile 390×844 with an invalid readiness response. The settings panel rendered the safe error alert, did not render the normal attention summary, had no horizontal overflow, and reported no console/page errors.
 - **Release state**: Scoped commit, push, CI, and exact production smoke remain pending.
 
 ## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)
