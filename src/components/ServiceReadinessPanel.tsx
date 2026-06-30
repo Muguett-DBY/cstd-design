@@ -114,6 +114,9 @@ export function ServiceReadinessPanel() {
   };
   const actions = snapshot ? readinessActions(snapshot.checks) : [];
   const workspaces = snapshot ? workspaceAvailability(snapshot.checks) : [];
+  const readyCount = snapshot?.checks.filter((check) => check.status === "ready").length ?? 0;
+  const totalCount = snapshot?.checks.length ?? 0;
+  const readyPercent = totalCount > 0 ? Math.round((readyCount / totalCount) * 100) : 0;
 
   return (
     <section className="settings-section service-readiness-section" aria-labelledby="service-readiness-title">
@@ -154,6 +157,22 @@ export function ServiceReadinessPanel() {
             <div>
               <strong>{snapshot.status === "ready" ? "创作环境已就绪" : "创作环境需要处理"}</strong>
               <span>检查于 {formatCheckedAt(snapshot.checkedAt)}{loading ? " · 正在刷新" : ""}</span>
+            </div>
+          </div>
+          <div className="service-readiness-overview">
+            <div className="service-readiness-overview-copy">
+              <strong>{readyCount} / {totalCount} 项已就绪</strong>
+              <span>{totalCount - readyCount} 项待处理</span>
+            </div>
+            <div
+              className="service-readiness-progress"
+              role="progressbar"
+              aria-label="服务就绪进度"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={readyPercent}
+            >
+              <span style={{ width: `${readyPercent}%` }} />
             </div>
           </div>
           <div className="service-readiness-actions">

@@ -5986,6 +5986,61 @@ button:disabled {
   color: var(--warning, #9a6700);
 }
 
+.service-readiness-overview {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--success, #18864b) 22%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--success, #18864b) 6%, var(--bg));
+}
+
+.service-readiness-summary.is-attention .service-readiness-overview {
+  border-color: color-mix(in srgb, var(--warning, #9a6700) 24%, var(--border));
+  background: color-mix(in srgb, var(--warning, #9a6700) 6%, var(--bg));
+}
+
+.service-readiness-overview-copy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.service-readiness-overview-copy strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.service-readiness-overview-copy span {
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface);
+  font-size: 11px;
+}
+
+.service-readiness-progress {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 72%, transparent);
+}
+
+.service-readiness-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--success, #18864b);
+  transition: width 180ms ease;
+}
+
+.service-readiness-summary.is-attention .service-readiness-progress > span {
+  background: var(--warning, #9a6700);
+}
+
 .service-readiness-actions {
   display: flex;
   align-items: center;
@@ -6181,6 +6236,15 @@ button:disabled {
 }
 
 @media (max-width: 560px) {
+  .service-readiness-overview {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .service-readiness-overview-copy {
+    justify-content: space-between;
+  }
+
   .service-readiness-checks {
     grid-template-columns: 1fr;
   }
