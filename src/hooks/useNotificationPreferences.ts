@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:notification-preferences";
 
@@ -20,13 +21,17 @@ const DEFAULT_PREFS: NotificationPreferences = {
 };
 
 function loadPreferences(): NotificationPreferences {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULT_PREFS;
-    return { ...DEFAULT_PREFS, ...JSON.parse(raw) };
-  } catch {
-    return DEFAULT_PREFS;
-  }
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const savedTypes = isPlainRecord(parsed.types) ? parsed.types : {};
+  return {
+    enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULT_PREFS.enabled,
+    types: {
+      message: typeof savedTypes.message === "boolean" ? savedTypes.message : DEFAULT_PREFS.types.message,
+      image: typeof savedTypes.image === "boolean" ? savedTypes.image : DEFAULT_PREFS.types.image,
+      video: typeof savedTypes.video === "boolean" ? savedTypes.video : DEFAULT_PREFS.types.video,
+      system: typeof savedTypes.system === "boolean" ? savedTypes.system : DEFAULT_PREFS.types.system,
+    },
+  };
 }
 
 function savePreferences(prefs: NotificationPreferences) {

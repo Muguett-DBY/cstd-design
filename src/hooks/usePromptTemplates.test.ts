@@ -46,6 +46,13 @@ describe("usePromptTemplates", () => {
     expect(result.current.templates).toEqual([]);
   });
 
+  test("ignores non-array saved templates", () => {
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify({ id: "template1" }));
+
+    const { result } = renderHook(() => usePromptTemplates());
+    expect(result.current.templates).toEqual([]);
+  });
+
   test("save adds a template", () => {
     const { result } = renderHook(() => usePromptTemplates());
     act(() => result.current.save("My Template", "Generate a {{date}} image"));

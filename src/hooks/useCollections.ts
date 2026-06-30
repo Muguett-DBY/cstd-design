@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isPlainRecord, isStringArray, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:asset-collections";
 
@@ -11,17 +12,22 @@ export interface AssetCollection {
   color?: string;
 }
 
+function isAssetCollection(value: unknown): value is AssetCollection {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && typeof value.name === "string"
+    && isStringArray(value.assetIds)
+    && typeof value.createdAt === "string"
+    && (value.description === undefined || typeof value.description === "string")
+    && (value.color === undefined || typeof value.color === "string");
+}
+
+function isAssetCollectionArray(value: unknown): value is AssetCollection[] {
+  return Array.isArray(value) && value.every(isAssetCollection);
+}
+
 function loadCollections(): AssetCollection[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) return parsed;
-    }
-  } catch {
-    // ignore
-  }
-  return [];
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), [], isAssetCollectionArray);
 }
 
 function persist(collections: AssetCollection[]) {

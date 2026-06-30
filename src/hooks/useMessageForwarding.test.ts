@@ -160,6 +160,14 @@ describe("useMessageForwarding", () => {
     expect(result.current.getForwardedMessages()).toEqual([]);
   });
 
+  test("ignores non-array saved forwarded messages", () => {
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify({ messageId: "msg1" }));
+
+    const { result } = renderHook(() => useMessageForwarding());
+    expect(result.current.getForwardedMessages()).toEqual([]);
+    expect(result.current.getForwardCount("msg1")).toBe(0);
+  });
+
   test("logForward with threadParentId", () => {
     const { result } = renderHook(() => useMessageForwarding());
 

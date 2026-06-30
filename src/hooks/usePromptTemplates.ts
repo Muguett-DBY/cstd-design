@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:image-prompt-templates";
 
@@ -43,14 +44,21 @@ function expandVariables(text: string, custom: Record<string, string> = {}): str
 
 export { expandVariables };
 
+function isPromptTemplate(value: unknown): value is PromptTemplate {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && typeof value.name === "string"
+    && typeof value.prompt === "string"
+    && typeof value.createdAt === "string";
+}
+
+function isPromptTemplateArray(value: unknown): value is PromptTemplate[] {
+  return Array.isArray(value) && value.every(isPromptTemplate);
+}
+
 export function usePromptTemplates() {
   const [templates, setTemplates] = useState<PromptTemplate[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+    return parseStoredJson(localStorage.getItem(STORAGE_KEY), [], isPromptTemplateArray);
   });
 
   const save = useCallback((name: string, prompt: string, variables?: string[]) => {

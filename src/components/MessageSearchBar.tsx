@@ -2,17 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { Bookmark, ChevronDown, ChevronUp, Clock, Filter, MessageSquare, Search, Star, Trash2, Wand2, X } from "lucide-react";
 import type { DateFilter, RoleFilter } from "../hooks/useMessageSearch";
 import type { SavedSearch } from "../hooks/useSavedSearches";
+import { isStringArray, parseStoredJson } from "../utils/storageJson";
 
 const SEARCH_HISTORY_KEY = "cstd-design:searchHistory";
 const MAX_HISTORY = 5;
 
 function loadSearchHistory(): string[] {
-  try {
-    const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+  return parseStoredJson(localStorage.getItem(SEARCH_HISTORY_KEY), [], isStringArray).slice(0, MAX_HISTORY);
 }
 
 function saveSearchHistory(history: string[]) {

@@ -38,6 +38,12 @@ describe("useVideoTaskPersistence", () => {
     expect(result.current.task).toMatchObject(storedTask);
   });
 
+  it("ignores incomplete saved active tasks", () => {
+    storage.set(STORAGE_KEY, JSON.stringify({ status: "in_progress" }));
+    const { result } = renderHook(() => useVideoTaskPersistence());
+    expect(result.current.task).toBeNull();
+  });
+
   it("ignores completed tasks but retains failed tasks for recovery", () => {
     storage.set(STORAGE_KEY, JSON.stringify({ id: "task-1", status: "completed", progress: 100 }));
     const { result } = renderHook(() => useVideoTaskPersistence());

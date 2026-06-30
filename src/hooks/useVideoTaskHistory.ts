@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:video-task-history";
 
@@ -10,14 +11,20 @@ export interface VideoTaskHistoryEntry {
   assetUrl?: string;
 }
 
+function isVideoTaskHistoryEntry(value: unknown): value is VideoTaskHistoryEntry {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && typeof value.prompt === "string"
+    && (value.status === "completed" || value.status === "failed" || value.status === "abandoned")
+    && typeof value.finishedAt === "string";
+}
+
+function isVideoTaskHistory(value: unknown): value is VideoTaskHistoryEntry[] {
+  return Array.isArray(value) && value.every(isVideoTaskHistoryEntry);
+}
+
 function load(): VideoTaskHistoryEntry[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-    return JSON.parse(stored);
-  } catch {
-    return [];
-  }
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), [], isVideoTaskHistory);
 }
 
 function save(tasks: VideoTaskHistoryEntry[]) {

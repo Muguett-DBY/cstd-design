@@ -160,4 +160,11 @@ describe("useConversationArchiving", () => {
     const { result } = renderHook(() => useConversationArchiving());
     expect(result.current.isArchived("conv1")).toBe(false);
   });
+
+  test("ignores non-record saved archive state", () => {
+    localStorageMock.getItem.mockReturnValueOnce("null");
+
+    const { result } = renderHook(() => useConversationArchiving());
+    expect(result.current.isArchived("conv1")).toBe(false);
+  });
 });

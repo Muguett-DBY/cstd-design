@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:mergedConversations";
 
@@ -10,13 +11,20 @@ interface MergeRecord {
 
 type MergedConversations = Record<string, MergeRecord>;
 
+function isMergeRecord(value: unknown): value is MergeRecord {
+  return isPlainRecord(value)
+    && typeof value.sourceId === "string"
+    && typeof value.targetId === "string"
+    && typeof value.mergedAt === "string";
+}
+
 function loadMerged(): MergedConversations {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const mergedBySource: MergedConversations = {};
+  for (const [sourceId, record] of Object.entries(parsed)) {
+    if (isMergeRecord(record)) mergedBySource[sourceId] = record;
   }
+  return mergedBySource;
 }
 
 function saveMerged(merged: MergedConversations) {

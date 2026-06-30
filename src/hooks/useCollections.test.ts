@@ -20,6 +20,15 @@ describe("useCollections", () => {
     expect(result.current.collections).toEqual([]);
   });
 
+  test("ignores saved collections missing required fields", () => {
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify([{ id: "bad", name: "Bad" }]));
+
+    const { result } = renderHook(() => useCollections());
+
+    expect(result.current.collections).toEqual([]);
+    expect(result.current.filterByCollection(["asset1"], "bad")).toEqual(["asset1"]);
+  });
+
   test("create adds a collection", () => {
     const { result } = renderHook(() => useCollections());
     act(() => { result.current.create("Favorites"); });

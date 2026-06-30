@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { VideoPreset } from "../types";
+import { isPlainRecord, isStringArray, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:activeVideoTask";
 
@@ -24,16 +25,37 @@ export interface VideoGenerationRecipe {
   seed?: number;
 }
 
+function isVideoGenerationRecipe(value: unknown): value is VideoGenerationRecipe {
+  return isPlainRecord(value)
+    && typeof value.prompt === "string"
+    && (value.preset === "short" || value.preset === "standard" || value.preset === "max")
+    && typeof value.fps === "number"
+    && typeof value.width === "number"
+    && typeof value.height === "number"
+    && isStringArray(value.referenceAssetIds)
+    && typeof value.keyframes === "boolean"
+    && (value.negativePrompt === undefined || typeof value.negativePrompt === "string")
+    && (value.seed === undefined || typeof value.seed === "number");
+}
+
+function isPersistedVideoTask(value: unknown): value is PersistedVideoTask {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && typeof value.status === "string"
+    && typeof value.progress === "number"
+    && (value.assetUrl === undefined || typeof value.assetUrl === "string")
+    && (value.startedAt === undefined || typeof value.startedAt === "string")
+    && (value.recipe === undefined || isVideoGenerationRecipe(value.recipe));
+}
+
 function loadActiveTask(): PersistedVideoTask | null {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return null;
-    const parsed = JSON.parse(stored);
-    if (parsed.status === "completed") return null;
-    return parsed;
-  } catch {
-    return null;
-  }
+  const parsed = parseStoredJson<PersistedVideoTask | null>(
+    localStorage.getItem(STORAGE_KEY),
+    null,
+    (value): value is PersistedVideoTask | null => value === null || isPersistedVideoTask(value),
+  );
+  if (!parsed || parsed.status === "completed") return null;
+  return parsed;
 }
 
 function saveActiveTask(task: PersistedVideoTask | null) {

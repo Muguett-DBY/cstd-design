@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:custom-shortcuts";
 
@@ -33,14 +34,19 @@ const SHORTCUT_LABELS: Record<ShortcutAction, string> = {
   focusInput: "聚焦输入框",
 } as const;
 
+function isShortcutAction(value: string): value is ShortcutAction {
+  return value in DEFAULT_SHORTCUTS;
+}
+
 function loadCustomShortcuts(): Partial<ShortcutMap> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const shortcuts: Partial<ShortcutMap> = {};
+  for (const [action, shortcut] of Object.entries(parsed)) {
+    if (isShortcutAction(action) && typeof shortcut === "string") {
+      shortcuts[action] = shortcut;
+    }
   }
+  return shortcuts;
 }
 
 function saveCustomShortcuts(shortcuts: Partial<ShortcutMap>) {

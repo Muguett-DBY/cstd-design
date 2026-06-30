@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:usage-stats";
 
@@ -27,17 +28,26 @@ const DEFAULT_STATS: UsageStats = {
   events: [],
 };
 
+function isUsageEvent(value: unknown): value is UsageEvent {
+  return isPlainRecord(value)
+    && (value.type === "message_sent" || value.type === "image_generated" || value.type === "video_generated" || value.type === "image_edited" || value.type === "video_abandoned")
+    && typeof value.timestamp === "string";
+}
+
+function readCount(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : 0;
+}
+
 function load(): UsageStats {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      return { ...DEFAULT_STATS, ...parsed };
-    }
-  } catch {
-    // ignore
-  }
-  return DEFAULT_STATS;
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  return {
+    messageSent: readCount(parsed.messageSent),
+    imageGenerated: readCount(parsed.imageGenerated),
+    videoGenerated: readCount(parsed.videoGenerated),
+    imageEdited: readCount(parsed.imageEdited),
+    videoAbandoned: readCount(parsed.videoAbandoned),
+    events: Array.isArray(parsed.events) ? parsed.events.filter(isUsageEvent).slice(-200) : [],
+  };
 }
 
 function save(stats: UsageStats) {

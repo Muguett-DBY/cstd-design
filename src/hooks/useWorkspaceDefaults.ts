@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:workspace-defaults";
 
@@ -8,14 +9,19 @@ type WorkspaceDefaults = {
   [K in WorkspaceId]?: Record<string, unknown>;
 };
 
+function isWorkspaceId(value: string): value is WorkspaceId {
+  return value === "chat" || value === "image" || value === "video" || value === "asset";
+}
+
 function loadDefaults(): WorkspaceDefaults {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const defaults: WorkspaceDefaults = {};
+  for (const [workspace, value] of Object.entries(parsed)) {
+    if (isWorkspaceId(workspace) && isPlainRecord(value)) {
+      defaults[workspace] = value;
+    }
   }
+  return defaults;
 }
 
 function saveDefaults(defaults: WorkspaceDefaults) {

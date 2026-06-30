@@ -1,15 +1,11 @@
 import { useCallback, useState } from "react";
 import type { ConversationSummary } from "../types";
+import { isStringArray, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:conversationOrder";
 
 function loadOrder(): string[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), [], isStringArray);
 }
 
 function saveOrder(order: string[]) {
