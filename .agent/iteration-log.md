@@ -1,5 +1,28 @@
 # Iteration Log
 
+## Long Campaign 031 — Stage 6 Saved Search Removal IMPROVE (2026-06-30)
+
+### Goal
+- Complete the saved Global Search lifecycle by allowing obsolete or accidental saved queries to be removed from the empty search state.
+
+### Completed locally
+- Added an accessible delete action beside every saved Global Search chip.
+- Kept query application and deletion as separate controls so deleting never applies the query first.
+- Added joined-chip styling with destructive hover feedback and responsive wrapping.
+- Added regression coverage for UI removal and persisted localStorage cleanup.
+
+### Verified
+- RED: `npx vitest run src/components/GlobalSearchModal.test.tsx` failed because `删除已保存搜索：launch` was missing.
+- GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx` — 1 file, 5 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 491 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Authenticated local Pages browser QA passed at `http://127.0.0.1:8819` on desktop 1440×900 and mobile 390×844: saved query exposed distinct apply/delete controls, deletion persisted `[]`, the mobile dialog had equal 375px client and scroll widths, and the console had 0 errors/0 warnings.
+
+### CI status
+- Feature commit, GitHub Actions, and exact deployment verification are pending.
+
+### Next
+- Commit and push the final feature, verify CI and the exact Cloudflare Pages deployment, then close Campaign 031 with a record commit and repeat the release gate.
+
 ## Long Campaign 031 — Stage 5 Saved Search Storage CHECK (2026-06-30)
 
 ### Goal

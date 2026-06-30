@@ -106,6 +106,24 @@
 - **Exact deployment**: `https://e203882a.cstd-design.pages.dev` passed production smoke for commit `c7f78334ca46f22adc44fc041d98160d8c0ef297`.
 - **Next**: Stage 6 final IMPROVE will add one final user-facing Global Search increment, then run final release closure.
 
+### Stage 6/6 — IMPROVE 🚧
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Complete the saved Global Search lifecycle by letting users remove obsolete or accidental saved queries directly from the empty search state.
+- **Start state**: Stage 5 feature and record commits were pushed to `main`; both GitHub Actions runs passed and exact production smoke passed for `e40e8ee`.
+- **Completed locally**:
+  - Added a dedicated delete action beside each saved Global Search chip.
+  - Kept query application and deletion as separate accessible buttons with explicit labels.
+  - Added compact joined-chip styling with destructive hover feedback and mobile-safe wrapping.
+  - Added regression coverage proving deletion removes the saved query from both the UI and localStorage without changing the active query.
+- **Validation so far**:
+  - RED confirmed: `npx vitest run src/components/GlobalSearchModal.test.tsx` failed because `删除已保存搜索：launch` did not exist.
+  - GREEN targeted: same command — 1 file, 5 tests passed.
+  - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 491 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+  - Authenticated local Pages browser QA passed at `http://127.0.0.1:8819` on desktop 1440×900 and mobile 390×844: save/delete controls exposed with accessible names, deletion persisted `[]`, mobile dialog measured `375px` client/scroll width with no horizontal overflow, and console reported 0 errors/0 warnings.
+- **Commit/CI**: pending feature commit and GitHub Actions verification.
+- **Exact deployment**: pending commit-specific production smoke.
+- **Next**: Push the final feature, verify CI and exact production deployment, then close Campaign 031 with a record commit and repeat the release gate.
+
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 
 ### Global preparation
