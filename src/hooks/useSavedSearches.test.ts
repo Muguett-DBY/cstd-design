@@ -49,4 +49,15 @@ describe("useSavedSearches", () => {
     act(() => result.current.add({ name: "Test", query: "q", roleFilter: "user", dateFilter: "week" }));
     expect(localStorageMock.setItem).toHaveBeenCalled();
   });
+
+  test("ignores invalid persisted saved-search data", () => {
+    localStorageMock.setItem("cstd-design:saved-searches", JSON.stringify({
+      id: "not-an-array",
+      query: "broken",
+    }));
+
+    const { result } = renderHook(() => useSavedSearches());
+
+    expect(result.current.saved).toEqual([]);
+  });
 });

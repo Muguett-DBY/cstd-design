@@ -14,7 +14,19 @@ export interface SavedSearch {
 function loadSaved(): SavedSearch[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((entry): entry is SavedSearch => (
+      entry
+      && typeof entry.id === "string"
+      && typeof entry.name === "string"
+      && typeof entry.query === "string"
+      && ["all", "user", "assistant"].includes(entry.roleFilter)
+      && ["all", "today", "week", "month"].includes(entry.dateFilter)
+      && typeof entry.createdAt === "string"
+      && Number.isFinite(Date.parse(entry.createdAt))
+    ));
   } catch {
     return [];
   }
