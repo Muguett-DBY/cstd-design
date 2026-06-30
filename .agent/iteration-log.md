@@ -18,10 +18,11 @@
 - Authenticated local Pages browser QA passed at `http://127.0.0.1:8819` on desktop 1440×900 and mobile 390×844: saved query exposed distinct apply/delete controls, deletion persisted `[]`, the mobile dialog had equal 375px client and scroll widths, and the console had 0 errors/0 warnings.
 
 ### CI status
-- Feature commit, GitHub Actions, and exact deployment verification are pending.
+- Commit `346dfff feat: manage saved global searches` was pushed to `main`; GitHub Actions run `28419346834` passed all deployment steps.
+- Exact deployment `https://47cb4688.cstd-design.pages.dev` passed production smoke for commit `346dfff2e8ac2b671882a98ab6ade50d163d8a82`.
 
 ### Next
-- Commit and push the final feature, verify CI and the exact Cloudflare Pages deployment, then close Campaign 031 with a record commit and repeat the release gate.
+- Campaign 031 is complete at 6/6 stages. Start the next campaign from a newly verified workflow need; no known Global Search blocker remains from this campaign.
 
 ## Long Campaign 031 — Stage 5 Saved Search Storage CHECK (2026-06-30)
 
