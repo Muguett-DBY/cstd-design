@@ -60,6 +60,15 @@
 - **TDD evidence**: RED targeted test reproduced the crash and React error when an unknown `id: "unknown"` check was returned; GREEN targeted test passed all 9 `ServiceReadinessPanel` cases.
 - **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 523 tests; Functions typecheck, lint, build, high-severity audit, 382-commit gitleaks scan, and `git diff --check` passed.
 - **Browser QA**: Local production preview browser QA passed at desktop 1440×900 and mobile 390×844 with an invalid readiness response. The settings panel rendered the safe error alert, did not render the normal attention summary, had no horizontal overflow, and reported no console/page errors.
+- **Release**: Commit `11a8feb fix: validate service readiness snapshots` was pushed to `main`; GitHub Actions run `28440421150` passed every step. Exact deployment `https://36c3f3f3.cstd-design.pages.dev` passed production smoke for `11a8feb4be5f106a989d5b32d29fb5885ace1f82`.
+
+### Stage 6/6 — IMPROVE
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Add final recovery feedback so users can confirm whether a refresh actually resolved Service Readiness blockers.
+- **Implemented**: Added refresh-result comparison between the previous and latest normalized snapshots. When attention checks recover, the panel announces `刚刚恢复：...`; when ready checks newly degrade, it announces `新增待处理：...`; unchanged refreshes get a neutral completion message.
+- **TDD evidence**: RED targeted test failed because refreshing from generation/media attention to ready did not show `刚刚恢复：生成服务、素材存储`; GREEN targeted test passed all 10 `ServiceReadinessPanel` cases.
+- **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 524 tests; Functions typecheck, lint, build, high-severity audit, 383-commit gitleaks scan, and `git diff --check` passed.
+- **Browser QA**: Local production preview browser QA passed at desktop 1440×900 and mobile 390×844. With authenticated API stubs, the panel loaded attention state, refreshed to ready state, showed `刚刚恢复：生成服务、素材存储`, reached 100% progress, had no horizontal overflow, and reported no console/page errors.
 - **Release state**: Scoped commit, push, CI, and exact production smoke remain pending.
 
 ## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)

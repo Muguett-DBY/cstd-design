@@ -1,5 +1,28 @@
 # Iteration Log
 
+## Long Campaign 032 — Stage 6 Readiness Refresh Feedback IMPROVE (2026-06-30)
+
+### Goal
+- Confirm whether a Service Readiness refresh actually resolved or introduced blockers.
+
+### Completed locally
+- Compared the previous and latest normalized readiness snapshots after refresh.
+- Added `刚刚恢复：...` feedback for checks that move from attention to ready.
+- Added `新增待处理：...` and unchanged-refresh copy for other refresh outcomes.
+- Added compact success-card styling for the refresh result.
+
+### Verified
+- RED: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed because refresh recovery feedback did not exist.
+- GREEN targeted: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` — 1 file, 10 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 82 files, 524 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 383-commit gitleaks scan; `git diff --check`.
+- Browser QA passed at desktop 1440×900 and mobile 390×844 with authenticated API stubs: attention loaded, refresh changed to ready, `刚刚恢复：生成服务、素材存储` rendered, progress reached 100%, no horizontal overflow, and zero console/page errors.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+
+### Next
+- Close Campaign 032 after scoped commit, push, CI verification, and exact production smoke.
+
 ## Long Campaign 032 — Stage 5 Readiness Response Guard CHECK (2026-06-30)
 
 ### Goal
@@ -20,7 +43,8 @@
 - Browser QA passed at desktop 1440×900 and mobile 390×844 with an invalid readiness response: safe alert rendered, normal attention summary did not render, no horizontal overflow, and zero console/page errors.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+- Commit `11a8feb fix: validate service readiness snapshots` was pushed to `main`; GitHub Actions run `28440421150` passed all deployment steps.
+- Exact deployment `https://36c3f3f3.cstd-design.pages.dev` passed production smoke for commit `11a8feb4be5f106a989d5b32d29fb5885ace1f82`.
 
 ### Next
 - Continue Stage 6 final IMPROVE with one final Service Readiness recovery feedback increment, then close the campaign.

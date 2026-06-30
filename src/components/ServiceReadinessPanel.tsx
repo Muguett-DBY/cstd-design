@@ -1,5 +1,5 @@
 import { AlertTriangle, CheckCircle2, Copy, RefreshCw, ShieldCheck, WandSparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, type ServiceReadinessCheck, type ServiceReadinessSnapshot } from "../api";
 import { formatServiceReadinessDiagnostics } from "../utils/serviceReadinessDiagnostics";
 
@@ -146,18 +146,50 @@ function formatPendingReadinessSummary(snapshot: ServiceReadinessSnapshot) {
   return lines.join("\n");
 }
 
+function orderedCheckLabels(checks: ServiceReadinessCheck[], ids: ServiceReadinessCheck["id"][]) {
+  const checksById = new Map(checks.map((check) => [check.id, check]));
+  return ids
+    .sort((a, b) => READINESS_ACTION_COPY[a].priority - READINESS_ACTION_COPY[b].priority)
+    .map((id) => checksById.get(id)?.label ?? READINESS_ACTION_COPY[id].title.replace("处理", ""));
+}
+
+function summarizeReadinessRefresh(previous: ServiceReadinessSnapshot | null, next: ServiceReadinessSnapshot) {
+  if (!previous) return "";
+  const previousStatuses = new Map(previous.checks.map((check) => [check.id, check.status]));
+  const recovered = next.checks
+    .filter((check) => previousStatuses.get(check.id) === "attention" && check.status === "ready")
+    .map((check) => check.id);
+  const newAttention = next.checks
+    .filter((check) => previousStatuses.get(check.id) === "ready" && check.status === "attention")
+    .map((check) => check.id);
+
+  if (recovered.length > 0) {
+    return `刚刚恢复：${orderedCheckLabels(next.checks, recovered).join("、")}`;
+  }
+  if (newAttention.length > 0) {
+    return `新增待处理：${orderedCheckLabels(next.checks, newAttention).join("、")}`;
+  }
+  return "刷新完成，服务状态未变化。";
+}
+
 export function ServiceReadinessPanel() {
   const [snapshot, setSnapshot] = useState<ServiceReadinessSnapshot | null>(null);
   const [error, setError] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
+  const [refreshStatus, setRefreshStatus] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
+  const latestSnapshotRef = useRef<ServiceReadinessSnapshot | null>(null);
 
   useEffect(() => {
     let active = true;
     void api.readiness()
       .then((next) => {
-        if (active) setSnapshot(normalizeServiceReadinessSnapshot(next));
+        if (!active) return;
+        const normalized = normalizeServiceReadinessSnapshot(next);
+        if (refreshKey > 0) setRefreshStatus(summarizeReadinessRefresh(latestSnapshotRef.current, normalized));
+        latestSnapshotRef.current = normalized;
+        setSnapshot(normalized);
       })
       .catch((reason: unknown) => {
         if (active) setError(reason instanceof Error ? reason.message : "服务状态检查失败。");
@@ -172,6 +204,7 @@ export function ServiceReadinessPanel() {
     setLoading(true);
     setError("");
     setCopyStatus("");
+    setRefreshStatus("");
     setRefreshKey((current) => current + 1);
   };
 
@@ -265,6 +298,9 @@ export function ServiceReadinessPanel() {
               <span style={{ width: `${readyPercent}%` }} />
             </div>
           </div>
+          {refreshStatus && (
+            <div className="service-readiness-refresh-result" aria-live="polite">{refreshStatus}</div>
+          )}
           <div className="service-readiness-actions">
             <button type="button" className="ghost-button service-readiness-copy" onClick={copyDiagnostics}>
               <Copy size={14} />
