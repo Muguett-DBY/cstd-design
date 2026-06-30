@@ -183,4 +183,18 @@ describe("ServiceReadinessPanel", () => {
     expect(copied).not.toContain("数据服务: ready");
     expect(screen.getByText("待处理摘要已复制。")).toBeTruthy();
   });
+
+  test("announces which readiness checks recovered after refresh", async () => {
+    vi.mocked(api.readiness)
+      .mockResolvedValueOnce(attentionSnapshot)
+      .mockResolvedValueOnce(readySnapshot);
+
+    render(<ServiceReadinessPanel />);
+
+    await screen.findByText("创作环境需要处理");
+    fireEvent.click(screen.getByRole("button", { name: "重新检查服务状态" }));
+
+    await screen.findByText("创作环境已就绪");
+    expect(screen.getByText("刚刚恢复：生成服务、素材存储")).toBeTruthy();
+  });
 });

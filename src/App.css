@@ -6041,6 +6041,15 @@ button:disabled {
   background: var(--warning, #9a6700);
 }
 
+.service-readiness-refresh-result {
+  padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--success, #18864b) 18%, var(--border));
+  border-radius: 9px;
+  color: color-mix(in srgb, var(--success, #18864b) 72%, var(--text));
+  background: color-mix(in srgb, var(--success, #18864b) 7%, var(--surface));
+  font-size: 12px;
+}
+
 .service-readiness-actions {
   display: flex;
   align-items: center;
