@@ -242,14 +242,23 @@ export function GlobalSearchModal({
               {savedSearches.saved.length > 0 && (
                 <div className="global-search-saved-list" aria-label="已保存搜索">
                   {savedSearches.saved.slice(0, 6).map((saved) => (
-                    <button
-                      key={saved.id}
-                      type="button"
-                      className="global-search-saved-chip"
-                      onClick={() => applySavedQuery(saved.query)}
-                    >
-                      使用已保存搜索：{saved.name}
-                    </button>
+                    <div key={saved.id} className="global-search-saved-chip-group">
+                      <button
+                        type="button"
+                        className="global-search-saved-chip"
+                        onClick={() => applySavedQuery(saved.query)}
+                      >
+                        使用已保存搜索：{saved.name}
+                      </button>
+                      <button
+                        type="button"
+                        className="global-search-saved-delete"
+                        onClick={() => savedSearches.remove(saved.id)}
+                        aria-label={`删除已保存搜索：${saved.name}`}
+                      >
+                        ×
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}

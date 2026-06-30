@@ -204,4 +204,28 @@ describe("GlobalSearchModal", () => {
     expect(input.value).toBe("launch");
     expect(screen.getByText("共 1 个结果")).toBeTruthy();
   });
+
+  test("removes a saved global search from the empty state", () => {
+    const props = {
+      open: true,
+      onClose: vi.fn(),
+      conversations: [],
+      activeMessages: [],
+      assets: [],
+      onSelectConversation: vi.fn(),
+      onSelectAsset: vi.fn(),
+    };
+
+    render(<GlobalSearchModal {...props} />);
+    const input = screen.getByRole("textbox", { name: "全局搜索" }) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "launch" } });
+    fireEvent.click(screen.getByRole("button", { name: "保存本次搜索" }));
+    fireEvent.change(input, { target: { value: "" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "删除已保存搜索：launch" }));
+
+    expect(screen.queryByRole("button", { name: "使用已保存搜索：launch" })).toBeNull();
+    expect(JSON.parse(localStorage.getItem("cstd-design:saved-searches") || "[]")).toEqual([]);
+    expect(input.value).toBe("");
+  });
 });

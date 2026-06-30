@@ -9152,6 +9152,35 @@ button:disabled {
   background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
+.global-search-saved-chip-group {
+  display: inline-flex;
+  align-items: stretch;
+  max-width: 100%;
+}
+
+.global-search-saved-chip-group .global-search-saved-chip {
+  border-radius: 999px 0 0 999px;
+  min-width: 0;
+}
+
+.global-search-saved-delete {
+  border: 1px solid var(--accent);
+  border-left: 0;
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  color: var(--muted);
+  border-radius: 0 999px 999px 0;
+  padding: 3px 7px;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.global-search-saved-delete:hover {
+  background: color-mix(in srgb, var(--danger, #c33) 12%, transparent);
+  color: var(--danger, #c33);
+  border-color: var(--danger, #c33);
+}
+
 .global-search-results {
   overflow-y: auto;
   max-height: 60vh;
