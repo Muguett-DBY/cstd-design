@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:conversationFolders";
 const FOLDER_COLORS = ["#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ec4899", "#ef4444"];
@@ -11,13 +12,19 @@ export interface Folder {
 
 type FolderAssignments = Record<string, string>;
 
+function isFolder(value: unknown): value is Folder {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && typeof value.name === "string"
+    && typeof value.color === "string";
+}
+
+function isFolderArray(value: unknown): value is Folder[] {
+  return Array.isArray(value) && value.every(isFolder);
+}
+
 function loadFolders(): Folder[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), [], isFolderArray);
 }
 
 function saveFolders(folders: Folder[]) {
@@ -25,12 +32,12 @@ function saveFolders(folders: Folder[]) {
 }
 
 function loadAssignments(): FolderAssignments {
-  try {
-    const stored = localStorage.getItem(`${STORAGE_KEY}:assignments`);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(`${STORAGE_KEY}:assignments`), {}, isPlainRecord);
+  const assignments: FolderAssignments = {};
+  for (const [conversationId, folderId] of Object.entries(parsed)) {
+    if (typeof folderId === "string") assignments[conversationId] = folderId;
   }
+  return assignments;
 }
 
 function saveAssignments(assignments: FolderAssignments) {

@@ -1,16 +1,17 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:archivedConversations";
 
 type ArchivedConversations = Record<string, boolean>;
 
 function loadArchived(): ArchivedConversations {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const archivedByConversation: ArchivedConversations = {};
+  for (const [conversationId, archived] of Object.entries(parsed)) {
+    if (typeof archived === "boolean") archivedByConversation[conversationId] = archived;
   }
+  return archivedByConversation;
 }
 
 function saveArchived(archived: ArchivedConversations) {

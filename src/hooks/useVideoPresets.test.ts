@@ -60,4 +60,13 @@ describe("useVideoPresets", () => {
     const { result } = renderHook(() => useVideoPresets());
     expect(result.current.presets[0].name).toBe("Saved");
   });
+
+  test("falls back to seed presets when saved presets are incomplete", () => {
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify([{ id: "bad" }]));
+
+    const { result } = renderHook(() => useVideoPresets());
+
+    expect(result.current.presets.length).toBeGreaterThanOrEqual(5);
+    expect(result.current.presets.every((preset) => preset.name && preset.prompt)).toBe(true);
+  });
 });

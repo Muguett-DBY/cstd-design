@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { VideoPreset } from "../types";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:video-presets";
 
@@ -62,17 +63,28 @@ const SEED: VideoPresetTemplate[] = [
   },
 ];
 
+function isVideoPreset(value: unknown): value is VideoPreset {
+  return value === "short" || value === "standard" || value === "max";
+}
+
+function isVideoPresetTemplate(value: unknown): value is VideoPresetTemplate {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && typeof value.name === "string"
+    && typeof value.description === "string"
+    && typeof value.prompt === "string"
+    && isVideoPreset(value.preset)
+    && typeof value.fps === "number"
+    && typeof value.aspectRatio === "string"
+    && (value.icon === undefined || typeof value.icon === "string");
+}
+
+function isVideoPresetTemplateArray(value: unknown): value is VideoPresetTemplate[] {
+  return Array.isArray(value) && value.length > 0 && value.every(isVideoPresetTemplate);
+}
+
 function loadPresets(): VideoPresetTemplate[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch {
-    // ignore
-  }
-  return SEED;
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), SEED, isVideoPresetTemplateArray);
 }
 
 function persist(presets: VideoPresetTemplate[]) {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { expandVariables } from "./usePromptTemplates";
+import { isPlainRecord, isStringArray, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:chat-prompt-templates";
 
@@ -12,14 +13,7 @@ export interface ChatPromptTemplate {
 }
 
 function loadTemplates(): ChatPromptTemplate[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return seedTemplates();
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed : seedTemplates();
-  } catch {
-    return seedTemplates();
-  }
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), seedTemplates(), isChatPromptTemplateArray);
 }
 
 function seedTemplates(): ChatPromptTemplate[] {
@@ -46,6 +40,19 @@ function seedTemplates(): ChatPromptTemplate[] {
       variables: ["datetime"],
     },
   ];
+}
+
+function isChatPromptTemplate(value: unknown): value is ChatPromptTemplate {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && typeof value.name === "string"
+    && typeof value.prompt === "string"
+    && typeof value.createdAt === "string"
+    && (value.variables === undefined || isStringArray(value.variables));
+}
+
+function isChatPromptTemplateArray(value: unknown): value is ChatPromptTemplate[] {
+  return Array.isArray(value) && value.length > 0 && value.every(isChatPromptTemplate);
 }
 
 export function useChatPromptTemplates() {

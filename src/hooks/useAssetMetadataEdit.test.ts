@@ -20,6 +20,14 @@ describe("useAssetMetadataEdit", () => {
     expect(result.current.getMetadata("unknown")).toEqual({ title: "", description: "", tags: [] });
   });
 
+  test("ignores non-record saved metadata", () => {
+    localStorageMock.getItem.mockReturnValueOnce("null");
+
+    const { result } = renderHook(() => useAssetMetadataEdit());
+
+    expect(result.current.getMetadata("unknown")).toEqual({ title: "", description: "", tags: [] });
+  });
+
   test("setTitle sets title", () => {
     const { result } = renderHook(() => useAssetMetadataEdit());
     act(() => result.current.setTitle("a1", "My Image"));

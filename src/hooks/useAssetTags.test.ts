@@ -20,6 +20,15 @@ describe("useAssetTags", () => {
     expect(result.current.getTags("asset1")).toEqual([]);
   });
 
+  test("ignores saved tag maps with non-array values", () => {
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify({ asset1: 42 }));
+
+    const { result } = renderHook(() => useAssetTags());
+
+    expect(result.current.getTags("asset1")).toEqual([]);
+    expect(result.current.allTags()).toEqual([]);
+  });
+
   test("addTag adds a tag", () => {
     const { result } = renderHook(() => useAssetTags());
     act(() => result.current.addTag("asset1", "landscape"));

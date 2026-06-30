@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:video-task-queue";
 
@@ -12,15 +13,24 @@ export interface QueuedVideoTask {
   finishedAt?: string;
 }
 
+function isQueuedVideoTask(value: unknown): value is QueuedVideoTask {
+  return isPlainRecord(value)
+    && typeof value.id === "string"
+    && (value.status === "in_progress" || value.status === "completed" || value.status === "failed" || value.status === "queued")
+    && typeof value.progress === "number"
+    && typeof value.prompt === "string"
+    && typeof value.startedAt === "string"
+    && (value.assetUrl === undefined || typeof value.assetUrl === "string")
+    && (value.finishedAt === undefined || typeof value.finishedAt === "string");
+}
+
+function isQueuedVideoTaskArray(value: unknown): value is QueuedVideoTask[] {
+  return Array.isArray(value) && value.every(isQueuedVideoTask);
+}
+
 function loadQueue(): QueuedVideoTask[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed.filter((t) => t.status !== "completed" || (Date.now() - new Date(t.finishedAt || t.startedAt).getTime() < 24 * 60 * 60 * 1000)) : [];
-  } catch {
-    return [];
-  }
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), [], isQueuedVideoTaskArray)
+    .filter((task) => task.status !== "completed" || (Date.now() - new Date(task.finishedAt || task.startedAt).getTime() < 24 * 60 * 60 * 1000));
 }
 
 function saveQueue(tasks: QueuedVideoTask[]) {

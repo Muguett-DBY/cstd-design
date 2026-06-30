@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
+import { isPlainRecord, isStringArray, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:asset-tags";
 
 function loadTags(): Record<string, string[]> {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const tagsByAsset: Record<string, string[]> = {};
+  for (const [assetId, tags] of Object.entries(parsed)) {
+    if (isStringArray(tags)) tagsByAsset[assetId] = tags;
   }
+  return tagsByAsset;
 }
 
 function persist(tags: Record<string, string[]>) {

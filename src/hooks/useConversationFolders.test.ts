@@ -30,6 +30,17 @@ describe("useConversationFolders", () => {
     expect(result.current.folders).toEqual([]);
   });
 
+  test("ignores non-array saved folders and non-record assignments", () => {
+    localStorageMock.getItem
+      .mockReturnValueOnce(JSON.stringify({ id: "not-an-array" }))
+      .mockReturnValueOnce(JSON.stringify(["conv1"]));
+
+    const { result } = renderHook(() => useConversationFolders());
+
+    expect(result.current.folders).toEqual([]);
+    expect(result.current.getFolderConversations("folder1")).toEqual([]);
+  });
+
   test("createFolder adds a folder with correct color", () => {
     const { result } = renderHook(() => useConversationFolders());
 

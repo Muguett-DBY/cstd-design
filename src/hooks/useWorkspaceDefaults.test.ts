@@ -36,6 +36,12 @@ describe("useWorkspaceDefaults", () => {
     expect(result.current.getDefaults("image")).toEqual({ size: "1024x1024" });
   });
 
+  it("ignores non-record saved defaults instead of crashing", () => {
+    storage.set(STORAGE_KEY, "null");
+    const { result } = renderHook(() => useWorkspaceDefaults());
+    expect(result.current.getDefaults("image")).toEqual({});
+  });
+
   it("sets a default value", () => {
     const { result } = renderHook(() => useWorkspaceDefaults());
     act(() => {

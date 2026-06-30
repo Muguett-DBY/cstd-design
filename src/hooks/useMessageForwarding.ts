@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
 
 const STORAGE_KEY = "cstd-design:forwardedMessages";
 
@@ -15,13 +16,21 @@ export interface ForwardRecord {
 
 type ForwardedMessages = ForwardRecord[];
 
+function isForwardRecord(value: unknown): value is ForwardRecord {
+  return isPlainRecord(value)
+    && typeof value.messageId === "string"
+    && typeof value.content === "string"
+    && typeof value.forwardedAt === "string"
+    && typeof value.targetConversation === "string"
+    && typeof value.targetConversationId === "string";
+}
+
+function isForwardedMessages(value: unknown): value is ForwardedMessages {
+  return Array.isArray(value) && value.every(isForwardRecord);
+}
+
 function loadForwarded(): ForwardedMessages {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch {
-    return [];
-  }
+  return parseStoredJson(localStorage.getItem(STORAGE_KEY), [], isForwardedMessages);
 }
 
 function saveForwarded(forwarded: ForwardedMessages) {

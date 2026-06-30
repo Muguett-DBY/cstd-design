@@ -83,6 +83,16 @@ describe("useConversationOrder", () => {
     expect(ordered.map((c) => c.id)).toEqual(["b", "a", "c"]);
   });
 
+  test("ignores non-array saved order instead of crashing reorder", () => {
+    localStorageMock.getItem.mockReturnValueOnce(JSON.stringify({ first: "c" }));
+
+    const { result } = renderHook(() => useConversationOrder());
+    const convs = [makeConv("a"), makeConv("b"), makeConv("c")];
+
+    const ordered = result.current.reorder(convs);
+    expect(ordered.map((c) => c.id)).toEqual(["a", "b", "c"]);
+  });
+
   test("onDragStart sets data transfer", () => {
     const { result } = renderHook(() => useConversationOrder());
 

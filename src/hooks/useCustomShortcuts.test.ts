@@ -38,6 +38,13 @@ describe("useCustomShortcuts", () => {
     expect(result.current.shortcuts.send).toBe("Enter");
   });
 
+  it("ignores invalid saved shortcut values", () => {
+    storage.set(STORAGE_KEY, JSON.stringify({ send: null }));
+    const { result } = renderHook(() => useCustomShortcuts());
+    expect(result.current.shortcuts.send).toBe("Enter");
+    expect(result.current.format("send")).toContain("Enter");
+  });
+
   it("updates a shortcut", () => {
     const { result } = renderHook(() => useCustomShortcuts());
     act(() => {

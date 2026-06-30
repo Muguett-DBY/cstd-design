@@ -115,6 +115,14 @@ describe("useConversationMerging", () => {
     expect(result.current.isMerged("conv1")).toBe(false);
   });
 
+  test("ignores non-record saved merge state", () => {
+    localStorageMock.getItem.mockReturnValueOnce("null");
+
+    const { result } = renderHook(() => useConversationMerging());
+    expect(result.current.isMerged("conv1")).toBe(false);
+    expect(result.current.getMergeRecord("conv1")).toBeNull();
+  });
+
   test("merged property exposes full state", () => {
     const { result } = renderHook(() => useConversationMerging());
 

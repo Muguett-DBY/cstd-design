@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { isPlainRecord, isStringArray, parseStoredJson } from "../utils/storageJson";
 
 interface AssetMetadata {
   title?: string;
@@ -8,14 +9,20 @@ interface AssetMetadata {
 
 const STORAGE_KEY = "cstd-design:asset-metadata-edit";
 
+function isAssetMetadata(value: unknown): value is AssetMetadata {
+  return isPlainRecord(value)
+    && isStringArray(value.tags)
+    && (value.title === undefined || typeof value.title === "string")
+    && (value.description === undefined || typeof value.description === "string");
+}
+
 function loadMetadata(): Record<string, AssetMetadata> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const metadataByAsset: Record<string, AssetMetadata> = {};
+  for (const [assetId, metadata] of Object.entries(parsed)) {
+    if (isAssetMetadata(metadata)) metadataByAsset[assetId] = metadata;
   }
+  return metadataByAsset;
 }
 
 function saveMetadata(data: Record<string, AssetMetadata>) {

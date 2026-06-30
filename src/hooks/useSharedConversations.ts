@@ -1,3 +1,5 @@
+import { isPlainRecord, parseStoredJson } from "../utils/storageJson";
+
 export interface SharedConversation {
   token: string;
   title: string;
@@ -7,13 +9,27 @@ export interface SharedConversation {
 
 const STORAGE_KEY = "cstd-design:shared-conversations";
 
+function isSharedConversation(value: unknown): value is SharedConversation {
+  return isPlainRecord(value)
+    && typeof value.token === "string"
+    && typeof value.title === "string"
+    && Array.isArray(value.messages)
+    && value.messages.every((message) => (
+      isPlainRecord(message)
+      && typeof message.role === "string"
+      && typeof message.content === "string"
+      && (message.createdAt === undefined || typeof message.createdAt === "string")
+    ))
+    && typeof value.createdAt === "string";
+}
+
 function loadShared(): Record<string, SharedConversation> {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
+  const parsed = parseStoredJson(localStorage.getItem(STORAGE_KEY), {}, isPlainRecord);
+  const sharedByToken: Record<string, SharedConversation> = {};
+  for (const [token, shared] of Object.entries(parsed)) {
+    if (isSharedConversation(shared)) sharedByToken[token] = shared;
   }
+  return sharedByToken;
 }
 
 function persist(shared: Record<string, SharedConversation>) {
