@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Search } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { COMMAND_PALETTE_RECENT_STORAGE_KEY } from "../storage-keys";
 
 export type CommandItem = {
   id: string;
@@ -11,6 +12,20 @@ export type CommandItem = {
   keywords?: string[];
   shortcut?: string;
   perform: () => void;
+};
+
+const MAX_RECENT_COMMANDS = 5;
+const GROUP_ORDER: CommandItem["group"][] = ["navigation", "conversation", "action"];
+const GROUP_LABELS: Record<CommandItem["group"], string> = {
+  navigation: "导航",
+  conversation: "对话",
+  action: "操作",
+};
+
+type CommandSection = {
+  key: string;
+  label: string;
+  items: CommandItem[];
 };
 
 function fuzzyMatch(query: string, target: string): { score: number; matched: boolean } {
@@ -51,6 +66,25 @@ function scoreItem(query: string, item: CommandItem): number {
   );
 }
 
+function readRecentCommandIds(): string[] {
+  try {
+    const stored = globalThis.localStorage?.getItem(COMMAND_PALETTE_RECENT_STORAGE_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string").slice(0, MAX_RECENT_COMMANDS) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistRecentCommandIds(ids: string[]) {
+  try {
+    globalThis.localStorage?.setItem(COMMAND_PALETTE_RECENT_STORAGE_KEY, JSON.stringify(ids));
+  } catch {
+    // Ignore storage errors: command execution should never fail because history persistence is unavailable.
+  }
+}
+
 export function CommandPalette({
   open,
   onClose,
@@ -62,32 +96,75 @@ export function CommandPalette({
 }) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [recentCommandIds, setRecentCommandIds] = useState(readRecentCommandIds);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const normalizedQuery = query.trim();
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return items;
-    const normalizedQuery = query.trim();
+    if (!normalizedQuery) return items;
     const scored = items
       .map((item) => ({ item, score: scoreItem(normalizedQuery, item) }))
       .filter((x) => x.score > 0)
       .sort((a, b) => b.score - a.score);
     return scored.map((x) => x.item);
-  }, [query, items]);
+  }, [normalizedQuery, items]);
 
-  const grouped = useMemo(() => {
-    const groups: Record<string, CommandItem[]> = {};
-    for (const item of filtered) {
-      if (!groups[item.group]) groups[item.group] = [];
-      groups[item.group].push(item);
+  const recentItems = useMemo(() => {
+    const itemsById = new Map(items.map((item) => [item.id, item]));
+    return recentCommandIds
+      .map((id) => itemsById.get(id))
+      .filter((item): item is CommandItem => Boolean(item));
+  }, [items, recentCommandIds]);
+
+  const regularItems = useMemo(() => {
+    if (normalizedQuery || recentItems.length === 0) return filtered;
+    const recentIds = new Set(recentItems.map((item) => item.id));
+    return filtered.filter((item) => !recentIds.has(item.id));
+  }, [filtered, normalizedQuery, recentItems]);
+
+  const visibleItems = useMemo(() => {
+    if (normalizedQuery || recentItems.length === 0) return filtered;
+    return [...recentItems, ...regularItems];
+  }, [filtered, normalizedQuery, recentItems, regularItems]);
+
+  const commandSections = useMemo(() => {
+    const groups: Partial<Record<CommandItem["group"], CommandItem[]>> = {};
+    for (const item of regularItems) {
+      const group = groups[item.group] ?? [];
+      group.push(item);
+      groups[item.group] = group;
     }
-    return groups;
-  }, [filtered]);
-  const safeActiveIndex = filtered.length === 0 ? 0 : Math.min(activeIndex, filtered.length - 1);
+    const sections: CommandSection[] = [];
+    if (!normalizedQuery && recentItems.length > 0) {
+      sections.push({ key: "recent", label: "最近使用", items: recentItems });
+    }
+    for (const groupKey of GROUP_ORDER) {
+      const group = groups[groupKey];
+      if (group && group.length > 0) {
+        sections.push({ key: groupKey, label: GROUP_LABELS[groupKey], items: group });
+      }
+    }
+    return sections;
+  }, [normalizedQuery, recentItems, regularItems]);
 
-  const groupOrder: CommandItem["group"][] = ["navigation", "conversation", "action"];
-  const resultCountLabel = `共 ${filtered.length} 个命令`;
-  const activePositionLabel = filtered.length > 0 ? `当前 ${safeActiveIndex + 1}/${filtered.length}` : "当前 0/0";
+  const safeActiveIndex = visibleItems.length === 0 ? 0 : Math.min(activeIndex, visibleItems.length - 1);
+  const resultCountLabel = `共 ${visibleItems.length} 个命令`;
+  const activePositionLabel = visibleItems.length > 0 ? `当前 ${safeActiveIndex + 1}/${visibleItems.length}` : "当前 0/0";
+
+  const recordRecentCommand = useCallback((id: string) => {
+    setRecentCommandIds((current) => {
+      const next = [id, ...current.filter((currentId) => currentId !== id)].slice(0, MAX_RECENT_COMMANDS);
+      persistRecentCommandIds(next);
+      return next;
+    });
+  }, []);
+
+  const executeCommand = useCallback((item: CommandItem) => {
+    recordRecentCommand(item.id);
+    item.perform();
+    onClose();
+  }, [onClose, recordRecentCommand]);
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -99,7 +176,7 @@ export function CommandPalette({
   useEffect(() => {
     const activeOption = listRef.current?.querySelector<HTMLElement>(`[data-command-index="${safeActiveIndex}"]`);
     activeOption?.scrollIntoView?.({ block: "nearest" });
-  }, [safeActiveIndex, filtered]);
+  }, [safeActiveIndex, visibleItems]);
 
   useEffect(() => {
     if (!open) return;
@@ -107,7 +184,7 @@ export function CommandPalette({
       if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        setActiveIndex(filtered.length === 0 ? 0 : Math.min(safeActiveIndex + 1, filtered.length - 1));
+        setActiveIndex(visibleItems.length === 0 ? 0 : Math.min(safeActiveIndex + 1, visibleItems.length - 1));
         return;
       }
       if (event.key === "ArrowUp") {
@@ -117,17 +194,16 @@ export function CommandPalette({
       }
       if (event.key === "Enter") {
         event.preventDefault();
-        const item = filtered[safeActiveIndex];
+        const item = visibleItems[safeActiveIndex];
         if (item) {
-          item.perform();
-          onClose();
+          executeCommand(item);
         }
         return;
       }
     };
     window.addEventListener("keydown", handler, true);
     return () => window.removeEventListener("keydown", handler, true);
-  }, [open, filtered, safeActiveIndex, onClose]);
+  }, [open, visibleItems, safeActiveIndex, executeCommand, onClose]);
 
   if (!open) return null;
 
@@ -156,21 +232,17 @@ export function CommandPalette({
           <span className="command-palette-summary-position">{activePositionLabel}</span>
         </div>
         <div className="command-palette-list" ref={listRef} role="listbox">
-          {filtered.length === 0 ? (
+          {visibleItems.length === 0 ? (
             <div className="command-palette-empty">
               <Search size={32} />
               <span>没有匹配的命令</span>
             </div>
           ) : (
-            groupOrder.map((groupKey) => {
-              const group = grouped[groupKey];
-              if (!group || group.length === 0) return null;
+            commandSections.map((section) => {
               return (
-                <div key={groupKey} className="command-palette-group">
-                  <div className="command-palette-group-label">
-                    {groupKey === "navigation" ? "导航" : groupKey === "conversation" ? "对话" : "操作"}
-                  </div>
-                  {group.map((item) => {
+                <div key={section.key} className={`command-palette-group command-palette-group-${section.key}`}>
+                  <div className="command-palette-group-label">{section.label}</div>
+                  {section.items.map((item) => {
                     const isActive = runningIndex === safeActiveIndex;
                     const idx = runningIndex;
                     runningIndex++;
@@ -184,7 +256,7 @@ export function CommandPalette({
                         data-command-index={idx}
                         className={`command-palette-item${isActive ? " active" : ""}`}
                         onMouseEnter={() => setActiveIndex(idx)}
-                        onClick={() => { item.perform(); onClose(); }}
+                        onClick={() => executeCommand(item)}
                       >
                         <span className="command-palette-item-icon"><Icon size={16} /></span>
                         <span className="command-palette-item-text">
