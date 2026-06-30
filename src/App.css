@@ -6005,6 +6005,80 @@ button:disabled {
   font-size: 12px;
 }
 
+.service-readiness-action-plan {
+  display: grid;
+  gap: 9px;
+  padding: 11px;
+  border: 1px solid color-mix(in srgb, var(--warning, #9a6700) 24%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--warning, #9a6700) 8%, var(--bg));
+}
+
+.service-readiness-action-heading {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 7px;
+  color: var(--warning, #9a6700);
+}
+
+.service-readiness-action-heading strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.service-readiness-action-heading span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.service-readiness-action-plan ol {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.service-readiness-action-plan li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+}
+
+.service-readiness-step {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  color: var(--bg);
+  background: var(--warning, #9a6700);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.service-readiness-action-plan li div {
+  display: grid;
+  gap: 2px;
+}
+
+.service-readiness-action-plan li strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.service-readiness-action-plan li span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .service-readiness-checks {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6040,6 +6114,14 @@ button:disabled {
 @media (max-width: 560px) {
   .service-readiness-checks {
     grid-template-columns: 1fr;
+  }
+
+  .service-readiness-action-heading {
+    grid-template-columns: auto 1fr;
+  }
+
+  .service-readiness-action-heading span {
+    grid-column: 1 / -1;
   }
 }
 

@@ -2,6 +2,28 @@
 
 ---
 
+## Long Campaign 032 — 6-stage Service Readiness action loop (2026-06-30)
+
+### Global preparation
+- **Repository**: `E:\DEV\cstd-design`
+- **Branch**: `main`; start HEAD `753a385` is aligned with `origin/main`.
+- **Plan**: IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE.
+- **Prompt files read**: `03_LONG_6_STAGE_MAIN_V2.txt`, `AGENT_IMPROVE_MAIN.txt`, `AGENT_UIUX_MAIN.txt`, `AGENT_CHECK_MAIN.txt`, and `AGENT_CI_FIX_MAIN.txt`.
+- **CI contract**: `.github/workflows/pages.yml` uses Node 24, `npm ci`, `npm test`, `npm run typecheck:functions`, `npm run lint`, `npm run build`, production secret verification, remote D1 migrations, Pages deploy, and exact production smoke.
+- **Preserved user state**: unrelated untracked `.agent/orchestrator-history/campaign-014/` and `.playwright-cli/` remain untouched and outside commits.
+- **Carry-forward direction**: Campaign 031 completed the Global Search trust loop with no known blocker. This campaign starts from a newly verified workflow need: the Service Readiness Center already reports status, but attention states do not yet guide users toward the next safest action before creation.
+- **Product review**: Service readiness already reaches Settings and creation preflight surfaces. The next maturity step is to make diagnostics actionable, prioritized, visually clear, stable under degraded responses, and fully release-verified.
+
+### Stage 1/6 — IMPROVE
+- **Prompt**: `AGENT_IMPROVE_MAIN.txt`
+- **Goal**: Turn Service Readiness attention states into a prioritized, user-actionable remediation checklist instead of only showing raw status cards.
+- **Start state**: `main...origin/main`; only the two preserved unrelated untracked directories are present.
+- **Implemented**: Added a severity-ordered remediation plan for attention checks. Security and data-path blockers lead generation and storage issues; each step explains the failure it prevents and remains hidden when all services are ready.
+- **TDD evidence**: RED targeted test failed on the missing accessible `服务就绪建议处理顺序` list; GREEN targeted test passed all 5 `ServiceReadinessPanel` cases.
+- **Local gate**: `npm test` passed Node smoke plus 82 Vitest files / 519 tests; Functions typecheck, lint, build, high-severity audit, and `git diff --check` passed.
+- **Browser QA**: Production preview passed at desktop 1440×900 and mobile 390×844. The prioritized plan rendered at both widths with no horizontal overflow, console errors, page errors, or failed requests. Service Worker interception was deliberately blocked in the isolated Playwright context so deterministic API fixtures could cover both StrictMode requests.
+- **Release state**: Ready for scoped commit and push; GitHub Actions and exact production smoke remain pending.
+
 ## Long Campaign 031 — 6-stage Global Search trust loop (2026-06-30)
 
 ### Global preparation

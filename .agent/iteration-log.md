@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 032 — Stage 1 Service Readiness Actions IMPROVE (2026-06-30)
+
+### Goal
+- Turn degraded Service Readiness results into a prioritized recovery path before users start creation.
+
+### Completed locally
+- Added an accessible `建议处理顺序` checklist for attention checks.
+- Prioritized security and data-path blockers ahead of generation and storage follow-up.
+- Added concise impact copy for every suggested action and responsive mobile styling.
+
+### Verified
+- RED: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` failed because `服务就绪建议处理顺序` was missing.
+- GREEN targeted: `npx vitest run src/components/ServiceReadinessPanel.test.tsx` — 1 file, 5 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 82 files, 519 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
+- Production-preview browser QA passed at desktop 1440×900 and mobile 390×844 with no overflow, console errors, page errors, or failed requests.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, and exact production smoke are pending.
+
+### Next
+- Continue Stage 2 IMPROVE with a visible readiness impact map that clarifies which creation workflows remain available under partial degradation.
+
 ## Long Campaign 031 — Stage 6 Saved Search Removal IMPROVE (2026-06-30)
 
 ### Goal

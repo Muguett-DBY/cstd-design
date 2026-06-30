@@ -21,6 +21,17 @@ const readySnapshot = {
   ],
 };
 
+const attentionSnapshot = {
+  status: "attention" as const,
+  checkedAt: "2026-06-28T00:00:00.000Z",
+  checks: [
+    readySnapshot.checks[0],
+    { id: "media" as const, label: "素材存储", status: "attention" as const, detail: "素材存储暂不可用，上传和生成结果可能无法保存。" },
+    { id: "generation" as const, label: "生成服务", status: "attention" as const, detail: "生成服务尚未配置，咨询、图片和视频创作暂不可用。" },
+    readySnapshot.checks[3],
+  ],
+};
+
 describe("ServiceReadinessPanel", () => {
   const writeText = vi.fn();
 
@@ -100,5 +111,18 @@ describe("ServiceReadinessPanel", () => {
     await screen.findByRole("alert");
     expect(screen.getByRole("alert").textContent).toContain("网络连接失败");
     expect(screen.getByRole("button", { name: "重新检查服务状态" })).toBeTruthy();
+  });
+
+  test("turns degraded readiness checks into a prioritized action checklist", async () => {
+    vi.mocked(api.readiness).mockResolvedValueOnce(attentionSnapshot);
+
+    render(<ServiceReadinessPanel />);
+
+    await screen.findByText("创作环境需要处理");
+    const actionList = screen.getByRole("list", { name: "服务就绪建议处理顺序" });
+    expect(actionList.textContent).toContain("先处理生成服务");
+    expect(actionList.textContent).toContain("避免咨询、图片和视频创作全部失败");
+    expect(actionList.textContent).toContain("再处理素材存储");
+    expect(actionList.textContent).toContain("避免上传和生成结果无法保存");
   });
 });
