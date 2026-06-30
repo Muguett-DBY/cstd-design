@@ -69,7 +69,7 @@
 - **Exact deployment**: `https://b3b02a3e.cstd-design.pages.dev` passed production smoke for commit `a9b5f7d8cc24dee04624b86fd5154723429fe54a`.
 - **Next**: Stage 4 IMPROVE will add a stronger action-oriented Global Search increment using the clarified result feedback.
 
-### Stage 4/6 — IMPROVE 🚧
+### Stage 4/6 — IMPROVE ✅
 - **Prompt**: `AGENT_IMPROVE_MAIN.txt`
 - **Goal**: Convert Global Search feedback into a reusable action by allowing users to save the current global query and reapply saved queries from the empty search state.
 - **Start state**: Stage 3 feature and record commits were pushed to `main`; both GitHub Actions runs passed and exact production smoke passed for `881c422`.
@@ -84,7 +84,9 @@
   - GREEN targeted: same command — 1 file, 4 tests passed.
   - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 489 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
   - Local production preview browser QA passed at `http://127.0.0.1:8818` on desktop 1440×900 and mobile 390×844: save action persisted `launch`, empty-state saved chip restored the query, horizontal overflow, console errors, and page errors checked.
-- **Commit/CI**: pending feature commit, push, GitHub Actions, and exact deployment smoke.
+- **Commit/CI**: `bbb6379 feat: save global search queries`; pushed to `main`; GitHub Actions run `28418240441` passed all steps.
+- **Exact deployment**: `https://e05557d0.cstd-design.pages.dev` passed production smoke for commit `bbb6379ea51c59141db727dc74a76541014594d2`.
+- **Next**: Stage 5 CHECK will audit Global Search edge cases and fix any verified stability issue with failing coverage first.
 
 ## Long Campaign 030 — 6-stage Creation Center activity loop (2026-06-30)
 

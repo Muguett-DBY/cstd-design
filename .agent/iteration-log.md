@@ -12,14 +12,16 @@
 - Reapplying a saved search restores the query and resets result selection.
 - Added compact styling for the save action and saved-search chips.
 
-### Verified so far
+### Verified
 - RED: `npx vitest run src/components/GlobalSearchModal.test.tsx` failed because the save/reapply controls were missing.
 - GREEN targeted: `npx vitest run src/components/GlobalSearchModal.test.tsx` — 1 file, 4 tests passed.
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 73 files, 489 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; `git diff --check`.
 - Local production preview browser QA passed at `http://127.0.0.1:8818` on desktop 1440×900 and mobile 390×844: save action persisted `launch`, empty-state saved chip restored the query, horizontal overflow, console errors, and page errors checked.
+- Commit `bbb6379 feat: save global search queries` was pushed to `main`; GitHub Actions run `28418240441` passed all deployment steps.
+- Exact deployment `https://e05557d0.cstd-design.pages.dev` passed production smoke for commit `bbb6379ea51c59141db727dc74a76541014594d2`.
 
 ### Next
-- Commit and push Stage 4, verify GitHub Actions, run exact production smoke, then update the campaign record before continuing Stage 5 CHECK.
+- Continue Stage 5 CHECK by auditing Global Search edge cases and fixing any verified stability issue with failing coverage first.
 
 ## Long Campaign 031 — Stage 3 Global Search Feedback UIUX (2026-06-30)
 
