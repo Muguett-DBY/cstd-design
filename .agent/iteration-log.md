@@ -1,5 +1,27 @@
 # Iteration Log
 
+## Long Campaign 033 — Stage 3 Command Feedback UIUX (2026-07-01)
+
+### Goal
+- Make command search easier to trust by showing the result count and current keyboard position before execution.
+
+### Completed locally
+- Added a compact command-palette summary row below search.
+- Displayed total filtered commands, e.g. `共 2 个命令`.
+- Displayed the active keyboard position, e.g. `当前 1/2`, and updated it as Arrow navigation changes.
+- Added mobile-safe summary styling with tabular numeric position feedback.
+
+### Verified
+- RED: `npx vitest run src/components/CommandPalette.test.tsx` failed because `共 2 个命令` and current-position feedback did not exist.
+- GREEN targeted: `npx vitest run src/components/CommandPalette.test.tsx` — 1 file, 4 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 83 files, 528 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 389-commit gitleaks scan; `git diff --check`.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, exact production smoke, and live desktop/mobile browser verification are pending.
+
+### Next
+- Continue Stage 4 IMPROVE with a stronger action-oriented command-palette increment after Stage 3 release verification closes.
+
 ## Long Campaign 033 — Stage 2 Keyboard Selection IMPROVE (2026-07-01)
 
 ### Goal
@@ -17,7 +39,9 @@
 - Full local gate passed after correction: `npm test` — Node smoke 5 tests plus Vitest 83 files, 527 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 388-commit gitleaks scan; `git diff --check`.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+- Commit `ca3f4dd fix: stabilize command keyboard selection` was pushed to `main`; GitHub Actions run `28457003723` passed all deployment steps.
+- Exact deployment `https://7bc9e1ba.cstd-design.pages.dev` passed production smoke for `ca3f4dd51171e89ddab31cbade5c02b1de12eac6`.
+- Live authenticated browser QA passed: Ctrl+K opened the palette, ArrowDown twice selected the third command, searching `settings` reset the visible result to `偏好设置`, Enter opened Settings, and console reported 0 errors and 0 warnings.
 
 ### Next
 - Continue Stage 3 UIUX with visible result-count and keyboard-position feedback.

@@ -26,7 +26,14 @@
 - **Implementation**: Query/open resets, render-derived safe index, bounded Arrow navigation, and active-option scrolling.
 - **Debug correction**: Full lint rejected synchronous state clamping inside an effect. Replaced that effect with a derived safe index; targeted tests and lint then passed.
 - **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 527 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 388-commit gitleaks scan, and `git diff --check` passed.
-- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live browser verification.
+- **Release**: Commit `ca3f4dd fix: stabilize command keyboard selection` was pushed to `main`; GitHub Actions run `28457003723` passed; exact deployment `https://7bc9e1ba.cstd-design.pages.dev` passed production smoke and authenticated browser QA for keyboard reset/execution with 0 console errors/warnings.
+
+### Stage 3/6 — UIUX
+- **Goal**: Expose result-count and current keyboard-position feedback inside the command palette.
+- **TDD evidence**: RED confirmed `共 2 个命令` and `当前 1/2` were missing; GREEN targeted suite passed 4/4.
+- **Implementation**: Added a live command summary row with total filtered commands and active keyboard position, plus mobile-safe summary styling and tabular numeric position feedback.
+- **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 528 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 389-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live desktop/mobile browser verification.
 
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
 

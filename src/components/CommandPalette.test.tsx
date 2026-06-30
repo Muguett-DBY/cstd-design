@@ -75,4 +75,19 @@ describe("CommandPalette", () => {
     expect(first).not.toHaveBeenCalled();
     expect(third).not.toHaveBeenCalled();
   });
+
+  test("reports the result count and current keyboard position", () => {
+    renderPalette([
+      { id: "first", label: "First", icon: Search, group: "navigation", perform: vi.fn() },
+      { id: "second", label: "Second", icon: Search, group: "action", perform: vi.fn() },
+    ]);
+    const input = screen.getByRole("textbox", { name: "命令搜索" });
+
+    expect(screen.getByText("共 2 个命令")).toBeTruthy();
+    expect(screen.getByText("当前 1/2")).toBeTruthy();
+
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+
+    expect(screen.getByText("当前 2/2")).toBeTruthy();
+  });
 });
