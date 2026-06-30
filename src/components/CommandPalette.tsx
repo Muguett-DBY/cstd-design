@@ -86,6 +86,8 @@ export function CommandPalette({
   const safeActiveIndex = filtered.length === 0 ? 0 : Math.min(activeIndex, filtered.length - 1);
 
   const groupOrder: CommandItem["group"][] = ["navigation", "conversation", "action"];
+  const resultCountLabel = `共 ${filtered.length} 个命令`;
+  const activePositionLabel = filtered.length > 0 ? `当前 ${safeActiveIndex + 1}/${filtered.length}` : "当前 0/0";
 
   useEffect(() => {
     if (open && inputRef.current) {
@@ -148,6 +150,10 @@ export function CommandPalette({
             className="command-palette-input"
           />
           <span className="command-palette-esc">Esc</span>
+        </div>
+        <div className="command-palette-summary" aria-live="polite">
+          <span className="command-palette-summary-count">{resultCountLabel}</span>
+          <span className="command-palette-summary-position">{activePositionLabel}</span>
         </div>
         <div className="command-palette-list" ref={listRef} role="listbox">
           {filtered.length === 0 ? (
