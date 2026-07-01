@@ -1,5 +1,30 @@
 # Iteration Log
 
+## Long Campaign 033 — Stage 5 Recent History CHECK (2026-07-01)
+
+### Goal
+- Audit the new command-palette recent history for persisted-data regressions and fix verified issues.
+
+### Finding fixed
+- Duplicate command ids loaded from `cstd-design:commandPaletteRecent:v1` could render duplicate `最近使用` options and trigger React duplicate-key warnings.
+- Stale ids from older backups or manual storage edits were also carried through the recent display path instead of being normalized out.
+
+### Completed locally
+- Added regression coverage for duplicate and stale recent command ids.
+- Normalized recent command ids with stable first-seen ordering, max-length enforcement, duplicate removal, and optional valid-command filtering.
+- Applied normalization when reading storage, rendering recent items, and recording a newly executed command.
+
+### Verified
+- RED: `npx vitest run src/components/CommandPalette.test.tsx` failed because the second visible option was duplicate `Second` instead of `First`, and React reported duplicate key `second`.
+- GREEN targeted: same command — 1 file, 6 tests passed.
+- Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 83 files, 531 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 391-commit gitleaks scan; `git diff --check`.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+
+### Next
+- Continue Stage 6 final IMPROVE by completing the command-palette accessibility/focus contract.
+
 ## Long Campaign 033 — Stage 4 Recent Commands IMPROVE (2026-07-01)
 
 ### Goal
@@ -19,7 +44,9 @@
 - Full local gate passed after correction: `npm test` — Node smoke 5 tests plus Vitest 83 files, 530 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 390-commit gitleaks scan; `git diff --check`.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+- Commit `c24f6bc feat: remember recent commands` was pushed to `main`; GitHub Actions run `28459973477` passed all deployment steps.
+- Exact deployment `https://9c6c92e1.cstd-design.pages.dev` passed production smoke for `c24f6bc5c5d9986292ab92102eff4fa6c5d7738c`.
+- Live desktop/mobile browser QA passed: executing `settings` wrote `["action-settings"]`, reloading and reopening showed `最近使用` first, `偏好设置` appeared once, mobile had no horizontal overflow, and final console checks reported 0 errors and 0 warnings.
 
 ### Next
 - Continue Stage 5 CHECK by auditing the new recent-command history for malformed or duplicate persisted data.

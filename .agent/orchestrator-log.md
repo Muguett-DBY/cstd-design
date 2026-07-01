@@ -41,6 +41,14 @@
 - **Implementation**: Added bounded recent-command persistence, a `最近使用` section for empty-query palette opens, recent-vs-normal deduplication, click/Enter execution recording, and settings-backup coverage for `cstd-design:commandPaletteRecent:v1`.
 - **Debug correction**: Full gate initially rejected an indexed group write as possibly undefined and flagged a missing `onClose` hook dependency. Fixed the grouped-section write through an explicit local array and added the dependency.
 - **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 530 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 390-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Commit `c24f6bc feat: remember recent commands` was pushed to `main`; GitHub Actions run `28459973477` passed; exact deployment `https://9c6c92e1.cstd-design.pages.dev` passed production smoke and live desktop/mobile browser QA for recent-command persistence, first-section ordering, duplicate avoidance, mobile overflow, and clean final console checks.
+
+### Stage 5/6 — CHECK
+- **Goal**: Audit recent-command persisted history for malformed duplicate/stale data risks.
+- **Finding fixed**: Duplicate ids from the recent-history storage key rendered duplicate `最近使用` options and produced React duplicate-key warnings; stale ids could also pass through the display path until skipped late.
+- **TDD evidence**: RED confirmed duplicated `second` made the second visible option `Second` instead of `First` and emitted a duplicate-key warning; GREEN targeted suite passed 6/6.
+- **Implementation**: Added a shared recent-id normalizer with first-seen ordering, max-length enforcement, duplicate removal, and optional valid-command filtering. Applied it to storage reads, display mapping, and command recording.
+- **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 531 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 391-commit gitleaks scan, and `git diff --check` passed.
 - **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live browser verification.
 
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
