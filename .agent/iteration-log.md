@@ -1,5 +1,29 @@
 # Iteration Log
 
+## Long Campaign 033 — Stage 6 Command Accessibility IMPROVE (2026-07-01)
+
+### Goal
+- Complete the command-palette keyboard and assistive-technology contract with explicit combobox/listbox linkage and safe close/reopen behavior.
+
+### Completed locally
+- Promoted command search to an explicit `combobox`.
+- Linked the combobox to the command `listbox` through `aria-controls`.
+- Added stable option ids and `aria-activedescendant` updates as keyboard selection moves.
+- Added query/index reset on close and restored focus to the opener when the palette closes.
+- Added `autocomplete="off"` to the command input to avoid browser autofill noise.
+
+### Verified
+- RED: `npx vitest run src/components/CommandPalette.test.tsx` failed because command search was still a textbox, lacked active-descendant linkage, and close/reopen did not satisfy the focus/query contract.
+- GREEN targeted: same command — 1 file, 8 tests passed.
+- Debug correction: the first full lint run rejected synchronous state updates inside the open/close effect; root-cause fix moved query/index reset into the close event handler and kept the effect limited to focus synchronization.
+- Full local gate passed after correction: `npm test` — Node smoke 5 tests plus Vitest 83 files, 533 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 392-commit gitleaks scan; `git diff --check`.
+
+### CI status
+- Scoped commit, GitHub Actions deployment, exact production smoke, live browser verification, and final campaign closure are pending.
+
+### Next
+- Push Stage 6, verify CI and exact production deployment, then record final Campaign 033 closure.
+
 ## Long Campaign 033 — Stage 5 Recent History CHECK (2026-07-01)
 
 ### Goal
@@ -20,7 +44,9 @@
 - Full local gate passed: `npm test` — Node smoke 5 tests plus Vitest 83 files, 531 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 391-commit gitleaks scan; `git diff --check`.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, exact production smoke, and live browser verification are pending.
+- Commit `581a400 fix: normalize recent command history` was pushed to `main`; GitHub Actions run `28494549985` passed all deployment steps.
+- Exact deployment `https://523f2805.cstd-design.pages.dev` passed production smoke for `581a4006e78d4dfffa449e2be7cc9974f2390552`.
+- Live desktop/mobile browser QA passed: injected duplicate/stale recent data normalized to `偏好设置` then `前往 图片`, duplicate `action-settings` appeared once, `missing-command` did not render, mobile had no horizontal overflow, and console reported 0 errors and 0 warnings.
 
 ### Next
 - Continue Stage 6 final IMPROVE by completing the command-palette accessibility/focus contract.

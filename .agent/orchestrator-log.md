@@ -49,7 +49,15 @@
 - **TDD evidence**: RED confirmed duplicated `second` made the second visible option `Second` instead of `First` and emitted a duplicate-key warning; GREEN targeted suite passed 6/6.
 - **Implementation**: Added a shared recent-id normalizer with first-seen ordering, max-length enforcement, duplicate removal, and optional valid-command filtering. Applied it to storage reads, display mapping, and command recording.
 - **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 531 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 391-commit gitleaks scan, and `git diff --check` passed.
-- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, and live browser verification.
+- **Release**: Commit `581a400 fix: normalize recent command history` was pushed to `main`; GitHub Actions run `28494549985` passed; exact deployment `https://523f2805.cstd-design.pages.dev` passed production smoke and live desktop/mobile browser QA for duplicate/stale recent history normalization, mobile overflow, and clean console checks.
+
+### Stage 6/6 — IMPROVE
+- **Goal**: Complete the command-palette accessibility and focus contract.
+- **TDD evidence**: RED confirmed command search was only a textbox, lacked combobox/listbox active-descendant linkage, and did not restore focus/clear query on close-reopen; GREEN targeted suite passed 8/8.
+- **Implementation**: Added explicit combobox semantics, `aria-controls`, stable listbox/option ids, `aria-activedescendant`, close-time query/index reset, opener focus restoration, and input autocomplete suppression.
+- **Debug correction**: Full lint rejected synchronous state reset inside an effect. Moved query/index reset into the unified close handler and kept the effect focused on external DOM focus synchronization.
+- **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 533 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 392-commit gitleaks scan, and `git diff --check` passed.
+- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, live browser verification, and final campaign closure.
 
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
 
