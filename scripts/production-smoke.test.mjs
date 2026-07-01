@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   REQUIRED_PAGE_SECRETS,
@@ -24,6 +25,32 @@ test("findMissingPageSecrets reports required production bindings without exposi
     "UPSTREAM_API_KEY",
   ]);
   assert.ok(REQUIRED_PAGE_SECRETS.includes("APP_PASSWORD_HASH"));
+});
+
+test("Pages deploy commands explicitly acknowledge build-output dirty state", () => {
+  const workflow = readFileSync(".github/workflows/pages.yml", "utf8");
+  const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+
+  assert.match(
+    workflow,
+    /wrangler pages deploy dist\b[^\n]*--commit-dirty=true/,
+    "GitHub Actions deploy should avoid Wrangler's ambiguous dirty-worktree warning",
+  );
+  assert.match(
+    packageJson.scripts["pages:deploy"],
+    /wrangler pages deploy dist\b.*--commit-dirty=true/,
+    "local Pages deploy script should use the same explicit dirty-worktree contract",
+  );
+});
+
+test("authenticated startup does not schedule a redundant conversation refresh", () => {
+  const app = readFileSync("src/App.tsx", "utf8");
+
+  assert.doesNotMatch(
+    app,
+    /setTimeout\(\(\) => refreshConversations\(""\)/,
+    "the session bootstrap already loads conversations and must remain the only startup refresh",
+  );
 });
 
 test("selectDeploymentForCommit returns the exact production deployment", () => {

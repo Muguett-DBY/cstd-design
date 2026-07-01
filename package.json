@@ -15,7 +15,7 @@
     "verify:production-secrets": "node scripts/verify-pages-secrets.mjs",
     "typecheck:functions": "tsc -p tsconfig.functions.json --noEmit",
     "pages:dev": "wrangler pages dev dist",
-    "pages:deploy": "wrangler pages deploy dist --project-name=cstd-design --branch=main"
+    "pages:deploy": "wrangler pages deploy dist --project-name=cstd-design --branch=main --commit-dirty=true"
   },
   "dependencies": {
     "lucide-react": "^1.22.0",
@@ -51,5 +51,10 @@
     "vite": "^8.1.0",
     "vitest": "^4.1.9",
     "wrangler": "^4.105.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "sharp@0.34.5": true,
+    "workerd@1.20260630.1": true
   }
 }
