@@ -57,7 +57,12 @@
 - **Implementation**: Added explicit combobox semantics, `aria-controls`, stable listbox/option ids, `aria-activedescendant`, close-time query/index reset, opener focus restoration, and input autocomplete suppression.
 - **Debug correction**: Full lint rejected synchronous state reset inside an effect. Moved query/index reset into the unified close handler and kept the effect focused on external DOM focus synchronization.
 - **Local gate**: `npm test` passed Node smoke plus 83 Vitest files / 533 tests; Functions typecheck, lint, build with chunk-budget enforcement, high-severity audit, 392-commit gitleaks scan, and `git diff --check` passed.
-- **Release**: Pending scoped commit, push, GitHub Actions, exact-deployment smoke, live browser verification, and final campaign closure.
+- **Release**: Commit `308181f feat: complete command palette accessibility` was pushed to `main`; GitHub Actions run `28495124303` passed; exact deployment `https://84547249.cstd-design.pages.dev` passed production smoke for `308181f5d6eca9f253b9312334a9a7c65bc3ae03`; live desktop/mobile browser QA passed for combobox/listbox linkage, active-descendant integrity, close/reopen query reset, focus restoration to `创作中心`, mobile overflow, and clean console checks.
+
+### Final closure
+- **Status**: All six Campaign 033 stages are complete under the required IMPROVE → IMPROVE → UIUX → IMPROVE → CHECK → IMPROVE sequence.
+- **Verification posture**: Every stage included a real product/code change, targeted RED/GREEN or risk-confirming checks, full local gates, scoped commit/push to `main`, GitHub Actions verification, exact Cloudflare Pages deployment smoke, and live browser QA when the stage affected runtime behavior.
+- **Residual risk**: No known open application risk remains from this campaign. The only remaining action is this log-only closure commit, which will receive its own CI and exact-deployment smoke verification.
 
 ## Risk Preflight — Build Budget and Workspace Hygiene (2026-07-01)
 

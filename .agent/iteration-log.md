@@ -19,10 +19,13 @@
 - Full local gate passed after correction: `npm test` — Node smoke 5 tests plus Vitest 83 files, 533 tests; `npm run typecheck:functions`; `npm run lint`; `npm run build`; `npm audit --audit-level=high`; 392-commit gitleaks scan; `git diff --check`.
 
 ### CI status
-- Scoped commit, GitHub Actions deployment, exact production smoke, live browser verification, and final campaign closure are pending.
+- Commit `308181f feat: complete command palette accessibility` was pushed to `main`; GitHub Actions run `28495124303` passed all deployment steps.
+- Exact deployment `https://84547249.cstd-design.pages.dev` passed production smoke for `308181f5d6eca9f253b9312334a9a7c65bc3ae03`.
+- Live desktop/mobile browser QA passed: the command input exposes `role="combobox"`, links to the listbox via `aria-controls`, maintains an existing `aria-activedescendant`, updates active selection on ArrowDown, clears the query after close/reopen, restores focus to the original `创作中心` trigger, has no mobile horizontal overflow, and console checks reported 0 errors and 0 warnings.
 
-### Next
-- Push Stage 6, verify CI and exact production deployment, then record final Campaign 033 closure.
+### Final status
+- Campaign 033 completed all six required stages with real code changes, targeted RED/GREEN checks, full local verification, scoped commits, pushes to `main`, GitHub Actions verification, exact deployment smoke, and live desktop/mobile browser QA.
+- This closing log-only update records the final Stage 6 production evidence and campaign completion state.
 
 ## Long Campaign 033 — Stage 5 Recent History CHECK (2026-07-01)
 
