@@ -350,12 +350,6 @@ function AppInner() {
   }, [videoTask, notifications, videoHistory, videoSubmittedPrompt]);
 
   useEffect(() => {
-    if (!authenticated) return;
-    const timer = window.setTimeout(() => refreshConversations("").catch(() => {}), 160);
-    return () => window.clearTimeout(timer);
-  }, [authenticated, refreshConversations]);
-
-  useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();

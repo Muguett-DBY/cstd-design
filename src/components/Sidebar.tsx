@@ -296,6 +296,8 @@ export function Sidebar({
   const [selectedConversations, setSelectedConversations] = useState<Set<string>>(new Set());
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchCallbackRef = useRef(onSearch);
+  const previousSearchQueryRef = useRef(query);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { reorder, onDragStart, onDragOver, onDrop } = useConversationOrder();
   const { folders, createFolder, deleteFolder, assignToFolder, getConversationFolder, autoCategorize } = useConversationFolders();
@@ -304,10 +306,16 @@ export function Sidebar({
   const { mergeConversations, merged } = useConversationMerging();
 
   useEffect(() => {
+    searchCallbackRef.current = onSearch;
+  }, [onSearch]);
+
+  useEffect(() => {
+    if (query === previousSearchQueryRef.current) return;
+    previousSearchQueryRef.current = query;
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
-    debounceRef.current = window.setTimeout(() => onSearch(query), 200);
+    debounceRef.current = window.setTimeout(() => searchCallbackRef.current(query), 200);
     return () => { if (debounceRef.current) window.clearTimeout(debounceRef.current); };
-  }, [query, onSearch]);
+  }, [query]);
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
