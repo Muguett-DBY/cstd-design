@@ -52,6 +52,9 @@
     "vitest": "^4.1.9",
     "wrangler": "^4.105.0"
   },
+  "optionalDependencies": {
+    "@cloudflare/workerd-linux-64": "1.20260630.1"
+  },
   "allowScripts": {
     "esbuild@0.28.1": true,
     "sharp@0.34.5": true,

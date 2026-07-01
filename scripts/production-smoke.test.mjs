@@ -53,6 +53,23 @@ test("authenticated startup does not schedule a redundant conversation refresh",
   );
 });
 
+test("Linux CI installs the Workerd platform binary required by Wrangler", () => {
+  const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+  const packageLock = JSON.parse(readFileSync("package-lock.json", "utf8"));
+  const linuxWorkerdVersion = packageLock.packages["node_modules/workerd"]?.optionalDependencies?.["@cloudflare/workerd-linux-64"];
+
+  assert.equal(
+    packageJson.optionalDependencies?.["@cloudflare/workerd-linux-64"],
+    linuxWorkerdVersion,
+    "GitHub's Ubuntu runner must install workerd's Linux x64 binary as a root optional dependency",
+  );
+  assert.equal(
+    packageLock.packages[""]?.optionalDependencies?.["@cloudflare/workerd-linux-64"],
+    linuxWorkerdVersion,
+    "package-lock root metadata should preserve the explicit CI platform binary",
+  );
+});
+
 test("selectDeploymentForCommit returns the exact production deployment", () => {
   const deployments = [
     { Environment: "Production", Source: "abc1234", Deployment: "https://abc1234.example.pages.dev" },
