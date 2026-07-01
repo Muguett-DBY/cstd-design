@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { ArrowRight, Search } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { COMMAND_PALETTE_RECENT_STORAGE_KEY } from "../storage-keys";
@@ -114,6 +114,9 @@ export function CommandPalette({
   const [recentCommandIds, setRecentCommandIds] = useState(readRecentCommandIds);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
+  const paletteId = useId();
   const normalizedQuery = query.trim();
   const validCommandIds = useMemo(() => new Set(items.map((item) => item.id)), [items]);
 
@@ -167,6 +170,8 @@ export function CommandPalette({
   const safeActiveIndex = visibleItems.length === 0 ? 0 : Math.min(activeIndex, visibleItems.length - 1);
   const resultCountLabel = `共 ${visibleItems.length} 个命令`;
   const activePositionLabel = visibleItems.length > 0 ? `当前 ${safeActiveIndex + 1}/${visibleItems.length}` : "当前 0/0";
+  const listboxId = `${paletteId}-listbox`;
+  const activeOptionId = visibleItems.length > 0 ? `${paletteId}-option-${safeActiveIndex}` : undefined;
 
   const recordRecentCommand = useCallback((id: string) => {
     setRecentCommandIds((current) => {
@@ -176,16 +181,29 @@ export function CommandPalette({
     });
   }, [validCommandIds]);
 
+  const closePalette = useCallback(() => {
+    setQuery("");
+    setActiveIndex(0);
+    onClose();
+  }, [onClose]);
+
   const executeCommand = useCallback((item: CommandItem) => {
     recordRecentCommand(item.id);
     item.perform();
-    onClose();
-  }, [onClose, recordRecentCommand]);
+    closePalette();
+  }, [closePalette, recordRecentCommand]);
 
   useEffect(() => {
-    if (open && inputRef.current) {
-      setActiveIndex(0);
-      inputRef.current.focus();
+    if (open) {
+      previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      inputRef.current?.focus();
+      wasOpenRef.current = true;
+      return;
+    }
+    if (wasOpenRef.current) {
+      previousFocusRef.current?.focus();
+      previousFocusRef.current = null;
+      wasOpenRef.current = false;
     }
   }, [open]);
 
@@ -197,7 +215,7 @@ export function CommandPalette({
   useEffect(() => {
     if (!open) return;
     const handler = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
+      if (event.key === "Escape") { event.preventDefault(); closePalette(); return; }
       if (event.key === "ArrowDown") {
         event.preventDefault();
         setActiveIndex(visibleItems.length === 0 ? 0 : Math.min(safeActiveIndex + 1, visibleItems.length - 1));
@@ -219,19 +237,20 @@ export function CommandPalette({
     };
     window.addEventListener("keydown", handler, true);
     return () => window.removeEventListener("keydown", handler, true);
-  }, [open, visibleItems, safeActiveIndex, executeCommand, onClose]);
+  }, [open, visibleItems, safeActiveIndex, executeCommand, closePalette]);
 
   if (!open) return null;
 
   let runningIndex = 0;
 
   return (
-    <div className="command-palette-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="命令面板">
+    <div className="command-palette-overlay" onClick={closePalette} role="dialog" aria-modal="true" aria-label="命令面板">
       <div className="command-palette" onClick={(e) => e.stopPropagation()}>
         <div className="command-palette-search">
           <Search size={18} />
           <input
             ref={inputRef}
+            role="combobox"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value);
@@ -239,6 +258,11 @@ export function CommandPalette({
             }}
             placeholder="搜索操作、对话、页面..."
             aria-label="命令搜索"
+            aria-autocomplete="list"
+            aria-controls={listboxId}
+            aria-expanded={open}
+            aria-activedescendant={activeOptionId}
+            autoComplete="off"
             className="command-palette-input"
           />
           <span className="command-palette-esc">Esc</span>
@@ -247,7 +271,7 @@ export function CommandPalette({
           <span className="command-palette-summary-count">{resultCountLabel}</span>
           <span className="command-palette-summary-position">{activePositionLabel}</span>
         </div>
-        <div className="command-palette-list" ref={listRef} role="listbox">
+        <div className="command-palette-list" ref={listRef} role="listbox" id={listboxId} aria-label="命令结果">
           {visibleItems.length === 0 ? (
             <div className="command-palette-empty">
               <Search size={32} />
@@ -268,6 +292,7 @@ export function CommandPalette({
                         key={item.id}
                         type="button"
                         role="option"
+                        id={`${paletteId}-option-${idx}`}
                         aria-selected={isActive}
                         data-command-index={idx}
                         className={`command-palette-item${isActive ? " active" : ""}`}

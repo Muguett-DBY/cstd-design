@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { Search } from "lucide-react";
 import { afterEach, describe, expect, test, vi } from "vitest";
@@ -31,6 +32,10 @@ function renderPalette(items: CommandItem[]) {
   );
 }
 
+function getSearchInput() {
+  return screen.getByRole("combobox", { name: "命令搜索" }) as HTMLInputElement;
+}
+
 describe("CommandPalette", () => {
   test("finds a command by an alias that is absent from its visible copy", () => {
     renderPalette([
@@ -45,7 +50,7 @@ describe("CommandPalette", () => {
       },
     ]);
 
-    fireEvent.change(screen.getByRole("textbox", { name: "命令搜索" }), {
+    fireEvent.change(getSearchInput(), {
       target: { value: "settings" },
     });
 
@@ -64,7 +69,7 @@ describe("CommandPalette", () => {
       },
     ]);
 
-    fireEvent.change(screen.getByRole("textbox", { name: "命令搜索" }), {
+    fireEvent.change(getSearchInput(), {
       target: { value: "帧率" },
     });
 
@@ -80,7 +85,7 @@ describe("CommandPalette", () => {
       { id: "second", label: "Second", icon: Search, group: "action", perform: second },
       { id: "third", label: "Third", icon: Search, group: "action", perform: third },
     ]);
-    const input = screen.getByRole("textbox", { name: "命令搜索" });
+    const input = getSearchInput();
     fireEvent.keyDown(input, { key: "ArrowDown" });
     fireEvent.keyDown(input, { key: "ArrowDown" });
 
@@ -97,7 +102,7 @@ describe("CommandPalette", () => {
       { id: "first", label: "First", icon: Search, group: "navigation", perform: vi.fn() },
       { id: "second", label: "Second", icon: Search, group: "action", perform: vi.fn() },
     ]);
-    const input = screen.getByRole("textbox", { name: "命令搜索" });
+    const input = getSearchInput();
 
     expect(screen.getByText("共 2 个命令")).toBeTruthy();
     expect(screen.getByText("当前 1/2")).toBeTruthy();
@@ -144,5 +149,56 @@ describe("CommandPalette", () => {
     expect(screen.getAllByRole("option", { name: /Second/ })).toHaveLength(1);
     expect(screen.getAllByRole("option", { name: /First/ })).toHaveLength(1);
     expect(screen.queryByText("missing")).toBeNull();
+  });
+
+  test("links the combobox to the listbox and active option", () => {
+    renderPalette([
+      { id: "first", label: "First", icon: Search, group: "navigation", perform: vi.fn() },
+      { id: "second", label: "Second", icon: Search, group: "action", perform: vi.fn() },
+    ]);
+    const input = getSearchInput();
+    const listbox = screen.getByRole("listbox");
+    const options = screen.getAllByRole("option");
+
+    expect(input.getAttribute("aria-expanded")).toBe("true");
+    expect(input.getAttribute("aria-controls")).toBe(listbox.id);
+    expect(input.getAttribute("aria-activedescendant")).toBe(options[0].id);
+
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+
+    expect(input.getAttribute("aria-activedescendant")).toBe(screen.getAllByRole("option")[1].id);
+  });
+
+  test("restores focus and clears the query when reopened", () => {
+    function Harness() {
+      const [open, setOpen] = useState(false);
+      const items: CommandItem[] = [
+        { id: "first", label: "First", icon: Search, group: "navigation", perform: vi.fn() },
+        { id: "second", label: "Second", icon: Search, group: "action", perform: vi.fn() },
+      ];
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>Open palette</button>
+          <CommandPalette open={open} onClose={() => setOpen(false)} items={items} />
+        </>
+      );
+    }
+
+    render(<Harness />);
+    const trigger = screen.getByRole("button", { name: "Open palette" });
+    trigger.focus();
+    fireEvent.click(trigger);
+    let input = getSearchInput();
+    fireEvent.change(input, { target: { value: "Second" } });
+
+    fireEvent.keyDown(input, { key: "Escape" });
+
+    expect(document.activeElement).toBe(trigger);
+
+    fireEvent.click(trigger);
+    input = getSearchInput();
+
+    expect(input.value).toBe("");
+    expect(screen.getByText("共 2 个命令")).toBeTruthy();
   });
 });
