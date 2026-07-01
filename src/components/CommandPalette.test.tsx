@@ -129,4 +129,20 @@ describe("CommandPalette", () => {
     expect(screen.getAllByRole("option")[0].textContent).toContain("Second");
     expect(screen.getAllByRole("option", { name: /Second/ })).toHaveLength(1);
   });
+
+  test("ignores duplicate and stale recent command ids loaded from storage", () => {
+    storage.set(recentCommandsKey, JSON.stringify(["second", "missing", "second", "first"]));
+
+    renderPalette([
+      { id: "first", label: "First", icon: Search, group: "navigation", perform: vi.fn() },
+      { id: "second", label: "Second", icon: Search, group: "action", perform: vi.fn() },
+    ]);
+
+    expect(screen.getByText("最近使用")).toBeTruthy();
+    expect(screen.getAllByRole("option")[0].textContent).toContain("Second");
+    expect(screen.getAllByRole("option")[1].textContent).toContain("First");
+    expect(screen.getAllByRole("option", { name: /Second/ })).toHaveLength(1);
+    expect(screen.getAllByRole("option", { name: /First/ })).toHaveLength(1);
+    expect(screen.queryByText("missing")).toBeNull();
+  });
 });

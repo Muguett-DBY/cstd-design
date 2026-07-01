@@ -66,12 +66,27 @@ function scoreItem(query: string, item: CommandItem): number {
   );
 }
 
+function normalizeRecentCommandIds(ids: string[], validCommandIds?: ReadonlySet<string>): string[] {
+  const seen = new Set<string>();
+  const next: string[] = [];
+  for (const id of ids) {
+    if (seen.has(id)) continue;
+    if (validCommandIds && !validCommandIds.has(id)) continue;
+    seen.add(id);
+    next.push(id);
+    if (next.length >= MAX_RECENT_COMMANDS) break;
+  }
+  return next;
+}
+
 function readRecentCommandIds(): string[] {
   try {
     const stored = globalThis.localStorage?.getItem(COMMAND_PALETTE_RECENT_STORAGE_KEY);
     if (!stored) return [];
     const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string").slice(0, MAX_RECENT_COMMANDS) : [];
+    return Array.isArray(parsed)
+      ? normalizeRecentCommandIds(parsed.filter((id): id is string => typeof id === "string"))
+      : [];
   } catch {
     return [];
   }
@@ -100,6 +115,7 @@ export function CommandPalette({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const normalizedQuery = query.trim();
+  const validCommandIds = useMemo(() => new Set(items.map((item) => item.id)), [items]);
 
   const filtered = useMemo(() => {
     if (!normalizedQuery) return items;
@@ -112,10 +128,10 @@ export function CommandPalette({
 
   const recentItems = useMemo(() => {
     const itemsById = new Map(items.map((item) => [item.id, item]));
-    return recentCommandIds
+    return normalizeRecentCommandIds(recentCommandIds, validCommandIds)
       .map((id) => itemsById.get(id))
       .filter((item): item is CommandItem => Boolean(item));
-  }, [items, recentCommandIds]);
+  }, [items, recentCommandIds, validCommandIds]);
 
   const regularItems = useMemo(() => {
     if (normalizedQuery || recentItems.length === 0) return filtered;
@@ -154,11 +170,11 @@ export function CommandPalette({
 
   const recordRecentCommand = useCallback((id: string) => {
     setRecentCommandIds((current) => {
-      const next = [id, ...current.filter((currentId) => currentId !== id)].slice(0, MAX_RECENT_COMMANDS);
+      const next = normalizeRecentCommandIds([id, ...current], validCommandIds);
       persistRecentCommandIds(next);
       return next;
     });
-  }, []);
+  }, [validCommandIds]);
 
   const executeCommand = useCallback((item: CommandItem) => {
     recordRecentCommand(item.id);
