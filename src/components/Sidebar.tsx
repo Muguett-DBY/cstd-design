@@ -219,10 +219,16 @@ function ConversationCard({
             className="folder-select"
             value=""
             onChange={(e) => {
-              if (e.target.value) {
-                const target = conversations.find((c) => c.id === e.target.value);
-                if (target && window.confirm(`确认将"${item.title}"合并到"${target.title}"？\n\n源会话的消息将被移动到目标会话。`)) {
-                  onMerge(e.target.value);
+              const targetId = e.target.value;
+              if (targetId) {
+                const target = conversations.find((c) => c.id === targetId);
+                if (target) {
+                  onRequestConfirm(
+                    "合并会话",
+                    `确认将"${item.title}"合并到"${target.title}"？\n\n源会话的消息将被移动到目标会话。`,
+                    false,
+                    () => onMerge(targetId),
+                  );
                 }
               }
             }}

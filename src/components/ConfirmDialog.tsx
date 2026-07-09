@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -14,6 +14,8 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({ open, title, message, confirmLabel = "确认", cancelLabel = "取消", danger = false, onConfirm, onCancel }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const confirmRef = useRef<HTMLButtonElement | null>(null);
+  const titleId = useId();
+  const messageId = useId();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -35,14 +37,16 @@ export function ConfirmDialog({ open, title, message, confirmLabel = "确认", c
     <dialog
       ref={dialogRef}
       className="confirm-dialog"
+      aria-labelledby={titleId}
+      aria-describedby={messageId}
       onClose={onCancel}
       onClick={(event) => {
         if (event.target === dialogRef.current) onCancel();
       }}
     >
       <div className="confirm-dialog-content">
-        <h3>{title}</h3>
-        <p>{message}</p>
+        <h3 id={titleId}>{title}</h3>
+        <p id={messageId}>{message}</p>
         <div className="confirm-dialog-actions">
           <button type="button" className="ghost-button" onClick={onCancel}>
             {cancelLabel}
