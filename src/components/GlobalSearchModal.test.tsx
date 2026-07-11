@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { StrictMode, type ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { GlobalSearchModal } from "./GlobalSearchModal";
 
@@ -12,13 +13,89 @@ Object.defineProperty(globalThis, "localStorage", {
   },
 });
 
+function createModalProps(): ComponentProps<typeof GlobalSearchModal> {
+  return {
+    open: true,
+    onClose: vi.fn(),
+    conversations: [],
+    activeMessages: [],
+    assets: [],
+    onSelectConversation: vi.fn(),
+    onSelectAsset: vi.fn(),
+  };
+}
+
 beforeEach(() => {
   localStorage.clear();
+  if (!HTMLDialogElement.prototype.showModal) {
+    Object.defineProperty(HTMLDialogElement.prototype, "showModal", {
+      configurable: true,
+      writable: true,
+      value: vi.fn(),
+    });
+  }
+  vi.spyOn(HTMLDialogElement.prototype, "showModal").mockImplementation(function showModal(this: HTMLDialogElement) {
+    Object.defineProperty(this, "open", { configurable: true, value: true });
+    this.setAttribute("open", "");
+  });
+  vi.clearAllMocks();
+  document.body.style.overflow = "auto";
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  document.body.style.overflow = "";
+});
 
 describe("GlobalSearchModal", () => {
+  test("opens as a labelled native modal, focuses search, and locks scrolling", () => {
+    render(<GlobalSearchModal {...createModalProps()} />);
+
+    const dialog = screen.getByRole("dialog", { name: "全局搜索" });
+
+    expect(dialog.tagName).toBe("DIALOG");
+    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledOnce();
+    expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "全局搜索" }));
+    expect(document.body.style.overflow).toBe("hidden");
+  });
+
+  test("routes native cancel through the controlled close callback", () => {
+    const props = createModalProps();
+    render(<GlobalSearchModal {...props} />);
+
+    const cancelEvent = new Event("cancel", { cancelable: true });
+    fireEvent(screen.getByRole("dialog", { name: "全局搜索" }), cancelEvent);
+
+    expect(cancelEvent.defaultPrevented).toBe(true);
+    expect(props.onClose).toHaveBeenCalledOnce();
+  });
+
+  test("restores the opener and prior body overflow when unmounted", () => {
+    const opener = document.createElement("button");
+    opener.textContent = "打开搜索";
+    document.body.append(opener);
+    opener.focus();
+
+    const { unmount } = render(<GlobalSearchModal {...createModalProps()} />);
+    unmount();
+
+    expect(document.activeElement).toBe(opener);
+    expect(document.body.style.overflow).toBe("auto");
+    opener.remove();
+  });
+
+  test("keeps search focus when StrictMode replays effects", () => {
+    render(
+      <StrictMode>
+        <GlobalSearchModal {...createModalProps()} />
+      </StrictMode>,
+    );
+
+    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledOnce();
+    expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "全局搜索" }));
+  });
+
   test("routes an active conversation message result to the exact message", () => {
     const onSelectConversation = vi.fn();
     const onSelectMessage = vi.fn();

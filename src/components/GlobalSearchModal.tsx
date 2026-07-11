@@ -41,25 +41,28 @@ export function GlobalSearchModal({
 }) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
   const collections = useCollections();
   const { tagFrequency } = useAssetTags();
   const savedSearches = useSavedSearches();
 
   useEffect(() => {
     if (!open) return;
-    const input = inputRef.current;
-    if (input) input.focus();
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { e.preventDefault(); onClose(); }
+    const dialog = dialogRef.current;
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+    }
+    inputRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      openerRef.current?.focus();
     };
-    window.addEventListener("keydown", handler, true);
-    return () => window.removeEventListener("keydown", handler, true);
-  }, [open, onClose]);
+  }, [open]);
 
   const results: GlobalSearchResult[] = useMemo(() => {
     if (!query.trim()) return [];
@@ -180,7 +183,18 @@ export function GlobalSearchModal({
   };
 
   return (
-    <div className="global-search-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="全局搜索">
+    <dialog
+      ref={dialogRef}
+      className="global-search-overlay"
+      aria-label="全局搜索"
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === dialogRef.current) onClose();
+      }}
+    >
       <div className="global-search" onClick={(e) => e.stopPropagation()}>
         <div className="global-search-header">
           <Search size={18} />
@@ -305,6 +319,6 @@ export function GlobalSearchModal({
           )}
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
