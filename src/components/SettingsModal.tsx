@@ -1,5 +1,5 @@
 import { Settings as SettingsIcon, X, Download, Upload, Keyboard } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import type { UserPreferences } from "../hooks/useUserPreferences";
 import { THEMES, type ThemeId } from "../hooks/useTheme";
 import type { Language, TranslationKey } from "../hooks/useLanguage";
@@ -115,14 +115,46 @@ export function SettingsModal({
   customTabLabels?: { chat: string; image: string; video: string; assets: string };
   onCustomTabLabelsChange?: (labels: { chat: string; image: string; video: string; assets: string }) => void;
 }) {
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const dialog = dialogRef.current;
+    openerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+    }
+    closeButtonRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      openerRef.current?.focus();
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
-    <div className="settings-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label="设置">
+    <dialog
+      ref={dialogRef}
+      className="settings-overlay"
+      aria-labelledby={titleId}
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === dialogRef.current) onClose();
+      }}
+    >
       <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
         <div className="settings-header">
-          <h3><SettingsIcon size={16} /> {t("settings.title")}</h3>
-          <button type="button" className="icon-button" onClick={onClose} aria-label={t("common.close")}>
+          <h3 id={titleId}><SettingsIcon size={16} /> {t("settings.title")}</h3>
+          <button ref={closeButtonRef} type="button" className="icon-button" onClick={onClose} aria-label={t("common.close")}>
             <X size={18} />
           </button>
         </div>
@@ -324,7 +356,7 @@ export function SettingsModal({
           <button type="button" className="primary-button" onClick={onClose}>{t("common.close")}</button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
 

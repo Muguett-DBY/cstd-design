@@ -5769,11 +5769,25 @@ button:disabled {
   position: fixed;
   inset: 0;
   z-index: 200;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
   background: rgba(0, 0, 0, 0.5);
-  display: grid;
+  color: inherit;
   place-items: center;
   padding: 24px;
   animation: fadeIn 0.15s ease;
+}
+
+.settings-overlay[open] {
+  display: grid;
+}
+
+.settings-overlay::backdrop {
+  background: transparent;
 }
 
 .settings-modal {
