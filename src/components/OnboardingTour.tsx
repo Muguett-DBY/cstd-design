@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Command, Globe, Keyboard, Palette, Share2, Sparkles, X } from "lucide-react";
 import { ONBOARDING_STORAGE_KEY } from "../storage-keys";
 
@@ -55,17 +55,24 @@ export function OnboardingTour() {
     }
   });
   const [step, setStep] = useState(0);
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const nextButtonRef = useRef<HTMLButtonElement | null>(null);
+  const titleId = useId();
+  const descriptionId = useId();
 
   useEffect(() => {
     if (!visible) return;
-    const handler = (event: KeyboardEvent) => {
-      if (event.key === "Escape") complete();
-      if (event.key === "ArrowRight") next();
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) {
+      dialog.showModal();
+      nextButtonRef.current?.focus();
+    }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
     };
-    window.addEventListener("keydown", handler);
-    return () => { window.removeEventListener("keydown", handler); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, step]);
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -88,16 +95,35 @@ export function OnboardingTour() {
   }
 
   return (
-    <div className="onboarding-overlay" role="dialog" aria-modal="true" aria-label="新用户引导">
-      <div className="onboarding-backdrop" />
+    <dialog
+      ref={dialogRef}
+      className="onboarding-overlay"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      onCancel={(event) => {
+        event.preventDefault();
+        complete();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          next();
+        } else if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          prev();
+        }
+      }}
+    >
+      <div className="onboarding-backdrop" aria-hidden="true" />
       <div className="onboarding-card">
         <button type="button" className="onboarding-close" onClick={complete} aria-label="关闭引导">
           <X size={18} />
         </button>
         <div className="onboarding-icon">{current.icon}</div>
-        <h2 className="onboarding-title">{current.title}</h2>
-        <p className="onboarding-description">{current.description}</p>
-        <div className="onboarding-dots">
+        <h2 id={titleId} className="onboarding-title">{current.title}</h2>
+        <p id={descriptionId} className="onboarding-description">{current.description}</p>
+        <p className="onboarding-progress" aria-live="polite">第 {step + 1}/{TOUR_STEPS.length} 步</p>
+        <div className="onboarding-dots" aria-hidden="true">
           {TOUR_STEPS.map((_, i) => (
             <span key={i} className={`onboarding-dot${i === step ? " active" : ""}`} />
           ))}
@@ -106,12 +132,12 @@ export function OnboardingTour() {
           {!isFirst && (
             <button type="button" className="ghost-button" onClick={prev}>上一步</button>
           )}
-          <button type="button" className="primary-button" onClick={next} autoFocus>
+          <button ref={nextButtonRef} type="button" className="primary-button" onClick={next}>
             {isLast ? "开始使用" : "下一步"}
           </button>
           <button type="button" className="onboarding-skip" onClick={complete}>跳过引导</button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
