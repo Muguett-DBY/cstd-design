@@ -264,7 +264,7 @@ Expected: all commands exit 0 with no new warning or budget regression.
 
 **Interfaces:**
 - Consumes: the repository release workflow and production smoke script.
-- Produces: one reviewed `main` commit, matching remote/CI/deployment SHAs, and cleaned production QA state.
+- Produces: one reviewed implementation commit on `main`, matching remote/CI/deployment evidence, cleaned production QA state, and a final release-evidence record.
 
 - [x] **Step 1: Run the complete local release gate**
 
@@ -276,7 +276,7 @@ Review the exact diff for requirements coverage, event semantics, nested-interac
 
 Reviewer follow-up must prove that desktop list thumbnails stay bounded, the Shift-click regression spans at least three assets, video controls are not nested in a button, mobile detail previews are taller than mobile grid previews, and both per-card and multi-selection actions remain inside a 390 px viewport.
 
-- [ ] **Step 3: Stage, commit, and push explicitly**
+- [x] **Step 3: Stage, commit, and push explicitly**
 
 ```powershell
 git add -- src/App.css src/components/AssetWorkspace.tsx src/components/AssetWorkspace.test.tsx docs/superpowers/specs/2026-07-13-asset-library-view-modes-design.md docs/superpowers/plans/2026-07-13-asset-library-view-modes.md
@@ -287,10 +287,20 @@ git push origin main
 
 Confirm `HEAD`, `origin/main`, and `git ls-remote origin refs/heads/main` are identical.
 
-- [ ] **Step 4: Match CI, deployment, smoke, and browser evidence to the commit**
+- [x] **Step 4: Match CI, deployment, smoke, and browser evidence to the implementation commit**
 
-Require successful GitHub Actions and a Cloudflare Pages production deployment whose source SHA equals `HEAD`. Run `npm run smoke:production` with `CSTD_COMMIT_SHA` set only in-process. On the exact deployment URL, upload one disposable real image and verify desktop grid/list/detail computed layouts, toggle/group roles, keyboard preview, keyboard selection, console cleanliness, and mobile 390 x 844 overflow/layout. Delete the disposable asset and close the browser session.
+Require successful GitHub Actions and a Cloudflare Pages production deployment whose source SHA equals the implementation commit. Run `npm run smoke:production` with `CSTD_COMMIT_SHA` set only in-process. On the exact deployment URL, upload one disposable real image and verify desktop grid/list/detail computed layouts, toggle/group roles, keyboard preview, keyboard selection, console cleanliness, and mobile 390 x 844 overflow/layout. Delete the disposable asset and close the browser session.
 
-- [ ] **Step 5: Close hygiene and update evidence**
+- [x] **Step 5: Close hygiene and update evidence**
 
 Remove untracked Playwright internals while preserving only intentionally reported screenshots, verify production has no disposable asset, require a clean `main...origin/main` worktree, and mark every completed plan checkbox.
+
+## Execution Evidence
+
+- Implementation commit: `e4d9fd0f33cb52ba6dbfd3b8f7d360c1373ce234` (`fix: complete asset library view modes`). Local `HEAD`, `origin/main`, and `git ls-remote origin refs/heads/main` matched before release acceptance.
+- Local release gate: 88 Vitest files / 557 tests plus 8 production-smoke unit tests passed; Functions typecheck, ESLint, production build/budget, dependency audit, install-script audit, production-secret verification, release-scope and 402-commit secret scans, and remote D1 migration check passed.
+- Independent review: follow-up verdict had no Critical or Important findings after the mobile-detail size assertion and exactly-one-pressed regression were added.
+- GitHub Actions: run `29210329457` completed successfully for the implementation SHA, including deploy and production verification.
+- Cloudflare Pages: production deployment `10b3142c-83df-434d-a38d-4e414fa9aee9` at `https://10b3142c.cstd-design.pages.dev` reported source `e4d9fd0`; exact-SHA and `https://design.custard.top` production smoke both passed.
+- Live browser acceptance: a disposable real PNG was uploaded through the production UI. Desktop rendered grid/list/detail as 4/1/3 columns with a 126 px list thumbnail. At 390 x 844, grid used one column, list used `104px 237.333px`, and detail preview height was 341.33 px versus grid 256 px. Keyboard preview and checkbox selection passed, every checked layout had no horizontal overflow, and the browser recorded zero warnings/errors.
+- Cleanup: the disposable production asset was deleted and absence rechecked; the production browser, local Pages process, `output/`, and `.playwright-cli/` artifacts were removed.
