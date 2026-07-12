@@ -60,6 +60,11 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
   const [showCompare, setShowCompare] = useState(false);
   const [showCollectionPickerFor, setShowCollectionPickerFor] = useState<string | null>(null);
   const [showCollectionsManager, setShowCollectionsManager] = useState(false);
+  const assetGridClassName = [
+    "asset-grid",
+    viewMode === "list" ? "view-list" : "",
+    viewMode === "detail" ? "view-detail" : "",
+  ].filter(Boolean).join(" ");
 
   const resetSelection = () => {
     setSelected(new Set());
@@ -155,12 +160,13 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             ]}
             onChange={(v) => { setFilter(v); resetSelection(); }}
           />
-          <div className="view-mode-toggle" role="radiogroup" aria-label="视图模式">
+          <div className="view-mode-toggle" role="group" aria-label="视图模式">
             <button
               type="button"
               className={`view-mode-btn${viewMode === "grid" ? " active" : ""}`}
               onClick={() => setViewMode("grid")}
               aria-pressed={viewMode === "grid"}
+              aria-label="网格视图"
               title="网格视图"
             >
               <Grid size={14} />
@@ -170,6 +176,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               className={`view-mode-btn${viewMode === "list" ? " active" : ""}`}
               onClick={() => setViewMode("list")}
               aria-pressed={viewMode === "list"}
+              aria-label="列表视图"
               title="列表视图"
             >
               <List size={14} />
@@ -179,6 +186,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
               className={`view-mode-btn${viewMode === "detail" ? " active" : ""}`}
               onClick={() => setViewMode("detail")}
               aria-pressed={viewMode === "detail"}
+              aria-label="详情视图"
               title="详情视图"
             >
               <LayoutList size={14} />
@@ -326,7 +334,7 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
           </span>
         )}
       </div>
-      <div className="asset-grid">
+      <div className={assetGridClassName}>
         {visible.length === 0 ? (
           <EmptyState title={filter === "all" ? "还没有素材" : "没有匹配的素材"} text={filter === "all" ? "上传参考图或生成作品后，会出现在这里。" : `当前筛选条件下没有${filter === "upload" ? "上传" : filter === "image" ? "图片" : "视频"}素材。`} />
         ) : (
@@ -339,15 +347,33 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
             </div>
             {visible.map((asset, index) => (
               <article className={`asset-card${selected.has(asset.id) ? " selected" : ""}`} key={asset.id}>
-                <div className="asset-checkbox" onClick={(e) => { e.stopPropagation(); toggleSelect(asset.id, index, e.shiftKey); }}>
-                  <input type="checkbox" checked={selected.has(asset.id)} readOnly />
-                </div>
-                <div className="asset-preview" style={{ cursor: asset.mediaType.startsWith("video") ? "default" : "pointer" }} onClick={() => { if (!asset.mediaType.startsWith("video")) onPreview?.(asset); }}>
-                  {asset.mediaType.startsWith("video") ? <video src={asset.url} controls /> : <img src={asset.url} alt={asset.filename} loading="lazy" />}
-                  {!asset.mediaType.startsWith("video") && (
+                <label className="asset-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(asset.id)}
+                    readOnly
+                    aria-label={`选择素材 ${asset.filename}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleSelect(asset.id, index, event.shiftKey);
+                    }}
+                  />
+                </label>
+                {asset.mediaType.startsWith("video") ? (
+                  <div className="asset-preview">
+                    <video src={asset.url} controls />
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="asset-preview asset-preview-button"
+                    aria-label={`预览 ${asset.filename}`}
+                    onClick={() => onPreview?.(asset)}
+                  >
+                    <img src={asset.url} alt="" loading="lazy" />
                     <span className="asset-preview-hint" aria-hidden="true"><Eye size={14} /></span>
-                  )}
-                </div>
+                  </button>
+                )}
                 <div className="asset-meta">
                   <strong>{asset.filename}</strong>
                   <span>{asset.kind} · {formatBytes(asset.size)}</span>
