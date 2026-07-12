@@ -225,7 +225,7 @@ Expected: every command exits 0; no vulnerabilities, unreviewed install scripts,
 
 Serve `dist` with `wrangler pages dev`, authenticate through the local E2E-only session endpoint, and verify desktop plus 390×844 mobile behavior: native `:modal`, labelled dialog, input focus, background focus rejection, body scroll lock, no horizontal overflow, Escape/backdrop close, opener restoration, zero console warnings/errors, and 200 responses from session/conversations/assets/readiness.
 
-- [ ] **Step 3: Review, stage explicitly, commit, and push**
+- [x] **Step 3: Review, stage explicitly, commit, and push**
 
 ```powershell
 git add -- src/App.css src/components/GlobalSearchModal.tsx src/components/GlobalSearchModal.test.tsx docs/superpowers/specs/2026-07-11-global-search-native-modal-design.md docs/superpowers/plans/2026-07-11-global-search-native-modal.md
@@ -233,10 +233,10 @@ git commit -m "fix: harden global search modal accessibility"
 git push origin main
 ```
 
-- [ ] **Step 4: Accept CI and Cloudflare by exact SHA**
+- [x] **Step 4: Accept CI and Cloudflare by exact SHA**
 
 Match the new SHA to the `Deploy Cloudflare Pages` run, require every job step to pass, confirm the newest production deployment Source matches the short SHA, and run `$env:CSTD_COMMIT_SHA='<full-sha>'; npm run smoke:production`.
 
-- [ ] **Step 5: Verify production in a real browser**
+- [x] **Step 5: Verify production in a real browser**
 
 Use the exact deployment URL, authenticate without logging the secret, then repeat desktop/mobile modal, focus, close, overflow, console, and API checks. Confirm the production alias serves the same hashed application asset and leave `main`, `origin/main`, and the worktree clean and identical.

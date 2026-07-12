@@ -5,6 +5,10 @@ const UNAUTHORIZED_EVENT = "auth:unauthorized";
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 800;
 
+type RequestOptions = {
+  unauthorized?: "broadcast" | "preserve-response";
+};
+
 export type ServiceReadinessCheck = {
   id: "database" | "media" | "generation" | "security";
   label: string;
@@ -26,7 +30,7 @@ function isRetryable(status: number): boolean {
   return status >= 500 || status === 408 || status === 429;
 }
 
-async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
+async function requestJson<T>(url: string, init?: RequestInit, options: RequestOptions = {}): Promise<T> {
   let lastError: Error | null = null;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     let response: Response;
@@ -46,10 +50,6 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
       }
       throw lastError;
     }
-    if (response.status === 401) {
-      window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
-      throw new Error("请先登录。");
-    }
     if (!response.ok) {
       if (isRetryable(response.status) && attempt < MAX_RETRIES) {
         await delay(RETRY_DELAY_MS * Math.pow(2, attempt));
@@ -57,6 +57,13 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
       }
       let body: { error?: string } = {};
       try { body = await response.json(); } catch { /* ignore parse errors */ }
+      if (response.status === 401) {
+        if (options.unauthorized !== "preserve-response") {
+          window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
+          throw new Error("请先登录。");
+        }
+        throw new Error(body.error || "登录失败，请稍后重试。");
+      }
       if (response.status === 429) throw new Error(body.error || "请求过于频繁，请稍后重试。");
       if (response.status === 403) throw new Error(body.error || "没有权限执行此操作。");
       if (response.status === 404) throw new Error(body.error || "请求的资源不存在。");
@@ -76,7 +83,12 @@ export function onUnauthorized(handler: () => void) {
 export const api = {
   session: () => requestJson<{ authenticated: boolean; expiresAt: string | null }>("/api/session"),
   readiness: () => requestJson<ServiceReadinessSnapshot>("/api/readiness"),
-  login: (password: string) => requestJson<{ authenticated: boolean; expiresAt: string }>("/api/session", { method: "POST", body: JSON.stringify({ password }) }),
+  login: (password: string) =>
+    requestJson<{ authenticated: boolean; expiresAt: string }>(
+      "/api/session",
+      { method: "POST", body: JSON.stringify({ password }) },
+      { unauthorized: "preserve-response" },
+    ),
   logout: () => requestJson<{ authenticated: boolean }>("/api/session", { method: "DELETE" }),
   conversations: (q = "") => requestJson<{ conversations: ConversationSummary[] }>(`/api/conversations${q ? `?q=${encodeURIComponent(q)}` : ""}`),
   createConversation: () => requestJson<{ conversation: ConversationSummary }>("/api/conversations", { method: "POST", body: JSON.stringify({ title: "新会话" }) }),
