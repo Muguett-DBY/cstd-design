@@ -67,7 +67,7 @@ function harness({
     return make();
   });
   const batch = vi.fn(batchImpl);
-  const deleteObjects = vi.fn(async (_keys: string | string[]) => undefined);
+  const deleteObjects = vi.fn(async () => undefined);
   const env = {
     DB: { prepare, batch } as unknown as D1Database,
     MEDIA_BUCKET: { delete: deleteObjects } as unknown as R2Bucket,
