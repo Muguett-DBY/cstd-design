@@ -30,8 +30,8 @@
 - [x] Audit the resolved dependency graph, install scripts, lockfile diff, vulnerabilities, and excluded major upgrades.
 - [x] Run full tests, Functions typecheck, lint, build/budget, production binding verification, remote migration check, and secret/diff hygiene.
 - [x] Run local Pages plus headed Chromium across authentication and core workspaces with zero actionable console/page errors and no mobile overflow.
-- [ ] Stage named files, scan, commit, push `main`, and match local/remote SHAs.
-- [ ] Require exact-SHA CI/Pages success plus exact/custom-domain production smoke, then record release evidence and clean QA artifacts.
+- [x] Stage named files, scan, commit, push `main`, and match local/remote SHAs.
+- [x] Require exact-SHA CI/Pages success plus exact/custom-domain production smoke, then record release evidence and clean QA artifacts.
 
 ## Pre-release evidence (2026-07-13)
 
@@ -45,3 +45,11 @@
 - The focused invariant passed 2/2, Functions typecheck accepted Workers Types 5, `npm install-scripts ls` found no unreviewed scripts, and `npm audit --audit-level=high` found zero vulnerabilities. Remaining outdated entries are the intentionally deferred TypeScript 7 compiler migration and the independently newer workerd binary that does not match Wrangler's runtime.
 - Upgraded local Pages compiled and ran with Wrangler 4.110.0. Headed Chromium authenticated through the local test boundary and rendered consultation, image, video, and asset workspaces; asset list/detail modes worked; 390 x 844 had no horizontal overflow; console errors and warnings were zero; the browser, QA artifacts, five-process server tree, and port 8792 were cleaned.
 - Final pre-commit gates passed on the corrected tree: 10/10 Node tests and 91 Vitest files / 576 tests, Functions typecheck, ESLint with zero warnings, production build and chunk budget, required Pages secret verification, remote D1 with no pending migrations, lockfile `npm ci --dry-run`, zero vulnerabilities, no unreviewed install scripts, and Gitleaks across 410 commits.
+
+## Release evidence (2026-07-13)
+
+- Implementation commit `6c5ec722b77ff1e2eb2442a3cb7e1130ce2d2491` was pushed to `main`; local `HEAD`, `origin/main`, and `git ls-remote origin refs/heads/main` matched exactly.
+- GitHub Actions run `29242963201` / deploy job `86793118371` completed successfully in 1 minute 50 seconds. Linux install, the new workerd invariant, all tests, Functions typecheck, lint, build, production binding verification, D1 migration, Pages deploy, and deployment verification passed.
+- Cloudflare Pages deployment `601d04e9-bf47-414c-9e09-240555548ac8` published the implementation at `https://601d04e9.cstd-design.pages.dev`. Both that exact deployment and `https://design.custard.top` passed anonymous-session, authentication-boundary, disabled-E2E-bypass, and full-commit-SHA smoke checks.
+- Headed Chromium production acceptance on the exact deployment logged in with HTTP 200, visited Chat, Image, Video, and Assets, activated grid/list/detail asset modes, and verified 390 x 844 without horizontal overflow. Actionable console issues and page errors were both zero; logout returned HTTP 200.
+- The disposable production script and output directory were removed; no production data fixtures were created by this read-only UI acceptance.
