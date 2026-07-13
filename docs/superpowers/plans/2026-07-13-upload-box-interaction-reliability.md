@@ -196,7 +196,7 @@ Build and serve `dist` through `wrangler pages dev`. In Chrome, delay `/api/uplo
 
 Review the exact diff for nested interaction, XHR lifecycle (including the post-commit refresh window), input reset timing, event propagation, progress semantics, responsive styling, test-double fidelity, and accidental scope. Resolve verified findings. Run full tests, Functions typecheck, lint, production build/budget, dependency audit, install-script audit, release-scope/history/staged-diff secret scans, production-secret verification, remote D1 migration check, and diff hygiene.
 
-- [ ] **Step 3: Stage, commit, and push explicitly**
+- [x] **Step 3: Stage, commit, and push explicitly**
 
 ```powershell
 git add -- src/components/UploadBox.tsx src/components/UploadBox.test.tsx src/App.css docs/superpowers/specs/2026-07-13-upload-box-interaction-reliability-design.md docs/superpowers/plans/2026-07-13-upload-box-interaction-reliability.md
@@ -207,7 +207,7 @@ git push origin main
 
 Confirm local `HEAD`, `origin/main`, and `git ls-remote origin refs/heads/main` match.
 
-- [ ] **Step 4: Match CI, deployment, production retry, and cleanup to the SHA**
+- [x] **Step 4: Match CI, deployment, production retry, and cleanup to the SHA**
 
 Require successful GitHub Actions and a Cloudflare production deployment whose source SHA matches the implementation commit. Run exact-SHA and custom-domain production smoke. On the exact deployment, upload a disposable real PNG through the UI, verify same-file re-selection and the finished asset, test desktop/mobile upload-control layout and semantics, then delete every asset with the exact QA filename and recheck absence. Close the browser and remove Playwright artifacts.
 
@@ -218,3 +218,11 @@ Require successful GitHub Actions and a Cloudflare production deployment whose s
 - Independent diff review covered invalid nesting, abort timing, input reset timing, drag/drop preservation, ARIA semantics, responsive selectors, the XHR test boundary, and changed-file scope. It found and resolved the post-commit cancellation race before release.
 - Final local gate passed: `npm test` reported 89 files / 561 tests; Functions typecheck, ESLint, production build and chunk budget, production-secret verification, remote D1 migration check, dependency audit, install-script audit, release-scope scan, staged-diff scan, 404-commit history scan, and diff hygiene all passed.
 - Production-like local Pages acceptance passed at 1440 x 1000 and 390 x 844: the active container was a `DIV`; cancel had no button ancestor; the input had no button ancestor and reset after each selection; cancel aborted attempt one; the exact same filename started attempt two; post-commit refresh exposed 100% progress with no cancel; idle/success used a native button; all mobile states stayed within the viewport with no horizontal overflow; browser console errors/warnings were zero.
+
+## Release evidence (2026-07-13)
+
+- Implementation commit `26e6defc53e1724e19ed5514bd36e7fd1d8f00cc` was pushed directly to `main`; local `HEAD`, `origin/main`, and `git ls-remote origin refs/heads/main` matched that SHA.
+- GitHub Actions run `29231575004` completed successfully. Secret scan, install, full tests, Functions typecheck, lint, production build, production-secret verification, D1 migration check, Pages deployment, and deployment verification all passed.
+- Cloudflare Pages production deployment `6061c5d5-5c2a-47c7-ba68-6536d11d9d63` published source `26e6def` at `https://6061c5d5.cstd-design.pages.dev`. Exact-deployment and `https://design.custard.top` production smoke both verified the full commit SHA, anonymous session boundary, authenticated-route boundary, and disabled production E2E bypass.
+- Headed Chromium production acceptance on the exact deployment passed after the CLI transport was found to close while an upload route was intentionally held. The same locked Playwright version verified a real browser flow: attempt one was cancelled by keyboard without persisting an asset; re-selecting the same filename produced request two and one persisted asset; finalization held progress at 100% and removed cancel; the asset appeared in Assets; desktop and 390 x 844 mobile controls had valid native semantics and no horizontal overflow; console warnings/errors and page errors were zero.
+- The disposable asset `qa-upload-box-26e6def.png` was deleted after verification, an independent API lookup confirmed zero matching assets, and the short-lived QA authentication session was logged out with HTTP 200.
