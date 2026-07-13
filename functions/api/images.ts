@@ -1,4 +1,5 @@
 import { AgnesClient } from "../_shared/agnes";
+import { persistAssetBatch } from "../_shared/asset-persistence";
 import { enforceRateLimit, getExtension, json, readJson, requireSession, requireUpstreamApiKey, type PagesContext } from "../_shared/http";
 import { assetCapabilityUrls, createObjectKey, guardRemoteAssetResponse, safeMediaType } from "../_shared/media";
 import { toClientError, type ImageSize } from "../_shared/provider";
@@ -26,12 +27,18 @@ export async function onRequestPost({ request, env }: PagesContext) {
     const id = crypto.randomUUID();
     const filename = `image-${id}.${getExtension(`image.${contentType.split("/")[1] || "png"}`, contentType)}`;
     const objectKey = createObjectKey("image", id, getExtension(filename, contentType));
-    await env.MEDIA_BUCKET.put(objectKey, remoteAsset.body, { httpMetadata: { contentType } });
     const sizeValue = remoteAsset.size;
     const now = new Date().toISOString();
-    await env.DB.prepare(`INSERT INTO assets (id, kind, media_type, object_key, filename, size, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`)
-      .bind(id, "image", contentType, objectKey, filename, sizeValue, now)
-      .run();
+    await persistAssetBatch(env.DB, env.MEDIA_BUCKET, [{
+      id,
+      kind: "image",
+      mediaType: contentType,
+      objectKey,
+      filename,
+      size: sizeValue,
+      createdAt: now,
+      body: remoteAsset.body,
+    }]);
     return json({ asset: { id, kind: "image", mediaType: contentType, filename, size: sizeValue, createdAt: now, url: `/api/assets/${id}` } }, 201);
   } catch (error) {
     return json({ error: toClientError(error, "图片生成失败，请稍后重试。") }, 502);

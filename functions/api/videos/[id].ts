@@ -1,4 +1,5 @@
 import { AgnesClient } from "../../_shared/agnes";
+import { persistAssetBatch } from "../../_shared/asset-persistence";
 import { createObjectKey, guardRemoteAssetResponse } from "../../_shared/media";
 import { json, requireSession, requireUpstreamApiKey, type PagesContext } from "../../_shared/http";
 import { toClientError } from "../../_shared/provider";
@@ -23,13 +24,26 @@ export async function onRequestGet({ request, env, params }: PagesContext) {
       const id = crypto.randomUUID();
       const objectKey = createObjectKey("video", id, "mp4");
       const filename = `video-${id}.mp4`;
-      await env.MEDIA_BUCKET.put(objectKey, remoteAsset.body, { httpMetadata: { contentType: "video/mp4" } });
       const now = new Date().toISOString();
       const size = remoteAsset.size;
-      await env.DB.prepare(`INSERT INTO assets (id, kind, media_type, object_key, filename, size, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)`)
-        .bind(id, "video", "video/mp4", objectKey, filename, size, now)
-        .run();
-      await env.DB.prepare(`UPDATE video_tasks SET status = ?1, asset_id = ?2, updated_at = ?3 WHERE id = ?4`).bind("completed", id, now, row.id).run();
+      const linkTask = env.DB.prepare(`UPDATE video_tasks SET status = ?1, asset_id = ?2, updated_at = ?3 WHERE id = ?4 AND asset_id IS NULL`)
+        .bind("completed", id, now, row.id);
+      await persistAssetBatch(env.DB, env.MEDIA_BUCKET, [{
+        id,
+        kind: "video",
+        mediaType: "video/mp4",
+        objectKey,
+        filename,
+        size,
+        createdAt: now,
+        body: remoteAsset.body,
+      }], {
+        beforeStatements: [linkTask],
+        insertCondition: {
+          sql: "EXISTS (SELECT 1 FROM video_tasks WHERE id = ?8 AND asset_id = ?1 AND status = 'completed')",
+          values: () => [row.id],
+        },
+      });
       return json({ task: { id: row.id, status: "completed", progress: 100, assetId: id, assetUrl: `/api/assets/${id}` } });
     }
     await env.DB.prepare(`UPDATE video_tasks SET status = ?1, updated_at = ?2 WHERE id = ?3`)
