@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { api, onUnauthorized } from "./api";
-import { appendChatEvent, buildActiveBranch, branchLeaves, mergeCommittedAssets, reconcileAssetRefresh } from "./app-state";
+import { appendChatEvent, buildActiveBranch, branchLeaves, createAssetRefreshCoordinator } from "./app-state";
 import { TABS } from "./constants";
 import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, WorkspaceTab } from "./types";
 import {
@@ -70,6 +70,7 @@ function AppInner() {
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [conversation, setConversation] = useState<ConversationDetail | null>(null);
   const [assets, setAssets] = useState<AssetItem[]>([]);
+  const assetRefreshCoordinatorRef = useRef(createAssetRefreshCoordinator());
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [lightboxAsset, setLightboxAsset] = useState<AssetItem | null>(null);
   const [lightboxAssets, setLightboxAssets] = useState<AssetItem[]>([]);
@@ -236,16 +237,25 @@ function AppInner() {
     setEditingAsset(asset);
   }, []);
 
-  const refreshAssets = useCallback(async (committedAssets: AssetItem[] = []) => {
-    if (committedAssets.length > 0) {
-      setAssets((current) => mergeCommittedAssets(current, committedAssets));
+  const refreshAssets = useCallback(async (
+    committedAssets: AssetItem[] = [],
+    removedAssetIds: string[] = [],
+  ) => {
+    const coordinator = assetRefreshCoordinatorRef.current;
+    const ticket = coordinator.begin(committedAssets, removedAssetIds);
+    if (committedAssets.length > 0 || removedAssetIds.length > 0) {
+      setAssets((current) => coordinator.applyPending(current));
     }
     try {
       const result = await api.assets();
-      setAssets((current) => reconcileAssetRefresh(current, result.assets, committedAssets));
+      setAssets((current) => coordinator.resolve(ticket, current, result.assets) ?? current);
       return true;
     } catch (error) {
-      if (committedAssets.length === 0) {
+      if (
+        committedAssets.length === 0
+        && removedAssetIds.length === 0
+        && !coordinator.isSuperseded(ticket)
+      ) {
         toast(error instanceof Error ? error.message : "请求失败。", "error");
       }
       return false;

@@ -112,18 +112,31 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
     }
   };
 
+  const refreshDeletedAssets = async (removedAssetIds: string[]) => {
+    try {
+      return (await onAssetsChanged([], removedAssetIds)) !== false;
+    } catch {
+      return false;
+    }
+  };
+
   const deleteSelected = () => {
     const selectedIds = Array.from(selected);
     const count = selectedIds.length;
     onRequestConfirm("批量删除", `确认永久删除选中的 ${count} 个素材？此操作不可恢复。`, true, async () => {
       const results = await Promise.allSettled(selectedIds.map((id) => api.deleteAsset(id)));
-      const failedCount = results.filter((result) => result.status === "rejected").length;
-      setSelected(new Set());
-      await onAssetsChanged();
+      const successfulIds = selectedIds.filter((_, index) => results[index]?.status === "fulfilled");
+      const failedIds = selectedIds.filter((_, index) => results[index]?.status === "rejected");
+      const failedCount = failedIds.length;
+      setSelected(new Set(failedIds));
+      const refreshed = successfulIds.length === 0 || await refreshDeletedAssets(successfulIds);
       if (failedCount > 0) {
-        onNotice(`已删除 ${count - failedCount} 个素材，${failedCount} 个删除失败。`);
+        const resultMessage = `已删除 ${successfulIds.length} 个素材，${failedCount} 个删除失败`;
+        onNotice(refreshed ? `${resultMessage}。` : `${resultMessage}；列表同步失败，已保留删除结果。`);
       } else {
-        onNotice(`已删除 ${count} 个素材。`);
+        onNotice(refreshed
+          ? `已删除 ${count} 个素材。`
+          : `已删除 ${count} 个素材；列表同步失败，已从当前视图移除。`);
       }
     });
   };
@@ -430,8 +443,10 @@ export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, 
                         setDeletingId(asset.id);
                         try {
                           await api.deleteAsset(asset.id);
-                          await onAssetsChanged();
-                          onNotice("素材已删除。");
+                          const refreshed = await refreshDeletedAssets([asset.id]);
+                          onNotice(refreshed
+                            ? "素材已删除。"
+                            : "素材已删除；列表同步失败，已从当前视图移除。");
                         } catch (error) { onNotice(error instanceof Error ? error.message : "删除失败。"); }
                         finally { setDeletingId(null); }
                       },

@@ -3,6 +3,7 @@ import {
   appendChatEvent,
   assetSortLabel,
   buildActiveBranch,
+  createAssetRefreshCoordinator,
   filterAssets,
   formatBytes,
   initialChatDraft,
@@ -99,6 +100,72 @@ describe("frontend state helpers", () => {
     const refreshed = reconcileAssetRefresh([concurrent, old], [listedConcurrent, old], [committed]);
     expect(refreshed[1]).toEqual(listedConcurrent);
     expect(reconcileAssetRefresh([concurrent, old], [old], [])).toEqual([old]);
+  });
+
+  test("keeps confirmed deletions absent across a stale asset refresh", () => {
+    const deleted: AssetItem = { id: "deleted", kind: "upload", mediaType: "image/png", filename: "deleted.png", size: 1, createdAt: "3", url: "/deleted" };
+    const survivor: AssetItem = { id: "survivor", kind: "image", mediaType: "image/png", filename: "survivor.png", size: 2, createdAt: "2", url: "/survivor" };
+    const concurrent: AssetItem = { id: "concurrent", kind: "video", mediaType: "video/mp4", filename: "concurrent.mp4", size: 3, createdAt: "1", url: "/concurrent" };
+    const listedSurvivor: AssetItem = { ...survivor, url: "/listed-survivor", width: 1024 };
+
+    const reconciled = reconcileAssetRefresh(
+      [deleted, survivor, concurrent],
+      [deleted, listedSurvivor],
+      [],
+      [deleted.id],
+    );
+
+    expect(reconciled.map((asset) => asset.id)).toEqual(["survivor", "concurrent"]);
+    expect(reconciled[0]).toEqual(listedSurvivor);
+  });
+
+  test("gives confirmed deletion precedence over a conflicting committed asset", () => {
+    const deleted: AssetItem = { id: "deleted", kind: "upload", mediaType: "image/png", filename: "deleted.png", size: 1, createdAt: "1", url: "/deleted" };
+
+    expect(reconcileAssetRefresh([deleted], [deleted], [deleted], [deleted.id])).toEqual([]);
+  });
+
+  test("ignores an older asset response after a newer deletion response is applied", () => {
+    const deleted: AssetItem = { id: "deleted", kind: "upload", mediaType: "image/png", filename: "deleted.png", size: 1, createdAt: "2", url: "/deleted" };
+    const survivor: AssetItem = { id: "survivor", kind: "image", mediaType: "image/png", filename: "survivor.png", size: 2, createdAt: "1", url: "/survivor" };
+    const coordinator = createAssetRefreshCoordinator();
+    const older = coordinator.begin();
+    const deletion = coordinator.begin([], [deleted.id]);
+
+    expect(coordinator.applyPending([deleted, survivor]).map((asset) => asset.id)).toEqual(["survivor"]);
+    expect(coordinator.resolve(deletion, [survivor], [deleted, survivor])?.map((asset) => asset.id)).toEqual(["survivor"]);
+    expect(coordinator.resolve(older, [survivor], [deleted, survivor])).toBeNull();
+    expect(coordinator.isSuperseded(older)).toBe(true);
+  });
+
+  test("retains a deletion overlay while a newer overlapping response is still unresolved", () => {
+    const deleted: AssetItem = { id: "deleted", kind: "upload", mediaType: "image/png", filename: "deleted.png", size: 1, createdAt: "2", url: "/deleted" };
+    const survivor: AssetItem = { id: "survivor", kind: "image", mediaType: "image/png", filename: "survivor.png", size: 2, createdAt: "1", url: "/survivor" };
+    const coordinator = createAssetRefreshCoordinator();
+    const deletion = coordinator.begin([], [deleted.id]);
+    const overlapping = coordinator.begin();
+
+    expect(coordinator.resolve(deletion, [survivor], [survivor])?.map((asset) => asset.id)).toEqual(["survivor"]);
+    expect(coordinator.resolve(overlapping, [survivor], [deleted, survivor])?.map((asset) => asset.id)).toEqual(["survivor"]);
+
+    const authoritative = coordinator.begin();
+    expect(coordinator.resolve(authoritative, [survivor], [survivor])?.map((asset) => asset.id)).toEqual(["survivor"]);
+  });
+
+  test("preserves a committed asset through overlapping stale responses until listed", () => {
+    const existing: AssetItem = { id: "existing", kind: "upload", mediaType: "image/png", filename: "existing.png", size: 1, createdAt: "1", url: "/existing" };
+    const committed: AssetItem = { id: "committed", kind: "image", mediaType: "image/png", filename: "committed.png", size: 2, createdAt: "2", url: "/committed" };
+    const listedCommitted: AssetItem = { ...committed, url: "/listed-committed", width: 1024 };
+    const coordinator = createAssetRefreshCoordinator();
+    const write = coordinator.begin([committed]);
+    const overlapping = coordinator.begin();
+
+    expect(coordinator.resolve(write, [committed, existing], [existing])?.map((asset) => asset.id)).toEqual(["committed", "existing"]);
+    expect(coordinator.resolve(overlapping, [committed, existing], [existing])?.map((asset) => asset.id)).toEqual(["committed", "existing"]);
+
+    const authoritative = coordinator.begin();
+    const reconciled = coordinator.resolve(authoritative, [committed, existing], [listedCommitted, existing]);
+    expect(reconciled?.[0]).toEqual(listedCommitted);
   });
 
   test("sorts assets by type with stable secondary ordering", () => {

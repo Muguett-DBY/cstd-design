@@ -41,9 +41,88 @@ export function mergeCommittedAssets(listed: AssetItem[], committed: AssetItem[]
   ];
 }
 
-export function reconcileAssetRefresh(current: AssetItem[], listed: AssetItem[], committed: AssetItem[]) {
-  if (committed.length === 0) return listed;
-  return mergeCommittedAssets(listed, mergeCommittedAssets(current, committed));
+export function reconcileAssetRefresh(
+  current: AssetItem[],
+  listed: AssetItem[],
+  committed: AssetItem[],
+  removedAssetIds: string[] = [],
+) {
+  if (committed.length === 0 && removedAssetIds.length === 0) return listed;
+
+  const removedIds = new Set(removedAssetIds);
+  const keepVisible = (asset: AssetItem) => !removedIds.has(asset.id);
+  const visibleCurrent = current.filter(keepVisible);
+  const visibleListed = listed.filter(keepVisible);
+  const visibleCommitted = committed.filter(keepVisible);
+  return mergeCommittedAssets(
+    visibleListed,
+    mergeCommittedAssets(visibleCurrent, visibleCommitted),
+  );
+}
+
+export interface AssetRefreshTicket {
+  requestId: number;
+}
+
+export function createAssetRefreshCoordinator() {
+  let nextRequestId = 0;
+  let latestAppliedRequestId = 0;
+  const pendingCommitted = new Map<string, { asset: AssetItem; requestId: number }>();
+  const pendingRemoved = new Map<string, number>();
+
+  const committedAssets = () => Array.from(pendingCommitted.values(), ({ asset }) => asset);
+  const removedAssetIds = () => Array.from(pendingRemoved.keys());
+
+  return {
+    begin(committed: AssetItem[] = [], removedIds: string[] = []): AssetRefreshTicket {
+      const requestId = ++nextRequestId;
+      for (const asset of committed) {
+        pendingRemoved.delete(asset.id);
+        pendingCommitted.set(asset.id, { asset, requestId });
+      }
+      for (const assetId of removedIds) {
+        pendingCommitted.delete(assetId);
+        pendingRemoved.set(assetId, requestId);
+      }
+      return { requestId };
+    },
+    applyPending(current: AssetItem[]) {
+      return reconcileAssetRefresh(
+        current,
+        current,
+        committedAssets(),
+        removedAssetIds(),
+      );
+    },
+    resolve(ticket: AssetRefreshTicket, current: AssetItem[], listed: AssetItem[]) {
+      if (ticket.requestId < latestAppliedRequestId) return null;
+      latestAppliedRequestId = ticket.requestId;
+
+      if (ticket.requestId === nextRequestId) {
+        const listedIds = new Set(listed.map((asset) => asset.id));
+        for (const [assetId, pending] of pendingCommitted) {
+          if (pending.requestId <= ticket.requestId && listedIds.has(assetId)) {
+            pendingCommitted.delete(assetId);
+          }
+        }
+        for (const [assetId, requestId] of pendingRemoved) {
+          if (requestId <= ticket.requestId && !listedIds.has(assetId)) {
+            pendingRemoved.delete(assetId);
+          }
+        }
+      }
+
+      return reconcileAssetRefresh(
+        current,
+        listed,
+        committedAssets(),
+        removedAssetIds(),
+      );
+    },
+    isSuperseded(ticket: AssetRefreshTicket) {
+      return ticket.requestId < latestAppliedRequestId;
+    },
+  };
 }
 
 export type AssetSortMode = "dateDesc" | "dateAsc" | "nameAsc" | "nameDesc" | "sizeDesc" | "sizeAsc" | "kindAsc";

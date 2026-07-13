@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api } from "../api";
@@ -173,9 +173,10 @@ describe("AssetWorkspace", () => {
     const onRequestConfirm = vi.fn((_title: string, _message: string, _danger: boolean, onConfirm: () => void) => {
       void onConfirm();
     });
-    vi.mocked(api.deleteAsset)
-      .mockResolvedValueOnce({ ok: true })
-      .mockRejectedValueOnce(new Error("delete failed"));
+    vi.mocked(api.deleteAsset).mockImplementation(async (id) => {
+      if (id === "asset-1") return { ok: true };
+      throw new Error("delete failed");
+    });
 
     render(
       <AssetWorkspace
@@ -195,7 +196,40 @@ describe("AssetWorkspace", () => {
     });
     expect(api.deleteAsset).toHaveBeenCalledWith("asset-1");
     expect(api.deleteAsset).toHaveBeenCalledWith("asset-2");
-    expect(onAssetsChanged).toHaveBeenCalledOnce();
+    expect(onAssetsChanged).toHaveBeenCalledWith([], ["asset-1"]);
+    expect(screen.getByText("已选 1 项")).toBeTruthy();
+    expect((screen.getByRole("checkbox", { name: "选择素材 first.png" }) as HTMLInputElement).checked).toBe(false);
+    expect((screen.getByRole("checkbox", { name: "选择素材 second.png" }) as HTMLInputElement).checked).toBe(true);
+  });
+
+  test("reports a committed single deletion truthfully when the list refresh fails", async () => {
+    const user = userEvent.setup();
+    const onAssetsChanged = vi.fn().mockResolvedValue(false);
+    const onNotice = vi.fn();
+    const onRequestConfirm = vi.fn((_title: string, _message: string, _danger: boolean, onConfirm: () => void) => {
+      void onConfirm();
+    });
+    vi.mocked(api.deleteAsset).mockResolvedValueOnce({ ok: true });
+
+    render(
+      <AssetWorkspace
+        assets={assets}
+        onAssetsChanged={onAssetsChanged}
+        onClearAll={vi.fn()}
+        onNotice={onNotice}
+        onRequestConfirm={onRequestConfirm}
+      />,
+    );
+
+    const assetCard = screen.getByText("first.png").closest("article");
+    expect(assetCard).not.toBeNull();
+    await user.click(within(assetCard as HTMLElement).getByRole("button", { name: "删除" }));
+
+    await waitFor(() => {
+      expect(onAssetsChanged).toHaveBeenCalledWith([], ["asset-1"]);
+    });
+    expect(onNotice).toHaveBeenCalledWith("素材已删除；列表同步失败，已从当前视图移除。");
+    expect(onNotice).not.toHaveBeenCalledWith("素材已删除。");
   });
 
   test("clears selected assets when changing tag filters", async () => {
