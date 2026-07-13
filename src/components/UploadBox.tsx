@@ -67,6 +67,7 @@ export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showSummary, setShowSummary] = useState(false);
   const [uploadedCount, setUploadedCount] = useState(0);
@@ -96,6 +97,7 @@ export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<
     }
 
     setUploading(true);
+    setFinalizing(false);
     setProgress(0);
     setShowSummary(false);
 
@@ -107,6 +109,8 @@ export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<
         setProgress,
         abortRef.current.signal,
       );
+      abortRef.current = null;
+      setFinalizing(true);
       const count = result?.assets?.length || validFiles.length;
       setUploadedCount(count);
       setShowSummary(true);
@@ -121,6 +125,7 @@ export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<
       }
     } finally {
       setUploading(false);
+      setFinalizing(false);
       abortRef.current = null;
     }
   };
@@ -131,52 +136,76 @@ export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<
 
   return (
     <div className="upload-area">
-      <button
-        type="button"
-        className={"upload-box" + (dragging ? " drag-over" : "") + (uploading ? " uploading" : "")}
-        disabled={uploading}
-        onClick={() => !uploading && inputRef.current?.click()}
-        onDragOver={(event) => {
-          event.preventDefault();
-          if (!uploading && event.dataTransfer.types.includes("Files")) {
-            setDragging(true);
-          }
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={async (event) => {
-          event.preventDefault();
-          setDragging(false);
-          await processFiles(event.dataTransfer.files);
-        }}
-      >
-        {uploading ? (
-          <>
+      {uploading ? (
+        <div className="upload-box uploading">
+          <span className="upload-status" role="status" aria-live="polite">
             <RefreshCw size={18} className="spin" />
-            <span>上传中... {progress}%</span>
+            <span>{finalizing ? "上传完成，正在刷新素材..." : `上传中... ${progress}%`}</span>
+          </span>
+          {!finalizing && (
             <button
               type="button"
               className="upload-cancel-btn"
-              onClick={(e) => { e.stopPropagation(); cancelUpload(); }}
+              onClick={cancelUpload}
+              aria-label="取消上传"
               title="取消上传"
             >
               <X size={14} />
             </button>
-          </>
-        ) : showSummary ? (
-          <>
-            <Check size={18} className="upload-success-icon" />
-            <span>{uploadedCount} 个文件已上传</span>
-          </>
-        ) : (
-          <>
-            <Upload size={18} />
-            <span>{dragging ? "松开以上传" : "上传参考图/视频"}</span>
-          </>
-        )}
-        <input ref={inputRef} hidden type="file" accept={ALLOWED_TYPES.join(",")} multiple onChange={(event) => processFiles(event.target.files)} />
-      </button>
+          )}
+        </div>
+      ) : (
+        <button
+          type="button"
+          className={"upload-box upload-box-trigger" + (dragging ? " drag-over" : "")}
+          onClick={() => inputRef.current?.click()}
+          onDragOver={(event) => {
+            event.preventDefault();
+            if (event.dataTransfer.types.includes("Files")) {
+              setDragging(true);
+            }
+          }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={async (event) => {
+            event.preventDefault();
+            setDragging(false);
+            await processFiles(event.dataTransfer.files);
+          }}
+        >
+          {showSummary ? (
+            <>
+              <Check size={18} className="upload-success-icon" />
+              <span>{uploadedCount} 个文件已上传</span>
+            </>
+          ) : (
+            <>
+              <Upload size={18} />
+              <span>{dragging ? "松开以上传" : "上传参考图/视频"}</span>
+            </>
+          )}
+        </button>
+      )}
+      <input
+        ref={inputRef}
+        hidden
+        type="file"
+        accept={ALLOWED_TYPES.join(",")}
+        multiple
+        onChange={(event) => {
+          void processFiles(event.currentTarget.files);
+          event.currentTarget.value = "";
+        }}
+      />
       {uploading && (
-        <div className="upload-progress-bar">
+        <div
+          className="upload-progress-bar"
+          role="progressbar"
+          aria-label="上传进度"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+          aria-valuetext={`${progress}%`}
+        >
           <div className="upload-progress-fill" style={{ width: `${progress}%` }} />
         </div>
       )}

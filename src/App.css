@@ -2953,7 +2953,7 @@ button:disabled {
   font-size: 13px;
 }
 
-.upload-box:hover:not(:disabled) {
+.upload-box-trigger:hover:not(:disabled) {
   border-color: var(--accent-strong);
   box-shadow: 0 2px 12px rgba(212, 137, 28, 0.1);
 }
@@ -2971,6 +2971,12 @@ button:disabled {
   border-color: var(--accent);
   cursor: default;
   background: var(--surface);
+}
+
+.upload-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .upload-cancel-btn {
