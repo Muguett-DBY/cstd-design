@@ -43,9 +43,9 @@
 
 - [x] Review every `MEDIA_BUCKET.put` call and prove all media writes use the shared boundary.
 - [x] Run the complete local release gate: full tests, Functions typecheck, lint, build/budget, audit, install-script audit, secret checks, production binding verification, remote migration check, and diff hygiene.
-- [ ] Stage named files only, scan the staged diff, commit, push `main`, and match local/remote SHAs.
-- [ ] Require exact-SHA GitHub Actions and Cloudflare Pages success plus exact-deployment and custom-domain smoke.
-- [ ] In headed Chromium, upload two disposable files in one selection, verify both listed assets and media responses, then delete every exact QA filename, recheck zero, close the browser, and remove artifacts.
+- [x] Stage named files only, scan the staged diff, commit, push `main`, and match local/remote SHAs.
+- [x] Require exact-SHA GitHub Actions and Cloudflare Pages success plus exact-deployment and custom-domain smoke.
+- [x] In headed Chromium, upload two disposable files in one selection, verify both listed assets and media responses, then delete every exact QA filename, recheck zero, close the browser, and remove artifacts.
 
 ## Pre-release evidence (2026-07-13)
 
@@ -55,3 +55,11 @@
 - Static review finds no endpoint-owned `MEDIA_BUCKET.put`; all three media write paths use the shared boundary.
 - Full local gates passed: 90 Vitest files / 568 tests plus 8 production-smoke harness tests, Functions typecheck, ESLint, production build and chunk budget, high-severity dependency audit, install-script audit, production-secret verification, remote D1 migration check, 406-commit secret scan, and diff hygiene.
 - Local Pages Functions acceptance uploaded two valid PNGs in one request (HTTP 201), verified two listed D1 assets and two readable R2 responses with the expected MIME type and byte count, deleted both assets, confirmed zero remaining QA filenames, logged out the QA session, stopped `workerd`, and released the preview port.
+
+## Release evidence (2026-07-13)
+
+- Implementation commit `86cb6c59ee5321062ad181944d4e979acf160414` was pushed directly to `main`; local `HEAD`, `origin/main`, and `git ls-remote origin refs/heads/main` matched.
+- GitHub Actions run `29235957101` completed successfully in 1m42s. Secret scan, install, all tests, Functions typecheck, lint, build, production-secret verification, D1 migration check, Pages deployment, and deployment verification passed.
+- Cloudflare production deployment `a7c9554a-f9c0-4a98-9c5f-65b41a62380f` published source `86cb6c5` at `https://a7c9554a.cstd-design.pages.dev`. Exact-deployment and `https://design.custard.top` smoke both verified the full commit SHA, anonymous and authenticated boundaries, and disabled production E2E bypass.
+- Headed Chromium sent one real two-file request and received HTTP 201. The exact deployment exposed two D1 assets and two readable `image/png` R2 responses of 677,702 bytes each; both rendered in Assets on desktop and 390 x 844 mobile, with no horizontal overflow, console warnings/errors, or page errors.
+- Production cleanup deleted both exact QA assets, confirmed zero matches across repeated fresh reads, logged out the short-lived QA session with HTTP 200, and removed browser artifacts after screenshot review.
