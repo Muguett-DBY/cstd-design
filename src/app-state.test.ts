@@ -6,6 +6,8 @@ import {
   filterAssets,
   formatBytes,
   initialChatDraft,
+  mergeCommittedAssets,
+  reconcileAssetRefresh,
   readStoredAssetSortMode,
   sortAssets,
   videoPresetToRequest,
@@ -64,6 +66,39 @@ describe("frontend state helpers", () => {
     expect(filterAssets(assets, "image").map((asset) => asset.id)).toEqual(["2"]);
     expect(filterAssets(assets, "video").map((asset) => asset.id)).toEqual(["3"]);
     expect(filterAssets(assets, "all").map((asset) => asset.id)).toEqual(["1", "2", "3"]);
+  });
+
+  test("keeps committed assets visible across a stale list without duplicates", () => {
+    const old: AssetItem = { id: "old", kind: "upload", mediaType: "image/png", filename: "old.png", size: 1, createdAt: "1", url: "/old" };
+    const committedA: AssetItem = { id: "new-a", kind: "upload", mediaType: "image/png", filename: "a.png", size: 2, createdAt: "3", url: "/optimistic-a" };
+    const committedB: AssetItem = { id: "new-b", kind: "upload", mediaType: "image/png", filename: "b.png", size: 3, createdAt: "2", url: "/optimistic-b" };
+    const listedA: AssetItem = { ...committedA, url: "/listed-a", width: 1024 };
+
+    expect(mergeCommittedAssets([old], [committedA, committedB]).map((asset) => asset.id)).toEqual([
+      "new-a",
+      "new-b",
+      "old",
+    ]);
+    const merged = mergeCommittedAssets([old, listedA], [committedA, committedB]);
+    expect(merged.map((asset) => asset.id)).toEqual(["new-a", "new-b", "old"]);
+    expect(merged[0]).toEqual(listedA);
+    expect(mergeCommittedAssets([old], [])).toEqual([old]);
+  });
+
+  test("preserves concurrent committed state only during a write refresh", () => {
+    const old: AssetItem = { id: "old", kind: "upload", mediaType: "image/png", filename: "old.png", size: 1, createdAt: "1", url: "/old" };
+    const concurrent: AssetItem = { id: "concurrent", kind: "upload", mediaType: "image/png", filename: "concurrent.png", size: 2, createdAt: "2", url: "/optimistic-concurrent" };
+    const committed: AssetItem = { id: "committed", kind: "upload", mediaType: "image/png", filename: "committed.png", size: 3, createdAt: "3", url: "/optimistic-committed" };
+    const listedConcurrent: AssetItem = { ...concurrent, url: "/listed-concurrent", width: 1024 };
+
+    expect(reconcileAssetRefresh([concurrent, old], [old], [committed]).map((asset) => asset.id)).toEqual([
+      "committed",
+      "concurrent",
+      "old",
+    ]);
+    const refreshed = reconcileAssetRefresh([concurrent, old], [listedConcurrent, old], [committed]);
+    expect(refreshed[1]).toEqual(listedConcurrent);
+    expect(reconcileAssetRefresh([concurrent, old], [old], [])).toEqual([old]);
   });
 
   test("sorts assets by type with stable secondary ordering", () => {

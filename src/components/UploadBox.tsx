@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Check, RefreshCw, Upload, X } from "lucide-react";
+import type { AssetItem, AssetRefreshCallback } from "../types";
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 const MAX_FILES = 4;
@@ -24,7 +25,7 @@ function uploadWithProgress(
   files: File[],
   onProgress: (percent: number) => void,
   signal?: AbortSignal,
-): Promise<{ assets: { id: string }[] }> {
+): Promise<{ assets: AssetItem[] }> {
   return new Promise((resolve, reject) => {
     const form = new FormData();
     for (const file of files) form.append("files", file);
@@ -63,7 +64,7 @@ function uploadWithProgress(
   });
 }
 
-export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<void>; onNotice: (message: string) => void }) {
+export function UploadBox({ onUploaded, onNotice }: { onUploaded: AssetRefreshCallback; onNotice: (message: string) => void }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -111,12 +112,21 @@ export function UploadBox({ onUploaded, onNotice }: { onUploaded: () => Promise<
       );
       abortRef.current = null;
       setFinalizing(true);
-      const count = result?.assets?.length || validFiles.length;
+      const committedAssets = Array.isArray(result?.assets) ? result.assets : [];
+      const count = committedAssets.length || validFiles.length;
       setUploadedCount(count);
       setShowSummary(true);
       setProgress(100);
-      await onUploaded();
-      onNotice(`${count} 个文件上传成功。`);
+      try {
+        const refreshed = await onUploaded(committedAssets);
+        onNotice(
+          refreshed === false
+            ? `${count} 个文件已上传，但素材列表刷新失败，请稍后重试。`
+            : `${count} 个文件上传成功。`,
+        );
+      } catch {
+        onNotice(`${count} 个文件已上传，但素材列表刷新失败，请稍后重试。`);
+      }
     } catch (error) {
       if (error instanceof Error && error.message === "上传已取消。") {
         onNotice("上传已取消。");

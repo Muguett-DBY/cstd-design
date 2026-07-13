@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { api, onUnauthorized } from "./api";
-import { appendChatEvent, buildActiveBranch, branchLeaves } from "./app-state";
+import { appendChatEvent, buildActiveBranch, branchLeaves, mergeCommittedAssets, reconcileAssetRefresh } from "./app-state";
 import { TABS } from "./constants";
 import type { AssetItem, ChatStreamEvent, ClearScope, ConversationDetail, ConversationSummary, WorkspaceTab } from "./types";
 import {
@@ -236,12 +236,19 @@ function AppInner() {
     setEditingAsset(asset);
   }, []);
 
-  const refreshAssets = useCallback(async () => {
+  const refreshAssets = useCallback(async (committedAssets: AssetItem[] = []) => {
+    if (committedAssets.length > 0) {
+      setAssets((current) => mergeCommittedAssets(current, committedAssets));
+    }
     try {
       const result = await api.assets();
-      setAssets(result.assets);
+      setAssets((current) => reconcileAssetRefresh(current, result.assets, committedAssets));
+      return true;
     } catch (error) {
-      toast(error instanceof Error ? error.message : "请求失败。", "error");
+      if (committedAssets.length === 0) {
+        toast(error instanceof Error ? error.message : "请求失败。", "error");
+      }
+      return false;
     }
   }, [toast]);
 
@@ -619,9 +626,14 @@ function AppInner() {
             try {
               const filename = `edited-${editingAsset.filename}`;
               const file = new File([blob], filename, { type: "image/png" });
-              await api.upload([file]);
-              await refreshAssets();
-              toast("编辑后的图片已保存到素材库。");
+              const result = await api.upload([file]);
+              const refreshed = await refreshAssets(result.assets);
+              toast(
+                refreshed
+                  ? "编辑后的图片已保存到素材库。"
+                  : "编辑后的图片已保存，但素材列表刷新失败，请稍后重试。",
+                refreshed ? "info" : "error",
+              );
               setEditingAsset(null);
             } catch (error) {
               toast(error instanceof Error ? error.message : "保存失败。", "error");

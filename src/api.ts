@@ -120,7 +120,10 @@ export const api = {
     for (const file of files) form.append("files", file);
     return requestJson<{ assets: AssetItem[] }>("/api/uploads", { method: "POST", body: form });
   },
-  assets: (kind = "") => requestJson<{ assets: AssetItem[] }>(`/api/assets${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`),
+  assets: (kind = "") => requestJson<{ assets: AssetItem[] }>(
+    `/api/assets${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`,
+    { cache: "no-store" },
+  ),
   deleteAsset: (id: string) => requestJson<{ ok: true }>(`/api/assets/${id}`, { method: "DELETE" }),
   generateImage: (input: { prompt: string; size: ImageSize; referenceAssetIds: string[] }) =>
     requestJson<{ asset: AssetItem }>("/api/images", { method: "POST", body: JSON.stringify(input) }),

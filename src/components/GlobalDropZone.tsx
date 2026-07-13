@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Upload } from "lucide-react";
 import { api } from "../api";
+import type { AssetRefreshCallback } from "../types";
 import { compressImage, shouldCompress } from "../utils/imageCompression";
 
-export function GlobalDropZone({ onUploaded, onNotice, enabled = true }: { onUploaded: () => Promise<void>; onNotice: (message: string) => void; enabled?: boolean }) {
+export function GlobalDropZone({ onUploaded, onNotice, enabled = true }: { onUploaded: AssetRefreshCallback; onNotice: (message: string) => void; enabled?: boolean }) {
   const [active, setActive] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -43,8 +44,16 @@ export function GlobalDropZone({ onUploaded, onNotice, enabled = true }: { onUpl
           })
         );
         const result = await api.upload(processedFiles);
-        onNotice(`已上传 ${result.assets.length} 个文件。`);
-        await onUploaded();
+        try {
+          const refreshed = await onUploaded(result.assets);
+          onNotice(
+            refreshed === false
+              ? `${result.assets.length} 个文件已上传，但素材列表刷新失败，请稍后重试。`
+              : `已上传 ${result.assets.length} 个文件。`,
+          );
+        } catch {
+          onNotice(`${result.assets.length} 个文件已上传，但素材列表刷新失败，请稍后重试。`);
+        }
       } catch (error) {
         onNotice(error instanceof Error ? error.message : "上传失败。");
       } finally {

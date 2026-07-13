@@ -24,6 +24,28 @@ export function filterAssets(assets: AssetItem[], filter: AssetFilter) {
   return assets.filter((asset) => asset.kind === filter);
 }
 
+export function mergeCommittedAssets(listed: AssetItem[], committed: AssetItem[]) {
+  if (committed.length === 0) return listed;
+
+  const listedById = new Map(listed.map((asset) => [asset.id, asset]));
+  const committedIds = new Set<string>();
+  const committedInOrder: AssetItem[] = [];
+  for (const asset of committed) {
+    if (committedIds.has(asset.id)) continue;
+    committedIds.add(asset.id);
+    committedInOrder.push(listedById.get(asset.id) ?? asset);
+  }
+  return [
+    ...committedInOrder,
+    ...listed.filter((asset) => !committedIds.has(asset.id)),
+  ];
+}
+
+export function reconcileAssetRefresh(current: AssetItem[], listed: AssetItem[], committed: AssetItem[]) {
+  if (committed.length === 0) return listed;
+  return mergeCommittedAssets(listed, mergeCommittedAssets(current, committed));
+}
+
 export type AssetSortMode = "dateDesc" | "dateAsc" | "nameAsc" | "nameDesc" | "sizeDesc" | "sizeAsc" | "kindAsc";
 
 const ASSET_SORT_MODES: readonly AssetSortMode[] = ["dateDesc", "dateAsc", "nameAsc", "nameDesc", "sizeDesc", "sizeAsc", "kindAsc"];

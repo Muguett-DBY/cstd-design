@@ -16,5 +16,5 @@ export async function onRequestGet({ request, env }: PagesContext) {
     filename: publicFilename(String(asset.filename || "")),
     url: `/api/assets/${asset.id}`,
   }));
-  return json({ assets });
+  return json({ assets }, 200, { "Cache-Control": "private, no-store" });
 }

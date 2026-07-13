@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeftRight, Download, Eye, Folder, FolderPlus, Grid, History, LayoutList, List, RefreshCw, Tag, Trash2 } from "lucide-react";
 import { api } from "../api";
 import { assetSortLabel, filterAssets, formatBytes, readStoredAssetSortMode, sortAssets, type AssetSortMode, writeStoredAssetSortMode } from "../app-state";
-import type { AssetFilter, AssetItem } from "../types";
+import type { AssetFilter, AssetItem, AssetRefreshCallback } from "../types";
 import { AssetMeta } from "./AssetMeta";
 import { ClearAllButton } from "./ClearAllButton";
 import { EmptyState } from "./EmptyState";
@@ -21,7 +21,7 @@ export type AssetWorkspaceFilterTarget =
   | { type: "tag"; tag: string; requestId: number }
   | { type: "collection"; collectionId: string; name: string; requestId: number };
 
-export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm, assetFilterTarget, onAssetFilterTargetHandled }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void; assetFilterTarget?: AssetWorkspaceFilterTarget | null; onAssetFilterTargetHandled?: (requestId: number) => void }) {
+export function AssetWorkspace({ assets, onAssetsChanged, onClearAll, onNotice, onPreview, onRequestConfirm, assetFilterTarget, onAssetFilterTargetHandled }: { assets: AssetItem[]; onAssetsChanged: AssetRefreshCallback; onClearAll: () => Promise<void>; onNotice: (message: string) => void; onPreview?: (asset: AssetItem) => void; onRequestConfirm: (title: string, message: string, danger: boolean, onConfirm: () => void) => void; assetFilterTarget?: AssetWorkspaceFilterTarget | null; onAssetFilterTargetHandled?: (requestId: number) => void }) {
   const [filter, setFilter] = useState<AssetFilter>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { BookMarked, CheckCircle2, Clock, Film, Hourglass, RefreshCw, Timer, XCircle } from "lucide-react";
 import { api } from "../api";
 import { filterAssets, imageAssetsForReference, videoPresetToRequest, videoStatusLabel } from "../app-state";
-import type { AssetItem, VideoPreset } from "../types";
+import type { AssetItem, AssetRefreshCallback, VideoPreset } from "../types";
 import { ClearAllButton } from "./ClearAllButton";
 import { ReferencePicker } from "./ReferencePicker";
 import { PreviewRail } from "./PreviewRail";
@@ -36,7 +36,7 @@ function formatElapsed(ms: number): string {
 
 export function VideoWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, videoTask, onVideoTaskChange, submittedPrompt, onSubmittedPromptChange, online, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved, serviceReadiness }: {
   assets: AssetItem[];
-  onAssetsChanged: () => Promise<void>;
+  onAssetsChanged: AssetRefreshCallback;
   onNotice: (message: string) => void;
   onClearAll: () => Promise<void>;
   onPreview?: (asset: AssetItem) => void;

@@ -40,3 +40,17 @@ describe("API unauthorized responses", () => {
     }
   });
 });
+
+describe("asset list requests", () => {
+  test("bypasses browser caches after asset writes", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({ assets: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(api.assets()).resolves.toEqual({ assets: [] });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/assets",
+      expect.objectContaining({ cache: "no-store" }),
+    );
+  });
+});

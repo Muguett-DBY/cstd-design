@@ -3,7 +3,7 @@ import { FileText, ImageIcon, RefreshCw, Save, Sparkles, Trash2 } from "lucide-r
 import { api } from "../api";
 import { filterAssets, imageAssetsForReference, readStoredImageSize } from "../app-state";
 import { usePromptTemplates, expandVariables } from "../hooks/usePromptTemplates";
-import type { AssetItem, ImageSize } from "../types";
+import type { AssetItem, AssetRefreshCallback, ImageSize } from "../types";
 import { ClearAllButton } from "./ClearAllButton";
 import { ReferencePicker } from "./ReferencePicker";
 import { UploadBox } from "./UploadBox";
@@ -28,7 +28,7 @@ const STYLE_PRESETS: { id: string; label: string; prefix: string }[] = [
   { id: "sketch", label: "素描", prefix: "铅笔素描风格，" },
 ];
 
-export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved, serviceReadiness }: { assets: AssetItem[]; onAssetsChanged: () => Promise<void>; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void; onRecordRecovery?: (record: CreationRecoveryInput) => void; initialRecoveryPayload?: ImageGenerationRecipe | null; onRecoveryResolved?: () => void; serviceReadiness?: ServiceReadinessState }) {
+export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, onPreview, online, onRecordUsage, onRecordRecovery, initialRecoveryPayload, onRecoveryResolved, serviceReadiness }: { assets: AssetItem[]; onAssetsChanged: AssetRefreshCallback; onNotice: (message: string) => void; onClearAll: () => Promise<void>; onPreview?: (asset: AssetItem) => void; online: boolean; onRecordUsage?: (type: "image_generated" | "image_edited") => void; onRecordRecovery?: (record: CreationRecoveryInput) => void; initialRecoveryPayload?: ImageGenerationRecipe | null; onRecoveryResolved?: () => void; serviceReadiness?: ServiceReadinessState }) {
   const { getDefaults, setDefault } = useWorkspaceDefaults();
   const defaults = getDefaults("image");
   const [prompt, setPrompt] = useState(() => initialRecoveryPayload?.prompt || "");
@@ -52,6 +52,14 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
     setDefault("image", "style", newStyle);
   };
 
+  const refreshCommittedAssets = async (committedAssets: AssetItem[]) => {
+    try {
+      return (await onAssetsChanged(committedAssets)) !== false;
+    } catch {
+      return false;
+    }
+  };
+
   const generate = async () => {
     setLoading(true);
     const finalPrompt = STYLE_PRESETS.find((s) => s.id === style)?.prefix + prompt;
@@ -61,10 +69,14 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       setLastResult({ url: result.asset.url, filename: result.asset.filename, prompt });
       setPrompt("");
       handleStyleChange("none");
-      await onAssetsChanged();
+      const refreshed = await refreshCommittedAssets([result.asset]);
       onRecordUsage?.("image_generated");
       if (initialRecoveryPayload) onRecoveryResolved?.();
-      onNotice(`图片已保存到素材库：${result.asset.filename}`);
+      onNotice(
+        refreshed
+          ? `图片已保存到素材库：${result.asset.filename}`
+          : "图片已保存，但素材列表刷新失败，请稍后重试。",
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : "图片生成失败。";
       onRecordRecovery?.({
@@ -106,7 +118,8 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
       if (firstSuccess) {
         setLastResult({ url: firstSuccess.value.asset.url, filename: firstSuccess.value.asset.filename, prompt: recipe.prompt });
       }
-      await onAssetsChanged();
+      const committedAssets = results.flatMap((result) => result.status === "fulfilled" ? [result.value.asset] : []);
+      const refreshed = await refreshCommittedAssets(committedAssets);
       if (failedCount > 0) {
         onRecordRecovery?.({
           id: `image-batch-${recipe.prompt}-${recipe.size}-${recipe.count}`,
@@ -116,10 +129,18 @@ export function ImageWorkspace({ assets, onAssetsChanged, onNotice, onClearAll, 
           summary: `成功 ${successCount} 张，失败 ${failedCount} 张`,
           payload: recipe,
         });
-        onNotice(`已生成 ${successCount} 张变体，${failedCount} 张失败。`);
+        onNotice(
+          refreshed
+            ? `已生成 ${successCount} 张变体，${failedCount} 张失败。`
+            : `已生成 ${successCount} 张变体，${failedCount} 张失败；素材列表刷新失败，请稍后重试。`,
+        );
       } else {
         if (initialRecoveryPayload) onRecoveryResolved?.();
-        onNotice(`已生成 ${successCount} 张变体。`);
+        onNotice(
+          refreshed
+            ? `已生成 ${successCount} 张变体。`
+            : `已生成 ${successCount} 张变体，但素材列表刷新失败，请稍后重试。`,
+        );
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "变体生成失败。";

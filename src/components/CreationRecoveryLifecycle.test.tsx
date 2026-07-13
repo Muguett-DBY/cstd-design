@@ -119,6 +119,78 @@ describe("creation recovery lifecycle", () => {
     await waitFor(() => expect(onRecoveryResolved).toHaveBeenCalledOnce());
   });
 
+  test("keeps a committed image successful when the asset refresh reports failure", async () => {
+    const asset = {
+      id: "image-refresh-failed",
+      kind: "image" as const,
+      mediaType: "image/png",
+      filename: "committed.png",
+      size: 1,
+      createdAt: "2026-07-13T00:00:00.000Z",
+      url: "/committed.png",
+    };
+    const onAssetsChanged = vi.fn().mockResolvedValue(false);
+    const onNotice = vi.fn();
+    const onRecordRecovery = vi.fn();
+    vi.mocked(api.generateImage).mockResolvedValue({ asset });
+
+    render(
+      <ImageWorkspace
+        assets={[]}
+        onAssetsChanged={onAssetsChanged}
+        onNotice={onNotice}
+        onClearAll={noopAsync}
+        onRecordRecovery={onRecordRecovery}
+        online
+      />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("描述你想要的画面..."), { target: { value: "一张已提交的图片" } });
+    fireEvent.click(screen.getByRole("button", { name: "生成图片" }));
+
+    await waitFor(() => expect(onAssetsChanged).toHaveBeenCalledWith([asset]));
+    expect(onNotice).toHaveBeenCalledWith("图片已保存，但素材列表刷新失败，请稍后重试。");
+    expect(onNotice).not.toHaveBeenCalledWith("图片已保存到素材库：committed.png");
+    expect(onRecordRecovery).not.toHaveBeenCalled();
+  });
+
+  test("keeps a committed image batch successful when the asset refresh reports failure", async () => {
+    const assets = ["one", "two"].map((id) => ({
+      id,
+      kind: "image" as const,
+      mediaType: "image/png",
+      filename: `${id}.png`,
+      size: 1,
+      createdAt: "2026-07-13T00:00:00.000Z",
+      url: `/${id}.png`,
+    }));
+    const onAssetsChanged = vi.fn().mockResolvedValue(false);
+    const onNotice = vi.fn();
+    const onRecordRecovery = vi.fn();
+    vi.mocked(api.generateImage)
+      .mockResolvedValueOnce({ asset: assets[0] })
+      .mockResolvedValueOnce({ asset: assets[1] });
+
+    render(
+      <ImageWorkspace
+        assets={[]}
+        onAssetsChanged={onAssetsChanged}
+        onNotice={onNotice}
+        onClearAll={noopAsync}
+        onRecordRecovery={onRecordRecovery}
+        online
+      />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("描述你想要的画面..."), { target: { value: "两张已提交的图片" } });
+    fireEvent.click(screen.getByRole("button", { name: "2 张" }));
+
+    await waitFor(() => expect(onAssetsChanged).toHaveBeenCalledWith(assets));
+    expect(onNotice).toHaveBeenCalledWith("已生成 2 张变体，但素材列表刷新失败，请稍后重试。");
+    expect(onNotice).not.toHaveBeenCalledWith("已生成 2 张变体。");
+    expect(onRecordRecovery).not.toHaveBeenCalled();
+  });
+
   test("shows readiness preflight guidance inside image creation", () => {
     render(
       <ImageWorkspace

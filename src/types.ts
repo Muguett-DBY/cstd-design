@@ -46,6 +46,8 @@ export interface AssetItem {
   duration?: number;
 }
 
+export type AssetRefreshCallback = (committedAssets?: AssetItem[]) => Promise<boolean | void>;
+
 export type AssetFilter = "all" | "image" | "video" | "upload";
 export type ImageSize = "1024x1024" | "1024x768" | "768x1024";
 export type VideoPreset = "short" | "standard" | "max";
