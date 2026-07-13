@@ -1,4 +1,5 @@
 import { assetById, json, requireSession, type PagesContext } from "../../_shared/http";
+import { deleteAssetRecord } from "../../_shared/asset-deletion";
 import { contentDisposition, safeMediaType } from "../../_shared/media";
 
 export async function onRequestGet({ request, env, params }: PagesContext) {
@@ -21,9 +22,6 @@ export async function onRequestGet({ request, env, params }: PagesContext) {
 export async function onRequestDelete({ request, env, params }: PagesContext) {
   const auth = await requireSession(request, env);
   if (auth.response) return auth.response;
-  const asset = await assetById(env, String(params.id));
-  if (!asset) return json({ ok: true });
-  await env.MEDIA_BUCKET.delete(asset.object_key);
-  await env.DB.prepare(`DELETE FROM assets WHERE id = ?1`).bind(asset.id).run();
-  return json({ ok: true });
+  const deleted = await deleteAssetRecord(env, String(params.id));
+  return json({ ok: true, cleanupDeferred: deleted.r2Deferred > 0 });
 }

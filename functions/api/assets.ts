@@ -1,9 +1,13 @@
 import { json, requireSession, type PagesContext } from "../_shared/http";
+import { drainAssetDeletionQueue } from "../_shared/asset-deletion";
 import { publicFilename, safeMediaType } from "../_shared/media";
 
-export async function onRequestGet({ request, env }: PagesContext) {
+export async function onRequestGet({ request, env, waitUntil }: PagesContext) {
   const auth = await requireSession(request, env);
   if (auth.response) return auth.response;
+  waitUntil(drainAssetDeletionQueue(env).catch((error) => {
+    console.error("延后素材清理任务执行失败。", error);
+  }));
   const url = new URL(request.url);
   const filter = url.searchParams.get("kind");
   const query = filter

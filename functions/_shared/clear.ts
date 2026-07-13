@@ -1,4 +1,9 @@
 import type { Env } from "./http";
+import {
+  assertD1BatchSucceeded,
+  drainAssetDeletionQueue,
+  prepareAssetKindDeletionQueue,
+} from "./asset-deletion";
 
 export type ClearScope = "chat" | "image" | "video" | "assets" | "all";
 export type AssetKind = "upload" | "image" | "video";
@@ -28,31 +33,42 @@ export async function clearWorkspaceScope(env: Env, scope: ClearScope) {
     assets: 0,
     videoTasks: 0,
     r2Objects: 0,
+    r2Deferred: 0,
   };
+
+  const statements: D1PreparedStatement[] = [];
 
   if (scope === "chat" || scope === "all") {
     result.messages = await countRows(env, "messages");
     result.conversations = await countRows(env, "conversations");
-    await env.DB.batch(chatTablesForClearScope(scope).map((table) => env.DB.prepare(`DELETE FROM ${table}`)));
-    if (scope === "chat") return result;
+    statements.push(...chatTablesForClearScope(scope).map((table) => env.DB.prepare(`DELETE FROM ${table}`)));
   }
 
   if (scope === "video" || scope === "assets" || scope === "all") {
     result.videoTasks = await countRows(env, "video_tasks");
-    await env.DB.prepare(`DELETE FROM video_tasks`).run();
+    statements.push(env.DB.prepare(`DELETE FROM video_tasks`));
   }
 
   const kinds = assetKindsForClearScope(scope);
   const assets = await listAssetsByKind(env, kinds);
   result.assets = assets.length;
-  result.r2Objects = await deleteR2Objects(env, assets.map((asset) => asset.object_key));
 
   if (kinds.length) {
     const placeholders = kinds.map((_, index) => `?${index + 1}`).join(", ");
-    await env.DB.prepare(`DELETE FROM assets WHERE kind IN (${placeholders})`).bind(...kinds).run();
-    return result;
+    statements.push(
+      prepareAssetKindDeletionQueue(env.DB, kinds),
+      env.DB.prepare(`DELETE FROM assets WHERE kind IN (${placeholders})`).bind(...kinds),
+    );
   }
 
+  const batchResults = await env.DB.batch(statements);
+  assertD1BatchSucceeded(batchResults, statements.length);
+
+  if (kinds.length) {
+    const cleanup = await drainAssetDeletionQueue(env, assets.map((asset) => asset.object_key));
+    result.r2Objects = cleanup.r2Objects;
+    result.r2Deferred = cleanup.r2Deferred;
+  }
   return result;
 }
 
@@ -68,12 +84,4 @@ async function listAssetsByKind(env: Env, kinds: AssetKind[]) {
     .bind(...kinds)
     .all<{ id: string; object_key: string }>();
   return result.results || [];
-}
-
-async function deleteR2Objects(env: Env, objectKeys: string[]) {
-  const uniqueKeys = Array.from(new Set(objectKeys.filter(Boolean)));
-  for (let index = 0; index < uniqueKeys.length; index += 100) {
-    await env.MEDIA_BUCKET.delete(uniqueKeys.slice(index, index + 100));
-  }
-  return uniqueKeys.length;
 }
