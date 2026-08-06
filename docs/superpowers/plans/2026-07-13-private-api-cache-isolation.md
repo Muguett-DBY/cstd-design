@@ -12,7 +12,7 @@
 - [x] Pass focused Service Worker, frontend, API helper, and Functions typecheck gates.
 - [x] Pass the full repository test suite, lint, build, dependency, and secret-scan gates.
 - [x] Complete local built Pages browser acceptance for cache isolation, offline API behavior, fresh navigation, and logout cleanup.
-- [ ] Commit and push the exact scope, then close CI, deployment, and production acceptance.
+- [x] Commit and push the exact scope, then close CI, deployment, and production acceptance.
 
 ## Focused verification evidence
 
@@ -24,3 +24,5 @@
 - GREEN: the full repository suite passes 16 Node tests and 594 Vitest tests; lint, Functions typecheck, and production build pass, with the reviewed Mermaid parser chunk remaining within its documented budget exception.
 - GREEN: dependency checks report 0 high-or-higher audit vulnerabilities, the lockfile dry-run succeeds, install scripts match the explicit allowlist, and full-history plus changed-path Gitleaks scans are clean.
 - GREEN: built local Pages browser acceptance confirms authenticated API responses are `no-store` and absent from Cache Storage, offline private API reads return 503/no-store, late legacy caches are removed while unrelated caches survive, the UI reaches the authenticated workspace, 390px has no horizontal overflow, and logout leaves only safe static resources.
+- RELEASED: commit `5d1abd513e0bd5bd8d8c6c560ecd6b83416abe2e` was pushed to `main`; GitHub Actions run `31084885461` completed all secret, test, typecheck, lint, build, migration, deployment, and production-verification steps successfully.
+- RELEASED: the exact deployment `https://96f92e04.cstd-design.pages.dev` and custom domain `https://design.custard.top` pass anonymous session/auth-boundary smoke. The exact deployment also passes real-password browser acceptance for private API cache isolation, offline 503 behavior, mobile layout, and logout cleanup; a clean custom-domain browser context has zero errors or warnings.
