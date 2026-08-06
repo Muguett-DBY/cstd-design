@@ -1,12 +1,42 @@
 import { useCallback, useEffect, useState } from "react";
 
+const APP_CACHE_PREFIX = "cstd-design-";
+const APP_STATIC_CACHE = `${APP_CACHE_PREFIX}static-v2`;
+
+export async function hasCachedAppShell() {
+  if (!("caches" in globalThis)) return false;
+
+  try {
+    return Boolean(await globalThis.caches.match("/", { cacheName: APP_STATIC_CACHE }));
+  } catch {
+    return false;
+  }
+}
+
+export async function clearAppCaches() {
+  if (!("caches" in globalThis)) return;
+
+  const cacheNames = await globalThis.caches.keys();
+  await Promise.all(
+    cacheNames
+      .filter((name) => name.startsWith(APP_CACHE_PREFIX))
+      .map((name) => globalThis.caches.delete(name)),
+  );
+}
+
 export function useServiceWorker() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isOfflineReady, setIsOfflineReady] = useState(false);
 
   useEffect(() => {
+    let mounted = true;
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+    const refreshOfflineReadiness = () => {
+      void hasCachedAppShell().then((ready) => {
+        if (mounted) setIsOfflineReady(ready);
+      });
+    };
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
@@ -18,11 +48,11 @@ export function useServiceWorker() {
           if (registration.installing) {
             registration.installing.addEventListener("statechange", (event) => {
               if ((event.target as ServiceWorker).state === "activated") {
-                setIsOfflineReady(true);
+                refreshOfflineReadiness();
               }
             });
           } else if (registration.active) {
-            setIsOfflineReady(true);
+            refreshOfflineReadiness();
           }
         })
         .catch(() => {
@@ -31,17 +61,15 @@ export function useServiceWorker() {
     }
 
     return () => {
+      mounted = false;
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
   const clearCache = useCallback(async () => {
-    if ("caches" in window) {
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map((name) => caches.delete(name)));
-      setIsOfflineReady(false);
-    }
+    await clearAppCaches();
+    setIsOfflineReady(false);
   }, []);
 
   return { isOnline, isOfflineReady, clearCache };

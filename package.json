@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build && node scripts/verify-build-budget.mjs",
     "lint": "eslint . --max-warnings=0",
     "preview": "vite preview",
-    "test": "node --test scripts/production-smoke.test.mjs scripts/runtime-toolchain.test.mjs && vitest run",
+    "test": "node --test scripts/production-smoke.test.mjs scripts/runtime-toolchain.test.mjs scripts/service-worker.test.mjs && vitest run",
     "test:ui": "vitest --ui",
     "smoke:auth-export": "node scripts/authenticated-export-smoke.mjs",
     "smoke:production": "node scripts/production-smoke.mjs",

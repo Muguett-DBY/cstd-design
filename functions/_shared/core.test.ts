@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { authorizeE2ESessionRequest, requireConfiguredSecrets, requireUpstreamApiKey, sessionCookieShouldBeSecure, type Env } from "./http";
+import { authorizeE2ESessionRequest, json, requireConfiguredSecrets, requireUpstreamApiKey, sessionCookieShouldBeSecure, type Env } from "./http";
 import {
   createPasswordHash,
   createSessionCookie,
@@ -42,6 +42,12 @@ import { buildE2EExportFixture } from "./e2e-fixtures";
 import { AgnesClient } from "./agnes";
 
 describe("security", () => {
+  test("marks JSON API responses as non-cacheable by default", () => {
+    const response = json({ ok: true });
+
+    expect(response.headers.get("Cache-Control")).toBe("no-store");
+  });
+
   test("returns a controlled configuration error for missing auth secrets", async () => {
     const response = requireConfiguredSecrets({
       APP_PASSWORD_HASH: "hash",

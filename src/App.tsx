@@ -42,6 +42,7 @@ import { useCreationRecovery, type CreationRecoveryRecord } from "./hooks/useCre
 import { deriveCreationCenterHighlights } from "./creation-center-model";
 import { useCreationActivity } from "./hooks/useCreationActivity";
 import { useServiceReadiness } from "./hooks/useServiceReadiness";
+import { clearAppCaches } from "./hooks/useServiceWorker";
 import { MessageSquare, Image as ImageIcon, Video, Folder, Hash, Sparkles, Settings, FileText, Keyboard } from "lucide-react";
 
 const ImageWorkspace = lazy(() => import("./components/ImageWorkspace").then((m) => ({ default: m.ImageWorkspace })));
@@ -137,7 +138,10 @@ function AppInner() {
     if (meta) meta.setAttribute("content", colors[theme] || "#fffaf1");
   }, [theme]);
 
-  useEffect(() => onUnauthorized(() => { setAuthenticated(false); }), []);
+  useEffect(() => onUnauthorized(() => {
+    void clearAppCaches().catch(() => undefined);
+    setAuthenticated(false);
+  }), []);
 
   useEffect(() => {
     let touchStartX = 0;
@@ -534,6 +538,7 @@ function AppInner() {
   const handleLogout = async () => {
     try {
       await api.logout();
+      await clearAppCaches().catch(() => undefined);
       setAuthenticated(false);
     } catch (error) { toast(error instanceof Error ? error.message : "请求失败。", "error"); }
   };

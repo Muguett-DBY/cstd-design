@@ -17,12 +17,16 @@ export type PagesContext = EventContext<Env, string, Record<string, string>>;
 export const SESSION_TTL_MS = 31_536_000_000;
 
 export function json(value: unknown, status = 200, headers?: HeadersInit) {
+  const responseHeaders = new Headers(headers);
+  if (!responseHeaders.has("Content-Type")) {
+    responseHeaders.set("Content-Type", "application/json; charset=utf-8");
+  }
+  if (!responseHeaders.has("Cache-Control")) {
+    responseHeaders.set("Cache-Control", "no-store");
+  }
   return new Response(JSON.stringify(value), {
     status,
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      ...headers,
-    },
+    headers: responseHeaders,
   });
 }
 
