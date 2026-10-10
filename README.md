@@ -1,8 +1,25 @@
-# CSTD Design
+<!-- Project artwork created for this repository. -->
+<p align="center">
+  <img src="./docs/assets/readme-banner.svg" width="100%" alt="CSTD Design — A small studio for conversations, images and ideas." />
+</p>
+
+<h1 align="center">CSTD Design</h1>
+
+<p align="center">
+  <img src="./docs/assets/readme-badges.svg" alt="Personal studio · React · TypeScript · Cloudflare Pages · D1 / R2" />
+</p>
 
 **A personal AI studio for chat, image generation, video experiments, and saved media.**
 
-`React` · `TypeScript` · `Cloudflare Pages` · `D1 / R2`
+<p align="center"><a href="#inside-the-studio">Inside the studio</a> &nbsp; · &nbsp; <a href="#run-locally">Run locally</a> &nbsp; · &nbsp; <a href="#development">Development</a></p>
+
+
+<p align="center">
+  <img src="./docs/assets/interface.png" width="100%" alt="A saved local workspace screenshot with an empty conversation. The app interface is primarily Chinese." />
+</p>
+
+<sub>A saved local workspace screenshot with an empty conversation. The app interface is primarily Chinese.</sub>
+
 
 ## Inside the studio
 
